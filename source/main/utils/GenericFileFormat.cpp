@@ -1061,28 +1061,28 @@ void GenericDocument::saveToDataStream(Ogre::DataStreamPtr datastream)
             datastream->write(separator.data(), separator.size());
             pool_str = string_pool.data() + (size_t)tok.data;
             datastream->write(pool_str, strlen(pool_str));
-            separator = ",";
+            separator = ", ";
             break;
 
         case TokenType::FLOAT:
             datastream->write(separator.data(), separator.size());
-            snprintf(buf, BUF_MAX, "%f", tok.data);
+            snprintf(buf, BUF_MAX, "%g", tok.data);
             datastream->write(buf, strlen(buf));
-            separator = ",";
+            separator = ", ";
             break;
 
         case TokenType::INT:
             datastream->write(separator.data(), separator.size());
             snprintf(buf, BUF_MAX, "%d", (int)tok.data);
             datastream->write(buf, strlen(buf));
-            separator = ",";
+            separator = ", ";
             break;
 
         case TokenType::BOOL:
             datastream->write(separator.data(), separator.size());
             snprintf(buf, BUF_MAX, "%s", tok.data == 1.f ? "true" : "false");
             datastream->write(buf, strlen(buf));
-            separator = ",";
+            separator = ", ";
             break;
 
         case TokenType::KEYWORD:

@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include "Application.h"
 #include "ForwardDeclarations.h"
 #include "SimConstants.h"
 #include "BitFlags.h"
@@ -51,14 +52,6 @@ enum CollisionEventFilter: short
     EVENT_TRUCK_WHEELS,      //!< 'truck_wheels' ~ Triggered only by wheel nodes of land vehicle (`ActorType::TRUCK`)
     EVENT_AIRPLANE,          //!< 'airplane' ~ Triggered by any node of airplane (`ActorType::AIRPLANE`)
     EVENT_BOAT,              //!< 'boat' ~ Triggered by any node of boats (`ActorType::BOAT`)
-};
-
-enum class ExtCameraMode
-{
-    INVALID = -1,
-    CLASSIC = 0,
-    CINECAM = 1,
-    NODE    = 2,
 };
 
 
@@ -101,10 +94,10 @@ enum ActorType //!< Aka 'Driveable'
 /// @addtogroup Physics
 /// @{
 
-enum SpecialBeam: short
+enum SpecialBeam: short //!< aka 'bounded'
 {
     NOSHOCK,        //!< not a shock
-    SHOCK1,         //!< shock1
+    SHOCK1,         //!< either 'shock1' (with flag `BEAM_HYDRO`) or a wheel beam
     SHOCK2,         //!< shock2
     SHOCK3,         //!< shock3
     TRIGGER,        //!< trigger
@@ -225,25 +218,6 @@ enum EngineTriggerType
     TRG_ENGINE_SHIFTDOWN = 5 
 };
 
-enum class FlareType: char
-{
-    NONE           = 0,
-    // Front lights
-    HEADLIGHT      = 'f',
-    HIGH_BEAM      = 'h',
-    FOG_LIGHT      = 'g',
-    // Rear lighs
-    TAIL_LIGHT     = 't',
-    BRAKE_LIGHT    = 'b',
-    REVERSE_LIGHT  = 'R',
-    // Special lights
-    SIDELIGHT      = 's',
-    BLINKER_LEFT   = 'l',
-    BLINKER_RIGHT  = 'r',
-    USER           = 'u',
-    DASHBOARD      = 'd'
-};
-
 /// @addtogroup Aerial
 /// @{
 
@@ -313,11 +287,12 @@ struct node_t
     bool            nd_has_ground_contact:1; //!< Physics state
     bool            nd_has_mesh_contact:1;   //!< Physics state
     bool            nd_immovable:1;          //!< Attr; User-defined
-    bool            nd_loaded_mass:1;        //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'
+    bool            nd_loaded_mass:1;        //!< User-defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass' - set by etiher 'set_node_defaults' (loadweight >=0) or 'nodes' (option 'l')
     bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
     bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
     bool            nd_under_water:1;        //!< State; GFX hint
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
+    bool            nd_cinecam_node:1;       //!< Attr; User-defined
 
     Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
@@ -358,6 +333,7 @@ struct beam_t
 
     float           initial_beam_strength = 0.f; //!< for reset
     float           default_beam_deform = 0.f;   //!< for reset
+    float           default_beam_diameter = 0.f; //!< for export only
 
     float           debug_k = 0.f;               //!< debug shock spring_rate
     float           debug_d = 0.f;               //!< debug shock damping
@@ -397,6 +373,9 @@ struct shock_t
 
     float sbd_spring;           //!< set beam default for spring
     float sbd_damp;             //!< set beam default for damping
+    float sbd_break;            //!< set beam default for breaking threshold
+
+    float shock_precompression; //!< Only for export
 };
 
 struct collcab_rate_t
@@ -419,25 +398,16 @@ struct soundsource_t
 
 struct wheel_t
 {
-    enum class BrakeCombo /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
-    {
-        NONE,                 //!< - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
-        FOOT_HAND,            //!< - 1 = yes footbrake, yes handbrake, no  direction control
-        FOOT_HAND_SKID_LEFT,  //!< - 2 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
-        FOOT_HAND_SKID_RIGHT, //!< - 3 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
-        FOOT_ONLY             //!< - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
-    };
-
     int         wh_num_nodes;
     node_t*     wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
     int         wh_num_rim_nodes;
     node_t*     wh_rim_nodes[50];         // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
-    BrakeCombo  wh_braking;
+    WheelBraking wh_braking;
     node_t*     wh_arm_node;
     node_t*     wh_near_attach_node;
     node_t*     wh_axis_node_0;
     node_t*     wh_axis_node_1;
-    int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
+    WheelPropulsion wh_propulsed;
     Ogre::Real  wh_radius;
     Ogre::Real  wh_rim_radius;
     Ogre::Real  wh_speed;             //!< Current wheel speed in m/s
@@ -451,6 +421,19 @@ struct wheel_t
     float       wh_net_rp;
     float       wh_width;
     bool        wh_is_detached;
+
+    // Editing & Export (not used in simulation)
+    RigDef::Keyword wh_arg_keyword;
+    int             wh_arg_num_rays;
+    NodeNum_t       wh_arg_rigidity_node;
+    float           wh_arg_rim_spring;      //!< Not used by 'wheels' (1) and 'meshwheels' (1).
+    float           wh_arg_rim_damping;     //!< Not used by 'wheels' (1) and 'meshwheels' (1).
+    float           wh_arg_simple_spring;   //!< Whole wheel or just tire, depending on type.
+    float           wh_arg_simple_damping;  //!< Whole wheel or just tire, depending on type.
+    WheelSide       wh_arg_side;            //!< Only for 'meshwheels*' and 'flexbodywheels'
+    std::string     wh_arg_media1;
+    std::string     wh_arg_media2;
+    int             wh_beam_start;          //!< BeamID to export 'set_beam_defaults' parameters from.
 
     // Debug
     float debug_rpm;
@@ -584,14 +567,14 @@ struct command_t
     RoR::CmdKeyInertia command_inertia;
 };
 
-struct hydrobeam_t
+struct hydrobeam_t //!< beams updating length based on simulation variables, generally known as actuators.
 {
-    uint16_t hb_beam_index; //!< Index to Actor::ar_beams array
-    float    hb_ref_length; //!< Idle length in meters
-    float    hb_speed;      //!< Rate of change
-    int      hb_flags;
-    int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
-    float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
+    uint16_t  hb_beam_index{0}; //!< Index to Actor::ar_beams array
+    float     hb_ref_length{0}; //!< Idle length in meters
+    float     hb_speed{0};      //!< Rate of change
+    BitMask_t hb_flags{0};      //!< Only for 'hydros'
+    BitMask_t hb_anim_flags{0}; //!< Only for 'animators' 
+    float     hb_anim_param{0}; //!< Only for 'animators'
     RoR::CmdKeyInertia  hb_inertia;
 };
 

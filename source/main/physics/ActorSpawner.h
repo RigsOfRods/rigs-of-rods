@@ -280,8 +280,8 @@ private:
         unsigned int reserve_nodes,
         unsigned int reserve_beams,
         float wheel_radius,
-        RigDef::WheelPropulsion propulsion,
-        RigDef::WheelBraking braking,
+        WheelPropulsion propulsion,
+        WheelBraking braking,
         std::shared_ptr<RigDef::NodeDefaults> node_defaults,
         float wheel_mass,
         float wheel_width = -1.f);
@@ -295,8 +295,6 @@ private:
     unsigned int                  AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-    WheelID_t                     AddWheel(RigDef::Wheel & wheel);
-    WheelID_t                     AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
     void                          GetWheelAxisNodes(RigDef::BaseWheel& def, node_t*& out_node_1, node_t*& out_node_2);
     void                          AddExhaust(NodeNum_t emitter_node_idx, NodeNum_t direction_node_idx);
     RailGroup*                    CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
@@ -308,7 +306,6 @@ private:
     /// @{
     void                          CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def);    
     void                          UpdateCollcabContacterNodes();
-    wheel_t::BrakeCombo           TranslateBrakingDef(RigDef::WheelBraking def);
     void                          WashCalculator();
     void                          AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults); //!< For user-defined nodes
     void                          AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults); //!< For generated nodes
@@ -374,7 +371,7 @@ private:
 
     /// @name Visual setup
     /// @{
-    void                          CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
+    void                          CreateBeamVisuals(beam_t& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
     void                          CreateWheelSkidmarks(WheelID_t wheel_index);
     void                          FinalizeGfxSetup();
     Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name, const std::string& mat_lookup_rg);

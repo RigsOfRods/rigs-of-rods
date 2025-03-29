@@ -37,11 +37,26 @@ void NodeBeamUtils::Draw()
         this->SetVisible(false);
         return;
     }
+    const bool is_project = actor->getUsedActorEntry()->resource_bundle_type != "Zip";
+
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiCond_FirstUseEver);
-    const int flags = ImGuiWindowFlags_NoCollapse;
+    int flags = ImGuiWindowFlags_NoCollapse;
+    if (is_project)
+    {
+        flags |= ImGuiWindowFlags_MenuBar;
+    }
     bool keep_open = true;
     ImGui::Begin(_LC("NodeBeamUtils", "Node/Beam Utils"), &keep_open, flags);
+
+    if (!is_project)
+    {
+        this->DrawCreateProjectBanner(actor, keep_open);
+    }
+    else
+    {
+        this->DrawMenubar(actor);
+    }
 
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
     float ref_mass = actor->ar_initial_total_mass;
@@ -73,15 +88,87 @@ void NodeBeamUtils::Draw()
         actor->applyNodeBeamScales();
     }
     ImGui::Separator();
+    
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Wheels:"));
-    if (ImGui::SliderFloat("Spring##Wheels", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f, "%.5f"))
+    const float WBASE_WIDTH = 125.f;
+    const float WSCALE_WIDTH = 225.f;
+    const float WLABEL_GAP = 20.f;
+    // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
+    
+    // wheel spring
+    ImGui::SetNextItemWidth(WBASE_WIDTH);
+    if (ImGui::InputFloat("Base##wheels-spring", &actor->ar_wheels[0].wh_arg_simple_spring))
     {
         actor->applyNodeBeamScales();
     }
-    if (ImGui::SliderFloat("Damping##Wheels", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f, "%.5f"))
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(WSCALE_WIDTH);
+    if (ImGui::SliderFloat("Scale##Wheels-spring", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f, "%.5f"))
     {
         actor->applyNodeBeamScales();
     }
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
+    ImGui::Text("Spring (%.2f)", actor->ar_nb_wheels_scale.first * actor->ar_wheels[0].wh_arg_simple_spring);
+
+    // wheel damping
+    ImGui::SetNextItemWidth(WBASE_WIDTH);
+    if (ImGui::InputFloat("Base##wheels-damping", &actor->ar_wheels[0].wh_arg_simple_damping))
+    {
+        actor->applyNodeBeamScales();
+    }
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(WSCALE_WIDTH);
+    if (ImGui::SliderFloat("Scale##Wheels-damping", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f, "%.5f"))
+    {
+        actor->applyNodeBeamScales();
+    }
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
+    ImGui::Text("Damping (%.2f)", actor->ar_nb_wheels_scale.second* actor->ar_wheels[0].wh_arg_simple_damping);
+    
+    // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
+    if (actor->ar_wheels[0].wh_arg_keyword == RigDef::Keyword::WHEELS2
+        || actor->ar_wheels[0].wh_arg_keyword == RigDef::Keyword::MESHWHEELS2
+        || actor->ar_wheels[0].wh_arg_keyword == RigDef::Keyword::FLEXBODYWHEELS)
+    {
+        ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Wheels (separate rim):"));
+
+
+        // wheel rim spring
+        ImGui::SetNextItemWidth(WBASE_WIDTH);
+        if (ImGui::InputFloat("Base##wheels-spring-rim", &actor->ar_wheels[0].wh_arg_rim_spring))
+        {
+            actor->applyNodeBeamScales();
+        }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(WSCALE_WIDTH);
+        if (ImGui::SliderFloat("Scale##Wheels-spring-rim", &actor->ar_nb_wheelrims_scale.first, 0.1f, 10.0f, "%.5f"))
+        {
+            actor->applyNodeBeamScales();
+        }
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
+        ImGui::Text("Spring (%.2f)", actor->ar_nb_wheelrims_scale.first * actor->ar_wheels[0].wh_arg_rim_spring);
+
+        // wheel damping
+        ImGui::SetNextItemWidth(WBASE_WIDTH);
+        if (ImGui::InputFloat("Base##wheels-damping-rim", &actor->ar_wheels[0].wh_arg_rim_damping))
+        {
+            actor->applyNodeBeamScales();
+        }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(WSCALE_WIDTH);
+        if (ImGui::SliderFloat("Scale##Wheels-damping-rim", &actor->ar_nb_wheelrims_scale.second, 0.1f, 10.0f, "%.5f"))
+        {
+            actor->applyNodeBeamScales();
+        }
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
+        ImGui::Text("Damping (%.2f)", actor->ar_nb_wheelrims_scale.second * actor->ar_wheels[0].wh_arg_rim_damping);
+
+    }
+
     ImGui::Separator();
     ImGui::Spacing();
     if (ImGui::Button(_LC("NodeBeamUtils", "Reset to default settings"), ImVec2(280.f, 25.f)))
@@ -192,5 +279,78 @@ void NodeBeamUtils::SetVisible(bool v)
     if (!v)
     {
         m_is_searching = false;
+    }
+}
+
+void NodeBeamUtils::DrawCreateProjectBanner(ActorPtr actor, bool& window_open)
+{
+    // Show [[ "read only files - create writeable project?" ]] banner.
+    // If [yes], unpack the project files, unload current actor and show hint box.
+    // ---------------------------------------------------------------------------
+
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
+    // Draw a banner
+    const ImVec2 PAD(3, 3);
+    ImVec2 cursor = ImGui::GetCursorScreenPos();
+    ImVec2 rect_min =  cursor - PAD;
+    ImVec2 rect_max = cursor + PAD + ImVec2(ImGui::GetWindowContentRegionMax().x, ImGui::GetTextLineHeightWithSpacing());
+    ImGui::GetWindowDrawList()->AddRectFilled(rect_min, rect_max, ImColor(theme.tip_panel_bg_color));
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(_LC("NodeBeamUtils", "This mod is read only (ZIP archive)"));
+    ImGui::SameLine();
+    if (ImGui::Button(_LC("NodeBeamUtils", "Create writable project (if not existing)")))
+    {
+        // Unzip the mod
+        RoR::CreateProjectRequest* req = new RoR::CreateProjectRequest();
+        req->cpr_name = "nbutil_" + actor->getUsedActorEntry()->fname_without_uid;
+        req->cpr_description = "Node/Beam Utils project for " + actor->getUsedActorEntry()->dname;
+        req->cpr_source_entry = actor->getUsedActorEntry();
+        req->cpr_type = RoR::CreateProjectRequestType::ACTOR_PROJECT;
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_CREATE_PROJECT_REQUESTED, req));
+
+        // Show a message box "please load the project"
+        // - it cannot be loaded automatically because it's not in modcache yet so there's no way to locate it.
+        RoR::GUI::MessageBoxConfig* box = new RoR::GUI::MessageBoxConfig();
+        box->mbc_title = _LC("NodeBeamUtils", "Project created");
+        box->mbc_text = fmt::format(_LC("NodeBeamUtils", "Project created successfully as \n\"{}\"\n\nPlease load it and open the N/B utility again"), req->cpr_name);
+        box->mbc_allow_close = true;
+        App::GetGameContext()->ChainMessage(Message(MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED, box));
+
+        // Unload current actor
+        App::GetGameContext()->ChainMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(actor)));
+
+        window_open = false;
+    }
+    ImGui::Dummy(ImVec2(1.f, 6.f));
+}
+
+void NodeBeamUtils::DrawMenubar(ActorPtr actor)
+{
+    if (ImGui::BeginMenuBar())
+    {
+        ImGui::TextDisabled(_LC("NodeBeamUtils", "Project:"));
+        ImGui::SameLine();
+        ImGui::Text("%s", actor->getUsedActorEntry()->dname.c_str());
+        ImGui::SameLine();
+        if (ImGui::SmallButton(_LC("NodeBeamUtils", "Save and reload")))
+        {
+            RoR::ModifyProjectRequest* req = new RoR::ModifyProjectRequest();
+            req->mpr_type = RoR::ModifyProjectRequestType::ACTOR_UPDATE_DEF_DOCUMENT;
+            req->mpr_target_actor = actor;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+        }
+        if (ImGui::BeginMenu(_LC("NodeBeamUtils", "Export options")))
+        {
+            ImGui::Checkbox(_LC("NodeBeamUtils", "Override all node masses"), &actor->ar_nb_export_override_all_node_masses);
+            ImGui::TextDisabled(_LC("NodeBeamUtils", "Gives all nodes the 'l' flag and weight override parameter.\nThis is the only way to propagate the slider setting to the truck file."));
+            ImGui::Separator();
+            ImGui::Checkbox(_LC("NodeBeamUtils", "Reduce dry mass by node mass overrides"), &actor->ar_nb_export_reduce_drymass_by_nodemass_overrides);
+            ImGui::TextDisabled(_LC("NodeBeamUtils", "When converting node from calculated-mass to override-mass, reduce dry mass accordingly."));
+            ImGui::EndMenu();
+        }
+        
+
+        ImGui::EndMenuBar();
     }
 }

@@ -1658,7 +1658,7 @@ void RoR::GfxActor::UpdateRods()
         Ogre::Vector3 pos2 = nodes2[rod.rod_node2].AbsPosition;
 
         // Classic method
-        float beam_diameter = static_cast<float>(rod.rod_diameter_mm) * 0.001;
+        float beam_diameter = rod.rod_diameter;
         float beam_length = pos1.distance(pos2);
 
         rod.rod_scenenode->setPosition(pos1.midPoint(pos2));
@@ -1715,8 +1715,7 @@ void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
 {
     for (BeamGfx& rod: m_gfx_beams)
     {
-        float diameter2 = static_cast<float>(rod.rod_diameter_mm) * (ratio*1000.f);
-        rod.rod_diameter_mm = static_cast<uint16_t>(diameter2);
+        rod.rod_diameter *= ratio;
     }
 
     // props and stuff
