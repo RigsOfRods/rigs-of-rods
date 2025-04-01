@@ -680,12 +680,13 @@ void Actor::recalculateNodeMasses()
         }
     }
     //average linear density
+    // Note this uses the reference (initial) length, so it should give consistent results.
     Real len = 0.0f;
     for (int i = 0; i < ar_num_beams; i++)
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_newlen = ar_beams[i].L / 2.0;
+            Real half_newlen = ar_beams[i].refL / 2.0;
             if (!ar_beams[i].p1->nd_tyre_node)
                 len += half_newlen;
             if (!ar_beams[i].p2->nd_tyre_node)
@@ -697,7 +698,7 @@ void Actor::recalculateNodeMasses()
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_mass = ar_beams[i].L * ar_dry_mass / len / 2.0f;
+            Real half_mass = ar_beams[i].refL * ar_dry_mass / len / 2.0f;
             if (!ar_beams[i].p1->nd_tyre_node)
                 ar_beams[i].p1->mass += half_mass;
             if (!ar_beams[i].p2->nd_tyre_node)
