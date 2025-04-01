@@ -75,12 +75,6 @@ Parser::Parser()
 
 void Parser::ProcessCurrentLine()
 {
-    // Ignore comment lines
-    if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
-    {
-        return;
-    }
-
     // First line in file (except blanks or comments) is the actor name
     if (m_definition->name == "" && m_current_line != "")
     {
@@ -229,6 +223,24 @@ void Parser::ProcessCurrentLine()
             return;
     }
 
+    // Block extent tracking - assumes single 'nodes[2]' and 'beams' block in file.
+    if ((keyword == Keyword::NODES || keyword == Keyword::NODES2) && m_current_module->_hint_nodes12_start_linenumber == -1)
+    {
+        m_current_module->_hint_nodes12_start_linenumber = (int)m_current_line_number;
+    }
+    else if (keyword == Keyword::BEAMS && m_current_module->_hint_beams_start_linenumber == -1)
+    {
+        m_current_module->_hint_beams_start_linenumber = (int)m_current_line_number;
+    }
+    else if (m_current_module->_hint_nodes12_end_linenumber == -1)
+    {
+        m_current_module->_hint_nodes12_start_linenumber = (int)m_current_line_number - 1;
+    }
+    else if (m_current_module->_hint_beams_end_linenumber == -1)
+    {
+        m_current_module->_hint_beams_start_linenumber = (int)m_current_line_number - 1;
+    }
+
     // Parse current block, if any
     m_log_keyword = m_current_block;
     switch (m_current_block)
@@ -339,6 +351,7 @@ void Parser::ParseWing()
     if (m_num_args > 21)         { wing.efficacy_coef   = this->GetArgFloat       (21); }
 
     m_current_module->wings.push_back(wing);
+    this->FlushPendingDocComment(m_current_module->wings.size(), RigDef::Keyword::WINGS);
 }
 
 void Parser::ParseSetCollisionRange()
@@ -349,6 +362,7 @@ void Parser::ParseSetCollisionRange()
     cr.node_collision_range = this->GetArgFloat(1);
 
     m_current_module->set_collision_range.push_back(cr);
+    this->FlushPendingDocComment(m_current_module->set_collision_range.size(), RigDef::Keyword::SET_COLLISION_RANGE);
 }
 
 void Parser::ParseWheel2()
@@ -383,6 +397,7 @@ void Parser::ParseWheel2()
     }
 
     m_current_module->wheels2.push_back(wheel_2);
+    this->FlushPendingDocComment(m_current_module->wheels2.size(), RigDef::Keyword::WHEELS2);
 }
 
 void Parser::ParseWheel()
@@ -414,6 +429,7 @@ void Parser::ParseWheel()
     }
 
     m_current_module->wheels.push_back(wheel);
+    this->FlushPendingDocComment(m_current_module->wheels.size(), RigDef::Keyword::WHEELS);
 }
 
 void Parser::ParseWheelDetachers()
@@ -426,6 +442,7 @@ void Parser::ParseWheelDetachers()
     wheeldetacher.detacher_group = this->GetArgInt(1);
 
     m_current_module->wheeldetachers.push_back(wheeldetacher);
+    this->FlushPendingDocComment(m_current_module->wheeldetachers.size(), RigDef::Keyword::WHEELDETACHERS);
 }
 
 void Parser::ParseTractionControl()
@@ -472,6 +489,7 @@ void Parser::ParseTractionControl()
     }
 
     m_current_module->tractioncontrol.push_back(tc);
+    this->FlushPendingDocComment(m_current_module->tractioncontrol.size(), RigDef::Keyword::TRACTIONCONTROL);
 }
 
 void Parser::ParseTransferCase()
@@ -487,6 +505,7 @@ void Parser::ParseTransferCase()
     for (int i = 4; i < m_num_args; i++) { tc.gear_ratios.push_back(this->GetArgFloat(i)); }
 
     m_current_module->transfercase.push_back(tc);
+    this->FlushPendingDocComment(m_current_module->transfercase.size(), RigDef::Keyword::TRANSFERCASE);
 }
 
 void Parser::ParseSubmeshGroundModel()
@@ -494,6 +513,7 @@ void Parser::ParseSubmeshGroundModel()
     if (!this->CheckNumArguments(2)) { return; } // Items: keyword, arg
 
     m_current_module->submesh_groundmodel.push_back(this->GetArgStr(1));
+    this->FlushPendingDocComment(m_current_module->submesh_groundmodel.size(), RigDef::Keyword::SUBMESH_GROUNDMODEL);
 }
 
 void Parser::ParseSpeedLimiter()
@@ -505,6 +525,7 @@ void Parser::ParseSpeedLimiter()
     sl.max_speed = this->GetArgFloat(1);
 
     m_current_module->speedlimiter.push_back(sl);
+    this->FlushPendingDocComment(m_current_module->speedlimiter.size(), RigDef::Keyword::SPEEDLIMITER);
 }
 
 void Parser::ParseSetSkeletonSettings()
@@ -687,6 +708,7 @@ void Parser::ParseMeshWheel()
     }
 
     m_current_module->meshwheels.push_back(mesh_wheel);
+    this->FlushPendingDocComment(m_current_module->meshwheels.size(), RigDef::Keyword::MESHWHEELS);
 }
 
 void Parser::ParseMeshWheel2()
@@ -702,6 +724,7 @@ void Parser::ParseMeshWheel2()
     }
 
     m_current_module->meshwheels2.push_back(mesh_wheel);
+    this->FlushPendingDocComment(m_current_module->meshwheels2.size(), RigDef::Keyword::MESHWHEELS2);
 }
 
 void Parser::ParseHook()
@@ -740,6 +763,7 @@ void Parser::ParseHook()
     }
 
     m_current_module->hooks.push_back(hook);
+    this->FlushPendingDocComment(m_current_module->hooks.size(), RigDef::Keyword::HOOKS);
 }
 
 void Parser::ParseHelp()
@@ -758,6 +782,7 @@ void Parser::ParseGuiSettings()
     gs.value = this->GetArgStr(1);
 
     m_current_module->guisettings.push_back(gs);
+    this->FlushPendingDocComment(m_current_module->guisettings.size(), RigDef::Keyword::GUISETTINGS);
 }
 
 void Parser::ParseGuid()
@@ -768,6 +793,7 @@ void Parser::ParseGuid()
     g.guid = this->GetArgStr(1);
 
     m_current_module->guid.push_back(g);
+    this->FlushPendingDocComment(m_current_module->guid.size(), RigDef::Keyword::GUID);
 }
 
 void Parser::ParseGlobals()
@@ -781,6 +807,7 @@ void Parser::ParseGlobals()
     if (m_num_args > 2) { globals.material_name = this->GetArgStr(2); }
 
     m_current_module->globals.push_back(globals);
+    this->FlushPendingDocComment(m_current_module->globals.size(), RigDef::Keyword::GLOBALS);
 }
 
 void Parser::ParseFusedrag()
@@ -808,6 +835,7 @@ void Parser::ParseFusedrag()
     }
 
     m_current_module->fusedrag.push_back(fusedrag);
+    this->FlushPendingDocComment(m_current_module->fusedrag.size(), RigDef::Keyword::FUSEDRAG);
 }
 
 void Parser::ParseDirectiveFlexbodyCameraMode()
@@ -841,6 +869,7 @@ void Parser::ParseCab()
     if (m_num_args > 3) cab.options = this->GetArgCabOptions(3);
 
     m_current_submesh->cab_triangles.push_back(cab);
+    this->FlushPendingDocComment(m_current_submesh->cab_triangles.size(), RigDef::Keyword::CAB);
 }
 
 void Parser::ParseTexcoords()
@@ -859,6 +888,7 @@ void Parser::ParseTexcoords()
     texcoord.v    = this->GetArgFloat  (2);
 
     m_current_submesh->texcoords.push_back(texcoord);
+    this->FlushPendingDocComment(m_current_submesh->texcoords.size(), RigDef::Keyword::TEXCOORDS);
 }
 
 void Parser::ParseFlexbody()
@@ -878,6 +908,7 @@ void Parser::ParseFlexbody()
     flexbody.mesh_name      = this->GetArgStr     (9);
 
     m_current_module->flexbodies.push_back(flexbody);
+    this->FlushPendingDocComment(m_current_module->flexbodies.size(), RigDef::Keyword::FLEXBODIES);
 }
 
 void Parser::ParseDirectiveForset()
@@ -974,6 +1005,7 @@ void Parser::ParseFlaresUnified()
     if (m_num_args > pos) { flare2.material_name     = this->GetArgStr      (pos++); }
 
     m_current_module->flares2.push_back(flare2);
+    this->FlushPendingDocComment(m_current_module->flares2.size(), RigDef::Keyword::FLARES2);
 }
 
 void Parser::ParseFlares3()
@@ -1007,6 +1039,7 @@ void Parser::ParseFlares3()
     if (m_num_args > 10) { flare3.material_name    = this->GetArgStr      (10); }
 
     m_current_module->flares3.push_back(flare3);
+    this->FlushPendingDocComment(m_current_module->flares3.size(), RigDef::Keyword::FLARES3);
 }
 
 void Parser::ParseFixes()
@@ -1023,6 +1056,7 @@ void Parser::ParseExtCamera()
     if (m_num_args > 2) { extcam.node = this->GetArgNodeRef(2); }
 
     m_current_module->extcamera.push_back(extcam);
+    this->FlushPendingDocComment(m_current_module->extcamera.size(), RigDef::Keyword::EXTCAMERA);
 }
 
 void Parser::ParseExhaust()
@@ -1037,6 +1071,7 @@ void Parser::ParseExhaust()
     if (m_num_args > 3) { exhaust.particle_name = this->GetArgStr(3); }
 
     m_current_module->exhausts.push_back(exhaust);
+    this->FlushPendingDocComment(m_current_module->exhausts.size(), RigDef::Keyword::EXHAUSTS);
 }
 
 void Parser::ParseFileFormatVersion()
@@ -1059,6 +1094,7 @@ void Parser::ParseDirectiveDefaultSkin()
     std::replace(data.skin_name.begin(), data.skin_name.end(), '_', ' ');
 
     m_current_module->default_skin.push_back(data);
+    this->FlushPendingDocComment(m_current_module->default_skin.size(), RigDef::Keyword::DEFAULT_SKIN);
 }
 
 void Parser::ParseDirectiveDetacherGroup()
@@ -1084,6 +1120,7 @@ void Parser::ParseCruiseControl()
     cruise_control.autobrake = this->GetArgInt(2);
 
     m_current_module->cruisecontrol.push_back(cruise_control);
+    this->FlushPendingDocComment(m_current_module->cruisecontrol.size(), RigDef::Keyword::CRUISECONTROL);
 }
 
 void Parser::ParseDescription()
@@ -1309,6 +1346,7 @@ void Parser::ParseAntiLockBrakes()
     }
 
     m_current_module->antilockbrakes.push_back(alb);
+    this->FlushPendingDocComment(m_current_module->antilockbrakes.size(), RigDef::Keyword::ANTILOCKBRAKES);
 }
 
 void Parser::ParseEngoption()
@@ -1330,6 +1368,7 @@ void Parser::ParseEngoption()
     if (m_num_args > 10){ engoption.braking_torque   = this->GetArgFloat(10);}
 
     m_current_module->engoption.push_back(engoption);
+    this->FlushPendingDocComment(m_current_module->engoption.size(), RigDef::Keyword::ENGOPTION);
 }
 
 void Parser::ParseEngturbo()
@@ -1360,6 +1399,7 @@ void Parser::ParseEngturbo()
     }
 
     m_current_module->engturbo.push_back(engturbo);
+    this->FlushPendingDocComment(m_current_module->engturbo.size(), RigDef::Keyword::ENGTURBO);
 }
 
 void Parser::ParseEngine()
@@ -1392,6 +1432,7 @@ void Parser::ParseEngine()
     }
 
     m_current_module->engine.push_back(engine);
+    this->FlushPendingDocComment(m_current_module->engine.size(), RigDef::Keyword::ENGINE);
 }
 
 void Parser::ParseContacter()
@@ -1399,6 +1440,7 @@ void Parser::ParseContacter()
     if (! this->CheckNumArguments(1)) { return; }
 
     m_current_module->contacters.push_back(this->GetArgNodeRef(0));
+    this->FlushPendingDocComment(m_current_module->contacters.size(), RigDef::Keyword::CONTACTERS);
 }
 
 void Parser::ParseCommandsUnified()
@@ -1498,6 +1540,7 @@ void Parser::ParseCommandsUnified()
     if (m_num_args > pos) { command2.plays_sound   = this->GetArgBool (pos++);}
 
     m_current_module->commands2.push_back(command2);
+    this->FlushPendingDocComment(m_current_module->commands2.size(), RigDef::Keyword::COMMANDS2);
 }
 
 void Parser::ParseCollisionBox()
@@ -1512,6 +1555,7 @@ void Parser::ParseCollisionBox()
     }
 
     m_current_module->collisionboxes.push_back(collisionbox);
+    this->FlushPendingDocComment(m_current_module->collisionboxes.size(), RigDef::Keyword::COLLISIONBOXES);
 }
 
 void Parser::ParseCinecam()
@@ -1552,6 +1596,7 @@ void Parser::ParseCinecam()
     }
 
     m_current_module->cinecam.push_back(cinecam);
+    this->FlushPendingDocComment(m_current_module->cinecam.size(), RigDef::Keyword::CINECAM);
 }
 
 void Parser::ParseCameraRails()
@@ -1570,6 +1615,7 @@ void Parser::ParseBrakes()
         brakes.parking_brake_force = this->GetArgFloat(1);
     }
     m_current_module->brakes.push_back(brakes);
+    this->FlushPendingDocComment(m_current_module->brakes.size(), RigDef::Keyword::BRAKES);
 }
 
 void Parser::ParseAxles()
@@ -1601,6 +1647,7 @@ void Parser::ParseAxles()
     }
 
     m_current_module->axles.push_back(axle);
+    this->FlushPendingDocComment(m_current_module->axles.size(), RigDef::Keyword::AXLES);
 }
 
 void Parser::ParseInterAxles()
@@ -1627,6 +1674,7 @@ void Parser::ParseInterAxles()
     }
 
     m_current_module->interaxles.push_back(interaxle);
+    this->FlushPendingDocComment(m_current_module->interaxles.size(), RigDef::Keyword::INTERAXLES);
 }
 
 void Parser::ParseAirbrakes()
@@ -1650,6 +1698,7 @@ void Parser::ParseAirbrakes()
     airbrake.texcoord_y2           = this->GetArgFloat  (13);
 
     m_current_module->airbrakes.push_back(airbrake);
+    this->FlushPendingDocComment(m_current_module->airbrakes.size(), Keyword::AIRBRAKES);
 }
 
 void Parser::ParseAssetpacks()
@@ -1661,6 +1710,7 @@ void Parser::ParseAssetpacks()
     assetpack.filename = this->GetArgStr(0);
 
     m_current_module->assetpacks.push_back(assetpack);
+    this->FlushPendingDocComment(m_current_module->assetpacks.size(), Keyword::ASSETPACKS);
 }
 
 void Parser::ParseVideoCamera()
@@ -1692,6 +1742,7 @@ void Parser::ParseVideoCamera()
     if (m_num_args > 19) { videocamera.camera_name = this->GetArgStr(19); }
 
     m_current_module->videocameras.push_back(videocamera);
+    this->FlushPendingDocComment(m_current_module->videocameras.size(), Keyword::VIDEOCAMERA);
 }
 
 void Parser::ParseCameras()
@@ -1704,6 +1755,7 @@ void Parser::ParseCameras()
     camera.left_node   = this->GetArgNodeRef(2);
 
     m_current_module->cameras.push_back(camera);
+    this->FlushPendingDocComment(m_current_module->cameras.size(), Keyword::CAMERAS);
 }
 
 void Parser::ParseTurbopropsUnified()
@@ -1734,6 +1786,7 @@ void Parser::ParseTurbopropsUnified()
     turboprop.airfoil            = this->GetArgStr    (7 + offset);
     
     m_current_module->turboprops2.push_back(turboprop);
+    this->FlushPendingDocComment(m_current_module->turboprops2.size(), Keyword::TURBOPROPS2);
 }
 
 void Parser::ParseTurbojets()
@@ -1752,6 +1805,7 @@ void Parser::ParseTurbojets()
     turbojet.nozzle_length  = this->GetArgFloat  (8);
 
     m_current_module->turbojets.push_back(turbojet);
+    this->FlushPendingDocComment(m_current_module->turbojets.size(), Keyword::TURBOJETS);
 }
 
 void Parser::ParseTriggers()
@@ -1771,6 +1825,7 @@ void Parser::ParseTriggers()
     if (m_num_args > 7) trigger.boundary_timer = this->GetArgFloat(7);
 
     m_current_module->triggers.push_back(trigger);
+    this->FlushPendingDocComment(m_current_module->triggers.size(), Keyword::TRIGGERS);
 }
 
 void Parser::ParseTorqueCurve()
@@ -1844,6 +1899,7 @@ void Parser::ParseTies()
     if (m_num_args > 7) { tie.group        =  this->GetArgInt   (7); }
 
     m_current_module->ties.push_back(tie);
+    this->FlushPendingDocComment(m_current_module->ties.size(), Keyword::TIES);
 }
 
 void Parser::ParseSoundsources()
@@ -1855,6 +1911,7 @@ void Parser::ParseSoundsources()
     soundsource.sound_script_name = this->GetArgStr(1);
 
     m_current_module->soundsources.push_back(soundsource);
+    this->FlushPendingDocComment(m_current_module->soundsources.size(), Keyword::SOUNDSOURCES);
 }
 
 void Parser::ParseSoundsources2()
@@ -1874,6 +1931,7 @@ void Parser::ParseSoundsources2()
     }
 
     m_current_module->soundsources2.push_back(soundsource2);
+    this->FlushPendingDocComment(m_current_module->soundsources2.size(), Keyword::SOUNDSOURCES2);
 }
 
 void Parser::ParseSlidenodes()
@@ -1952,6 +2010,7 @@ void Parser::ParseSlidenodes()
     }
     
     m_current_module->slidenodes.push_back(slidenode);
+    this->FlushPendingDocComment(m_current_module->slidenodes.size(), Keyword::SLIDENODES);
 }
 
 void Parser::ParseShock3()
@@ -1981,6 +2040,7 @@ void Parser::ParseShock3()
     if (m_num_args > 15) shock_3.options = this->GetArgShock3Options(15);
 
     m_current_module->shocks3.push_back(shock_3);
+    this->FlushPendingDocComment(m_current_module->shocks3.size(), Keyword::SHOCKS3);
 }
 
 void Parser::ParseShock2()
@@ -2008,6 +2068,7 @@ void Parser::ParseShock2()
     if (m_num_args > 13) shock_2.options = this->GetArgShock2Options(13);
 
     m_current_module->shocks2.push_back(shock_2);
+    this->FlushPendingDocComment(m_current_module->shocks2.size(), Keyword::SHOCKS2);
 }
 
 void Parser::ParseShock()
@@ -2028,6 +2089,7 @@ void Parser::ParseShock()
     if (m_num_args > 7) shock.options = this->GetArgShockOptions(7);
 
     m_current_module->shocks.push_back(shock);
+    this->FlushPendingDocComment(m_current_module->shocks.size(), Keyword::SHOCKS);
 }
 
 Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
@@ -2127,6 +2189,7 @@ void Parser::ParseScrewprops()
     screwprop.power     = this->GetArgFloat  (3);
 
     m_current_module->screwprops.push_back(screwprop);
+    this->FlushPendingDocComment(m_current_module->screwprops.size(), Keyword::SCREWPROPS);
 }
 
 void Parser::ParseScripts()
@@ -2138,6 +2201,7 @@ void Parser::ParseScripts()
     script.filename = this->GetArgStr(0);
 
     m_current_module->scripts.push_back(script);
+    this->FlushPendingDocComment(m_current_module->scripts.size(), Keyword::SCRIPTS);
 }
 
 void Parser::ParseRotatorsUnified()
@@ -2180,10 +2244,12 @@ void Parser::ParseRotatorsUnified()
     if (m_current_block == Keyword::ROTATORS2)
     {
         m_current_module->rotators2.push_back(rotator);
+        this->FlushPendingDocComment(m_current_module->rotators2.size(), Keyword::ROTATORS2);
     }
     else
     {
         m_current_module->rotators.push_back(rotator);
+        this->FlushPendingDocComment(m_current_module->rotators.size(), Keyword::ROTATORS);
     }
 }
 
@@ -2217,6 +2283,7 @@ void Parser::ParseRopes()
     if (m_num_args > 2) { rope.invisible  = (this->GetArgChar(2) == 'i'); }
 
     m_current_module->ropes.push_back(rope);
+    this->FlushPendingDocComment(m_current_module->ropes.size(), Keyword::ROPES);
 }
 
 void Parser::ParseRopables()
@@ -2230,6 +2297,7 @@ void Parser::ParseRopables()
     if (m_num_args > 2) { ropable.has_multilock = (this->GetArgInt(2) == 1); }
 
     m_current_module->ropables.push_back(ropable);
+    this->FlushPendingDocComment(m_current_module->ropables.size(), Keyword::ROPABLES);
 }
 
 void Parser::ParseRailGroups()
@@ -2247,6 +2315,7 @@ void Parser::ParseRailGroups()
     }
 
     m_current_module->railgroups.push_back(railgroup);
+    this->FlushPendingDocComment(m_current_module->railgroups.size(), Keyword::RAILGROUPS);
 }
 
 void Parser::ParseProps()
@@ -2287,6 +2356,7 @@ void Parser::ParseProps()
     }
 
     m_current_module->props.push_back(prop);
+    this->FlushPendingDocComment(m_current_module->props.size(), Keyword::PROPS);
 }
 
 void Parser::ParsePistonprops()
@@ -2306,7 +2376,7 @@ void Parser::ParsePistonprops()
     pistonprop.airfoil            = this->GetArgStr         (9);
 
     m_current_module->pistonprops.push_back(pistonprop);
-
+    this->FlushPendingDocComment(m_current_module->pistonprops.size(), Keyword::PISTONPROPS);
 }
 
 void Parser::ParseParticles()
@@ -2319,6 +2389,7 @@ void Parser::ParseParticles()
     particle.particle_system_name = this->GetArgStr    (2);
 
     m_current_module->particles.push_back(particle);
+    this->FlushPendingDocComment(m_current_module->particles.size(), Keyword::PARTICLES);
 }
 
 // Static
@@ -2404,6 +2475,7 @@ void Parser::ParseNodesUnified()
     }
 
     m_current_module->nodes.push_back(node);
+    this->FlushPendingDocComment(m_current_module->nodes.size(), Keyword::NODES);
 }
 
 void Parser::ParseMinimass()
@@ -2452,6 +2524,7 @@ void Parser::ParseFlexBodyWheel()
     }
 
     m_current_module->flexbodywheels.push_back(flexbody_wheel);
+    this->FlushPendingDocComment(m_current_module->flexbodywheels.size(), Keyword::FLEXBODYWHEELS);
 }
 
 void Parser::ParseMaterialFlareBindings()
@@ -2463,6 +2536,7 @@ void Parser::ParseMaterialFlareBindings()
     binding.material_name = this->GetArgStr(1);
     
     m_current_module->materialflarebindings.push_back(binding);
+    this->FlushPendingDocComment(m_current_module->materialflarebindings.size(), Keyword::MATERIALFLAREBINDINGS);
 }
 
 void Parser::ParseManagedMaterials()
@@ -2493,6 +2567,7 @@ void Parser::ParseManagedMaterials()
         }
 
         m_current_module->managedmaterials.push_back(managed_mat);
+        this->FlushPendingDocComment(m_current_module->managedmaterials.size(), Keyword::MANAGEDMATERIALS);
     }
 }
 
@@ -2509,6 +2584,7 @@ void Parser::ParseLockgroups()
     }
     
     m_current_module->lockgroups.push_back(lockgroup);
+    this->FlushPendingDocComment(m_current_module->lockgroups.size(), Keyword::LOCKGROUPS);
 }
 
 void Parser::ParseHydros()
@@ -2534,6 +2610,7 @@ void Parser::ParseHydros()
     this->ParseOptionalInertia(hydro.inertia, 4);
 
     m_current_module->hydros.push_back(hydro);
+    this->FlushPendingDocComment(m_current_module->hydros.size(), Keyword::HYDROS);
 }
 
 void Parser::ParseOptionalInertia(Inertia & inertia, int index)
@@ -2590,6 +2667,7 @@ void Parser::ParseBeams()
     }
 
     m_current_module->beams.push_back(beam);
+    this->FlushPendingDocComment(m_current_module->beams.size(), Keyword::BEAMS);
 }
 
 void Parser::ParseAnimator()
@@ -2680,6 +2758,7 @@ void Parser::ParseAnimator()
     }
 
     m_current_module->animators.push_back(animator);
+    this->FlushPendingDocComment(m_current_module->animators.size(), Keyword::ANIMATORS);
 }
 
 void Parser::ParseAuthor()
@@ -2693,6 +2772,7 @@ void Parser::ParseAuthor()
     if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
 
     m_current_module->author.push_back(author);
+    this->FlushPendingDocComment(m_current_module->author.size(), Keyword::AUTHOR);
     m_current_block = Keyword::INVALID;
 }
 
@@ -2837,6 +2917,20 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
     }
 }
 
+void Parser::FlushPendingDocComment(size_t vectorlen, RigDef::Keyword keyword)
+{
+    if (m_pending_doc_comment.comment_text == "" || vectorlen == 0)
+    {
+        return;
+    }
+
+    m_pending_doc_comment.commented_keyword = keyword;
+    m_pending_doc_comment.commented_datapos = static_cast<int>(vectorlen - 1);
+    m_current_module->_comments.push_back(m_pending_doc_comment);
+
+    m_pending_doc_comment = DocComment();
+}
+
 void Parser::ParseDirectiveSection()
 {
     this->ProcessChangeModuleLine(Keyword::SECTION);
@@ -2923,7 +3017,7 @@ Node::Ref Parser::GetArgRigidityNode(int index)
     return Node::Ref(); // Defaults to invalid ref
 }
 
-WheelPropulsion Parser::GetArgPropulsion(int index)
+RoR::WheelPropulsion Parser::GetArgPropulsion(int index)
 {
     int p = this->GetArgInt(index);
     switch (p)
@@ -2940,7 +3034,7 @@ WheelPropulsion Parser::GetArgPropulsion(int index)
     }
 }
 
-WheelBraking Parser::GetArgBraking(int index)
+RoR::WheelBraking Parser::GetArgBraking(int index)
 {
     int b = this->GetArgInt(index);
     switch (b)
@@ -3120,6 +3214,7 @@ BitMask_t Parser::GetArgCabOptions(int index)
     {
         switch (c)
         {
+            case (char)CabOption::n_DUMMY: break;
             case (char)CabOption::c_CONTACT:              ret |= Cab::OPTION_c_CONTACT             ; break;
             case (char)CabOption::b_BUOYANT:              ret |= Cab::OPTION_b_BUOYANT             ; break;
             case (char)CabOption::p_10xTOUGHER:           ret |= Cab::OPTION_p_10xTOUGHER          ; break;
@@ -3428,7 +3523,8 @@ void Parser::ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_g
     {
         try
         {
-            stream->readLine(raw_line_buf, LINE_BUFFER_LENGTH);
+            stream->readLine(raw_line_buf, LINE_BUFFER_LENGTH - 1); // Ensure we don't overflow
+            raw_line_buf[LINE_BUFFER_LENGTH - 1] = '\0'; // Null-terminate the buffer
         }
         catch (Ogre::Exception &ex)
         {
@@ -3452,9 +3548,18 @@ void Parser::ProcessRawLine(const char* raw_line_buf)
         ++raw_start;
     }
 
-    // Skip empty/comment lines
-    if ((raw_start == raw_end) || (*raw_start == ';') || (*raw_start == '/'))
+    // Skip empty lines
+    if (raw_start == raw_end)
     {
+        ++m_current_line_number;
+        return;
+    }
+
+    // Record comment lines
+    if ((*raw_start == ';') || (*raw_start == '/'))
+    {
+        m_pending_doc_comment.comment_text += raw_line_buf;
+        m_pending_doc_comment.comment_text += '\n';
         ++m_current_line_number;
         return;
     }

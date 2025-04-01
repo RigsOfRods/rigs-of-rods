@@ -40,6 +40,11 @@ private:
     bool m_is_searching = false;
 
     const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+
+    void DrawCreateProjectBanner(ActorPtr actor, bool& window_open);
+    void DrawMenubar(ActorPtr actor);
+    void DrawMassTab(ActorPtr actor);
+    void DrawNodeBeamTab(ActorPtr actor);
 };
 
 } // namespace GUI
