@@ -68,6 +68,7 @@ FlexBody* FlexFactory::CreateFlexBody(
     Ogre::Vector3 offset,
     Ogre::Vector3 rotation, 
     std::vector<unsigned int> & node_indices,
+    std::vector<ForvertTempData>& forvert_data,
     const std::string& mesh_name,
     const std::string& resource_group_name)
 {
@@ -100,7 +101,8 @@ FlexBody* FlexFactory::CreateFlexBody(
         y_node,
         offset,
         rot,
-        node_indices);
+        node_indices,
+        forvert_data);
 
     if (m_is_flexbody_cache_enabled)
     {
