@@ -1523,7 +1523,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
         return;
     }
 
-    // Collect nodes
+    // Collect 'forset' nodes
     std::vector<unsigned int> node_indices;
     bool nodes_found = true;
     for (auto& node_def: def.node_list)
@@ -1535,6 +1535,34 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
             break;
         }
         node_indices.push_back(node);
+    }
+
+    // Resolve 'forvert' nodes
+    std::vector<ForvertTempData> forverts_tmp;
+    for (size_t i = 0; i < def.forvert.size(); i++)
+    {
+        const auto& forvert_item = def.forvert[i];
+        ForvertTempData fvtd;
+        fvtd.vert_index = forvert_item.vert_index;
+        fvtd.nref = this->ResolveNodeRef(forvert_item.node_ref);
+        fvtd.nx = this->ResolveNodeRef(forvert_item.node_x);
+        fvtd.ny = this->ResolveNodeRef(forvert_item.node_y);
+        if (fvtd.nref == NODENUM_INVALID || fvtd.nx == NODENUM_INVALID || fvtd.ny == NODENUM_INVALID)
+        {
+            // Note: although the `RigDef::Node::Ref` was designed to handle numbered/named nodes transparently,
+            //       here we assume nobody will use named nodes with 'forvert' as they're unpopular due to many bugs.
+            this->AddMessage(Message::TYPE_ERROR,
+                fmt::format("Flexbody {}({}) 'forvert'{}/{}: Some nodes not resolved (nref {}->{}, nx {}->{}, ny {}->{}).",
+                    i, def.forvert.size(), (int)flexbody_id, def.mesh_name,
+                    forvert_item.node_ref.Num(), fvtd.nref != NODENUM_INVALID,
+                    forvert_item.node_x.Num(), fvtd.nx != NODENUM_INVALID,
+                    forvert_item.node_y.Num(), fvtd.ny != NODENUM_INVALID
+                    ));
+        }
+        else
+        {
+            forverts_tmp.push_back(fvtd);
+        }
     }
 
     if (! nodes_found)
@@ -1557,6 +1585,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
             TuneupUtil::getTweakedFlexbodyOffset(m_actor->getWorkingTuneupDef(), flexbody_id, def.offset),
             TuneupUtil::getTweakedFlexbodyRotation(m_actor->getWorkingTuneupDef(), flexbody_id, def.rotation),
             node_indices,
+            forverts_tmp,
             TuneupUtil::getTweakedFlexbodyMedia(m_actor->getWorkingTuneupDef(), flexbody_id, 0, def.mesh_name),
             TuneupUtil::getTweakedFlexbodyMediaRG(m_actor->getWorkingTuneupDef(), flexbody_id, 0, this->GetCurrentElementMediaRG())
         );
@@ -5215,6 +5244,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
     {
         node_indices.push_back( node_base_index + i );
     }
+    std::vector<ForvertTempData> forverts;
 
     try
     {
@@ -5226,6 +5256,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
             Ogre::Vector3(0.5f, 0.5f, 0.f),
             Ogre::Vector3(0.f, 0.f, 0.f),
             node_indices,
+            forverts,
             tire_mesh_name,
             tire_mesh_rg
             );

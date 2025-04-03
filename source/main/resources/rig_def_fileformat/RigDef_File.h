@@ -112,6 +112,7 @@ enum class Keyword
     FLEXBODY_CAMERA_MODE,
     FLEXBODYWHEELS,
     FORSET,
+    FORVERT,
     FORWARDCOMMANDS,
     FUSEDRAG,
     GLOBALS,
@@ -899,6 +900,15 @@ struct FlaregroupNoImport
     int control_number = -1; //!< Only 'u' type flares.
 };
 
+/// Manually specified (vert => node) bindings for flexbody deformation (overrides 'forset').
+struct Forvert
+{
+    Node::Ref node_ref;
+    Node::Ref node_x;
+    Node::Ref node_y;
+    int vert_index{ 0 };
+};
+
 struct Flexbody
 {
     Node::Ref reference_node;
@@ -910,6 +920,7 @@ struct Flexbody
     std::list<Animation> animations;
     std::vector<Node::Range> node_list_to_import;
     std::vector<Node::Ref> node_list;
+    std::vector<Forvert> forvert;
     CameraSettings camera_settings;
 };
 

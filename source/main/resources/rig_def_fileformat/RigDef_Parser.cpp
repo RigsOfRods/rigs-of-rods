@@ -163,6 +163,9 @@ void Parser::ProcessCurrentLine()
         case Keyword::FORSET:
             this->ParseDirectiveForset();
             return;
+        case Keyword::FORVERT:
+            this->ParseDirectiveForvert();
+            return;
         case Keyword::GUID:
             this->ParseGuid();
             return;
@@ -889,6 +892,25 @@ void Parser::ParseDirectiveForset()
     }
 
     Parser::ProcessForsetLine(m_current_module->flexbodies.back(), m_current_line, m_current_line_number);
+}
+
+void Parser::ParseDirectiveForvert()
+{
+    if (m_current_module->flexbodies.size() == 0)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forvert': no matching flexbody!");
+        return;
+    }
+
+    if (!this->CheckNumArguments(5)) { return; }
+
+    Forvert forvert;
+    forvert.node_ref = this->GetArgNodeRef(1);
+    forvert.node_x = this->GetArgNodeRef(2);
+    forvert.node_y = this->GetArgNodeRef(3);
+    forvert.vert_index = this->GetArgInt(4);
+
+    m_current_module->flexbodies.back().forvert.push_back(forvert);
 }
 
 void Parser::ProcessForsetLine(RigDef::Flexbody& def, const std::string& _line, int line_number /*= -1*/)
