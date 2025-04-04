@@ -902,15 +902,24 @@ void Parser::ParseDirectiveForvert()
         return;
     }
 
-    if (!this->CheckNumArguments(5)) { return; }
+    if (!this->CheckNumArguments(6)) { return; }
 
-    Forvert forvert;
+    Forvert forvert; // The temp object.
+    forvert.line_number = m_current_line_number;
     forvert.node_ref = this->GetArgNodeRef(1);
     forvert.node_x = this->GetArgNodeRef(2);
     forvert.node_y = this->GetArgNodeRef(3);
-    forvert.vert_index = this->GetArgInt(4);
+    if (this->GetArgStr(4) != "verts")
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forvert': missing 'verts' portion.");
+        return;
+    }
 
-    m_current_module->flexbodies.back().forvert.push_back(forvert);
+    for (int i = 5; i < m_num_args; i++)
+    {
+        forvert.vert_index = this->GetArgInt(i); // Update the temp object
+        m_current_module->flexbodies.back().forvert.push_back(forvert); // Copy the temp object
+    }
 }
 
 void Parser::ProcessForsetLine(RigDef::Flexbody& def, const std::string& _line, int line_number /*= -1*/)

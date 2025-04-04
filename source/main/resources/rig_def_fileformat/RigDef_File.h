@@ -907,6 +907,7 @@ struct Forvert
     Node::Ref node_x;
     Node::Ref node_y;
     int vert_index{ 0 };
+    int line_number{ 0 }; // If multiple verts are given on single 'forvert' line, multiple `Forvert` entries are inserted.
 };
 
 struct Flexbody
