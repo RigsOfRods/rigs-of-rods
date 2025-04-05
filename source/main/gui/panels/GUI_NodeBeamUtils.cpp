@@ -307,16 +307,6 @@ void NodeBeamUtils::DrawMenubar(ActorPtr actor)
             req->mpr_target_actor = actor;
             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
         }
-        if (ImGui::BeginMenu(_LC("NodeBeamUtils", "Export options")))
-        {
-            ImGui::Checkbox(_LC("NodeBeamUtils", "Override all node masses"), &actor->ar_nb_export_override_all_node_masses);
-            ImGui::TextDisabled(_LC("NodeBeamUtils", "Gives all nodes the 'l' flag and weight override parameter.\nThis is the only way to propagate the slider setting to the truck file."));
-            ImGui::Separator();
-            ImGui::Checkbox(_LC("NodeBeamUtils", "Reduce dry mass by node mass overrides"), &actor->ar_nb_export_reduce_drymass_by_nodemass_overrides);
-            ImGui::TextDisabled(_LC("NodeBeamUtils", "When converting node from calculated-mass to override-mass, reduce dry mass accordingly."));
-            ImGui::EndMenu();
-        }
-        
 
         ImGui::EndMenuBar();
     }
