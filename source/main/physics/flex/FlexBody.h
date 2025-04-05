@@ -54,7 +54,8 @@ class FlexBody
         NodeNum_t ny,
         Ogre::Vector3 offset,
         Ogre::Quaternion const & rot, 
-        std::vector<unsigned int> & node_indices
+        std::vector<unsigned int>& node_indices,
+        std::vector<ForvertTempData>& forvert_data
     );
 
 public:

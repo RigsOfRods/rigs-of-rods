@@ -56,6 +56,7 @@ private:
     bool show_vertices = false;
     bool hide_other_elements = false;
     std::vector<bool> show_locator;
+    int hovered_vert = -1;
 
     // Flexbody and prop selection combobox
     std::string m_combo_items; //!< Flexbodies come first, props second

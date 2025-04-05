@@ -99,6 +99,7 @@ private:
     void ParseDirectiveDetacherGroup();
     void ParseDirectiveFlexbodyCameraMode();
     void ParseDirectiveForset();
+    void ParseDirectiveForvert();
     void ParseDirectivePropCameraMode();
     void ParseDirectiveSection();
     void ParseDirectiveSectionConfig();

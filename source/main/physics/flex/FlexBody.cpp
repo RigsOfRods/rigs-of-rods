@@ -44,7 +44,8 @@ FlexBody::FlexBody(
     NodeNum_t ny,
     Ogre::Vector3 offset,
     Ogre::Quaternion const & rot,
-    std::vector<unsigned int> & node_indices
+    std::vector<unsigned int> & node_indices,
+    std::vector<ForvertTempData>& forvert_data
 ):
       m_center_offset(offset)
     , m_node_center(ref)
@@ -372,77 +373,93 @@ FlexBody::FlexBody(
         m_locators = new Locator_t[m_vertex_count];
         for (int i=0; i<(int)m_vertex_count; i++)
         {
-            //search nearest node as the local origin
-            float closest_node_distance = std::numeric_limits<float>::max();
-            int closest_node_index = -1;
-            for (auto node_index : node_indices)
+            // Is this locator is manually specified via directive 'forvert'?
+            auto forvert_itor = std::find_if(forvert_data.begin(), forvert_data.end(),
+                [i](const ForvertTempData& data) { return data.vert_index == i; });
+            if (forvert_itor != forvert_data.end())
             {
-                float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
-                if (node_distance < closest_node_distance)
-                {
-                    closest_node_distance = node_distance;
-                    closest_node_index = node_index;
-                }
+                m_locators[i].ref = forvert_itor->nref;
+                m_locators[i].nx = forvert_itor->nx;
+                m_locators[i].ny = forvert_itor->ny;
+                m_locators[i].is_forvert = true;
+                LOG(fmt::format("FLEXBODY vertex {} overriden for nodes REF:{}, VX:{}, VY:{}",
+                    i, m_locators[i].ref, m_locators[i].nx, m_locators[i].ny));
             }
-            if (closest_node_index == -1)
+            else
             {
-                LOG("FLEXBODY ERROR on mesh "+mesh_name+": REF node not found");
-                closest_node_index = 0;
-            }
-            m_locators[i].ref=closest_node_index;
 
-            //search the second nearest node as the X vector
-            closest_node_distance = std::numeric_limits<float>::max();
-            closest_node_index = -1;
-            for (auto node_index : node_indices)
-            {
-                if (node_index == m_locators[i].ref)
+                //search nearest node as the local origin
+                float closest_node_distance = std::numeric_limits<float>::max();
+                int closest_node_index = -1;
+                for (auto node_index : node_indices)
                 {
-                    continue;
-                }
-                float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
-                if (node_distance < closest_node_distance)
-                {
-                    closest_node_distance = node_distance;
-                    closest_node_index = node_index;
-                }
-            }
-            if (closest_node_index == -1)
-            {
-                LOG("FLEXBODY ERROR on mesh "+mesh_name+": VX node not found");
-                closest_node_index = 0;
-            }
-            m_locators[i].nx=closest_node_index;
-
-            //search another close, orthogonal node as the Y vector
-            closest_node_distance = std::numeric_limits<float>::max();
-            closest_node_index = -1;
-            Vector3 vx = (nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
-            for (auto node_index : node_indices)
-            {
-                if (node_index == m_locators[i].ref || node_index == m_locators[i].nx)
-                {
-                    continue;
-                }
-                float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
-                if (node_distance < closest_node_distance)
-                {
-                    Vector3 vt = (nodes[node_index].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
-                    float cost = vx.dotProduct(vt);
-                    if (std::abs(cost) > std::sqrt(2.0f) / 2.0f)
+                    float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
+                    if (node_distance < closest_node_distance)
                     {
-                        continue; //rejection, fails the orthogonality criterion (+-45 degree)
+                        closest_node_distance = node_distance;
+                        closest_node_index = node_index;
                     }
-                    closest_node_distance = node_distance;
-                    closest_node_index = node_index;
                 }
+                if (closest_node_index == -1)
+                {
+                    LOG("FLEXBODY ERROR on mesh " + mesh_name + ": REF node not found");
+                    closest_node_index = 0;
+                }
+                m_locators[i].ref = closest_node_index;
+
+                //search the second nearest node as the X vector
+                closest_node_distance = std::numeric_limits<float>::max();
+                closest_node_index = -1;
+                for (auto node_index : node_indices)
+                {
+                    if (node_index == m_locators[i].ref)
+                    {
+                        continue;
+                    }
+                    float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
+                    if (node_distance < closest_node_distance)
+                    {
+                        closest_node_distance = node_distance;
+                        closest_node_index = node_index;
+                    }
+                }
+                if (closest_node_index == -1)
+                {
+                    LOG("FLEXBODY ERROR on mesh " + mesh_name + ": VX node not found");
+                    closest_node_index = 0;
+                }
+                m_locators[i].nx = closest_node_index;
+
+                //search another close, orthogonal node as the Y vector
+                closest_node_distance = std::numeric_limits<float>::max();
+                closest_node_index = -1;
+                Vector3 vx = (nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
+                for (auto node_index : node_indices)
+                {
+                    if (node_index == m_locators[i].ref || node_index == m_locators[i].nx)
+                    {
+                        continue;
+                    }
+                    float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
+                    if (node_distance < closest_node_distance)
+                    {
+                        Vector3 vt = (nodes[node_index].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
+                        float cost = vx.dotProduct(vt);
+                        if (std::abs(cost) > std::sqrt(2.0f) / 2.0f)
+                        {
+                            continue; //rejection, fails the orthogonality criterion (+-45 degree)
+                        }
+                        closest_node_distance = node_distance;
+                        closest_node_index = node_index;
+                    }
+                }
+                if (closest_node_index == -1)
+                {
+                    LOG("FLEXBODY ERROR on mesh " + mesh_name + ": VY node not found");
+                    closest_node_index = 0;
+                }
+                m_locators[i].ny = closest_node_index;
             }
-            if (closest_node_index == -1)
-            {
-                LOG("FLEXBODY ERROR on mesh "+mesh_name+": VY node not found");
-                closest_node_index = 0;
-            }
-            m_locators[i].ny=closest_node_index;
 
             Matrix3 mat;
             Vector3 diffX = nodes[m_locators[i].nx].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
