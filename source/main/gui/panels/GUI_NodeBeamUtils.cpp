@@ -65,9 +65,9 @@ void NodeBeamUtils::Draw()
             this->DrawMassTab(actor);
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem(_LC("NodeBeamUtils", "Node/Beam")))
+        if (ImGui::BeginTabItem(_LC("NodeBeamUtils", "Spring/Damp")))
         {
-            this->DrawNodeBeamTab(actor);
+            this->DrawSpringDampTab(actor);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -88,7 +88,7 @@ void NodeBeamUtils::Draw()
     }
 }
 
-void NodeBeamUtils::DrawNodeBeamTab(ActorPtr actor)
+void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
 {
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
 
