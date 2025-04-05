@@ -44,7 +44,7 @@ private:
     void DrawCreateProjectBanner(ActorPtr actor, bool& window_open);
     void DrawMenubar(ActorPtr actor);
     void DrawMassTab(ActorPtr actor);
-    void DrawNodeBeamTab(ActorPtr actor);
+    void DrawSpringDampTab(ActorPtr actor);
 };
 
 } // namespace GUI
