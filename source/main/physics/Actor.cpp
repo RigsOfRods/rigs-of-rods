@@ -659,10 +659,57 @@ void Actor::calcNetwork()
     m_net_initialized = true;
 }
 
+static void debugLogNodeMass(Actor* actor)
+{
+    float total_tyre = 0.f; int num_tyre = 0;
+    float total_loaded = 0.f; int num_loaded = 0;
+    float total_override = 0.f; int num_override = 0;
+    float total = 0.f;
+
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        if (actor->ar_nodes[i].nd_tyre_node)
+        {
+            total_tyre += actor->ar_nodes[i].mass;
+            total += actor->ar_nodes[i].mass;
+            num_tyre++;
+        }
+        else if (actor->ar_nodes[i].nd_loaded_mass)
+        {
+            total_loaded += actor->ar_nodes[i].mass;
+            total += actor->ar_nodes[i].mass;
+            num_loaded++;
+        
+            if (actor->ar_nodes[i].nd_override_mass)
+            {
+                total_override += actor->ar_nodes[i].mass;
+                total += actor->ar_nodes[i].mass;
+                num_override++;
+            }
+        }
+        else
+        {
+            total += actor->ar_nodes[i].mass;
+        }
+    }
+    LOG(fmt::format("Node masses: total: {} kg, tyre ({} nodes): {} kg, loaded ({} nodes): {} kg, override ({} nodes): {} kg",
+        total,
+        num_tyre, total_tyre, 
+        num_loaded, total_loaded, 
+        num_override, total_override));
+}
+
 void Actor::recalculateNodeMasses()
 {
     // Originally `calc_masses2(Real total, bool reCalc)`, where `total` was always the dry mass.
     // ------------------------------------------------------------------------------------------
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG(fmt::format("recalculateNodeMasses() - before reset (dry mass: {} kg, loaded mass: {} kg, prev. calculated total mass: {} kg",
+            ar_dry_mass, ar_load_mass, ar_total_mass));
+        debugLogNodeMass(this);
+    }
 
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
@@ -712,6 +759,13 @@ void Actor::recalculateNodeMasses()
                 ar_beams[i].p2->mass += half_mass;
         }
     }
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG(fmt::format("recalculateNodeMasses() - average linear density (total beam len: {}m)", len));
+        debugLogNodeMass(this);
+    }
+
     //fix rope masses
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
@@ -723,6 +777,12 @@ void Actor::recalculateNodeMasses()
     {
         // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
         ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+    }
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG("recalculateNodeMasses() - ropes and cinecams");
+        debugLogNodeMass(this);
     }
 
     //update mass
@@ -740,6 +800,13 @@ void Actor::recalculateNodeMasses()
             }
             ar_nodes[i].mass = ar_minimass[i];
         }
+    }
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG(fmt::format("recalculateNodeMasses() - minimass (ar_minimass_skip_loaded_nodes: {})",
+            ar_minimass_skip_loaded_nodes));
+        debugLogNodeMass(this);
     }
 
     ar_total_mass = 0;
