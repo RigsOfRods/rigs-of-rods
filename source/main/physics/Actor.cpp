@@ -671,11 +671,18 @@ void Actor::recalculateNodeMasses()
         {
             if (!ar_nodes[i].nd_loaded_mass)
             {
+                // Normal mass
                 ar_nodes[i].mass = 0;
             }
             else if (!ar_nodes[i].nd_override_mass)
             {
+                // Loaded mass
                 ar_nodes[i].mass = ar_load_mass / (float)ar_masscount;
+            }
+            else
+            {
+                // Override mass
+                ar_nodes[i].mass = ar_nodes_override_loadweights[i];
             }
         }
     }
