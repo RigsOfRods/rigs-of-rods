@@ -902,23 +902,48 @@ void Parser::ParseDirectiveForvert()
         return;
     }
 
-    if (!this->CheckNumArguments(6)) { return; }
+    if (!this->CheckNumArguments(4)) { return; }
 
     Forvert forvert; // The temp object.
     forvert.line_number = m_current_line_number;
     forvert.node_ref = this->GetArgNodeRef(1);
     forvert.node_x = this->GetArgNodeRef(2);
     forvert.node_y = this->GetArgNodeRef(3);
-    if (this->GetArgStr(4) != "verts")
+
+    // Forver supports comma-separated vert ranges like "A-B, C, D-E"
+    // The code used with 'forset' is quirky, let's use a custom code.
+    const char* input_pos = std::strstr(m_current_line, "verts:");
+    if (!input_pos)
     {
-        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forvert': missing 'verts' portion.");
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forvert': missing 'verts:' portion.");
         return;
     }
 
-    for (int i = 5; i < m_num_args; i++)
+    std::string input = input_pos;
+    std::regex pattern(R"((\d+)\s*-\s*(\d+)|(\d+))");
+    std::smatch matches;
+
+    std::string::const_iterator searchStart(input.cbegin());
+    while (std::regex_search(searchStart, input.cend(), matches, pattern))
     {
-        forvert.vert_index = this->GetArgInt(i); // Update the temp object
-        m_current_module->flexbodies.back().forvert.push_back(forvert); // Copy the temp object
+        if (matches[1].matched && matches[2].matched)
+        {
+            // Range found - unroll it into the `Forvert` array.
+            int start = std::stoi(matches[1].str());
+            int end = std::stoi(matches[2].str());
+            for (int i = start; i <= end; ++i)
+            {
+                forvert.vert_index = i; // Update the temp object
+                m_current_module->flexbodies.back().forvert.push_back(forvert); // Copy the temp object
+            }
+        }
+        else if (matches[3].matched)
+        {
+            // Single number found
+            forvert.vert_index = std::stoi(matches[3].str()); // Update the temp object
+            m_current_module->flexbodies.back().forvert.push_back(forvert); // Copy the temp object
+        }
+        searchStart = matches.suffix().first;
     }
 }
 
