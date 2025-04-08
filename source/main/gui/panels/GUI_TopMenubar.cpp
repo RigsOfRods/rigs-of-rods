@@ -575,10 +575,6 @@ void TopMenubar::Draw(float dt)
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
             DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
 
-            static Str<1000> buf_audio_force_listener_efx_preset;
-            buf_audio_force_listener_efx_preset.Assign(App::audio_force_listener_efx_preset->getStr().c_str());
-            DrawGTextEdit(App::audio_force_listener_efx_preset, _LC("TopMenubar", "Force Listener EFX Preset"), buf_audio_force_listener_efx_preset);
-
             // RENDER SETTINGS
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
