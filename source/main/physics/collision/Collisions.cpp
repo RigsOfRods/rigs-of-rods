@@ -688,7 +688,7 @@ std::pair<bool, Ogre::Real> Collisions::intersectsTerrain(Ogre::Ray ray)
     for (Ogre::Real distance = Ogre::Real(0); distance <= raydir_length; distance += step_size)
     {
         Ogre::Vector3 position       = ray.getPoint(distance);
-        Ogre::Real    terrain_height = App::GetGameContext()->GetTerrain()->GetHeightAt(position.x, position.z);
+        Ogre::Real    terrain_height = App::GetGameContext()->GetTerrain()->getHeightAt(position.x, position.z);
 
         if (terrain_height > position.y)
         {
