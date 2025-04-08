@@ -7,13 +7,15 @@
 # Michał Mańk <michal.090506@gmail.com>, 2023.
 # Crystal Hammer <cryham@gmail.com>, 2023.
 # Michał Domaradzki <michu97736@wp.pl>, 2024.
+# 987 <antoniosawickips4@gmail.com>, 2024, 2025.
+# Jan Michalski <jmichalski030@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-09-15 22:09+0000\n"
-"Last-Translator: Michał Domaradzki <michu97736@wp.pl>\n"
+"PO-Revision-Date: 2025-01-13 00:00+0000\n"
+"Last-Translator: Jan Michalski <jmichalski030@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
 "Language: pl\n"
@@ -23,7 +25,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
 "n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -214,7 +216,7 @@ msgstr "Statyczny"
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Pochylenie"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
@@ -238,12 +240,12 @@ msgstr "Dynamicznie"
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Twardy"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Miękki"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -258,12 +260,13 @@ msgid "Please clear the place first"
 msgstr "Proszę najpierw wyczyścić miejsce"
 
 #: GameContext.cpp:762
+#, fuzzy
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Domyślna skórka '{}' dla aktora '{}' nie znaleziona!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
-msgstr "Włącz tryb twardego resetu"
+msgstr "Włączono tryb twardego resetu"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
@@ -279,19 +282,19 @@ msgstr "Nie znaleziono pojazdu ratowniczego!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "forwardcommands włączone"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "forwardcommands wyłączone"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importcommands włączone"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importcommands wyłączone"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
@@ -347,7 +350,7 @@ msgstr "Automatyczne śledzenie wyłączone"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Przytrzymaj aby potwierdzić"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -406,49 +409,39 @@ msgid "Memory (Ogre): "
 msgstr "Pamięć (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "przyśpiesz pojazd"
+msgstr "Zeskaluj pojazd"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Bierze imię ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Uzyskuje nazwę pliku ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Uzyskuje nazwę załadowanej sekcji dla ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Bierze typ ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "przyśpiesz pojazd"
+msgstr "Zresetuj pojazd"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "wł./wył. hamulec postojowy"
+msgstr "wł./wył. hamulec ręczny"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 #, fuzzy
@@ -472,40 +465,34 @@ msgid "Toggles the beacons"
 msgstr "wł./wył. światła ostrzegawcze"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[używa własnych cząsteczek]"
+msgstr "Włącza własne cząsteczki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Uzyskuje całkowitą ilość węzłów ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Bierze całkowitą masę ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Uzyskuje całkowitą ilość węzłów kół ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Nadaje masę ciężarówce"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Zwraca true jeśli światło hamowania jest włączone"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
@@ -522,17 +509,17 @@ msgstr "włącz lub wyłącz tryb powtórek"
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Uzyskuje tryb sygnalizatora"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Ustawia typ migania"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Uzyskuje typ migania"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
 #, fuzzy
@@ -571,28 +558,22 @@ msgstr "usuń aktualny pojazd"
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "Bierze siły grawitacji, jakie odczuwa ciężarówka"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr "zapisuje aktualnie załadowany teren do pliku mesh"
+msgstr "Bierze aktualny obrót pojazdu"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
-#, fuzzy
-#| msgid "pos - outputs the current position"
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr "pos - przedstawia aktualną pozycję"
+msgstr "Bierze aktualną pozycję pojazdu"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
-#, fuzzy
-#| msgid "reset the camera position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "resetuj pozycję kamery"
+msgstr "Bierze pozycję węzła"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -665,14 +646,12 @@ msgstr ""
 #: gui/panels/GUI_ConsoleView.cpp:257
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Uwagi"
 
 #: gui/panels/GUI_ConsoleView.cpp:258
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Ostrzeżenie"
+msgstr "Ostrzeżenia"
 
 #: gui/panels/GUI_ConsoleView.cpp:259
 msgctxt "Console"
@@ -721,12 +700,12 @@ msgstr "Komenda 1"
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "Debug flexbody/przedmiotu"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "Jesteś pieszo."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
@@ -736,7 +715,7 @@ msgstr ""
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "Wybierz element"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 #, fuzzy
@@ -1151,22 +1130,11 @@ msgid "Drag anisotropy:"
 msgstr "Anizotropowość oporu ruchu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
-#, fuzzy
-#| msgid "Drag anisotropy"
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy"
 msgstr "Anizotropowość oporu ruchu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
-#, fuzzy
-#| msgid ""
-#| "This parameter is for making it easier(cheating) to get out from mud. To "
-#| "get stuck in real mud isn't fun at all, so this makes the mud push up. "
-#| "Ranges in this parameter are from 0 to 1 . If you set it at 1 then you'll "
-#| "get real mud. For values from 0 to 1, the behavior goes from real mud to "
-#| "easy mud depending on this parameter and the value of Adhesion velocity. "
-#| "For velocity 0 real mud it is. For velocity >= adhesion velocity easy mud "
-#| "it is."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter is for making it easier(cheating) to get out from mud. To get "
@@ -1182,30 +1150,24 @@ msgstr ""
 "łatwiej się wydostać (to zależy również od prędkości adhezji)."
 
 #: gui/panels/GUI_GameAbout.cpp:47
-#, fuzzy
-#| msgid "quit - exit Rigs of Rods"
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr "quit - opuszcza Rigs of Rods"
+msgstr "O Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:49
-#, fuzzy
-#| msgid "Version"
 msgctxt "About"
 msgid "Version"
 msgstr "Wersja"
 
 #: gui/panels/GUI_GameAbout.cpp:53
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Wersja protokołu sieciowego: %s"
+msgstr "Protokół sieciowy"
 
 #: gui/panels/GUI_GameAbout.cpp:57
 msgctxt "About"
 msgid "Build time"
-msgstr "Czas kompilacji: %s, %s"
+msgstr "Czas kompilacji"
 
 #: gui/panels/GUI_GameAbout.cpp:63
 msgctxt "About"
@@ -1218,58 +1180,54 @@ msgid "Current Developers"
 msgstr "Aktualni Deweloperzy"
 
 #: gui/panels/GUI_GameAbout.cpp:73
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "About"
 msgid "Server Contributors"
-msgstr "Moderator serwera"
+msgstr "Wkładcy serwera"
 
 #: gui/panels/GUI_GameAbout.cpp:81
 msgctxt "About"
 msgid "Code Contributors"
-msgstr "Autorzy kodu"
+msgstr "Wkładcy kodu"
 
 #: gui/panels/GUI_GameAbout.cpp:107
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr "Główni Autorzy Treści"
+msgstr "Główni Wkładcy Treści"
 
 #: gui/panels/GUI_GameAbout.cpp:113
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Wkładcy modów"
 
 #: gui/panels/GUI_GameAbout.cpp:117
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "Testerzy"
 
 #: gui/panels/GUI_GameAbout.cpp:121
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Użyte biblioteki"
 
 #: gui/panels/GUI_GameChatBox.cpp:81
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
-msgstr "Tylko obecny pojazd, główne światła"
+msgstr "Naciśnij {} żeby przywołać pojazd"
 
 #: gui/panels/GUI_GameChatBox.cpp:143
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "Historia czatu (użyj kółka myszki by przewijać)"
 
 #: gui/panels/GUI_GameChatBox.cpp:144
 msgctxt "ChatBox"
 msgid "Message"
-msgstr ""
+msgstr "Wiadomość"
 
 #: gui/panels/GUI_GameChatBox.cpp:192
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
-msgstr ""
+msgstr "Wiadomość szeptem nie wysłana, nieznana nazwa: {}"
 
 #: gui/panels/GUI_GameChatBox.cpp:199
 #, fuzzy
@@ -1326,7 +1284,7 @@ msgstr ""
 #: gui/panels/GUI_GameControls.cpp:235
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "Typ wydarzenia"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
@@ -1346,32 +1304,27 @@ msgstr "Anuluj"
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Usuń"
 
 #: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "Singleplayer"
 
 #: gui/panels/GUI_GameMainMenu.cpp:125 gui/panels/GUI_GameMainMenu.cpp:134
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "Wznów grę"
 
 #: gui/panels/GUI_GameMainMenu.cpp:143
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Debug collisions"
 msgctxt "MainMenu"
 msgid "Multiplayer"
-msgstr "Debuguj kolizje"
+msgstr "Multiplayer"
 
 #: gui/panels/GUI_GameMainMenu.cpp:149
-#, fuzzy
-#| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr "Kompozytory:"
+msgstr "Repozytorium"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
 #, fuzzy
@@ -1396,50 +1349,39 @@ msgstr "Około"
 
 #: gui/panels/GUI_GameMainMenu.cpp:181
 msgid "Return to menu"
-msgstr ""
+msgstr "Wróć do menu"
 
 #: gui/panels/GUI_GameMainMenu.cpp:192
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr "wyjdź z gry"
+msgstr "Wyjdź z gry"
 
 #: gui/panels/GUI_GameMainMenu.cpp:230 gui/panels/GUI_GameMainMenu.cpp:258
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Game settings"
 msgctxt "MainMenu"
 msgid "Game version"
-msgstr "Ustawienia gry"
+msgstr "Wersja gry"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr "Wersja protokołu sieciowego: %s"
+msgstr "Prot. sieciowy"
 
 #: gui/panels/GUI_GameMainMenu.cpp:244
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr "Wersja: "
+msgstr "Box wersji"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:260
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "Cache wyczyszczone "
+msgstr "Cache zaktualizowane"
 
 #: gui/panels/GUI_GameMainMenu.cpp:273
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr ""
+msgstr "Box uwag"
 
 #: gui/panels/GUI_GameSettings.cpp:43
 msgctxt "GameSettings"
@@ -1458,11 +1400,9 @@ msgid "General"
 msgstr "Ogólne"
 
 #: gui/panels/GUI_GameSettings.cpp:65
-#, fuzzy
-#| msgid "Gameplay"
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr "Ogólne"
+msgstr "Rozgrywka"
 
 #: gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
@@ -1487,7 +1427,7 @@ msgstr "Diagnostyka"
 #: gui/panels/GUI_GameSettings.cpp:114
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr ""
+msgstr "System renderowania (zmiany wymagają restartu)"
 
 #: gui/panels/GUI_GameSettings.cpp:166
 msgctxt "GameSettings"
@@ -1532,11 +1472,9 @@ msgid "Disable online api"
 msgstr "Wyłącz api online"
 
 #: gui/panels/GUI_GameSettings.cpp:230
-#, fuzzy
-#| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Aktualizacje"
+msgstr "Zaktualizuj cache"
 
 #: gui/panels/GUI_GameSettings.cpp:240
 msgctxt "GameSettings"
@@ -1562,7 +1500,7 @@ msgstr "Prędkościomierz imperialny"
 #: gui/panels/GUI_GameSettings.cpp:250
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr "Silniki tworzą się już włączone"
+msgstr "Silniki generują się włączone"
 
 #: gui/panels/GUI_GameSettings.cpp:252
 msgctxt "GameSettings"
@@ -7589,32 +7527,32 @@ msgstr "(Proszę naciśnij klawisz)"
 #: utils/InputEngine.cpp:2198
 msgctxt "ModifierKey"
 msgid "Left Alt"
-msgstr ""
+msgstr "Lewy Alt"
 
 #: utils/InputEngine.cpp:2199
 msgctxt "ModifierKey"
 msgid "Left Shift"
-msgstr ""
+msgstr "Lewy Shift"
 
 #: utils/InputEngine.cpp:2200
 msgctxt "ModifierKey"
 msgid "Left Ctrl"
-msgstr ""
+msgstr "Lewy Ctrl"
 
 #: utils/InputEngine.cpp:2202
 msgctxt "ModifierKey"
 msgid "Right Alt"
-msgstr ""
+msgstr "Prawy Alt"
 
 #: utils/InputEngine.cpp:2203
 msgctxt "ModifierKey"
 msgid "Right Shift"
-msgstr ""
+msgstr "Prawy Shift"
 
 #: utils/InputEngine.cpp:2204
 msgctxt "ModifierKey"
 msgid "Right Ctrl"
-msgstr ""
+msgstr "Prawy Ctrl"
 
 #~ msgctxt "GameSettings"
 #~ msgid "Debug collisions"

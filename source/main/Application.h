@@ -378,6 +378,25 @@ enum class TObjSpecialObject
 };
 const char* TObjSpecialObjectToString(TObjSpecialObject val);
 
+enum VideoCamRole
+{
+    // DO NOT CHANGE NUMBERS, they match 'videocamera/camera_role' parameter in the .truck file
+
+    VCAM_ROLE_VIDEOCAM = -1,
+    VCAM_ROLE_TRACKING_VIDEOCAM = 0,
+    VCAM_ROLE_MIRROR = 1, //!< Flips the video output and when not in driver cam, acts like a natural mirror, not a screen.
+    VCAM_ROLE_MIRROR_NOFLIP = 2, //!< Same as VCAM_ROLE_MIRROR, but without flipping the texture horizontally (expects texcoords to be already flipped in the mesh)
+
+    // Internal types
+    VCAM_ROLE_TRACKING_MIRROR = -1001, //!< A MIRROR(1) with tracking node set
+    VCAM_ROLE_TRACKING_MIRROR_NOFLIP = -1002, //!< A MIRROR_NOFLIP(2) with tracking node set
+
+    VCAM_ROLE_MIRROR_PROP_LEFT = -2001, //!< The classic 'special prop/rear view mirror'
+    VCAM_ROLE_MIRROR_PROP_RIGHT = -2002, //!< The classic 'special prop/rear view mirror'
+
+    VCAM_ROLE_INVALID = -9999,
+};
+
 // ------------------------------------------------------------------------------------------------
 // Global variables
 // ------------------------------------------------------------------------------------------------

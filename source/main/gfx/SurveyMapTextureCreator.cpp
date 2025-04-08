@@ -57,7 +57,7 @@ bool SurveyMapTextureCreator::init(int res, int fsaa)
         Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res, res,
         Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
 
-    if (mTexture.isNull())
+    if (!mTexture)
         return false;
 
     mRttTex = mTexture->getBuffer()->getRenderTarget();

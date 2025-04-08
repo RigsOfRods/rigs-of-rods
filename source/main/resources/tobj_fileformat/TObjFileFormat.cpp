@@ -442,11 +442,6 @@ bool TObjParser::ParseObjectLine(TObjEntry& object)
     if (instance_name == "")
     {
         instance_name << "auto^" << m_filename << "(line:" << m_line_number << ")";
-        // Also set 'type' arg to non-empty (same reason).
-        if (special == TObjSpecialObject::NONE)
-        {
-            type << "-";
-        }
     }
 
     object = TObjEntry(pos, rot, odef.ToCStr(), special, type, instance_name);

@@ -92,7 +92,7 @@ RoR::GfxActor::~GfxActor()
         {
             VideoCamera& vcam = m_videocameras.back();
             Ogre::TextureManager::getSingleton().remove(vcam.vcam_render_tex->getHandle());
-            vcam.vcam_render_tex.setNull();
+            vcam.vcam_render_tex.reset();
             vcam.vcam_render_target = nullptr; // Invalidated with parent texture
             App::GetGfxScene()->GetSceneManager()->destroyCamera(vcam.vcam_ogre_camera);
         }
@@ -420,7 +420,7 @@ void RoR::GfxActor::RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr
 
 void RoR::GfxActor::SetCabLightsActive(bool state_on)
 {
-    if (m_cab_mat_template_emissive.isNull()) // Both this and '_plain' are only set when emissive pass is present.
+    if (!m_cab_mat_template_emissive) // Both this and '_plain' are only set when emissive pass is present.
         return;
 
     // NOTE: Updating material in-place like this is probably inefficient,
@@ -483,13 +483,13 @@ void RoR::GfxActor::UpdateVideoCameras(float dt)
         }
 #endif // USE_CAELUM
 
-        if ((vidcam.vcam_type == VCTYPE_MIRROR_PROP_LEFT)
-            || (vidcam.vcam_type == VCTYPE_MIRROR_PROP_RIGHT))
+        if ((vidcam.vcam_role == VCAM_ROLE_MIRROR_PROP_LEFT)
+            || (vidcam.vcam_role == VCAM_ROLE_MIRROR_PROP_RIGHT))
         {
             // Mirror prop - special processing.
             float mirror_angle = 0.f;
             Ogre::Vector3 offset(Ogre::Vector3::ZERO);
-            if (vidcam.vcam_type == VCTYPE_MIRROR_PROP_LEFT)
+            if (vidcam.vcam_role == VCAM_ROLE_MIRROR_PROP_LEFT)
             {
                 mirror_angle = m_actor->ar_left_mirror_angle;
                 offset = Ogre::Vector3(0.07f, -0.22f, 0);
@@ -545,14 +545,14 @@ void RoR::GfxActor::UpdateVideoCameras(float dt)
         frustumUP.normalise();
         vidcam.vcam_ogre_camera->setFixedYawAxis(true, frustumUP);
 
-        if (vidcam.vcam_type == VCTYPE_MIRROR)
+        if (vidcam.vcam_role == VCAM_ROLE_MIRROR || vidcam.vcam_role == VCAM_ROLE_MIRROR_NOFLIP)
         {
             //rotate the normal of the mirror by user rotation setting so it reflects correct
             normal = vidcam.vcam_rotation * normal;
             // merge camera direction and reflect it on our plane
             vidcam.vcam_ogre_camera->setDirection((pos - App::GetCameraManager()->GetCameraNode()->getPosition()).reflect(normal));
         }
-        else if (vidcam.vcam_type == VCTYPE_VIDEOCAM)
+        else if (vidcam.vcam_role == VCAM_ROLE_VIDEOCAM)
         {
             // rotate the camera according to the nodes orientation and user rotation
             Ogre::Vector3 refx = abs_pos_z - abs_pos_center;
@@ -562,7 +562,8 @@ void RoR::GfxActor::UpdateVideoCameras(float dt)
             Ogre::Quaternion rot = Ogre::Quaternion(-refx, -refy, -normal);
             vidcam.vcam_ogre_camera->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
         }
-        else if (vidcam.vcam_type == VCTYPE_TRACKING_VIDEOCAM)
+        else if (vidcam.vcam_role == VCAM_ROLE_TRACKING_VIDEOCAM 
+            || vidcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR || vidcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR_NOFLIP)
         {
             normal = m_simbuf.simbuf_nodes[vidcam.vcam_node_lookat].AbsPosition - pos;
             normal.normalise();

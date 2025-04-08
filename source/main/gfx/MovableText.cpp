@@ -34,7 +34,7 @@ using namespace RoR;
 #define POS_TEX_BINDING    0
 #define COLOUR_BINDING     1
 
-MovableText::MovableText(const UTFString& name, const UTFString& caption, const UTFString& fontName, Real charHeight, const ColourValue& color)
+MovableText::MovableText(const std::string& name, const std::string& caption, const std::string& fontName, Real charHeight, const ColourValue& color)
     : mpCam(NULL)
     , mpWin(NULL)
     , mpFont(NULL)
@@ -70,26 +70,26 @@ MovableText::~MovableText()
         delete mRenderOp.vertexData;
 }
 
-void MovableText::setFontName(const UTFString& fontName)
+void MovableText::setFontName(const std::string& fontName)
 {
     if ((Ogre::MaterialManager::getSingletonPtr()->resourceExists(mName + "Material")))
     {
         Ogre::MaterialManager::getSingleton().remove(mName + "Material");
     }
 
-    if (mFontName != fontName || mpMaterial.isNull() || !mpFont)
+    if (mFontName != fontName || !mpMaterial || !mpFont)
     {
         mFontName = fontName;
-        mpFont = (Ogre::Font *)FontManager::getSingleton().getResourceByName(mFontName).getPointer();
+        mpFont = (Ogre::Font *)FontManager::getSingleton().getResourceByName(mFontName).get();
 
         if (!mpFont)
             throw Exception(Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + fontName, "MovableText::setFontName");
 
         mpFont->load();
-        if (!mpMaterial.isNull())
+        if (mpMaterial)
         {
             MaterialManager::getSingletonPtr()->remove(mpMaterial->getName());
-            mpMaterial.setNull();
+            mpMaterial.reset();
         }
 
         mpMaterial = mpFont->getMaterial()->clone(mName + "Material");
@@ -105,7 +105,7 @@ void MovableText::setFontName(const UTFString& fontName)
     }
 }
 
-void MovableText::setCaption(const UTFString& caption)
+void MovableText::setCaption(const std::string& caption)
 {
     if (caption != mCaption)
     {
@@ -166,7 +166,7 @@ void MovableText::setAdditionalHeight(Real height)
 
 void MovableText::showOnTop(bool show)
 {
-    if (mOnTop != show && !mpMaterial.isNull())
+    if (mOnTop != show && mpMaterial)
     {
         mOnTop = show;
         mpMaterial->setDepthBias(1.0, 1.0);
@@ -178,7 +178,7 @@ void MovableText::showOnTop(bool show)
 void MovableText::_setupGeometry()
 {
     ROR_ASSERT(mpFont);
-    ROR_ASSERT(!mpMaterial.isNull());
+    ROR_ASSERT(mpMaterial);
 
     uint vertexCount = static_cast<uint>(mCaption.size() * 6);
 
@@ -249,7 +249,7 @@ void MovableText::_setupGeometry()
     bool first = true;
 
     // Use iterator
-    UTFString::iterator i, iend;
+    std::string::iterator i, iend;
     iend = mCaption.end();
     bool newLine = true;
     Real len = 0.0f;
@@ -270,7 +270,7 @@ void MovableText::_setupGeometry()
         if (newLine)
         {
             len = 0.0f;
-            for (UTFString::iterator j = i; j != iend && *j != '\n'; j++)
+            for (std::string::iterator j = i; j != iend && *j != '\n'; j++)
             {
                 if (*j == ' ')
                     len += mSpaceWidth;
@@ -462,7 +462,7 @@ void MovableText::_setupGeometry()
 void MovableText::_updateColors(void)
 {
     ROR_ASSERT(mpFont);
-    ROR_ASSERT(!mpMaterial.isNull());
+    ROR_ASSERT(mpMaterial);
 
     // Convert to system-specific
     RGBA color;
@@ -470,9 +470,16 @@ void MovableText::_updateColors(void)
     HardwareVertexBufferSharedPtr vbuf = mRenderOp.vertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
     //RGBA *pDest = static_cast<RGBA*>(vbuf->lock(HardwareBuffer::HBL_NORMAL));
     RGBA* pDest = (RGBA*)malloc(vbuf->getSizeInBytes());
+    ROR_ASSERT(pDest);
+    if (!pDest)
+    {
+        return;
+    }
     RGBA* oDest = pDest;
     for (uint i = 0; i < mRenderOp.vertexData->vertexCount; ++i)
+    {
         *pDest++ = color;
+    }
     //vbuf->unlock();
     vbuf->writeData(0, vbuf->getSizeInBytes(), oDest, true);
     free(oDest);

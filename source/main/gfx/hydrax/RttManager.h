@@ -180,7 +180,7 @@ namespace Hydrax
 		{
 			mRttOptions[Rtt].NumberOfChannels_ = NOC;
 
-			if (!getTexture(Rtt).isNull())
+			if (getTexture(Rtt))
 			{
 				initialize(Rtt);
 			}
@@ -195,7 +195,7 @@ namespace Hydrax
 		{
 			mRttOptions[Rtt].BitsPerChannel_ = BPC;
 
-			if (!getTexture(Rtt).isNull())
+			if (getTexture(Rtt))
 			{
 				initialize(Rtt);
 			}
@@ -237,10 +237,6 @@ namespace Hydrax
 		{
 			mRttListeners.push_back(l);
 		}
-
-		void removeRttListener(RttListener *l, const bool& releaseMemory = true);
-
-		void removeAllRttListeners(const bool& releaseMemory = true);
 
 	private:
 		/** RttManager::CRefractionListener class
@@ -352,12 +348,6 @@ namespace Hydrax
 
 			return false;
 		}
-
-		/** Invoke Rtt Listeners
-		    @param Rtt Rtt type
-			@param pre true for Pre render target update, false for Post render target update
-		*/
-		void _invokeRttListeners(const RttType& Rtt, const bool& pre);
 
 		/// Hydrax parent pointer
 		Hydrax *mHydrax;

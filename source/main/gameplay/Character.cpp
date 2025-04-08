@@ -40,7 +40,7 @@ using namespace RoR;
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
-Character::Character(int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
+Character::Character(int source, unsigned int streamid, std::string player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
     , m_can_jump(false)
     , m_character_rotation(0.0f)
@@ -193,8 +193,8 @@ void Character::update(float dt)
             Vector3 base = m_prev_position + Vector3::UNIT_Y * 0.25f;
             for (int i = 1; i < numstep; i++)
             {
-                Vector3 query = base + diff * ((float)i / numstep);
-                if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query, false))
+                Vector3 query_ = base + diff * ((float)i / numstep);
+                if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query_, false))
                 {
                     m_character_v_speed = std::max(0.0f, m_character_v_speed);
                     position = m_prev_position + diff * ((float)(i - 1) / numstep);
@@ -207,7 +207,7 @@ void Character::update(float dt)
         m_prev_position = position;
 
         // ground contact
-        float pheight = App::GetGameContext()->GetTerrain()->GetHeightAt(position.x, position.z);
+        float pheight = App::GetGameContext()->GetTerrain()->getHeightAt(position.x, position.z);
 
         if (position.y < pheight)
         {
@@ -407,7 +407,7 @@ void Character::move(Vector3 offset)
 void Character::ReportError(const char* detail)
 {
 #ifdef USE_SOCKETW
-    Ogre::UTFString username;
+    std::string username;
     RoRnet::UserInfo info;
     if (!App::GetNetwork()->GetUserInfo(m_source_id, info))
         username = "~~ERROR getting username~~";
@@ -417,7 +417,7 @@ void Character::ReportError(const char* detail)
     char msg_buf[300];
     snprintf(msg_buf, 300,
         "[RoR|Networking] ERROR on m_is_remote character (User: '%s', SourceID: %d, StreamID: %d): ",
-        username.asUTF8_c_str(), m_source_id, m_stream_id);
+        username.c_str(), m_source_id, m_stream_id);
 
     LOGSTREAM << msg_buf << detail;
 #endif
@@ -696,7 +696,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         const String materialName = "tracks/" + xc_instance_name;
 
         MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
-        if (!mat.isNull() && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
+        if (mat && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
                 mat->getTechnique(0)->getPass(1)->getNumTextureUnitStates() > 1)
         {
             const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);

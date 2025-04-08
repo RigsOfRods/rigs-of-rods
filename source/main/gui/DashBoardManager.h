@@ -274,6 +274,8 @@ public:
 
     void windowResized();
 
+    float getSmoothNumeric(int controlID);
+
 protected:
     DashBoardManager* manager;
     Ogre::String filename;
@@ -336,7 +338,7 @@ protected:
         MyGUI::IntSize initialSize;
         MyGUI::IntPoint initialPosition;
 
-        float last;
+        float lastVal;
         bool lastState;
     } layoutLink_t;
 

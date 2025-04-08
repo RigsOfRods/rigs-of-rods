@@ -128,7 +128,7 @@ Water::~Water()
     {
         m_refract_rtt_texture->unload();
         Ogre::TextureManager::getSingleton().remove(m_refract_rtt_texture->getHandle());
-        m_refract_rtt_texture.setNull();
+        m_refract_rtt_texture.reset();
     }
 #endif
 
@@ -144,7 +144,7 @@ Water::~Water()
     {
         m_reflect_rtt_texture->unload();
         Ogre::TextureManager::getSingleton().remove(m_reflect_rtt_texture->getHandle());
-        m_reflect_rtt_texture.setNull();
+        m_reflect_rtt_texture.reset();
     }
 #endif
 

@@ -216,28 +216,19 @@ struct Prop
     }
 };
 
-enum VideoCamType
-{
-    VCTYPE_INVALID,
-    VCTYPE_VIDEOCAM,
-    VCTYPE_TRACKING_VIDEOCAM,
-    VCTYPE_MIRROR,
-    VCTYPE_MIRROR_PROP_LEFT,  //!< The classic 'special prop/rear view mirror'
-    VCTYPE_MIRROR_PROP_RIGHT, //!< The classic 'special prop/rear view mirror'
-};
-
 /// An Ogre::Camera mounted on the actor and rendering into
 /// either in-scene texture or external window.
 struct VideoCamera
 {
-    VideoCamType         vcam_type           = VCTYPE_INVALID;
+    VideoCamRole         vcam_role           = VCAM_ROLE_INVALID;
     NodeNum_t            vcam_node_center    = NODENUM_INVALID;
     NodeNum_t            vcam_node_dir_y     = NODENUM_INVALID;
     NodeNum_t            vcam_node_dir_z     = NODENUM_INVALID;
     NodeNum_t            vcam_node_alt_pos   = NODENUM_INVALID;
-    NodeNum_t            vcam_node_lookat    = NODENUM_INVALID; //!< Only for VCTYPE_TRACK_CAM
+    NodeNum_t            vcam_node_lookat    = NODENUM_INVALID; //!< Only for VCAM_ROLE_TRACK_CAM
     Ogre::Quaternion     vcam_rotation;
     Ogre::Vector3        vcam_pos_offset     = Ogre::Vector3::ZERO;
+    std::string          vcam_mat_name_orig;                        //!< For display in Tuning UI: Original material name from rig-def file, without per-actor stamping
     Ogre::MaterialPtr    vcam_material;
     std::string          vcam_off_tex_name;                         //!< Used when videocamera is offline
     Ogre::Camera*        vcam_ogre_camera    = nullptr;
@@ -245,7 +236,7 @@ struct VideoCamera
     Ogre::TexturePtr     vcam_render_tex;
     Ogre::SceneNode*     vcam_debug_node     = nullptr;
     Ogre::RenderWindow*  vcam_render_window  = nullptr;
-    Ogre::SceneNode*     vcam_prop_scenenode = nullptr;             //!< Only for VCTYPE_MIRROR_PROP_*
+    Ogre::SceneNode*     vcam_prop_scenenode = nullptr;             //!< Only for VCAM_ROLE_MIRROR_PROP_*
 };
 
 /// Gfx attributes/state of a softbody node

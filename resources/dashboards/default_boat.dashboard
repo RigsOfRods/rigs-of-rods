@@ -2,15 +2,15 @@
 ; Recognized parameters:
 ; * dashboard_name <string>
 ; * dashboard_description <string>
-; * dashboard_author <string: credit> <int: forum ID> <string: name> <string: email>
+; * dashboard_author <string: credit> <int: forum ID> <string: name> [<string: email>]
 ; * dashboard_category <int: 200=Generic, 201=Truck, 202=Boat>
 ;
 ; Custom fonts are supported via .resource files (XML, same syntax as MyGui_FontsDash.xml in 'dashboards.zip').
 ;
 ; All layout+resource files must start the same as the .dashboard file.
-; For example: foo.dashboard -> foo_dashboard.layout, foo_dashboard.resource
+; For example: foo.dashboard -> foo_ABCD.layout, foo_ABCD.resource
 ; Optional layout filename tags:
-; * '_Nrpm' ~ N is the redline RPM
+; * '_Nrpm' ~ N is the redline RPM (any number, typically 4000 for cars)
 ; * '_Xph' ~ X is units (k=Kilometers | m=Miles)
 ; ----------------------------------------------------------------------------------
 

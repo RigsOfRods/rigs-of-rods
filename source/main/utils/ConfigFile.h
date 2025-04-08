@@ -73,6 +73,7 @@ public:
     void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::BLANKSTRING);
 
     bool HasSection(std::string const & name);
+    bool HasSetting(std::string const& section, std::string const& key);
 
     void setLoggingInfo(std::string const & filename, Console::MessageArea area)
     {

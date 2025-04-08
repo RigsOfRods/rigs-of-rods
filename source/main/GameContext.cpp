@@ -167,7 +167,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
 
     // Initialize envmap textures by rendering center of map
     Ogre::Vector3 center = m_terrain->getMaxTerrainSize() / 2;
-    center.y = m_terrain->GetHeightAt(center.x, center.z) + 1.0f;
+    center.y = m_terrain->getHeightAt(center.x, center.z) + 1.0f;
     App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, /*gfx_actor:*/nullptr, /*full:*/true);
 
     // Scan groundmodels
@@ -841,14 +841,18 @@ void GameContext::CreatePlayerCharacter()
 {
     m_character_factory.CreateLocalCharacter();
 
-    // Adjust character position
+    // Adjust character position and rotation
     Ogre::Vector3 spawn_pos = m_terrain->getSpawnPos();
-    float spawn_rot = 0.0f;
+    Ogre::Degree spawn_rot(0.f);
 
-    // Classic behavior, retained for compatibility.
-    // Required for maps like N-Labs or F1 Track.
-    if (!m_terrain->HasPredefinedActors())
+    if (m_terrain->GetDef()->start_rotation_specified)
     {
+        spawn_rot = m_terrain->GetDef()->start_rotation;
+    }
+    else if (!m_terrain->HasPredefinedActors())
+    {
+        // Classic behavior, retained for compatibility.
+        // Required for maps like N-Labs or F1 Track.
         spawn_rot = 180.0f;
     }
 
@@ -867,19 +871,19 @@ void GameContext::CreatePlayerCharacter()
     // Preset rotation - commandline has precedence
     if (App::cli_preset_spawn_rot->getStr() != "")
     {
-        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->getStr(), spawn_rot);
+        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->getStr(), spawn_rot.valueDegrees());
         App::cli_preset_spawn_rot->setStr("");
     }
     else if (App::diag_preset_spawn_rot->getStr() != "")
     {
-        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->getStr(), spawn_rot);
+        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->getStr(), spawn_rot.valueDegrees());
         App::diag_preset_spawn_rot->setStr("");
     }
 
     spawn_pos.y = m_terrain->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
 
     this->GetPlayerCharacter()->setPosition(spawn_pos);
-    this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
+    this->GetPlayerCharacter()->setRotation(spawn_rot);
 
     App::GetCameraManager()->GetCameraNode()->setPosition(this->GetPlayerCharacter()->getPosition());
 
@@ -1139,6 +1143,7 @@ void GameContext::UpdateSimInputEvents(float dt)
     }
 
     // forward commands from character
+    ActorPtr actor_to_reset_commandkeys;
     if (!m_player_actor)
     {
         // Find nearest actor
@@ -1160,14 +1165,53 @@ void GameContext::UpdateSimInputEvents(float dt)
             nearest_actor->ar_import_commands &&
             min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
         {
+            if (nearest_actor != m_actor_remotely_receiving_commands)
+            {
+                actor_to_reset_commandkeys = m_actor_remotely_receiving_commands;
+            }
+            m_actor_remotely_receiving_commands = nearest_actor;
+
             // get commands
             for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
             {
                 int eventID = EV_COMMANDS_01 + (i - 1);
 
-                nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+                const float eventVal = RoR::App::GetInputEngine()->getEventValue(eventID);
+                if (eventVal != nearest_actor->ar_command_key[i].playerInputValue
+                    && nearest_actor->ar_state == ActorState::LOCAL_SLEEPING)
+                {
+                    // Wake up
+                    nearest_actor->ar_state = ActorState::LOCAL_SIMULATED;
+                    nearest_actor->ar_sleep_counter = 0.0f;
+                }
+
+                nearest_actor->ar_command_key[i].playerInputValue = eventVal;
             }
         }
+        else
+        {
+            if (m_actor_remotely_receiving_commands)
+            {
+                // Just left the vicinity of the actor, but still on foot
+                actor_to_reset_commandkeys = m_actor_remotely_receiving_commands;
+                m_actor_remotely_receiving_commands = nullptr;
+            }
+        }
+    }
+    else if (m_actor_remotely_receiving_commands)
+    {
+        // Just left the vicinity of the actor by entering vehicle
+        actor_to_reset_commandkeys = m_actor_remotely_receiving_commands;
+        m_actor_remotely_receiving_commands = nullptr;
+    }
+
+    if (actor_to_reset_commandkeys)
+    {
+        for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+        {
+            actor_to_reset_commandkeys->ar_command_key[i].playerInputValue = 0.f;
+        }
+        actor_to_reset_commandkeys = nullptr;
     }
 
     // AI waypoint recording

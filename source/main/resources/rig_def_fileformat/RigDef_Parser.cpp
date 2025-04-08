@@ -163,6 +163,9 @@ void Parser::ProcessCurrentLine()
         case Keyword::FORSET:
             this->ParseDirectiveForset();
             return;
+        case Keyword::FORVERT:
+            this->ParseDirectiveForvert();
+            return;
         case Keyword::GUID:
             this->ParseGuid();
             return;
@@ -889,6 +892,59 @@ void Parser::ParseDirectiveForset()
     }
 
     Parser::ProcessForsetLine(m_current_module->flexbodies.back(), m_current_line, m_current_line_number);
+}
+
+void Parser::ParseDirectiveForvert()
+{
+    if (m_current_module->flexbodies.size() == 0)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forvert': no matching flexbody!");
+        return;
+    }
+
+    if (!this->CheckNumArguments(4)) { return; }
+
+    Forvert forvert; // The temp object.
+    forvert.line_number = m_current_line_number;
+    forvert.node_ref = this->GetArgNodeRef(1);
+    forvert.node_x = this->GetArgNodeRef(2);
+    forvert.node_y = this->GetArgNodeRef(3);
+
+    // Forver supports comma-separated vert ranges like "A-B, C, D-E"
+    // The code used with 'forset' is quirky, let's use a custom code.
+    const char* input_pos = std::strstr(m_current_line, "verts:");
+    if (!input_pos)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forvert': missing 'verts:' portion.");
+        return;
+    }
+
+    std::string input = input_pos;
+    std::regex pattern(R"((\d+)\s*-\s*(\d+)|(\d+))");
+    std::smatch matches;
+
+    std::string::const_iterator searchStart(input.cbegin());
+    while (std::regex_search(searchStart, input.cend(), matches, pattern))
+    {
+        if (matches[1].matched && matches[2].matched)
+        {
+            // Range found - unroll it into the `Forvert` array.
+            int start = std::stoi(matches[1].str());
+            int end = std::stoi(matches[2].str());
+            for (int i = start; i <= end; ++i)
+            {
+                forvert.vert_index = i; // Update the temp object
+                m_current_module->flexbodies.back().forvert.push_back(forvert); // Copy the temp object
+            }
+        }
+        else if (matches[3].matched)
+        {
+            // Single number found
+            forvert.vert_index = std::stoi(matches[3].str()); // Update the temp object
+            m_current_module->flexbodies.back().forvert.push_back(forvert); // Copy the temp object
+        }
+        searchStart = matches.suffix().first;
+    }
 }
 
 void Parser::ProcessForsetLine(RigDef::Flexbody& def, const std::string& _line, int line_number /*= -1*/)
@@ -1685,7 +1741,7 @@ void Parser::ParseVideoCamera()
     videocamera.texture_height       = this->GetArgInt         (13);
     videocamera.min_clip_distance    = this->GetArgFloat       (14);
     videocamera.max_clip_distance    = this->GetArgFloat       (15);
-    videocamera.camera_role          = this->GetArgInt         (16);
+    videocamera.camera_role          = this->GetArgVideoCamRole(16);
     videocamera.camera_mode          = this->GetArgInt         (17);
     videocamera.material_name        = this->GetArgStr         (18);
 
@@ -3365,6 +3421,22 @@ ManagedMaterialType Parser::GetArgManagedMatType(int index)
     this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
         fmt::format("Not a valid ManagedMaterialType: '{}'", str));
     return ManagedMaterialType::INVALID;
+}
+
+VideoCamRole Parser::GetArgVideoCamRole(int index)
+{
+    int role = this->GetArgInt(index);
+    switch (role)
+    {
+    case VCAM_ROLE_VIDEOCAM: return VCAM_ROLE_VIDEOCAM;
+    case VCAM_ROLE_TRACKING_VIDEOCAM: return VCAM_ROLE_TRACKING_VIDEOCAM;
+    case VCAM_ROLE_MIRROR: return VCAM_ROLE_MIRROR;
+    case VCAM_ROLE_MIRROR_NOFLIP: return VCAM_ROLE_MIRROR_NOFLIP;
+    default:
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Invalid value of 'camera role' ({}), videocamera will not work", role));
+        return VCAM_ROLE_INVALID;
+    }
 }
 
 int Parser::TokenizeCurrentLine()

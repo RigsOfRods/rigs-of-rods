@@ -226,7 +226,7 @@ float GameScript::getGroundHeight(Vector3& v)
 {
     float result = -1.0f;
     if (App::GetGameContext()->GetTerrain())
-        result = App::GetGameContext()->GetTerrain()->GetHeightAt(v.x, v.z);
+        result = App::GetGameContext()->GetTerrain()->getHeightAt(v.x, v.z);
     return result;
 }
 
@@ -281,6 +281,12 @@ int GameScript::getCurrentTruckNumber()
 {
     ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
+}
+
+ActorPtr GameScript::getTruckRemotelyReceivingCommands()
+{
+    return App::GetGameContext()->GetActorRemotelyReceivingCommands();
+
 }
 
 void GameScript::registerForEvent(int eventValue)
@@ -534,7 +540,7 @@ int GameScript::setMaterialAmbient(const String& materialName, float red, float 
     try
     {
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
-        if (m.isNull())
+        if (!m)
             return 0;
         m->setAmbient(red, green, blue);
     }
@@ -551,7 +557,7 @@ int GameScript::setMaterialDiffuse(const String& materialName, float red, float 
     try
     {
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
-        if (m.isNull())
+        if (!m)
             return 0;
         m->setDiffuse(red, green, blue, alpha);
     }
@@ -568,7 +574,7 @@ int GameScript::setMaterialSpecular(const String& materialName, float red, float
     try
     {
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
-        if (m.isNull())
+        if (!m)
             return 0;
         m->setSpecular(red, green, blue, alpha);
     }
@@ -585,7 +591,7 @@ int GameScript::setMaterialEmissive(const String& materialName, float red, float
     try
     {
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
-        if (m.isNull())
+        if (!m)
             return 0;
         m->setSelfIllumination(red, green, blue);
     }
@@ -603,7 +609,7 @@ int GameScript::getTextureUnitState(TextureUnitState** tu, const String material
     // ========================================================================================================
     
     MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
-    if (m.isNull())
+    if (!m)
         return 1;
 
     // verify technique
@@ -1869,7 +1875,7 @@ std::string GameScript::loadTextResourceAsString(const std::string& filename, co
 
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_name, resource_group);
 
-        if (stream.isNull() || !stream->isReadable())
+        if (!stream || !stream->isReadable())
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format("loadTextResourceAsString() could not read resource '{}' in group '{}'",
@@ -1917,7 +1923,7 @@ bool GameScript::createTextResourceFromString(const std::string& data, const std
 
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource(resource_name, resource_group, overwrite);
 
-        if (stream.isNull() || !stream->isWriteable())
+        if (!stream || !stream->isWriteable())
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format("createTextResourceFromString() could not create resource '{}' in group '{}'",

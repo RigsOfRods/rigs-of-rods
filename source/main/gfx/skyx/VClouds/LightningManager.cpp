@@ -57,7 +57,7 @@ namespace SkyX { namespace VClouds
 		mVolCloudsLightningMaterial = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName("SkyX_VolClouds_Lightning"));
 		mLightningMaterial = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName("SkyX_Lightning"));
 
-		if (mLightningMaterial.isNull())
+		if (!mLightningMaterial)
 		{
 			SkyXLOG("Error while creating SkyX::VClouds::LightningManager, material not found");
 			return;
@@ -96,8 +96,8 @@ namespace SkyX { namespace VClouds
 
 		removeListeners();
 
-		mVolCloudsLightningMaterial.setNull();
-		mLightningMaterial.setNull();
+		mVolCloudsLightningMaterial.reset();
+		mLightningMaterial.reset();
 
 		mCreated = false;
 	}

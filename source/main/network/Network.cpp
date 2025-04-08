@@ -334,7 +334,7 @@ void Network::RecvThread()
                 std::lock_guard<std::mutex> lock(m_userdata_mutex);
                 memcpy(&m_userdata, buffer, sizeof(RoRnet::UserInfo));
                 m_authlevel = m_userdata.authstatus;
-                m_username = Ogre::UTFString(m_userdata.username);
+                m_username = std::string(m_userdata.username);
                 App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
                 // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
             }
@@ -460,11 +460,9 @@ bool Network::ConnectThread()
     {
         RoRnet::LegacyServerInfo info;
         memcpy(&info, buffer, sizeof(RoRnet::LegacyServerInfo));
-        Ogre::UTFString format_wstr = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
+        std::string format_str = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
         const char* server_ver = (info.protocolversion[0] != 0) ? info.protocolversion : "~ RoRnet_2.38 or earlier (not detected) ~";
-        char msg_buf[500];
-        snprintf(msg_buf, 500, format_wstr.asUTF8_c_str(), RORNET_VERSION, server_ver);
-        CouldNotConnect(msg_buf);
+        CouldNotConnect(fmt::format(format_str.c_str(), RORNET_VERSION, server_ver));
         return false;
     }
     if (header.command == MSG2_WRONG_VER)
@@ -483,10 +481,8 @@ bool Network::ConnectThread()
 
     if (strncmp(m_server_settings.protocolversion, RORNET_VERSION, strlen(RORNET_VERSION)))
     {
-        wchar_t tmp[512] = L"";
-        Ogre::UTFString tmp2 = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
-        swprintf(tmp, 512, tmp2.asWStr_c_str(), RORNET_VERSION, m_server_settings.protocolversion);
-        CouldNotConnect(MyGUI::UString(tmp).asUTF8_c_str());
+        std::string formatstr = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
+        CouldNotConnect(fmt::format(formatstr, RORNET_VERSION, m_server_settings.protocolversion));
         return false;
     }
 
@@ -496,11 +492,9 @@ bool Network::ConnectThread()
     m_socket.set_timeout(0, 0);
 
     // Construct user credentials
-    // Beware of the wchar_t converted to UTF8 for networking
     RoRnet::UserInfo c;
     memset(&c, 0, sizeof(RoRnet::UserInfo));
-    // Cut off the UTF string on the highest level, otherwise you will break UTF info
-    strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
+    // TODO: Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy(c.serverpassword, Sha1Hash(m_password).c_str(), size_t(40));
     strncpy(c.usertoken, Sha1Hash(m_token).c_str(), size_t(40));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
@@ -696,7 +690,7 @@ int Network::GetUserColor()
     return m_userdata.colournum;
 }
 
-Ogre::UTFString Network::GetUsername()
+std::string Network::GetUsername()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
     return m_username;

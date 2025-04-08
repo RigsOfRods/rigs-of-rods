@@ -36,7 +36,7 @@ namespace Hydrax
 		mRttManager->setBitsPerChannel(RttManager::RTT_GPU_NORMAL_MAP, RttManager::BPC_16);
 		mRttManager->setNumberOfChannels(RttManager::RTT_GPU_NORMAL_MAP, RttManager::NOC_3);
 
-		mNormalMapMaterial.setNull();
+		mNormalMapMaterial.reset();
 	}
 
 	GPUNormalMapManager::~GPUNormalMapManager()
@@ -80,7 +80,7 @@ namespace Hydrax
         Ogre::HighLevelGpuProgramManager::getSingleton().remove(mNormalMapMaterial->getTechnique(0)->getPass(0)->getFragmentProgramName());
 
 		Ogre::MaterialManager::getSingleton().remove(mNormalMapMaterial->getName());
-		mNormalMapMaterial.setNull();
+		mNormalMapMaterial.reset();
 
 		mCreated = false;
 	}

@@ -30,7 +30,6 @@
 #include <Ogre.h>
 #include <Overlay/OgreFontManager.h>
 
-#include <OgreUTFString.h>
 namespace RoR {
 
 /// @addtogroup Gfx
@@ -44,10 +43,10 @@ public:
     enum VerticalAlignment      {V_BELOW, V_ABOVE};
 
 protected:
-    Ogre::UTFString			mFontName;
-    Ogre::UTFString			mType;
+    std::string			mFontName;
+    std::string			mType;
     Ogre::String			    mName;
-    Ogre::UTFString			mCaption;
+    std::string			mCaption;
     HorizontalAlignment	mHorizontalAlignment;
     VerticalAlignment	mVerticalAlignment;
 
@@ -75,17 +74,17 @@ protected:
 
     /******************************** public methods ******************************/
 public:
-    MovableText(const Ogre::UTFString &name, const Ogre::UTFString &caption, 
-                const Ogre::UTFString &fontName = "highcontrast_black",
+    MovableText(const std::string &name, const std::string &caption, 
+                const std::string &fontName = "highcontrast_black",
                 Ogre::Real charHeight = 1.0, const Ogre::ColourValue &color = Ogre::ColourValue::Black);
     virtual ~MovableText();
 
     // Add to build on Shoggoth:
-    virtual void visitRenderables(Ogre::Renderable::Visitor* visitor, bool debugRenderables = false) {};
+    virtual void visitRenderables(Ogre::Renderable::Visitor*, bool) override {};
 
     // Set settings
-    void    setFontName(const Ogre::UTFString &fontName);
-    void    setCaption(const Ogre::UTFString &caption);
+    void    setFontName(const std::string &fontName);
+    void    setCaption(const std::string &caption);
     void    setColor(const Ogre::ColourValue &color);
     void    setCharacterHeight(Ogre::Real height);
     void    setSpaceWidth(Ogre::Real width);
@@ -94,8 +93,8 @@ public:
     void    showOnTop(bool show=true);
 
     // Get settings
-    const   Ogre::UTFString          &getFontName() const {return mFontName;}
-    const   Ogre::UTFString          &getCaption() const {return mCaption;}
+    const   std::string          &getFontName() const {return mFontName;}
+    const   std::string          &getCaption() const {return mCaption;}
     const   Ogre::ColourValue     &getColor() const {return mColor;}
 
     Ogre::uint    getCharacterHeight() const {return (Ogre::uint) mCharHeight;}
@@ -114,7 +113,7 @@ protected:
     // from MovableObject
     void    getWorldTransforms(Ogre::Matrix4 *xform) const;
     Ogre::Real    getBoundingRadius(void) const {return mRadius;};
-    Ogre::Real    getSquaredViewDepth(const Ogre::Camera *cam) const {return 0;};
+    Ogre::Real    getSquaredViewDepth(const Ogre::Camera *) const {return 0;};
     const   Ogre::Quaternion        &getWorldOrientation(void) const;
     const   Ogre::Vector3           &getWorldPosition(void) const;
     const   Ogre::AxisAlignedBox    &getBoundingBox(void) const {return mAABB;};
@@ -126,7 +125,7 @@ protected:
 
     // from renderable
     void    getRenderOperation(Ogre::RenderOperation &op);
-    const   Ogre::MaterialPtr       &getMaterial(void) const {ROR_ASSERT(!mpMaterial.isNull());return mpMaterial;};
+    const   Ogre::MaterialPtr       &getMaterial(void) const {ROR_ASSERT(mpMaterial);return mpMaterial;};
     const   Ogre::LightList         &getLights(void) const {return mLList;};
 };
 

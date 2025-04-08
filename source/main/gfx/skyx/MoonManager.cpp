@@ -53,7 +53,7 @@ namespace SkyX
 
 		mMoonMaterial = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName("SkyX_Moon"));
 
-		if (mMoonMaterial.isNull())
+		if (!mMoonMaterial)
 		{
 			SkyXLOG("Error while creating SkyX::MoonManager, material not found");
 			return;
@@ -88,7 +88,7 @@ namespace SkyX
 		mSkyX->getSceneManager()->destroyBillboardSet(mMoonBillboard);
 		mMoonBillboard = 0;
 
-		mMoonMaterial.setNull();
+		mMoonMaterial.reset();
 
 		mCreated = false;
 	}

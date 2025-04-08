@@ -116,7 +116,7 @@ namespace SkyX
 		{
 			mSkydomeMaterial = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(getSkydomeMaterialName()));
 
-			if (mSkydomeMaterial.isNull())
+			if (!mSkydomeMaterial)
 			{
 				SkyXLOG("Error in SkyX::GPUManager: '" + getSkydomeMaterialName() + "' material not found");
 				return;

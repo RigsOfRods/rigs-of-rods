@@ -326,7 +326,7 @@ void Autopilot::gpws_update(float spawnheight)
         return;
     if (mode_gpws && ref_b)
     {
-        float groundalt = App::GetGameContext()->GetTerrain()->GetHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
+        float groundalt = App::GetGameContext()->GetTerrain()->getHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
         if (App::GetGameContext()->GetTerrain()->getWater() && groundalt < App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight())
             groundalt = App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
         float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!

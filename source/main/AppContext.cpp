@@ -262,22 +262,30 @@ bool AppContext::SetUpRendering()
 
     // Load renderer configuration
     bool autodetect_resolution = false;
-    if (!m_ogre_root->restoreConfig())
+    try
     {
-        autodetect_resolution = true;
-        LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', selecting render plugin manually..."));
+        if (!m_ogre_root->restoreConfig())
+        {
+            autodetect_resolution = true;
+            LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', selecting render plugin manually..."));
 
-        const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
-        if (!render_systems.empty())
-        {
-            LOG(fmt::format("[RoR|Startup|Rendering] Auto-selected renderer plugin '{}'", render_systems.front()->getName()));
-            m_ogre_root->setRenderSystem(render_systems.front());
+            const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
+            if (!render_systems.empty())
+            {
+                LOG(fmt::format("[RoR|Startup|Rendering] Auto-selected renderer plugin '{}'", render_systems.front()->getName()));
+                    m_ogre_root->setRenderSystem(render_systems.front());
+            }
+            else
+            {
+                ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
+                return false;
+            }
         }
-        else
-        {
-            ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
-            return false;
-        }
+    }
+    catch (Ogre::Exception& e)
+    {
+        ErrorUtils::ShowError (_L("Error restoring settings from 'ogre.cfg'"), e.getDescription());
+        return false;
     }
 
     const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());

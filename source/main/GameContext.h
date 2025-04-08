@@ -134,6 +134,7 @@ public:
     const ActorPtr&     GetPlayerActor() { return m_player_actor; }
     const ActorPtr&     GetPrevPlayerActor() { return m_prev_player_actor; }
     const ActorPtr&     GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
+    const ActorPtr&     GetActorRemotelyReceivingCommands() { return m_actor_remotely_receiving_commands; }
     void                SetPrevPlayerActor(ActorPtr actor);
     void                ChangePlayerActor(ActorPtr actor);
 
@@ -193,6 +194,7 @@ private:
     ActorPtr            m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     ActorPtr            m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     ActorPtr            m_last_spawned_actor;     //!< Last actor spawned by user and still alive.
+    ActorPtr            m_actor_remotely_receiving_commands; //!< Actor close enough to import command keys.
     
     CacheEntryPtr       m_last_cache_selection;   //!< Vehicle/load
     CacheEntryPtr       m_last_skin_selection;

@@ -850,7 +850,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr 
     /* LOAD AND PARSE THE VEHICLE */
     RigDef::Parser parser;
     parser.Prepare();
-    parser.ProcessOgreStream(stream.getPointer(), group);
+    parser.ProcessOgreStream(stream.get(), group);
     parser.GetSequentialImporter()->Disable();
     parser.Finalize();
 
@@ -1342,8 +1342,7 @@ void CacheSystem::FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr
     GenericDocumentPtr doc = new GenericDocument();
     BitMask_t options 
         = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS 
-        | GenericDocument::OPTION_ALLOW_NAKED_STRINGS
-        | GenericDocument::OPTION_NAKEDSTR_USCORES_TO_SPACES;
+        | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
     doc->loadFromDataStream(ds, options);
 
     GenericDocContextPtr ctx = new GenericDocContext(doc);
@@ -2115,6 +2114,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     case ModifyProjectRequestType::TUNEUP_PROTECTED_MANAGEDMAT_RESET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->protected_managedmats.erase(request->mpr_subject);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_FORCED_VCAM_ROLE_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_video_cam_roles[request->mpr_subject_id] = (VideoCamRole)request->mpr_value_int;
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_FORCED_VCAM_ROLE_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_video_cam_roles.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:

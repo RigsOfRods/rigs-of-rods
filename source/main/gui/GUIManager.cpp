@@ -239,7 +239,7 @@ void GUIManager::SetUpMenuWallpaper()
     // Determine image filename
     using namespace Ogre;
     FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
-    if (files.isNull() || files->empty())
+    if (!files || files->empty())
     {
         files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
     }
@@ -253,7 +253,7 @@ void GUIManager::SetUpMenuWallpaper()
     // ...texture...
     Ogre::ResourceManager::ResourceCreateOrRetrieveResult wp_tex_result
         = Ogre::TextureManager::getSingleton().createOrRetrieve(files->at(num).filename, "Wallpapers");
-    Ogre::TexturePtr wp_tex = wp_tex_result.first.staticCast<Ogre::Texture>();
+    Ogre::TexturePtr wp_tex = Ogre::static_pointer_cast<Ogre::Texture>(wp_tex_result.first);
     // ...material...
     Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", Ogre::RGN_DEFAULT);
     Ogre::TextureUnitState* wp_tus = wp_mat->getTechnique(0)->getPass(0)->createTextureUnitState();

@@ -43,7 +43,7 @@ namespace SkyX { namespace VClouds
 	{
 		for (int k = 0; k < 2; k++)
 		{
-			mVolTextures[k].setNull();
+			mVolTextures[k].reset();
 		}
 	}
 
@@ -62,7 +62,7 @@ namespace SkyX { namespace VClouds
 		for (int k = 0; k < 2; k++)
 		{
 			Ogre::TextureManager::getSingleton().remove(mVolTextures[k]->getName());
-			mVolTextures[k].setNull();
+			mVolTextures[k].reset();
 		}
 
 		_delete3DCellArray(mCellsCurrent, mNx, mNy);

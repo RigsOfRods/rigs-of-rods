@@ -447,7 +447,7 @@ void SurveyMap::CreateTerrainTextures()
             Ogre::TextureManager::getSingleton().unload(mMapTexture->getName(), mMapTexture->getGroup());
         }
         Ogre::TextureManager::getSingleton().remove(mMapTexture->getName(), mMapTexture->getGroup());
-        mMapTexture.setNull();
+        mMapTexture.reset();
     }
     mMapZoom = 0.5f;
     mMapMode = SurveyMapMode::NONE;
@@ -684,7 +684,7 @@ void SurveyMap::CacheMapIcon(SurveyMapEntity& e)
 {
     // Check if requested icon changed
     if (e.cached_icon && e.cached_icon->getName() != e.filename)
-        e.cached_icon.setNull();
+        e.cached_icon.reset();
 
     // Check if valid icon is already loaded
     if (e.cached_icon)

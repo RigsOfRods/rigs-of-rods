@@ -1221,7 +1221,7 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
     {
         if (ar_nodes[i].nd_no_ground_contact)
             continue;
-        float terrainHeight = App::GetGameContext()->GetTerrain()->GetHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
+        float terrainHeight = App::GetGameContext()->GetTerrain()->getHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
         vertical_offset += std::max(0.0f, terrainHeight - (ar_nodes[i].AbsPosition.y + vertical_offset));
     }
     for (int i = 0; i < ar_num_nodes; i++)
@@ -4310,32 +4310,31 @@ void Actor::calculateLocalGForces()
 
 void Actor::engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
 {
-    // engineNumber tells us which engine
-    EnginePtr e = ar_engine; // placeholder: actors do not have multiple engines yet
+    // engineNumber = placeholder: actors do not have multiple engines yet
 
     switch (type)
     {
     case TRG_ENGINE_CLUTCH:
-        if (e)
-            e->setClutch(triggerValue);
+        if (ar_engine)
+            ar_engine->setClutch(triggerValue);
         break;
     case TRG_ENGINE_BRAKE:
         ar_brake = triggerValue;
         break;
     case TRG_ENGINE_ACC:
-        if (e)
-            e->setAcc(triggerValue);
+        if (ar_engine)
+            ar_engine->setAcc(triggerValue);
         break;
     case TRG_ENGINE_RPM:
         // TODO: Implement setTargetRPM in the Engine.cpp
         break;
     case TRG_ENGINE_SHIFTUP:
-        if (e)
-            e->shift(1);
+        if (ar_engine)
+            ar_engine->shift(1);
         break;
     case TRG_ENGINE_SHIFTDOWN:
-        if (e)
-            e->shift(-1);
+        if (ar_engine)
+            ar_engine->shift(-1);
         break;
     default:
         break;
@@ -4737,7 +4736,16 @@ int Actor::getShockNode2(int shock_number)
 
 void Actor::setSimAttribute(ActorSimAttr attr, float val)
 {
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            "Cannot change simulation attributes in multiplayer mode.");
+        return;
+    }
+
     LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
+
+    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, 0, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
 
     // PLEASE maintain the same order as in `enum ActorSimAttr`
     switch (attr)
@@ -4835,4 +4843,22 @@ float Actor::getSimAttribute(ActorSimAttr attr)
 
     default: return 0.f;
     }
+}
+
+void Actor::setForcedCinecam(CineCameraID_t cinecam_id, BitMask_t flags)
+{
+    ar_forced_cinecam = cinecam_id;
+    ar_forced_cinecam_flags = flags;
+}
+
+void Actor::clearForcedCinecam()
+{
+    this->setForcedCinecam(CINECAMERAID_INVALID, 0);
+}
+
+bool Actor::getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags)
+{
+    cinecam_id = ar_forced_cinecam;
+    flags = ar_forced_cinecam_flags;
+    return (ar_forced_cinecam != CINECAMERAID_INVALID);
 }

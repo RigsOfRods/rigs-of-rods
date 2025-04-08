@@ -99,6 +99,7 @@ private:
     void ParseDirectiveDetacherGroup();
     void ParseDirectiveFlexbodyCameraMode();
     void ParseDirectiveForset();
+    void ParseDirectiveForvert();
     void ParseDirectivePropCameraMode();
     void ParseDirectiveSection();
     void ParseDirectiveSectionConfig();
@@ -230,6 +231,7 @@ private:
     BitMask_t          GetArgNodeOptions  (int index);
     EngineType         GetArgEngineType   (int index);
     ManagedMaterialType GetArgManagedMatType(int index);
+    RoR::VideoCamRole  GetArgVideoCamRole (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);

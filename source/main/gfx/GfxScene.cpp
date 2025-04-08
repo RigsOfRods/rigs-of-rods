@@ -82,7 +82,7 @@ void GfxScene::ClearScene()
 void GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
-    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager();
 
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }

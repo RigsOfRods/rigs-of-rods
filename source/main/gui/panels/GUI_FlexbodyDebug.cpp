@@ -108,6 +108,7 @@ void FlexbodyDebug::Draw()
         mesh_name = flexbody->getOrigMeshName();
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Mesh: '%s'", mesh_name.c_str());
     if (mat)
     {
@@ -123,6 +124,7 @@ void FlexbodyDebug::Draw()
         }
     }
 
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("Base nodes: Ref=%d, X=%d, Y=%d", (int)node_ref, (int)node_x, (int)node_y);
     ImGui::SameLine();
     ImGui::Checkbox("Show##base", &this->show_base_nodes);
@@ -130,13 +132,20 @@ void FlexbodyDebug::Draw()
     bool flexbody_locators_visible = false;
     if (flexbody)
     {
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("Forset nodes: (total %d)", (int)flexbody->getForsetNodes().size());
         ImGui::SameLine();
         ImGui::Checkbox("Show all##forset", &this->show_forset_nodes);
 
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("Vertices: (total %d)", (int)flexbody->getVertexCount());
         ImGui::SameLine();
         ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
+
+        if (this->show_vertices)
+        {
+            ImGui::Text("Hovered vert: %d", hovered_vert);
+        }
 
         if (ImGui::CollapsingHeader("Vertex locators table"))
         {
@@ -332,7 +341,6 @@ void FlexbodyDebug::DrawDebugView(FlexBody* flexbody, Prop* prop, NodeNum_t node
         }
     }
 
-    int hovered_vert = -1;
     float hovered_vert_dist_squared = FLT_MAX;
     ImVec2 mouse_pos = ImGui::GetMousePos();
     ImVec2 dbg_cursor_dist(0, 0);

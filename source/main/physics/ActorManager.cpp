@@ -1261,7 +1261,7 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
         App::GetCacheSystem()->LoadResource(rq.asr_cache_entry);
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
 
-        if (stream.isNull() || !stream->isReadable())
+        if (!stream || !stream->isReadable())
         {
             HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, "Unable to open/read truckfile");
             return nullptr;
@@ -1270,7 +1270,7 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
         RoR::LogFormat("[RoR] Parsing truckfile '%s'", rq.asr_cache_entry->fname.c_str());
         RigDef::Parser parser;
         parser.Prepare();
-        parser.ProcessOgreStream(stream.getPointer(), rq.asr_cache_entry->resource_group);
+        parser.ProcessOgreStream(stream.get(), rq.asr_cache_entry->resource_group);
         parser.Finalize();
 
         auto def = parser.GetFile();
@@ -1361,7 +1361,7 @@ void ActorManager::UpdateInputEvents(float dt)
             {
                 m_last_simulation_speed = simulation_speed;
                 this->SetSimulationSpeed(1.0f);
-                UTFString ssmsg = _L("Simulation speed reset.");
+                std::string ssmsg = _L("Simulation speed reset.");
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
             }
             else if (m_last_simulation_speed != 1.0f)

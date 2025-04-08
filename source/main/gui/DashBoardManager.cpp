@@ -176,6 +176,9 @@ std::string DashBoardManager::getLinkNameForID(DashData id)
 
 // Helper funcs and structs for `determineLayoutFromDashboardMod()` below.
 
+constexpr int DASHTAG_RPM_NONE = -1;
+constexpr char DASHTAG_XPH_NONE = '\0';
+
 static int DashRPM(const std::string& input)
 {
     std::regex rpm_regex(R"((\d+)rpm)");
@@ -184,44 +187,24 @@ static int DashRPM(const std::string& input)
         std::string rpm = match[1];
         return std::atoi(rpm.c_str());
     }
-    return -1; // Return -1 if no match is found
+    return DASHTAG_RPM_NONE;
 }
 
-static char DashXPH(const std::string& input) {
+static char DashXPH(const std::string& input)
+{
     std::regex xph_regex(R"(([km])ph)");
     std::smatch match;
     if (std::regex_search(input, match, xph_regex)) {
         return match[1].str()[0];
     }
-    return '\0'; // Return null character if no match is found
-}
-
-static std::string DashBestRPM(float redlineRPM, const std::string& input1, const std::string& input2)
-{
-    const float rpmdiff1 = (float)DashRPM(input1) - redlineRPM;
-    const float rpmdiff2 = (float)DashRPM(input2) - redlineRPM;
-
-    if (rpmdiff1 < 0) return input2;
-    else if (rpmdiff2 < 0) return input1;
-    else if (rpmdiff1 < rpmdiff2) return input1;
-    else return input2;
-}
-
-static std::string DashBestXPH(char desiredX, const std::string& input1, const std::string& input2)
-{
-    const char x1 = DashXPH(input1);
-    const char x2 = DashXPH(input2);
-
-    if (x1 == desiredX) return input1;
-    else if (x2 == desiredX) return input2;
-    else return input1;
+    return DASHTAG_XPH_NONE;
 }
 
 struct DashCandidateLayout
 {
     std::string filename;
-    int rpm;
-    char xph;
+    int rpm = DASHTAG_RPM_NONE;
+    char xph = DASHTAG_XPH_NONE;
 
     DashCandidateLayout(const std::string& filename)
     {
@@ -281,13 +264,13 @@ std::string DashBoardManager::determineTruckLayoutFromDashboardMod(Ogre::FileInf
 
     // A. Consider only layouts with matching Xph tag, find best RPM match (see above).
     float least_overshoot = std::numeric_limits<float>::max(); DashCandidateLayout* overshoot_candidate = nullptr;
-    float least_undershoot = std::numeric_limits<float>::min(); DashCandidateLayout* undershoot_candidate = nullptr;
+    float least_undershoot = -std::numeric_limits<float>::max(); DashCandidateLayout* undershoot_candidate = nullptr;
     for (auto& candidate : candidates)
     {
         if (candidate.xph == desiredX)
         {
             float rpm_diff = (float)candidate.rpm - redlineRPM;
-            if (rpm_diff < 0 && rpm_diff < least_undershoot)
+            if (rpm_diff < 0 && rpm_diff > least_undershoot)
             {
                 least_undershoot = rpm_diff;
                 undershoot_candidate = &candidate;
@@ -315,11 +298,11 @@ std::string DashBoardManager::determineTruckLayoutFromDashboardMod(Ogre::FileInf
     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
         fmt::format("{}: Selected dashboard has no '{}ph' layouts, ignoring setting", m_actor->ar_design_name, desiredX));
     least_overshoot = std::numeric_limits<float>::max(); overshoot_candidate = nullptr;
-    least_undershoot = std::numeric_limits<float>::min(); undershoot_candidate = nullptr;
+    least_undershoot = -std::numeric_limits<float>::max(); undershoot_candidate = nullptr;
     for (auto& candidate : candidates)
     {
         float rpm_diff = (float)candidate.rpm - redlineRPM;
-        if (rpm_diff < 0 && rpm_diff < least_undershoot)
+        if (rpm_diff < 0 && rpm_diff > least_undershoot)
         {
             least_undershoot = rpm_diff;
             undershoot_candidate = &candidate;
@@ -508,6 +491,23 @@ void DashBoard::updateFeatures()
     }
 }
 
+const float DASH_SMOOTHING = 0.02;
+
+float DashBoard::getSmoothNumeric(int controlID)
+{
+    if (manager->getDataType(controls[controlID].linkID) != DC_FLOAT)
+    {
+        return manager->getNumeric(controls[controlID].linkID); // Only smoothen FLOAT inputs
+    }
+    else
+    {
+        const float curVal = manager->getNumeric(controls[controlID].linkID);
+        const float val = controls[controlID].lastVal * (1 - DASH_SMOOTHING) + curVal * DASH_SMOOTHING;
+        controls[controlID].lastVal = curVal;
+        return val;
+    }
+}
+
 void DashBoard::update(float dt)
 {
     // walk all controls and animate them
@@ -517,14 +517,9 @@ void DashBoard::update(float dt)
         if (controls[i].animationType == ANIM_ROTATE)
         {
             // get the value
-            float val = manager->getNumeric(controls[i].linkID);
+            const float val = this->getSmoothNumeric(i);
             // calculate the angle
             float angle = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
-
-            if (fabs(val - controls[i].last) < 0.02f)
-                continue;
-
-            controls[i].last = val;
 
             // enforce limits
             if (angle < controls[i].wmin)
@@ -570,23 +565,15 @@ void DashBoard::update(float dt)
         }
         else if (controls[i].animationType == ANIM_SERIES)
         {
-            float val = manager->getNumeric(controls[i].linkID);
+            const float val = this->getSmoothNumeric(i);
 
             String fn = String(controls[i].texture) + String("-") + TOSTRING((int)val) + String(".png");
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
 
             controls[i].img->setImageTexture(fn);
         }
         else if (controls[i].animationType == ANIM_SCALE)
         {
-            float val = manager->getNumeric(controls[i].linkID);
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
+            const float val = this->getSmoothNumeric(i);
 
             float scale = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
             if (controls[i].direction == DIRECTION_UP)
@@ -612,11 +599,7 @@ void DashBoard::update(float dt)
         }
         else if (controls[i].animationType == ANIM_TRANSLATE)
         {
-            float val = manager->getNumeric(controls[i].linkID);
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
+            const float val = this->getSmoothNumeric(i);
 
             float translation = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
             if (controls[i].direction == DIRECTION_UP)
@@ -630,11 +613,7 @@ void DashBoard::update(float dt)
         }
         else if (controls[i].animationType == ANIM_TEXTFORMAT)
         {
-            float val = manager->getNumeric(controls[i].linkID);
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
+            const float val = this->getSmoothNumeric(i);
 
             MyGUI::UString s;
             if (strlen(controls[i].format) == 0)
@@ -674,7 +653,7 @@ void DashBoard::windowResized()
     {
         // texture layers are independent from the screen size, but rather from the layer texture size
         TexturePtr tex = TextureManager::getSingleton().getByName("RTTTexture1");
-        if (!tex.isNull())
+        if (tex)
             mainWidget->setSize(tex->getWidth(), tex->getHeight());
     }
     else
@@ -730,7 +709,6 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
         ctrl.widget = w;
         ctrl.initialSize = w->getSize();
         ctrl.initialPosition = w->getPosition();
-        ctrl.last = 1337.1337f; // force update
         ctrl.lastState = false;
 
         // establish the link

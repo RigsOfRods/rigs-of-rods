@@ -67,11 +67,11 @@ namespace SkyX
 		Ogre::MeshManager::getSingleton().remove("SkyXMesh");
 		mSkyX->getSceneManager()->destroyEntity(mEntity);
 
-		mMesh.setNull();
+		mMesh.reset();
 		mSubMesh = 0;
 		mEntity = 0;
-		mVertexBuffer.setNull();
-		mIndexBuffer.setNull();
+		mVertexBuffer.reset();
+		mIndexBuffer.reset();
 		mMaterialName = "_NULL_";
 
 		delete [] mVertices;

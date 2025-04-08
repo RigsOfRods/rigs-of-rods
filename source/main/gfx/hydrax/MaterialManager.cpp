@@ -66,7 +66,7 @@ namespace Hydrax
 	{
 		for (int k = 0; k < 6; k++)
 		{
-			mMaterials[k].setNull();
+			mMaterials[k].reset();
 		}
 
 		for (int k = 0; k < 1; k++)
@@ -3171,7 +3171,7 @@ namespace Hydrax
 	{
 		Ogre::MaterialPtr &Mat = getMaterial(Material);
 
-		if (Mat.isNull())
+		if (!Mat)
 		{
 			return;
 		}
@@ -3524,7 +3524,7 @@ namespace Hydrax
 	{
 		Ogre::CompositorPtr &Comp = mCompositors[static_cast<int>(Compositor)];
 
-		if (Comp.isNull())
+		if (!Comp)
 		{
 			return;
 		}

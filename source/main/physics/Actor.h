@@ -142,12 +142,16 @@ public:
     void              antilockbrakeToggle();
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
+    bool              isLocked();                          //!< Are hooks locked?
+    void              setForcedCinecam(CineCameraID_t cinecam_id, BitMask_t flags);
+    void              clearForcedCinecam();
+    bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
+    int               getNumCinecams() { return ar_num_cinecams; }
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     bool              isTied();
     void              hookToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::HOOK_TOGGLE,NodeNum_t mousenode=NODENUM_INVALID, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
-    bool              isLocked();                          //!< Are hooks locked?
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
@@ -268,7 +272,6 @@ public:
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     void              WriteDiagnosticDump(std::string const& filename);
-    PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
@@ -417,8 +420,6 @@ public:
     float             ar_aileron = 0.f;                     //!< Sim state; aerial controller
     int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
-    int               ar_current_cinecam = -1;             //!< Sim state; index of current CineCam (-1 if using 3rd-person camera)
-    NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     std::string       ar_filehash;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity = 0;          //!< Physics state; values 0-5
@@ -433,6 +434,16 @@ public:
     ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
+
+    // Player camera 'cameras & cinecam'
+    // * 'cinecam#' creates dedicated node to dictate camera position + 6 attachment beams.
+    // * 'camera#' specifies a reference frame for the cinecam by referencing 3 preexisting nodes: ref, x, y.
+    // NOTE camera#0 is special - serves a general orientation frame for the whole actor. Cinecam#0 isn't required to exist, but camera#0 is.
+    CineCameraID_t    ar_current_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of current CineCam (`CINECAMERAID_INVALID` if using 3rd-person camera)
+    NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
+    PerVehicleCameraContext ar_camera_context;
+    CineCameraID_t    ar_forced_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of CineCam forced by script (`CINECAMERAID_INVALID` if not forced)
+    BitMask_t         ar_forced_cinecam_flags = 0; //!< Sim state; flags for forced CineCam supplied by script
 
     // TractionControl
     float             tc_ratio = 0.f;                   //!< Regulating force
@@ -545,7 +556,6 @@ private:
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
     RigDef::DocumentPtr                m_definition;
     std::unique_ptr<GfxActor>          m_gfx_actor;
-    PerVehicleCameraContext            m_camera_context;
     Ogre::String                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
@@ -615,7 +625,7 @@ private:
     float             m_net_node_compression = 0.f;     //!< For incoming/outgoing traffic; calculated on spawn
     int               m_net_first_wheel_node = 0;     //!< Network attr; Determines data buffer layout; calculated on spawn
 
-    Ogre::UTFString   m_net_username;
+    std::string       m_net_username;
     int               m_net_color_num = 0;
     /// @}
 

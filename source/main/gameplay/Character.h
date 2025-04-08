@@ -24,7 +24,6 @@
 #include "ForwardDeclarations.h"
 #include "SurveyMapEntity.h"
 
-#include <OgreUTFString.h>
 #include <OgreMeshManager.h>
 #include <OgreTimer.h>
 #include <string>
@@ -41,14 +40,14 @@ class Character
 {
 public:
 
-    Character(int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
+    Character(int source = -1, unsigned int streamid = 0, std::string playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
        
     int            getSourceID() const                  { return m_source_id; }
     bool           isRemote() const                     { return m_is_remote; }
     int            GetColorNum() const                  { return m_color_number; }
     bool           GetIsRemote() const                  { return m_is_remote; }
-    Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
+    std::string const& GetNetUsername()             { return m_net_username; }
     std::string const &    GetAnimName() const          { return m_anim_name; }
     float          GetAnimTime() const                  { return m_anim_time; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
@@ -87,7 +86,7 @@ private:
     float            m_net_last_anim_time;
     float            m_driving_anim_length;
     std::string      m_instance_name;
-    Ogre::UTFString  m_net_username;
+    std::string  m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
@@ -102,7 +101,7 @@ struct GfxCharacter
     {
         Ogre::Vector3      simbuf_character_pos;
         Ogre::Radian       simbuf_character_rot; //!< When on foot
-        Ogre::UTFString    simbuf_net_username;
+        std::string    simbuf_net_username;
         bool               simbuf_is_remote;
         int                simbuf_color_number;
         ActorPtr             simbuf_actor_coupling;

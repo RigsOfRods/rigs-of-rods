@@ -121,6 +121,16 @@ bool ConfigFile::HasSection(std::string const & name)
     return this->getSettingsBySection().find(name) != this->getSettingsBySection().end();
 }
 
+bool ConfigFile::HasSetting(std::string const& name, std::string const& key)
+{
+    auto section = this->getSettingsBySection().find(name);
+    if (section == this->getSettingsBySection().end())
+    {
+        return false;
+    }
+    return section->second.find(key) != section->second.end();
+}
+
 void ConfigFile::logMessage(std::string const & msg)
 {
     // If filename is specified, log "filename: message", otherwise just "message".

@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Finnish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/fi/)\n"
+"PO-Revision-Date: 2025-01-17 23:00+0000\n"
+"Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
+"Language-Team: Finnish <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -28,18 +30,16 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Kuvakaappauksen formaatti:"
+msgstr "Kuvakaappaus: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Virhe haettaessa ohjelmahakemistopolkua"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Virhe haettaessa käyttäjän hakemistopolkua"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
@@ -47,35 +47,27 @@ msgstr "Resurssikansiota ei löydetty. Tarkista onko asennettu oikein."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Viallinen resurssikansio. Tarkista, onko asennettu oikein."
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Automaattivaihteisto"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Manuaalinen vaihteisto - automaattinen kytkin"
+msgstr "Manuaalinen vaihto automaattisella kytkimellä"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Täysmanuaali: sekventaalivaihteisto"
+msgstr "Täysin manuaalinen: peräkkäinen vaihto"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Täysmanuaali: sekventaalivaihteisto"
+msgstr "Täysin manuaalinen: sauvavaihto"
 
 #: Application.cpp:391
 #, fuzzy
@@ -1218,11 +1210,9 @@ msgid "Version"
 msgstr "Versio:"
 
 #: gui/panels/GUI_GameAbout.cpp:53
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Virhe tapahtunut nettipelissä !"
+msgstr "Verkkoprotokolla"
 
 #: gui/panels/GUI_GameAbout.cpp:57
 msgctxt "About"
@@ -1434,11 +1424,9 @@ msgstr "Versio:"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr "Virhe tapahtunut nettipelissä !"
+msgstr "Net.-protokollaa"
 
 #: gui/panels/GUI_GameMainMenu.cpp:244
 #, fuzzy
@@ -3266,11 +3254,9 @@ msgstr ""
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
 #: gui/panels/GUI_TopMenubar.cpp:299
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
-msgstr " loit uuden ajoneuvon "
+msgstr "Hanki uusi ajoneuvo"
 
 #: gui/panels/GUI_TopMenubar.cpp:310
 #, fuzzy
@@ -3304,11 +3290,9 @@ msgid "Reload last spawned vehicle"
 msgstr "Vain nykyinen ajoneuvo, päävalot"
 
 #: gui/panels/GUI_TopMenubar.cpp:349
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr " loit uuden ajoneuvon "
+msgstr "Poista viimeksi syntynyt ajoneuvo"
 
 #: gui/panels/GUI_TopMenubar.cpp:358
 msgctxt "TopMenubar"
@@ -3760,11 +3744,9 @@ msgid "Vehicle count"
 msgstr "Ajoneuvon tyyppi: "
 
 #: gui/panels/GUI_TopMenubar.cpp:864
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "TopMenubar"
 msgid "Number of vehicles"
-msgstr " loit uuden ajoneuvon "
+msgstr "Ajoneuvojen lukumäärä"
 
 #: gui/panels/GUI_TopMenubar.cpp:886
 msgctxt "TopMenubar"
@@ -4331,16 +4313,12 @@ msgid "disconnected: remote side closed the connection"
 msgstr "Yhteys katkaistu: Etätietokone sulki yhteyden"
 
 #: network/Network.cpp:315
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " lähti pelistä"
+msgstr "lähti pelistä"
 
 #: network/Network.cpp:347
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " liittyi peliin"
+msgstr "liittyi peliin"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
@@ -4496,10 +4474,8 @@ msgid "Banned user"
 msgstr "rankattu käyttäjä"
 
 #: physics/Actor.cpp:443
-#, fuzzy
-#| msgid "No content installed"
 msgid " content mismatch: "
-msgstr "Ei sisältöä asennettuna"
+msgstr " Sisältö ei täsmää: "
 
 #: physics/Actor.cpp:1319
 msgid "No inter-axle differential installed on current vehicle!"
@@ -4530,10 +4506,8 @@ msgid "Network error!"
 msgstr "Virhe tapahtunut nettipelissä !"
 
 #: physics/ActorManager.cpp:395
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " loit uuden ajoneuvon "
+msgstr "synnytti uuden ajoneuvon: "
 
 #: physics/ActorManager.cpp:405
 #, fuzzy
@@ -5462,11 +5436,9 @@ msgid "respawn last truck"
 msgstr "hinausauto"
 
 #: utils/InputEngine.cpp:64
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "InputEvent"
 msgid "get new vehicle"
-msgstr " loit uuden ajoneuvon "
+msgstr "hanki uusi ajoneuvo"
 
 #: utils/InputEngine.cpp:65
 #, fuzzy
@@ -6022,25 +5994,19 @@ msgid "toggle cruise control"
 msgstr "kytke vakionopeuden säädin"
 
 #: utils/InputEngine.cpp:152
-#, fuzzy
-#| msgid "match target speed / rpm with current truck speed / rpm"
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
-msgstr "sovita yhteen haluttu nopeus  rpm tämänhetkelliseen nopeuteen  rpm"
+msgstr "sovita tavoitenopeus / kpm nykyiseen kuorma-auton nopeuteen / kpm"
 
 #: utils/InputEngine.cpp:153
-#, fuzzy
-#| msgid "increase target speed / rpm"
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
-msgstr "lisää kohde nopeutta  rpm"
+msgstr "lisää tavoitenopeutta / kpm"
 
 #: utils/InputEngine.cpp:154
-#, fuzzy
-#| msgid "decrease target speed / rpm"
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
-msgstr "vähennä tavoitenopeutta  rpm"
+msgstr "vähennä tavoitenopeutta / kpm"
 
 #: utils/InputEngine.cpp:155
 #, fuzzy
@@ -6154,11 +6120,9 @@ msgid "shift automatic transmission one gear down"
 msgstr "vaihda automaattisessa vaihteistossa yksi vaihde alaspäin"
 
 #: utils/InputEngine.cpp:173
-#, fuzzy
-#| msgid "shift automatic transmission one gear up"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
-msgstr "vaihda automaattisessa vaihteistossa yksi vaihde  ylöspäin"
+msgstr "vaihda automaattisessa vaihteistossa yksi vaihde ylöspäin"
 
 #: utils/InputEngine.cpp:174
 #, fuzzy

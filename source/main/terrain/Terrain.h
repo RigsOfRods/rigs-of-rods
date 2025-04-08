@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "RefCountingObject.h"
+#include "SimConstants.h"
 #include "SurveyMapEntity.h"
 #include "TerrainEditor.h"
 
@@ -46,33 +47,35 @@ public:
     bool initialize();
     void dispose();
 
-    /// @name Terrain info
+    // PLEASE maintain same order as in 'scripting/bindings/TerrainAngelscript.cpp' and 'doc/angelscript/TerrainClass.h'
+
+    /// @name General
     /// @{
     std::string             getTerrainName() const;
     std::string             getTerrainFileName();
     std::string             getTerrainFileResourceGroup();
     std::string             getGUID() const;
-    int                     getCategoryID() const;
     int                     getVersion() const;
     CacheEntryPtr           getCacheEntry();
     /// @}
 
-    /// @name Terrain properties
+    /// @name Gameplay
     /// @{
-    Terrn2DocumentPtr       GetDef();
-    Ogre::Vector3           getSpawnPos();
-    float                   getWaterHeight() const;
     bool                    isFlat();
-    float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
-    void                    addSurveyMapEntity(const std::string& type, const std::string& filename, const std::string& resource_group, const std::string& caption, const Ogre::Vector3& pos, float angle, int id);
-    void                    delSurveyMapEntities(int id);
-    SurveyMapEntityVec&     getSurveyMapEntities();
+    float                   getHeightAt(float x, float z);
+    Ogre::Vector3           getSpawnPos();
+    Ogre::Degree            getSpawnRot();
     /// @}
 
     /// @name Subsystems
     /// @{
-    TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
+    void                    addSurveyMapEntity(const std::string& type, const std::string& filename, const std::string& resource_group, const std::string& caption, const Ogre::Vector3& pos, float angle, int id);
+    void                    delSurveyMapEntities(int id);
+    SurveyMapEntityVec&     getSurveyMapEntities();
     ProceduralManagerPtr    getProceduralManager();
+    // Not exported to script:
+    float                   getWaterHeight() const;
+    TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
     TerrainObjectManager*   getObjectManager()            { return m_object_manager; }
     HydraxWater*            getHydraxManager()            { return m_hydrax_water; }
     SkyManager*             getSkyManager();
@@ -87,13 +90,13 @@ public:
     /// @{
     Ogre::Light*            getMainLight()                { return m_main_light; }
     int                     getFarClip() const            { return m_sight_range; }
+    float                   getPagedDetailFactor() const { return m_paged_detail_factor; }
     /// @}
 
     /// @name Simulation
     /// @{
     void                    setGravity(float value);
     float                   getGravity() const            { return m_cur_gravity; }
-    float                   GetHeightAt(float x, float z);
     Ogre::Vector3           GetNormalAt(float x, float y, float z);
     Ogre::Vector3           getMaxTerrainSize();
     Ogre::AxisAlignedBox    getTerrainCollisionAAB();
@@ -101,6 +104,7 @@ public:
 
     /// @name Utility
     /// @{
+    Terrn2DocumentPtr       GetDef();
     void                    LoadTelepoints();
     void                    LoadPredefinedActors();
     bool                    HasPredefinedActors();
@@ -126,27 +130,27 @@ private:
 
     // Managers
 
-    TerrainObjectManager*   m_object_manager;
-    TerrainGeometryManager* m_geometry_manager;
+    TerrainObjectManager*   m_object_manager = nullptr;
+    TerrainGeometryManager* m_geometry_manager = nullptr;
     std::unique_ptr<IWater> m_water;
     TerrainEditor           m_terrain_editor;
-    Collisions*             m_collisions;
-    ShadowManager*          m_shadow_manager;
-    SkyManager*             m_sky_manager;
-    SkyXManager*            SkyX_manager;
-    HydraxWater*            m_hydrax_water;
+    Collisions*             m_collisions = nullptr;
+    ShadowManager*          m_shadow_manager = nullptr;
+    SkyManager*             m_sky_manager = nullptr;
+    SkyXManager*            SkyX_manager = nullptr;
+    HydraxWater*            m_hydrax_water = nullptr;
 
     // Properties
 
     CacheEntryPtr           m_cache_entry;
     Terrn2DocumentPtr       m_def;
-    float                   m_paged_detail_factor;
-    int                     m_sight_range;
+    float                   m_paged_detail_factor = 0.f;
+    int                     m_sight_range = 1000;
 
     // Gameplay
 
-    Ogre::Light*            m_main_light;
-    float                   m_cur_gravity;
+    Ogre::Light*            m_main_light = nullptr;
+    float                   m_cur_gravity = DEFAULT_GRAVITY;
     bool                    m_disposed = false;
 };
 

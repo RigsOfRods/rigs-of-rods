@@ -708,7 +708,7 @@ float Collisions::getSurfaceHeight(float x, float z)
 
 float Collisions::getSurfaceHeightBelow(float x, float z, float height)
 {
-    float surface_height = App::GetGameContext()->GetTerrain()->GetHeightAt(x, z);
+    float surface_height = App::GetGameContext()->GetTerrain()->getHeightAt(x, z);
 
     // find the correct cell
     int refx = (int)(x / (float)CELL_SIZE);
@@ -1244,7 +1244,7 @@ bool Collisions::isInside(Ogre::Vector3 pos, collision_box_t *cbox, float border
 
 bool Collisions::groundCollision(node_t *node, float dt)
 {
-    Real v = App::GetGameContext()->GetTerrain()->GetHeightAt(node->AbsPosition.x, node->AbsPosition.z);
+    Real v = App::GetGameContext()->GetTerrain()->getHeightAt(node->AbsPosition.x, node->AbsPosition.z);
     if (v > node->AbsPosition.y)
     {
         ground_model_t* ogm = landuse ? landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z) : nullptr;
@@ -1373,10 +1373,10 @@ void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, O
                 float z2 = z+CELL_SIZE;
 
                 // find a good ground height for all corners of the cell ...
-                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x, z));
-                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x2, z));
-                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x, z2));
-                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x2, z2));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->getHeightAt(x, z));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->getHeightAt(x2, z));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->getHeightAt(x, z2));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->getHeightAt(x2, z2));
                 groundheight += 0.1; // 10 cm hover
 
                 float percentd = static_cast<float>(hashtable[hash].size()) / static_cast<float>(CELL_BLOCKSIZE);
@@ -1453,7 +1453,7 @@ void Collisions::addCollisionMesh(Ogre::String const& srcname, Ogre::String cons
     Vector3* vertices;
     unsigned* indices;
 
-    getMeshInformation(ent->getMesh().getPointer(),vertex_count,vertices,index_count,indices, pos, q, scale);
+    getMeshInformation(ent->getMesh().get(),vertex_count,vertices,index_count,indices, pos, q, scale);
 
     // Generate collision triangles
     int collision_tri_start = (int)m_collision_tris.size();

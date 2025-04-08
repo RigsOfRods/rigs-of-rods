@@ -51,13 +51,13 @@ static const float         ROTATE_SPEED = 100.f;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
-    b.y = std::max(b.y, App::GetGameContext()->GetTerrain()->GetHeightAt(b.x, b.z) + 1.0f);
+    b.y = std::max(b.y, App::GetGameContext()->GetTerrain()->getHeightAt(b.x, b.z) + 1.0f);
 
     int steps = std::max(3.0f, a.distance(b) * 2.0f);
     for (int i = 1; i < steps; i++)
     {
         Vector3 pos = a + (b - a) * (float)i / steps;
-        float h = App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z);
+        float h = App::GetGameContext()->GetTerrain()->getHeightAt(pos.x, pos.z);
         if (h > pos.y)
         {
             return true;
@@ -253,22 +253,31 @@ void CameraManager::UpdateInputEvents(float dt) // Called every frame
     m_cct_rot_scale    = Degree(TRANS_SPEED * dt);
     m_cct_trans_scale  = ROTATE_SPEED * dt;
 
-    if ( m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+    // Handle forced cinecam
+    if (m_cct_player_actor && m_cct_player_actor->ar_forced_cinecam != CINECAMERAID_INVALID)
     {
-        if ( (m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->EvaluateSwitchBehavior() )
+        this->switchBehavior(CAMERA_BEHAVIOR_VEHICLE_CINECAM);
+        m_cct_player_actor->ar_current_cinecam = m_cct_player_actor->ar_forced_cinecam;
+    }
+    else
+    {
+        if (m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE))
         {
-            this->switchToNextBehavior();
+            if ((m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->EvaluateSwitchBehavior())
+            {
+                this->switchToNextBehavior();
+            }
         }
-    }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX))
-    {
-        this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FIXED);
-    }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX))
+        {
+            this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FIXED);
+        }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE))
-    {
-        this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FREE);
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE))
+        {
+            this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FREE);
+        }
     }
 
     if (m_current_behavior != CAMERA_BEHAVIOR_INVALID)
@@ -404,7 +413,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
             this->CameraBehaviorVehicleSplineReset();
             this->CameraBehaviorVehicleSplineCreateSpline();
         }
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
@@ -431,7 +440,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
         m_cct_player_actor->ar_current_cinecam = std::max(0, m_cct_player_actor->ar_current_cinecam);
         m_cct_player_actor->NotifyActorCameraChanged();
 
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE:
@@ -444,7 +453,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
         {
             this->ResetCurrentBehavior();
         }
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
         break;
 
     case CAMERA_BEHAVIOR_CHARACTER:
@@ -493,14 +502,14 @@ void CameraManager::switchBehavior(CameraBehaviors new_behavior)
 
     if (m_cct_player_actor != nullptr)
     {
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
         if (!App::GetGuiManager()->IsGuiHidden())
         {
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_cct_player_actor);
         }
         if (m_current_behavior == CAMERA_BEHAVIOR_VEHICLE_CINECAM)
         {
-            m_cct_player_actor->ar_current_cinecam = -1;
+            m_cct_player_actor->ar_current_cinecam = CINECAMERAID_INVALID;
         }
     }
 
@@ -649,7 +658,7 @@ void CameraManager::NotifyVehicleChanged(ActorPtr new_vehicle)
             this->m_current_behavior != CAMERA_BEHAVIOR_FREE)
     {
         // Change camera
-        switch (new_vehicle->GetCameraContext()->behavior)
+        switch (new_vehicle->ar_camera_context.behavior)
         {
         case RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON:
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, new_vehicle);
@@ -770,7 +779,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
                     pos += (velocity + velocity.crossProduct(Vector3::UNIT_Y) * rnd) * dist;
                 }
                 pos.y = std::max(pos.y, water_height);
-                pos.y = std::max(pos.y, App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z));
+                pos.y = std::max(pos.y, App::GetGameContext()->GetTerrain()->getHeightAt(pos.x, pos.z));
                 pos.y += desired_offset * (i < 7 ? 1.0f : frand());
                 if (!intersectsTerrain(pos, lookAt, lookAtPrediction, interval))
                 {
@@ -900,7 +909,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     if (m_cam_limit_movement)
     {
-        float h = App::GetGameContext()->GetTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
+        float h = App::GetGameContext()->GetTerrain()->getHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
         desiredPosition.y = std::max(h, desiredPosition.y);
     }
