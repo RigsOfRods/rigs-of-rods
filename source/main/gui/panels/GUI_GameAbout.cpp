@@ -97,7 +97,7 @@ void GameAbout::Draw()
     ImGui::Text("%s%s", "Klink:",                       " Terrains conversion, few fixes and tweaks, dashboard designer");
     ImGui::Text("%s%s", "hagdervriese:",                " Linux fixes");
     ImGui::Text("%s%s", "skybon:",                      " Web services, fixes, utilities");
-    ImGui::Text("%s%s", "Niklas Kersten (Hiradur):",    " Various fixes and tweaks, retired");
+    ImGui::Text("%s%s", "Niklas Kersten (Hiradur):",    " Various fixes and tweaks, environmental audio");
     ImGui::Text("%s%s", "Moncef Ben Slimane (max98):",  " Few fixes, Few improvements, GUI Overhaul");
     ImGui::Text("%s%s", "mikadou:",                     " Modernized thread pool, cmake, various fixes");
     ImGui::Text("%s%s", "ulteq:",                       " Various features, multithreading, lots of fixes");

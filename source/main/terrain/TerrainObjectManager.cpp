@@ -1132,8 +1132,9 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj,
             int boxnum = terrainManager->GetCollisions()->addCollisionBox(
                 cbox.is_rotating, cbox.is_virtual, params->position, params->rotation,
                 cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
-                params->instance_name, cbox.force_cam_pos, cbox.cam_pos,
-                cbox.scale, cbox.direction, cbox.event_filter, params->script_handler);
+                params->instance_name, cbox.reverb_preset_name, cbox.force_cam_pos,
+                cbox.cam_pos, cbox.scale, cbox.direction, cbox.event_filter,
+                params->script_handler);
 
             obj->static_collision_boxes.push_back(boxnum);
         }
