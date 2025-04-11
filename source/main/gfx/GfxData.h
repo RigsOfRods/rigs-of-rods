@@ -28,7 +28,6 @@
 #pragma once
 
 #include "MeshObject.h"
-#include "SimData.h"
 
 #include <Ogre.h>
 #include <stdint.h>
@@ -110,20 +109,6 @@ enum class DebugViewType
     DEBUGVIEW_SLIDENODES,
     DEBUGVIEW_SUBMESH,
 };
-
-/// Used by rig-def/addonpart/tuneup formats to specify wheel rim mesh orientation.
-enum class WheelSide: char
-{
-    INVALID   = 'n',
-    RIGHT     = 'r',
-    LEFT      = 'l'
-};
-
-// Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
-typedef int CameraMode_t;
-static CameraMode_t CAMERA_MODE_ALWAYS_HIDDEN = -3;
-static CameraMode_t CAMERA_MODE_ALWAYS_VISIBLE = -2;
-static CameraMode_t CAMERA_MODE_3RDPERSON_ONLY = -1;
 
 enum ShifterPropAnim //!< `PropAnim::animOpt3` values for PROP_ANIM_FLAG_SHIFTER
 {
@@ -272,7 +257,7 @@ struct BeamGfx
     // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
     Ogre::SceneNode* rod_scenenode       = nullptr;
     uint16_t         rod_beam_index      = 0;
-    uint16_t         rod_diameter_mm     = 0;                    //!< Diameter in millimeters
+    float            rod_diameter        = 0.f;                    //!< meters
 
     NodeNum_t        rod_node1           = NODENUM_INVALID;  //!< Node index - may change during simulation!
     NodeNum_t        rod_node2           = NODENUM_INVALID;  //!< Node index - may change during simulation!

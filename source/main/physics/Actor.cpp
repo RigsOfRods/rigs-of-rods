@@ -659,8 +659,58 @@ void Actor::calcNetwork()
     m_net_initialized = true;
 }
 
-void Actor::RecalculateNodeMasses(Real total)
+static void debugLogNodeMass(Actor* actor)
 {
+    float total_tyre = 0.f; int num_tyre = 0;
+    float total_loaded = 0.f; int num_loaded = 0;
+    float total_override = 0.f; int num_override = 0;
+    float total = 0.f;
+
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        if (actor->ar_nodes[i].nd_tyre_node)
+        {
+            total_tyre += actor->ar_nodes[i].mass;
+            total += actor->ar_nodes[i].mass;
+            num_tyre++;
+        }
+        else if (actor->ar_nodes[i].nd_loaded_mass)
+        {
+            total_loaded += actor->ar_nodes[i].mass;
+            total += actor->ar_nodes[i].mass;
+            num_loaded++;
+        
+            if (actor->ar_nodes[i].nd_override_mass)
+            {
+                total_override += actor->ar_nodes[i].mass;
+                total += actor->ar_nodes[i].mass;
+                num_override++;
+            }
+        }
+        else
+        {
+            total += actor->ar_nodes[i].mass;
+        }
+    }
+    LOG(fmt::format("Node masses: total: {} kg, tyre ({} nodes): {} kg, loaded ({} nodes): {} kg, override ({} nodes): {} kg",
+        total,
+        num_tyre, total_tyre, 
+        num_loaded, total_loaded, 
+        num_override, total_override));
+}
+
+void Actor::recalculateNodeMasses()
+{
+    // Originally `calc_masses2(Real total, bool reCalc)`, where `total` was always the dry mass.
+    // ------------------------------------------------------------------------------------------
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG(fmt::format("recalculateNodeMasses() - before reset (dry mass: {} kg, loaded mass: {} kg, prev. calculated total mass: {} kg",
+            ar_dry_mass, ar_load_mass, ar_total_mass));
+        debugLogNodeMass(this);
+    }
+
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -668,21 +718,29 @@ void Actor::RecalculateNodeMasses(Real total)
         {
             if (!ar_nodes[i].nd_loaded_mass)
             {
+                // Normal mass
                 ar_nodes[i].mass = 0;
             }
             else if (!ar_nodes[i].nd_override_mass)
             {
-                ar_nodes[i].mass = m_load_mass / (float)m_masscount;
+                // Loaded mass
+                ar_nodes[i].mass = ar_load_mass / (float)ar_masscount;
+            }
+            else
+            {
+                // Override mass
+                ar_nodes[i].mass = ar_nodes_override_loadweights[i];
             }
         }
     }
     //average linear density
+    // Note this uses the reference (initial) length, so it should give consistent results.
     Real len = 0.0f;
     for (int i = 0; i < ar_num_beams; i++)
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_newlen = ar_beams[i].L / 2.0;
+            Real half_newlen = ar_beams[i].refL / 2.0;
             if (!ar_beams[i].p1->nd_tyre_node)
                 len += half_newlen;
             if (!ar_beams[i].p2->nd_tyre_node)
@@ -694,13 +752,20 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_mass = ar_beams[i].L * total / len / 2.0f;
+            Real half_mass = ar_beams[i].refL * ar_dry_mass / len / 2.0f;
             if (!ar_beams[i].p1->nd_tyre_node)
                 ar_beams[i].p1->mass += half_mass;
             if (!ar_beams[i].p2->nd_tyre_node)
                 ar_beams[i].p2->mass += half_mass;
         }
     }
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG(fmt::format("recalculateNodeMasses() - average linear density (total beam len: {}m)", len));
+        debugLogNodeMass(this);
+    }
+
     //fix rope masses
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
@@ -712,6 +777,12 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
         ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+    }
+
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG("recalculateNodeMasses() - ropes and cinecams");
+        debugLogNodeMass(this);
     }
 
     //update mass
@@ -731,7 +802,14 @@ void Actor::RecalculateNodeMasses(Real total)
         }
     }
 
-    m_total_mass = 0;
+    if (App::diag_truck_mass->getBool())
+    {
+        LOG(fmt::format("recalculateNodeMasses() - minimass (ar_minimass_skip_loaded_nodes: {})",
+            ar_minimass_skip_loaded_nodes));
+        debugLogNodeMass(this);
+    }
+
+    ar_total_mass = 0;
     for (int i = 0; i < ar_num_nodes; i++)
     {
         if (App::diag_truck_mass->getBool())
@@ -742,13 +820,13 @@ void Actor::RecalculateNodeMasses(Real total)
                 if (ar_nodes[i].nd_override_mass)
                     msg += " (overriden by node mass)";
                 else
-                    msg += " (normal load node: " + TOSTRING(m_load_mass) + " kg / " + TOSTRING(m_masscount) + " nodes)";
+                    msg += " (normal load node: " + TOSTRING(ar_load_mass) + " kg / " + TOSTRING(ar_masscount) + " nodes)";
             }
             LOG(msg);
         }
-        m_total_mass += ar_nodes[i].mass;
+        ar_total_mass += ar_nodes[i].mass;
     }
-    LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)m_total_mass) +" kg");
+    LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)ar_total_mass) +" kg");
 }
 
 float Actor::getTotalMass(bool withLocked)
@@ -757,13 +835,13 @@ float Actor::getTotalMass(bool withLocked)
         return 0.f;
 
     if (!withLocked)
-        return m_total_mass; // already computed in RecalculateNodeMasses
+        return ar_total_mass; // already computed in RecalculateNodeMasses
 
-    float mass = m_total_mass;
+    float mass = ar_total_mass;
 
     for (ActorPtr& actor : ar_linked_actors)
     {
-        mass += actor->m_total_mass;
+        mass += actor->ar_total_mass;
     }
 
     return mass;
@@ -1311,7 +1389,7 @@ void Actor::softRespawn(Ogre::Vector3 spawnpos, Ogre::Quaternion spawnrot)
 void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
-    m_mouse_grab_move_force = force * std::pow(m_total_mass / 3000.0f, 0.75f);
+    m_mouse_grab_move_force = force * std::pow(ar_total_mass / 3000.0f, 0.75f);
     m_mouse_grab_pos = pos;
 }
 
@@ -1418,14 +1496,14 @@ void Actor::toggleTransferCaseMode()
 
     if (m_transfer_case->tr_4wd_mode)
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = true;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = true;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
         m_num_proped_wheels += 2;
     }
     else
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = false;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = false;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
         m_num_proped_wheels -= 2;
     }
 }
@@ -1724,20 +1802,25 @@ void Actor::SyncReset(bool reset_position)
 
 void Actor::applyNodeBeamScales()
 {
-    for (int i = 0; i < ar_num_nodes; i++)
-    {
-        ar_nodes[i].mass = ar_initial_node_masses[i] * ar_nb_mass_scale;
-    }
-
-    m_total_mass = ar_initial_total_mass * ar_nb_mass_scale;
-
     for (int i = 0; i < ar_num_beams; i++)
     {
-        if ((ar_beams[i].p1->nd_tyre_node || ar_beams[i].p1->nd_rim_node) ||
+        // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
+        
+        if (ar_beams[i].p1->nd_rim_node && ar_beams[i].p2->nd_rim_node
+            && (ar_wheels[0].wh_arg_keyword == RigDef::Keyword::WHEELS2
+                || ar_wheels[0].wh_arg_keyword == RigDef::Keyword::MESHWHEELS2
+                || ar_wheels[0].wh_arg_keyword == RigDef::Keyword::FLEXBODYWHEELS))
+        {
+            // This wheel type supports separate rim spring/damp.
+            ar_beams[i].k = ar_wheels[0].wh_arg_rim_spring  * ar_nb_wheelrims_scale.first;
+            ar_beams[i].d = ar_wheels[0].wh_arg_rim_damping * ar_nb_wheelrims_scale.second;
+        }
+        else if ((ar_beams[i].p1->nd_tyre_node || ar_beams[i].p1->nd_rim_node) ||
             (ar_beams[i].p2->nd_tyre_node || ar_beams[i].p2->nd_rim_node))
         {
-            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_wheels_scale.first;
-            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_wheels_scale.second;
+            // Wheel type is simple or this is tire beam.
+            ar_beams[i].k = ar_wheels[0].wh_arg_simple_spring * ar_nb_wheels_scale.first;
+            ar_beams[i].d = ar_wheels[0].wh_arg_simple_damping * ar_nb_wheels_scale.second;
         }
         else if (ar_beams[i].bounded == SHOCK1 || ar_beams[i].bounded == SHOCK2 || ar_beams[i].bounded == SHOCK3)
         {
@@ -4421,7 +4504,12 @@ std::vector<std::string> Actor::getDescription()
 
 void Actor::setMass(float m)
 {
-    m_dry_mass = m;
+    ar_dry_mass = m;
+}
+
+void Actor::setLoadedMass(float m)
+{
+    ar_load_mass = m;
 }
 
 bool Actor::getCustomLightVisible(int number)

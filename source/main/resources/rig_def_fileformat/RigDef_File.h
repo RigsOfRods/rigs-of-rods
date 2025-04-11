@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2021 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -41,10 +41,8 @@
 
 #include "Application.h"
 #include "BitFlags.h"
-#include "GfxData.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
-#include "SimData.h"
 
 #include <list>
 #include <memory>
@@ -60,134 +58,6 @@ extern const char* ROOT_MODULE_NAME;
 
 // --------------------------------
 // Enums which only carry value
-
-// IMPORTANT! If you add a value here, you must also modify Regexes::IDENTIFY_KEYWORD, it relies on numeric values of this enum.
-enum class Keyword
-{
-    INVALID = 0,
-
-    ADD_ANIMATION = 1,
-    AIRBRAKES,
-    ANIMATORS,
-    ANTILOCKBRAKES,
-    ASSETPACKS,
-    AUTHOR,
-    AXLES,
-    BACKMESH,
-    BEAMS,
-    BRAKES,
-    CAB,
-    CAMERARAIL,
-    CAMERAS,
-    CINECAM,
-    COLLISIONBOXES,
-    COMMANDS,
-    COMMANDS2,
-    COMMENT,
-    CONTACTERS,
-    CRUISECONTROL,
-    DEFAULT_SKIN,
-    DESCRIPTION,
-    DETACHER_GROUP,
-    DISABLEDEFAULTSOUNDS,
-    ENABLE_ADVANCED_DEFORMATION,
-    END,
-    END_COMMENT,
-    END_DESCRIPTION,
-    END_SECTION,
-    ENGINE,
-    ENGOPTION,
-    ENGTURBO,
-    ENVMAP,
-    EXHAUSTS,
-    EXTCAMERA,
-    FILEFORMATVERSION,
-    FILEINFO,
-    FIXES,
-    FLARES,
-    FLARES2,
-    FLARES3,
-    FLAREGROUPS_NO_IMPORT,
-    FLEXBODIES,
-    FLEXBODY_CAMERA_MODE,
-    FLEXBODYWHEELS,
-    FORSET,
-    FORVERT,
-    FORWARDCOMMANDS,
-    FUSEDRAG,
-    GLOBALS,
-    GUID,
-    GUISETTINGS,
-    HELP,
-    HIDEINCHOOSER,
-    HOOKGROUP, // obsolete, ignored
-    HOOKS,
-    HYDROS,
-    IMPORTCOMMANDS,
-    INTERAXLES,
-    LOCKGROUPS,
-    LOCKGROUP_DEFAULT_NOLOCK,
-    MANAGEDMATERIALS,
-    MATERIALFLAREBINDINGS,
-    MESHWHEELS,
-    MESHWHEELS2,
-    MINIMASS,
-    NODECOLLISION, // obsolete
-    NODES,
-    NODES2,
-    PARTICLES,
-    PISTONPROPS,
-    PROP_CAMERA_MODE,
-    PROPS,
-    RAILGROUPS,
-    RESCUER,
-    RIGIDIFIERS, // obsolete
-    ROLLON,
-    ROPABLES,
-    ROPES,
-    ROTATORS,
-    ROTATORS2,
-    SCREWPROPS,
-    SCRIPTS,
-    SECTION,
-    SECTIONCONFIG,
-    SET_BEAM_DEFAULTS,
-    SET_BEAM_DEFAULTS_SCALE,
-    SET_COLLISION_RANGE,
-    SET_DEFAULT_MINIMASS,
-    SET_INERTIA_DEFAULTS,
-    SET_MANAGEDMATERIALS_OPTIONS,
-    SET_NODE_DEFAULTS,
-    SET_SHADOWS,
-    SET_SKELETON_SETTINGS,
-    SHOCKS,
-    SHOCKS2,
-    SHOCKS3,
-    SLIDENODE_CONNECT_INSTANTLY,
-    SLIDENODES,
-    SLOPE_BRAKE,
-    SOUNDSOURCES,
-    SOUNDSOURCES2,
-    SPEEDLIMITER,
-    SUBMESH,
-    SUBMESH_GROUNDMODEL,
-    TEXCOORDS,
-    TIES,
-    TORQUECURVE,
-    TRACTIONCONTROL,
-    TRANSFERCASE,
-    TRIGGERS,
-    TURBOJETS,
-    TURBOPROPS,
-    TURBOPROPS2,
-    VIDEOCAMERA,
-    WHEELDETACHERS,
-    WHEELS,
-    WHEELS2,
-    WINGS
-};
-
-const char* KeywordToString(Keyword keyword);
 
 enum class SpecialProp
 {
@@ -240,22 +110,6 @@ enum class MinimassOption: char
     l_SKIP_LOADED            = 'l'  //!< Only apply minimum mass to nodes without "L" option.
 };
 
-enum class WheelBraking: int
-{
-    NONE                     = 0,
-    FOOT_HAND                = 1,
-    FOOT_HAND_SKID_LEFT      = 2,
-    FOOT_HAND_SKID_RIGHT     = 3,
-    FOOT_ONLY                = 4,
-};
-
-enum class WheelPropulsion: int
-{
-    NONE                     = 0,
-    FORWARD                  = 1,
-    BACKWARD                 = 2,
-};
-
 enum class WingControlSurface: char
 {
     n_NONE                   = 'n',
@@ -289,6 +143,7 @@ enum class TieOption: char
 
 enum class CabOption: char
 {
+    n_DUMMY                  = 'n',
     c_CONTACT                = 'c',
     b_BUOYANT                = 'b',
     p_10xTOUGHER             = 'p',
@@ -413,8 +268,8 @@ struct BaseWheel
     unsigned int num_rays = 0u;
     Node::Ref nodes[2];
     Node::Ref rigidity_node;
-    WheelBraking braking = WheelBraking::NONE;
-    WheelPropulsion propulsion = WheelPropulsion::NONE;
+    RoR::WheelBraking braking = RoR::WheelBraking::NONE;
+    RoR::WheelPropulsion propulsion = RoR::WheelPropulsion::NONE;
     Node::Ref reference_arm_node;
     float mass = 0.f;
     std::shared_ptr<NodeDefaults> node_defaults;
@@ -440,7 +295,7 @@ struct BaseWheel2: public BaseWheel // common to 'wheels2' and 'flexbodywheels'
     float tyre_damping = 0.f;
 };
 
-struct Inertia // Common base for DefaultInertia and Command2Inertia
+struct Inertia
 {
     Inertia():
         start_delay_factor(0),
@@ -451,6 +306,14 @@ struct Inertia // Common base for DefaultInertia and Command2Inertia
     float stop_delay_factor;
     Ogre::String start_function;
     Ogre::String stop_function;
+};
+
+struct DocComment //!< Represents a comment (line starting with ';' or '//') that can be anywhere in the file.
+{
+    std::string comment_text; //!< May contain multiple lines separated by '\n' - MUST contain leading ';' or '//' at each line!
+    // The item following after the comment.
+    RigDef::Keyword commented_keyword = RigDef::Keyword::INVALID;
+    int commented_datapos = -1; //!< Position in the data vector for the given keyword.
 };
 
 // --------------------------------
@@ -1045,6 +908,8 @@ struct ManagedMaterial
     Ogre::String diffuse_map;
     Ogre::String damaged_diffuse_map;
     Ogre::String specular_map;
+
+    static const char* TypeToStr(ManagedMaterialType type);
 };
 
 struct MaterialFlareBinding
@@ -1578,6 +1443,13 @@ struct Document
         std::vector<Wheel>                 wheels;
         std::vector<Wheel2>                wheels2;
         std::vector<Wing>                  wings;
+
+        // Metadata
+        int _hint_nodes12_start_linenumber = -1;
+        int _hint_nodes12_end_linenumber = -1;
+        int _hint_beams_start_linenumber = -1;
+        int _hint_beams_end_linenumber = -1;
+        std::vector<DocComment> _comments;
     };
 
     Document();
