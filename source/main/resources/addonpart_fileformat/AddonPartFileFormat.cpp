@@ -375,7 +375,7 @@ void AddonPartUtility::ProcessFlare()
         return;
     }
 
-    Flare2 def; // We auto-import 'flares' as 'flares2', leaving the `offset.z` at 0.
+    Flare2 def; // We auto-import 'flares' as 'flares2', leaving the `offset.z` at 1.
     int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
     def.reference_node = Node::Ref("", (unsigned int)m_context->getTokInt(0), importflags, 0);
     def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokInt(1), importflags, 0);
