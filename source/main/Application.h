@@ -517,6 +517,36 @@ enum class ExtCameraMode
     NODE    = 2,
 };
 
+enum class WheelBraking: int /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h, `struct BaseWheel`
+
+    NONE                 = 0, //!< = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
+    FOOT_HAND            = 1, //!< = yes footbrake, yes handbrake, no  direction control
+    FOOT_HAND_SKID_LEFT  = 2, //!< = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
+    FOOT_HAND_SKID_RIGHT = 3, //!< = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
+    FOOT_ONLY            = 4, //!< = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
+};
+
+enum class WheelPropulsion: int
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h, `struct BaseWheel`
+
+    NONE                 = 0,
+    FORWARD              = 1,
+    BACKWARD             = 2,
+};
+
+/// Used by rig-def/addonpart/tuneup formats to specify wheel rim mesh orientation.
+enum class WheelSide: char
+{
+    // DO NOT MODIFY LETTERS - de/serialized from/to truck definition file, see 'RigDef_File.h' and 'ActorExport.cpp'
+
+    INVALID   = 'n',
+    RIGHT     = 'r',
+    LEFT      = 'l'
+};
+
 enum class TObjSpecialObject
 {
     // Exported to AngelScript:

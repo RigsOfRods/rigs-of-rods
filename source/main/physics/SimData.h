@@ -393,25 +393,16 @@ struct soundsource_t
 
 struct wheel_t
 {
-    enum class BrakeCombo /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
-    {
-        NONE,                 //!< - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
-        FOOT_HAND,            //!< - 1 = yes footbrake, yes handbrake, no  direction control
-        FOOT_HAND_SKID_LEFT,  //!< - 2 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
-        FOOT_HAND_SKID_RIGHT, //!< - 3 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
-        FOOT_ONLY             //!< - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
-    };
-
     int         wh_num_nodes;
     node_t*     wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
     int         wh_num_rim_nodes;
     node_t*     wh_rim_nodes[50];         // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
-    BrakeCombo  wh_braking;
+    WheelBraking wh_braking;
     node_t*     wh_arm_node;
     node_t*     wh_near_attach_node;
     node_t*     wh_axis_node_0;
     node_t*     wh_axis_node_1;
-    int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
+    WheelPropulsion wh_propulsed;
     Ogre::Real  wh_radius;
     Ogre::Real  wh_rim_radius;
     Ogre::Real  wh_speed;             //!< Current wheel speed in m/s
