@@ -314,6 +314,7 @@ void NodeBeamUtils::DrawMenubar(ActorPtr actor)
 
 void NodeBeamUtils::DrawMassTab(ActorPtr actor)
 {
+    ImGui::PushID("drymass"); // To disambiguate the 'reset' buttons.
     ImGui::TextDisabled(_LC("NodeBeamUtils", "User-defined values:"));
     if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Dry mass"), &actor->ar_dry_mass,
         actor->ar_original_dry_mass * 0.4f, actor->ar_original_dry_mass * 1.6f, "%.2f Kg"))
@@ -326,7 +327,9 @@ void NodeBeamUtils::DrawMassTab(ActorPtr actor)
         actor->ar_dry_mass = actor->ar_original_dry_mass;
         actor->recalculateNodeMasses();
     }
+    ImGui::PopID();
 
+    ImGui::PushID("loadmass"); // To disambiguate the 'reset' buttons.
     if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Load mass"), &actor->ar_load_mass,
         actor->ar_original_load_mass * 0.4f, actor->ar_original_load_mass * 1.6f, "%.2f Kg"))
     {
@@ -338,7 +341,9 @@ void NodeBeamUtils::DrawMassTab(ActorPtr actor)
         actor->ar_load_mass = actor->ar_original_load_mass;
         actor->recalculateNodeMasses();
     }
+    ImGui::PopID();
 
+    ImGui::PushID("minimass"); // To disambiguate the 'reset' buttons.
     if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Minimum node mass scale"), &actor->ar_nb_minimass_scale, 0.4, 1.6))
     {
         for (int i = 0; i < actor->ar_num_nodes; i++)
@@ -357,6 +362,8 @@ void NodeBeamUtils::DrawMassTab(ActorPtr actor)
         actor->ar_nb_minimass_scale = 1.0f;
         actor->recalculateNodeMasses();
     }
+    ImGui::PopID();
+
     ImGui::Separator();
     ImGui::TextDisabled(_LC("NodeBeamUtils", "Calculated values:"));
     ImGui::Text("%s: %f", _LC("NodeBeamUtils", "Total mass"), actor->ar_total_mass);
