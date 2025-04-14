@@ -171,8 +171,10 @@ void Actor::CalcDifferentials()
         }
         for (int i = 0; i < ar_num_wheels; i++)
         {
-            if (ar_wheels[i].wh_propulsed && !ar_wheels[i].wh_is_detached)
+            if (ar_wheels[i].wh_propulsed != WheelPropulsion::NONE && !ar_wheels[i].wh_is_detached)
+            {
                 ar_wheels[i].wh_torque += torque;
+            }
         }
     }
 
@@ -318,14 +320,14 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             ar_wheels[i].wh_tc_coef = 1.0f;
         }
 
-        if (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
+        if (ar_wheels[i].wh_braking != WheelBraking::NONE)
         {
             // footbrake
             float abrake = ar_brake_force * ar_brake;
 
             // handbrake
             float hbrake = 0.0f;
-            if (ar_parking_brake && (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
+            if (ar_parking_brake && (ar_wheels[i].wh_braking != WheelBraking::FOOT_ONLY))
             {
                 hbrake = m_handbrake_force;
             }
@@ -333,8 +335,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             // directional braking
             float dbrake = 0.0f;
             if ((ar_wheels[i].wh_speed < 20.0f)
-                && (((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
-                 || ((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
+                && (((ar_wheels[i].wh_braking == WheelBraking::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
+                 || ((ar_wheels[i].wh_braking == WheelBraking::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
             {
                 dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
@@ -389,7 +391,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             Vector3 radius = outer_node->RelPosition - inner_node->RelPosition;
             float inverted_rlen = 1.0f / radius.length();
 
-            if (ar_wheels[i].wh_propulsed == 2)
+            if (ar_wheels[i].wh_propulsed == WheelPropulsion::BACKWARD)
             {
                 radius = -radius;
             }
@@ -424,7 +426,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         // We overestimate the average speed on purpose in order to improve the quality of the braking force estimate
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.99 + ar_wheels[i].wh_speed * 0.1;
         ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * ar_wheels[i].wh_speed / ar_wheels[i].wh_radius / (float)num_steps;
-        if (ar_wheels[i].wh_propulsed == 1)
+        if (ar_wheels[i].wh_propulsed == WheelPropulsion::FORWARD)
         {
             float speedacc = ar_wheels[i].wh_speed / (float)m_num_proped_wheels;
             ar_wheel_speed += speedacc;                          // Accumulate the average wheel speed (m/s)

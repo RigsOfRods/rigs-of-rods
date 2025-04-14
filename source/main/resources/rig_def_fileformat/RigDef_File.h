@@ -44,7 +44,6 @@
 #include "GfxData.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
-#include "SimData.h"
 
 #include <list>
 #include <memory>
@@ -110,22 +109,6 @@ enum class MinimassOption: char
 {
     n_DUMMY                  = 'n',
     l_SKIP_LOADED            = 'l'  //!< Only apply minimum mass to nodes without "L" option.
-};
-
-enum class WheelBraking: int
-{
-    NONE                     = 0,
-    FOOT_HAND                = 1,
-    FOOT_HAND_SKID_LEFT      = 2,
-    FOOT_HAND_SKID_RIGHT     = 3,
-    FOOT_ONLY                = 4,
-};
-
-enum class WheelPropulsion: int
-{
-    NONE                     = 0,
-    FORWARD                  = 1,
-    BACKWARD                 = 2,
 };
 
 enum class WingControlSurface: char
@@ -285,8 +268,8 @@ struct BaseWheel
     unsigned int num_rays = 0u;
     Node::Ref nodes[2];
     Node::Ref rigidity_node;
-    WheelBraking braking = WheelBraking::NONE;
-    WheelPropulsion propulsion = WheelPropulsion::NONE;
+    RoR::WheelBraking braking = RoR::WheelBraking::NONE;
+    RoR::WheelPropulsion propulsion = RoR::WheelPropulsion::NONE;
     Node::Ref reference_arm_node;
     float mass = 0.f;
     std::shared_ptr<NodeDefaults> node_defaults;

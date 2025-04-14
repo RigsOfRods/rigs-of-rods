@@ -111,14 +111,6 @@ enum class DebugViewType
     DEBUGVIEW_SUBMESH,
 };
 
-/// Used by rig-def/addonpart/tuneup formats to specify wheel rim mesh orientation.
-enum class WheelSide: char
-{
-    INVALID   = 'n',
-    RIGHT     = 'r',
-    LEFT      = 'l'
-};
-
 // Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
 typedef int CameraMode_t;
 static CameraMode_t CAMERA_MODE_ALWAYS_HIDDEN = -3;
