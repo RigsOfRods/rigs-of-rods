@@ -53,14 +53,6 @@ enum CollisionEventFilter: short
     EVENT_BOAT,              //!< 'boat' ~ Triggered by any node of boats (`ActorType::BOAT`)
 };
 
-enum class ExtCameraMode
-{
-    INVALID = -1,
-    CLASSIC = 0,
-    CINECAM = 1,
-    NODE    = 2,
-};
-
 
 /// @addtogroup Physics
 /// @{
