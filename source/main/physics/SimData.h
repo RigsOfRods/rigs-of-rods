@@ -225,25 +225,6 @@ enum EngineTriggerType
     TRG_ENGINE_SHIFTDOWN = 5 
 };
 
-enum class FlareType: char
-{
-    NONE           = 0,
-    // Front lights
-    HEADLIGHT      = 'f',
-    HIGH_BEAM      = 'h',
-    FOG_LIGHT      = 'g',
-    // Rear lighs
-    TAIL_LIGHT     = 't',
-    BRAKE_LIGHT    = 'b',
-    REVERSE_LIGHT  = 'R',
-    // Special lights
-    SIDELIGHT      = 's',
-    BLINKER_LEFT   = 'l',
-    BLINKER_RIGHT  = 'r',
-    USER           = 'u',
-    DASHBOARD      = 'd'
-};
-
 /// @addtogroup Aerial
 /// @{
 
