@@ -486,6 +486,27 @@ enum CacheCategoryId
     CID_SearchResults = 9994,
 };
 
+enum class FlareType: char
+{
+    // DO NOT MODIFY LETTERS - de/serialized from/to truck definition file, see 'RigDef_File.h' and 'ActorExport.cpp'
+
+    NONE           = 0,
+    // Front lights
+    HEADLIGHT      = 'f',
+    HIGH_BEAM      = 'h',
+    FOG_LIGHT      = 'g',
+    // Rear lighs
+    TAIL_LIGHT     = 't',
+    BRAKE_LIGHT    = 'b',
+    REVERSE_LIGHT  = 'R',
+    // Special lights
+    SIDELIGHT      = 's',
+    BLINKER_LEFT   = 'l',
+    BLINKER_RIGHT  = 'r',
+    USER           = 'u',
+    DASHBOARD      = 'd'
+};
+
 enum class TObjSpecialObject
 {
     // Exported to AngelScript:
