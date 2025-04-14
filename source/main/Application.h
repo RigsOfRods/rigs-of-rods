@@ -507,6 +507,16 @@ enum class FlareType: char
     DASHBOARD      = 'd'
 };
 
+enum class ExtCameraMode
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h and 'ActorExport.cpp'
+
+    INVALID = -1,
+    CLASSIC = 0,
+    CINECAM = 1,
+    NODE    = 2,
+};
+
 enum class TObjSpecialObject
 {
     // Exported to AngelScript:
