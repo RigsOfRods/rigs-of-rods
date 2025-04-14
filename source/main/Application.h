@@ -507,16 +507,6 @@ enum class FlareType: char
     DASHBOARD      = 'd'
 };
 
-enum class ExtCameraMode
-{
-    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h and 'ActorExport.cpp'
-
-    INVALID = -1,
-    CLASSIC = 0,
-    CINECAM = 1,
-    NODE    = 2,
-};
-
 enum class WheelBraking: int /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
 {
     // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h, `struct BaseWheel`
@@ -546,6 +536,23 @@ enum class WheelSide: char
     RIGHT     = 'r',
     LEFT      = 'l'
 };
+
+enum class ExtCameraMode
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h and 'ActorExport.cpp'
+
+    INVALID = -1,
+    CLASSIC = 0,
+    CINECAM = 1,
+    NODE    = 2,
+};
+
+// Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
+// DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h and 'ActorExport.cpp'
+typedef int CameraMode_t;
+static CameraMode_t CAMERA_MODE_ALWAYS_HIDDEN = -3;
+static CameraMode_t CAMERA_MODE_ALWAYS_VISIBLE = -2;
+static CameraMode_t CAMERA_MODE_3RDPERSON_ONLY = -1;
 
 enum class TObjSpecialObject
 {
