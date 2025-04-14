@@ -295,8 +295,6 @@ private:
     unsigned int                  AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-    WheelID_t                     AddWheel(RigDef::Wheel & wheel);
-    WheelID_t                     AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
     void                          GetWheelAxisNodes(RigDef::BaseWheel& def, node_t*& out_node_1, node_t*& out_node_2);
     void                          AddExhaust(NodeNum_t emitter_node_idx, NodeNum_t direction_node_idx);
     RailGroup*                    CreateRail(std::vector<RigDef::Node::Range> & node_ranges);

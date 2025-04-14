@@ -88,15 +88,45 @@ void NodeBeamUtils::Draw()
         actor->applyNodeBeamScales();
     }
     ImGui::Separator();
+    
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Wheels:"));
-    if (ImGui::SliderFloat("Spring##Wheels", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f, "%.5f"))
+    const float WBASE_WIDTH = 125.f;
+    const float WSCALE_WIDTH = 225.f;
+    const float WLABEL_GAP = 20.f;
+    // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
+    
+    // wheel spring
+    ImGui::SetNextItemWidth(WBASE_WIDTH);
+    if (ImGui::InputFloat("Base##wheels-spring", &actor->ar_wheels[0].wh_arg_simple_spring))
     {
         actor->applyNodeBeamScales();
     }
-    if (ImGui::SliderFloat("Damping##Wheels", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f, "%.5f"))
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(WSCALE_WIDTH);
+    if (ImGui::SliderFloat("Scale##Wheels-spring", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f, "%.5f"))
     {
         actor->applyNodeBeamScales();
     }
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
+    ImGui::Text("Spring (%.2f)", actor->ar_nb_wheels_scale.first * actor->ar_wheels[0].wh_arg_simple_spring);
+
+    // wheel damping
+    ImGui::SetNextItemWidth(WBASE_WIDTH);
+    if (ImGui::InputFloat("Base##wheels-damping", &actor->ar_wheels[0].wh_arg_simple_damping))
+    {
+        actor->applyNodeBeamScales();
+    }
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(WSCALE_WIDTH);
+    if (ImGui::SliderFloat("Scale##Wheels-damping", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f, "%.5f"))
+    {
+        actor->applyNodeBeamScales();
+    }
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
+    ImGui::Text("Damping (%.2f)", actor->ar_nb_wheels_scale.second* actor->ar_wheels[0].wh_arg_simple_damping);
+    
     ImGui::Separator();
     ImGui::Spacing();
     if (ImGui::Button(_LC("NodeBeamUtils", "Reset to default settings"), ImVec2(280.f, 25.f)))
@@ -261,7 +291,7 @@ void NodeBeamUtils::DrawMenubar(ActorPtr actor)
         ImGui::SameLine();
         ImGui::Text("%s", actor->getUsedActorEntry()->dname.c_str());
         ImGui::SameLine();
-        if (ImGui::SmallButton(_LC("NodeBeamUtils", "Save active")))
+        if (ImGui::SmallButton(_LC("NodeBeamUtils", "Save and reload")))
         {
             RoR::ModifyProjectRequest* req = new RoR::ModifyProjectRequest();
             req->mpr_type = RoR::ModifyProjectRequestType::ACTOR_UPDATE_DEF_DOCUMENT;
