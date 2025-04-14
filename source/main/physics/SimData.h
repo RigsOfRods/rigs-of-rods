@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include "Application.h"
 #include "ForwardDeclarations.h"
 #include "SimConstants.h"
 #include "BitFlags.h"
@@ -416,6 +417,19 @@ struct wheel_t
     float       wh_net_rp;
     float       wh_width;
     bool        wh_is_detached;
+
+    // Editing & Export (not used in simulation)
+    RigDef::Keyword wh_arg_keyword;
+    int             wh_arg_num_rays;
+    NodeNum_t       wh_arg_rigidity_node;
+    float           wh_arg_rim_spring;      //!< Not used by 'wheels' (1) and 'meshwheels' (1).
+    float           wh_arg_rim_damping;     //!< Not used by 'wheels' (1) and 'meshwheels' (1).
+    float           wh_arg_simple_spring;   //!< Whole wheel or just tire, depending on type.
+    float           wh_arg_simple_damping;  //!< Whole wheel or just tire, depending on type.
+    WheelSide       wh_arg_side;            //!< Only for 'meshwheels*' and 'flexbodywheels'
+    std::string     wh_arg_media1;
+    std::string     wh_arg_media2;
+    int             wh_beam_start;          //!< BeamID to export 'set_beam_defaults' parameters from.
 
     // Debug
     float debug_rpm;

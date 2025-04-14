@@ -41,7 +41,6 @@
 
 #include "Application.h"
 #include "BitFlags.h"
-#include "GfxData.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
 
