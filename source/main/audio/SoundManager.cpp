@@ -405,7 +405,20 @@ void SoundManager::Update(const float dt)
     if (!audio_device)
         return;
 
-    this->SetDopplerFactor(App::audio_doppler_factor->getFloat());
+    if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && App::audio_sim_pause_disables_doppler_effect->getBool())
+    {
+        /*
+            If the simulation is paused, the listener's velocity suddenly becomes close to zero, which could be a large
+            difference to before if the listener was following a fast vehicle. Additionally, users might be confused when
+            they rotate around objects moving at least as fast as Mach 1 since the Doppler shift changes significantly and
+            there would be no sound in front of the object.
+            Hence, we provide an option for disabling the Doppler effect while the simulation is paused.
+        */
+        this->SetDopplerFactor(0);
+    }
+    else {
+        this->SetDopplerFactor(App::audio_doppler_factor->getFloat());
+    }
 
     const auto water = App::GetGameContext()->GetTerrain()->getWater();
     m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(m_listener_position) : false);

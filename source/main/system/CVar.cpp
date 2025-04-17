@@ -164,6 +164,7 @@ void Console::cVarSetupBuiltins()
     App::audio_default_efx_preset                  = this->cVarCreate("audio_default_efx_preset",                  "OpenAL default EFX preset",             CVAR_ARCHIVE);
     App::audio_force_listener_efx_preset           = this->cVarCreate("audio_force_listener_efx_preset",           "OpenAL forced listener EFX preset",     CVAR_ARCHIVE);
     App::audio_force_obstruction_inside_vehicles   = this->cVarCreate("audio_force_obstruction_inside_vehicles",   "Force obstruction inside vehicles",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::audio_sim_pause_disables_doppler_effect   = this->cVarCreate("audio_sim_pause_disables_doppler_effect",   "Disable Doppler effect on sim pause",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
 
     App::gfx_flares_mode         = this->cVarCreate("gfx_flares_mode",         "Lights",                     CVAR_ARCHIVE | CVAR_TYPE_INT,     "4"/*(int)GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS*/);
     App::gfx_polygon_mode        = this->cVarCreate("gfx_polygon_mode",        "Polygon mode",                              CVAR_TYPE_INT,     "1"/*(int)Ogre::PM_SOLID*/);

@@ -549,6 +549,7 @@ extern CVar* audio_force_listener_efx_preset;
 extern CVar* audio_device_name;
 extern CVar* audio_doppler_factor;
 extern CVar* audio_menu_music;
+extern CVar* audio_sim_pause_disables_doppler_effect;
 
 // Graphics
 extern CVar* gfx_flares_mode;

@@ -221,6 +221,7 @@ CVar* audio_force_obstruction_inside_vehicles;
 CVar* audio_device_name;
 CVar* audio_doppler_factor;
 CVar* audio_menu_music;
+CVar* audio_sim_pause_disables_doppler_effect;
 
 // Graphics
 CVar* gfx_flares_mode;
