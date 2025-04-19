@@ -405,6 +405,18 @@ void SoundManager::Update(const float dt)
     if (!audio_device)
         return;
 
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(m_listener_position) : false);
+
+    this->UpdateGlobalDopplerFactor();
+    this->recomputeAllSources();
+    this->UpdateAlListener();
+    this->UpdateListenerEnvironment();
+    this->UpdateEfxSpecificProperties(dt);
+}
+
+void SoundManager::UpdateGlobalDopplerFactor() const
+{
     if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && App::audio_sim_pause_disables_doppler_effect->getBool())
     {
         /*
@@ -419,14 +431,6 @@ void SoundManager::Update(const float dt)
     else {
         this->SetDopplerFactor(App::audio_doppler_factor->getFloat());
     }
-
-    const auto water = App::GetGameContext()->GetTerrain()->getWater();
-    m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(m_listener_position) : false);
-
-    this->recomputeAllSources();
-    this->UpdateAlListener();
-    this->UpdateListenerEnvironment();
-    this->UpdateEfxSpecificProperties(dt);
 }
 
 void SoundManager::UpdateEfxSpecificProperties(const float dt)

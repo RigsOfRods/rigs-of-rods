@@ -87,6 +87,11 @@ public:
     void Update(const float dt);
 
     /**
+     * Updates the global Doppler factor based on CVar settings and the state of the physics simulation.
+     */
+    void UpdateGlobalDopplerFactor() const;
+
+    /**
      * Updates properties of OpenAL facilities that are only available with EFX.
      * @param dt Time since last frame in seconds
      */
