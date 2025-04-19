@@ -87,6 +87,19 @@ public:
     void Update(const float dt);
 
     /**
+     * Updates properties of OpenAL facilities that are only available with EFX.
+     * @param dt Time since last frame in seconds
+     */
+    void UpdateEfxSpecificProperties(const float dt);
+
+    /**
+     * Identifies the actor to which the sound corresponding to a hardware source belongs
+     * and updates the Doppler factor based on CVar settings and the actor's physics sim state.
+     * @param hardware_index Index of the hardware source.
+     */
+    void UpdateSourceSpecificDopplerFactor(const int hardware_index) const;
+
+    /**
       * Sets position and speed of the listener
       * @param position The position of the listener.
       * @param direction This direction vector specifies where the front of the listener is pointing to.

@@ -426,60 +426,62 @@ void SoundManager::Update(const float dt)
     this->recomputeAllSources();
     this->UpdateAlListener();
     this->UpdateListenerEnvironment();
+    this->UpdateEfxSpecificProperties(dt);
+}
 
-    if (App::audio_enable_efx->getBool())
+void SoundManager::UpdateEfxSpecificProperties(const float dt)
+{
+    if (!App::audio_enable_efx->getBool()) { return; }
+
+    for (int hardware_index = 0; hardware_index < hardware_sources_num; ++hardware_index)
     {
-        if(App::audio_sim_pause_disables_doppler_effect->getBool())
-        {
-            // disable Doppler effect for all actors that are individually paused
-            // one of the reasons this might be desirable is because their velocity vectors are frozen
-            for (int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
-            {
-                const SoundPtr&    corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
-                const ActorPtrVec& actors              = App::GetGameContext()->GetActorManager()->GetActors();
+        this->UpdateSourceSpecificDopplerFactor(hardware_index);
 
-                for (const ActorPtr& actor : actors)
-                {
-                    // check if the sound corresponding to this hardware source belongs to the actor
-                    // and update its Doppler factor if that is the case
-                    for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
-                    {
-                        const soundsource_t& soundsource      = actor->ar_soundsources[soundsource_index];
-                        const int            num_sounds_of_ss = soundsource.ssi->getTemplate()->getNumSounds();
+        // update air absorption factor
+        alSourcef(hardware_sources[hardware_index], AL_AIR_ABSORPTION_FACTOR, m_air_absorption_factor);
 
-                        for (int num_sound = 0; num_sound < num_sounds_of_ss; ++num_sound)
-                        {
-                            if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
-                            {
-                                if(!actor->ar_physics_paused)
-                                {
-                                    this->SetDopplerFactor(hardware_sources[hardware_index], 1.0f);
-                                }
-                                else {
-                                    this->SetDopplerFactor(hardware_sources[hardware_index], 0.0f);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // apply filters to sources when appropriate
-        for (int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
-        {
-            // update air absorption factor
-            alSourcef(hardware_sources[hardware_index], AL_AIR_ABSORPTION_FACTOR, m_air_absorption_factor);
-
-            this->UpdateSourceFilters(hardware_index);
-        }
-
-        this->UpdateListenerEffectSlot(dt);
+        this->UpdateSourceFilters(hardware_index);
     }
+
+    this->UpdateListenerEffectSlot(dt);
 
     if (App::audio_enable_directed_sounds->getBool())
     {
         this->UpdateDirectedSounds();
+    }
+}
+
+void SoundManager::UpdateSourceSpecificDopplerFactor(const int hardware_index) const
+{
+    const SoundPtr&    corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
+    const ActorPtrVec& actors              = App::GetGameContext()->GetActorManager()->GetActors();
+
+    // identify actor to which the Sound instance corresponding to the hardware source belongs
+    for (const ActorPtr& actor : actors)
+    {
+        for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
+        {
+            const soundsource_t& soundsource      = actor->ar_soundsources[soundsource_index];
+            const int            num_sounds_of_ss = soundsource.ssi->getTemplate()->getNumSounds();
+
+            for (int num_sound = 0; num_sound < num_sounds_of_ss; ++num_sound)
+            {
+                // update the Doppler factor if the Sound belongs to the actor
+                if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
+                {
+                    if (    !App::audio_sim_pause_disables_doppler_effect->getBool()
+                         || !actor->ar_physics_paused)
+                    {
+                        this->SetDopplerFactor(hardware_sources[hardware_index], 1.0f);
+                    }
+                    else {
+                        this->SetDopplerFactor(hardware_sources[hardware_index], 0.0f);
+                    }
+
+                    return;
+                }
+            }
+        }
     }
 }
 
