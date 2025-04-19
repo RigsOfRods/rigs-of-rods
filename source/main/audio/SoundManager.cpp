@@ -429,6 +429,42 @@ void SoundManager::Update(const float dt)
 
     if (App::audio_enable_efx->getBool())
     {
+        if(App::audio_sim_pause_disables_doppler_effect->getBool())
+        {
+            // disable Doppler effect for all actors that are individually paused
+            // one of the reasons this might be desirable is because their velocity vectors are frozen
+            for (int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
+            {
+                const SoundPtr&    corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
+                const ActorPtrVec& actors              = App::GetGameContext()->GetActorManager()->GetActors();
+
+                for (const ActorPtr& actor : actors)
+                {
+                    // check if the sound corresponding to this hardware source belongs to the actor
+                    // and update its Doppler factor if that is the case
+                    for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
+                    {
+                        const soundsource_t& soundsource      = actor->ar_soundsources[soundsource_index];
+                        const int            num_sounds_of_ss = soundsource.ssi->getTemplate()->getNumSounds();
+
+                        for (int num_sound = 0; num_sound < num_sounds_of_ss; ++num_sound)
+                        {
+                            if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
+                            {
+                                if(!actor->ar_physics_paused)
+                                {
+                                    this->SetDopplerFactor(hardware_sources[hardware_index], 1.0f);
+                                }
+                                else {
+                                    this->SetDopplerFactor(hardware_sources[hardware_index], 0.0f);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // apply filters to sources when appropriate
         for (int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
         {
@@ -453,6 +489,11 @@ void SoundManager::SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
     m_listener_direction = direction;
     m_listener_up = up;
     m_listener_velocity = velocity;
+}
+
+void SoundManager::SetDopplerFactor(const ALuint hardware_source, const float doppler_factor) const
+{
+    App::audio_enable_efx->getBool() ? alSourcef(hardware_source, AL_DOPPLER_FACTOR, doppler_factor) : void();
 }
 
 void SoundManager::UpdateListenerEnvironment()

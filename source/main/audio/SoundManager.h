@@ -131,10 +131,18 @@ public:
     float GetDopplerFactor() const { return alGetFloat(AL_DOPPLER_FACTOR); }
 
     /**
-     * Updates the doppler factor in OpenAL with the provided value.
+     * Updates the global Doppler factor in OpenAL with the provided value.
      * @param doppler_factor Doppler factor within the range of AL_DOPPLER_FACTOR.
      */
     void SetDopplerFactor(const float doppler_factor) const { alDopplerFactor(doppler_factor); }
+
+    /**
+     * Updates the Doppler factor of an OpenAL source with the provided value.
+     * EFX has to be supported and enabled, otherwise this is a no-op.
+     * @param hardware_source Index of the hardware source.
+     * @param doppler_factor Doppler factor within the range of AL_DOPPLER_FACTOR.
+     */
+     void SetDopplerFactor(const ALuint hardware_source, const float doppler_factor) const;
 
     /**
      * Sets the air absorptions factor for the direct path of all sounds.
@@ -197,9 +205,9 @@ private:
 
     /**
      * Computes audibility of an audio source and retires it if it is inaudible. Otherwise, it updates
-     * its state (e.g. play/stop) if it is already assigned to a hardware source. If it was not assigned
+     * its parameters (e.g. play/stop) if it is already assigned to a hardware source. If it was not assigned
      * to a hardware source yet, it will either be assigned to a free slot or replace a less audible
-     * source, if one exists.
+     * source if one exists.
      * @see assign()
      * @see retire()
      */
