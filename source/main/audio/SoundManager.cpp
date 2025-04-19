@@ -1005,7 +1005,9 @@ void SoundManager::UpdateSourceFilters(const int hardware_index) const
 
 bool SoundManager::IsHardwareSourceObstructed(const int hardware_index) const
 {
-    if (hardware_sources_map[hardware_index] == -1) { return false; } // no sound assigned to hardware source
+    if (    hardware_sources_map[hardware_index] == -1                    // no sound assigned to hardware source
+         || App::app_state->getEnum<AppState>()  != AppState::SIMULATION) // this is necessary to prevent a crash with enabled main menu music
+        { return false; }
 
     /*
      * There is no simple way to know whether a truck has a closed cabin or not; hence
