@@ -695,6 +695,7 @@ struct collision_box_t
     Ogre::Vector3 rehi;         //!< relative collision box
     Ogre::Vector3 campos;       //!< camera position
     Ogre::Vector3 debug_verts[8];//!< box corners in absolute world position
+    std::string reverb_preset_name; //!< name of the reverb preset that applies to the inside of the collision box
 };
 typedef std::vector<collision_box_t*> CollisionBoxPtrVec;
 
