@@ -25,8 +25,9 @@
 
 #include "ActorManager.h"
 
-#include "Application.h"
 #include "Actor.h"
+#include "Application.h"
+#include "ApproxMath.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "ChatSystem.h"
@@ -1542,7 +1543,7 @@ void ActorManager::CalcFreeForces()
                 }
                 break;
 
-            case FreeForceType::TOWARDS_NODE:    
+            case FreeForceType::TOWARDS_NODE:
                 {
                     // Sanity checks
                     ROR_ASSERT(freeforce.ffc_target_actor != nullptr);
@@ -1554,6 +1555,118 @@ void ActorManager::CalcFreeForces()
                     freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].Forces += freeforce.ffc_force_magnitude * force_direction;
                 }
                 break;
+
+            case FreeForceType::HALFBEAM_GENERIC:
+            case FreeForceType::HALFBEAM_ROPE:
+            {
+                // Sanity checks
+                ROR_ASSERT(freeforce.ffc_target_actor != nullptr);
+                ROR_ASSERT(freeforce.ffc_target_actor->ar_state != ActorState::DISPOSED);
+                ROR_ASSERT(freeforce.ffc_target_node != NODENUM_INVALID);
+                ROR_ASSERT(freeforce.ffc_target_node <= freeforce.ffc_target_actor->ar_num_nodes);
+
+                // ---- BEGIN COPYPASTE of `Actor::CalcBeamsInterActor()` ----
+
+                // Calculate beam length
+                node_t* p1 = &freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node];
+                node_t* p2 = &freeforce.ffc_target_actor->ar_nodes[freeforce.ffc_target_node];
+                const Vector3 dis = p1->AbsPosition - p2->AbsPosition;
+
+                Real dislen = dis.squaredLength();
+                const Real inverted_dislen = fast_invSqrt(dislen);
+
+                dislen *= inverted_dislen;
+
+                // Calculate beam's deviation from normal
+                Real difftoBeamL = dislen - freeforce.ffc_halfb_L;
+
+                Real k = freeforce.ffc_halfb_spring;
+                Real d = freeforce.ffc_halfb_damp;
+
+                if (freeforce.ffc_type == FreeForceType::HALFBEAM_ROPE && difftoBeamL < 0.0f)
+                {
+                    k = 0.0f;
+                    d *= 0.1f;
+                }
+
+                // Calculate beam's rate of change
+                Vector3 v = p1->Velocity - p2->Velocity;
+
+                float slen = -k * (difftoBeamL)-d * v.dotProduct(dis) * inverted_dislen;
+                freeforce.ffc_halfb_stress = slen;
+
+                // Fast test for deformation
+                float len = std::abs(slen);
+                if (len > freeforce.ffc_halfb_minmaxposnegstress)
+                {
+                    if (k != 0.0f)
+                    {
+                        // Actual deformation tests
+                        if (slen > freeforce.ffc_halfb_maxposstress && difftoBeamL < 0.0f) // compression
+                        {
+                            Real yield_length = freeforce.ffc_halfb_maxposstress / k;
+                            Real deform = difftoBeamL + yield_length * (1.0f - freeforce.ffc_halfb_plastic_coef);
+                            Real Lold = freeforce.ffc_halfb_L;
+                            freeforce.ffc_halfb_L += deform;
+                            freeforce.ffc_halfb_L = std::max(MIN_BEAM_LENGTH, freeforce.ffc_halfb_L);
+                            slen = slen - (slen - freeforce.ffc_halfb_maxposstress) * 0.5f;
+                            len = slen;
+                            if (freeforce.ffc_halfb_L > 0.0f && Lold > freeforce.ffc_halfb_L)
+                            {
+                                freeforce.ffc_halfb_maxposstress *= Lold / freeforce.ffc_halfb_L;
+                                freeforce.ffc_halfb_minmaxposnegstress = std::min(freeforce.ffc_halfb_maxposstress, -freeforce.ffc_halfb_maxnegstress);
+                                freeforce.ffc_halfb_minmaxposnegstress = std::min(freeforce.ffc_halfb_minmaxposnegstress, freeforce.ffc_halfb_strength);
+                            }
+                            // For the compression case we do not remove any of the beam's
+                            // strength for structure stability reasons
+                            //freeforce.ffc_halfb_strength += deform * k * 0.5f;
+
+                            TRIGGER_EVENT_ASYNC(SE_GENERIC_FREEFORCES_ACTIVITY, FREEFORCESACTIVITY_DEFORMED, freeforce.ffc_id, 0, 0,
+                                fmt::format("{}", slen), fmt::format("{}", freeforce.ffc_halfb_maxposstress));
+                        }
+                        else if (slen < freeforce.ffc_halfb_maxnegstress && difftoBeamL > 0.0f) // expansion
+                        {
+                            Real yield_length = freeforce.ffc_halfb_maxnegstress / k;
+                            Real deform = difftoBeamL + yield_length * (1.0f - freeforce.ffc_halfb_plastic_coef);
+                            Real Lold = freeforce.ffc_halfb_L;
+                            freeforce.ffc_halfb_L += deform;
+                            slen = slen - (slen - freeforce.ffc_halfb_maxnegstress) * 0.5f;
+                            len = -slen;
+                            if (Lold > 0.0f && freeforce.ffc_halfb_L > Lold)
+                            {
+                                freeforce.ffc_halfb_maxnegstress *= freeforce.ffc_halfb_L / Lold;
+                                freeforce.ffc_halfb_minmaxposnegstress = std::min(freeforce.ffc_halfb_maxposstress, -freeforce.ffc_halfb_maxnegstress);
+                                freeforce.ffc_halfb_minmaxposnegstress = std::min(freeforce.ffc_halfb_minmaxposnegstress, freeforce.ffc_halfb_strength);
+                            }
+                            freeforce.ffc_halfb_strength -= deform * k;
+
+                            TRIGGER_EVENT_ASYNC(SE_GENERIC_FREEFORCES_ACTIVITY, FREEFORCESACTIVITY_DEFORMED, freeforce.ffc_id, 0, 0,
+                                fmt::format("{}", slen), fmt::format("{}", freeforce.ffc_halfb_maxnegstress));
+                        }
+                    }
+
+                    // Test if the beam should break
+                    if (len > freeforce.ffc_halfb_strength)
+                    {
+                        // Sound effect.
+                        // Sound volume depends on springs stored energy
+                        SOUND_MODULATE(freeforce.ffc_base_actor->ar_instance_id, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
+                        SOUND_PLAY_ONCE(freeforce.ffc_base_actor->ar_instance_id, SS_TRIG_BREAK);
+
+                        freeforce.ffc_type = FreeForceType::DUMMY;
+
+                        TRIGGER_EVENT_ASYNC(SE_GENERIC_FREEFORCES_ACTIVITY, FREEFORCESACTIVITY_BROKEN, freeforce.ffc_id, 0, 0,
+                            fmt::format("{}", len), fmt::format("{}", freeforce.ffc_halfb_strength));
+                    }
+                }
+
+                // At last update the beam forces
+                Vector3 f = dis;
+                f *= (slen * inverted_dislen);
+                p1->Forces += f;
+                // ---- END COPYPASTE of `Actor::CalcBeamsInterActor()` ----
+            }
+            break;
 
             default:
                 break;
@@ -1595,7 +1708,9 @@ static bool ProcessFreeForce(FreeForceRequest* rq, FreeForce& freeforce)
     }
     freeforce.ffc_base_node = (NodeNum_t)rq->ffr_base_node;
 
-    if (freeforce.ffc_type == FreeForceType::TOWARDS_NODE)
+    if (freeforce.ffc_type == FreeForceType::TOWARDS_NODE ||
+        freeforce.ffc_type == FreeForceType::HALFBEAM_GENERIC ||
+        freeforce.ffc_type == FreeForceType::HALFBEAM_ROPE)
     {
         // Target actor
         freeforce.ffc_target_actor = App::GetGameContext()->GetActorManager()->GetActorById(rq->ffr_target_actor);
@@ -1618,6 +1733,26 @@ static bool ProcessFreeForce(FreeForceRequest* rq, FreeForce& freeforce)
             return false;
         }
         freeforce.ffc_target_node = (NodeNum_t)rq->ffr_target_node;
+
+        if (freeforce.ffc_type == FreeForceType::HALFBEAM_GENERIC ||
+            freeforce.ffc_type == FreeForceType::HALFBEAM_ROPE)
+        {
+            freeforce.ffc_halfb_spring = (float)rq->ffr_halfb_spring;
+            freeforce.ffc_halfb_damp = (float)rq->ffr_halfb_damp;
+            freeforce.ffc_halfb_strength = (float)rq->ffr_halfb_strength;
+            freeforce.ffc_halfb_deform = (float)rq->ffr_halfb_deform;
+            freeforce.ffc_halfb_diameter = (float)rq->ffr_halfb_diameter;
+            freeforce.ffc_halfb_plastic_coef = (float)rq->ffr_halfb_plastic_coef;
+
+            freeforce.ffc_halfb_minmaxposnegstress = (float)rq->ffr_halfb_deform;
+            freeforce.ffc_halfb_maxposstress = (float)rq->ffr_halfb_deform;
+            freeforce.ffc_halfb_maxnegstress = -(float)rq->ffr_halfb_deform;
+
+            // Calc length
+            const Ogre::Vector3 base_pos = freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].AbsPosition;
+            const Ogre::Vector3 target_pos = freeforce.ffc_target_actor->ar_nodes[freeforce.ffc_target_node].AbsPosition;
+            freeforce.ffc_halfb_L = target_pos.distance(base_pos);
+        }
     }
 
     return true;
@@ -1642,6 +1777,7 @@ void ActorManager::AddFreeForce(FreeForceRequest* rq)
     if (ProcessFreeForce(rq, freeforce))
     {
         m_free_forces.push_back(freeforce);
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_FREEFORCES_ACTIVITY, FREEFORCESACTIVITY_ADDED, rq->ffr_id);
     }
 }
 
@@ -1659,6 +1795,7 @@ void ActorManager::ModifyFreeForce(FreeForceRequest* rq)
     if (ProcessFreeForce(rq, freeforce))
     {
         *it = freeforce;
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_FREEFORCES_ACTIVITY, FREEFORCESACTIVITY_MODIFIED, rq->ffr_id);
     }
 }
 
@@ -1673,4 +1810,5 @@ void ActorManager::RemoveFreeForce(FreeForceID_t id)
     }
 
     m_free_forces.erase(it);
+    TRIGGER_EVENT_ASYNC(SE_GENERIC_FREEFORCES_ACTIVITY, FREEFORCESACTIVITY_REMOVED, id);
 }

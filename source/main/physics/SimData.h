@@ -746,6 +746,8 @@ enum class FreeForceType
     CONSTANT,            //!< Constant force given by direction and magnitude
     TOWARDS_COORDS,      //!< Constant force directed towards `ffc_target_coords`
     TOWARDS_NODE,        //!< Constant force directed towards `ffc_target_node`
+    HALFBEAM_GENERIC,    //!< Like `TOWARDS_NODE`, but parametrized like a beam in truck fileformat.
+    HALFBEAM_ROPE,       //!< Like `TOWARDS_NODE`, but parametrized like a rope-beam in truck fileformat.
 };
 
 /// Global force affecting particular (base) node of particular (base) actor; added ad-hoc by scripts.
@@ -762,6 +764,19 @@ struct FreeForce
     Ogre::Vector3        ffc_target_coords = Ogre::Vector3::ZERO;
     ActorPtr             ffc_target_actor;
     NodeNum_t            ffc_target_node = NODENUM_INVALID;
+    // Half-beam specific params:
+    float                ffc_halfb_spring = DEFAULT_SPRING;
+    float                ffc_halfb_damp = DEFAULT_DAMP;
+    float                ffc_halfb_deform = BEAM_DEFORM;
+    float                ffc_halfb_strength = BEAM_BREAK; //!< Breaking threshold
+    float                ffc_halfb_diameter = DEFAULT_BEAM_DIAMETER;
+    float                ffc_halfb_plastic_coef = BEAM_PLASTIC_COEF_DEFAULT;
+    // Half-beam simulation state:
+    float                ffc_halfb_L = 0.f; //!< Length at rest, including permanent deformations.
+    float                ffc_halfb_stress = 0.f;
+    float                ffc_halfb_minmaxposnegstress = 0.f;
+    float                ffc_halfb_maxposstress = 0.f;
+    float                ffc_halfb_maxnegstress = 0.f;
 };
 
 /// Common for ADD and MODIFY requests; tailored for use with AngelScript thru `GameScript::pushMessage()`.
@@ -780,7 +795,13 @@ struct FreeForceRequest
     Ogre::Vector3 ffr_target_coords = Ogre::Vector3::ZERO;
     int64_t ffr_target_actor = ACTORINSTANCEID_INVALID;
     int64_t ffr_target_node = NODENUM_INVALID;
-    
+    // Half-beam specific params:
+    double ffr_halfb_spring = DEFAULT_SPRING;
+    double ffr_halfb_damp = DEFAULT_DAMP;
+    double ffr_halfb_deform = BEAM_DEFORM;
+    double ffr_halfb_strength = BEAM_DEFORM;
+    double ffr_halfb_diameter = DEFAULT_BEAM_DIAMETER;
+    double ffr_halfb_plastic_coef = BEAM_PLASTIC_COEF_DEFAULT;
 };
 
 /// @} // addtogroup Physics

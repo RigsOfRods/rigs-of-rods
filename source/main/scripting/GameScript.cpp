@@ -1721,6 +1721,25 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
                     }
                     break;
 
+                case (int64_t)FreeForceType::HALFBEAM_GENERIC:
+                case (int64_t)FreeForceType::HALFBEAM_ROPE:
+                    if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "target_actor", "int64", rq->ffr_target_actor) &&
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/true, "target_node", "int64", rq->ffr_target_node))
+                    {
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/false, "halfb_spring", "double", rq->ffr_halfb_spring);
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/false, "halfb_damp", "double", rq->ffr_halfb_damp);
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/false, "halfb_deform", "double", rq->ffr_halfb_deform);
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/false, "halfb_strength", "double", rq->ffr_halfb_strength);
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/false, "halfb_diameter", "double", rq->ffr_halfb_diameter);
+                        m.payload = rq;
+                    }
+                    else
+                    {
+                        delete rq;
+                        return false;
+                    }
+                    break;
+
                 default:
                     this->log(fmt::format("{}: ERROR, invalid 'free force type' value '{}'", log_msg, rq->ffr_type));
                     delete rq;

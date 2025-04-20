@@ -64,8 +64,8 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MESSAGEBOX_CLICK", SE_GENERIC_MESSAGEBOX_CLICK); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_EXCEPTION_CAUGHT", SE_GENERIC_EXCEPTION_CAUGHT); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MODCACHE_ACTIVITY", SE_GENERIC_MODCACHE_ACTIVITY); ROR_ASSERT(result>=0);
-
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_TRUCK_LINKING_CHANGED", SE_GENERIC_TRUCK_LINKING_CHANGED); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_FREEFORCES_ACTIVITY", SE_GENERIC_FREEFORCES_ACTIVITY); ROR_ASSERT(result >= 0);
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_ALL_EVENTS", SE_ALL_EVENTS); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_NO_EVENTS", SE_NO_EVENTS); ROR_ASSERT(result>=0);
@@ -94,4 +94,15 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_BUNDLE_LOADED", MODCACHEACTIVITY_BUNDLE_LOADED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_BUNDLE_RELOADED", MODCACHEACTIVITY_BUNDLE_RELOADED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_BUNDLE_UNLOADED", MODCACHEACTIVITY_BUNDLE_UNLOADED); ROR_ASSERT(result >= 0);
+
+    // enum freeForcesActivityType
+    result = engine->RegisterEnum("freeForcesActivityType"); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterEnumValue("freeForcesActivityType", "FREEFORCESACTIVITY_NONE", FREEFORCESACTIVITY_NONE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("freeForcesActivityType", "FREEFORCESACTIVITY_ADDED", FREEFORCESACTIVITY_ADDED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("freeForcesActivityType", "FREEFORCESACTIVITY_MODIFIED", FREEFORCESACTIVITY_MODIFIED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("freeForcesActivityType", "FREEFORCESACTIVITY_REMOVED", FREEFORCESACTIVITY_REMOVED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("freeForcesActivityType", "FREEFORCESACTIVITY_DEFORMED", FREEFORCESACTIVITY_DEFORMED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("freeForcesActivityType", "FREEFORCESACTIVITY_BROKEN", FREEFORCESACTIVITY_BROKEN); ROR_ASSERT(result >= 0);
+
 }
