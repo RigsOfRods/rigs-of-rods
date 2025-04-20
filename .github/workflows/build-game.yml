@@ -6,7 +6,7 @@ on: [ push, pull_request ]
 jobs:
   build-gcc:
     name: Linux build on Ubuntu
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,7 +15,7 @@ jobs:
       - name: Cache conan
         uses: actions/cache@v4
         with:
-          key: conan-ubuntu-20-${{ hashFiles('conanfile.py') }}
+          key: conan-ubuntu-22-${{ hashFiles('conanfile.py') }}
           path: ~/.conan2/
 
       - name: Install dependencies
