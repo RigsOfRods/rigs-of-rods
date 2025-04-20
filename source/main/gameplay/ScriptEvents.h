@@ -60,20 +60,20 @@ enum scriptEvents
     SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(23), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
     SE_GENERIC_EXCEPTION_CAUGHT        = BITMASK(24), //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
     SE_GENERIC_MODCACHE_ACTIVITY       = BITMASK(25), //!< Triggered when status of modcache changes, args: #1 type, #2 entry number, for other args see `RoR::modCacheActivityType`
-
     SE_GENERIC_TRUCK_LINKING_CHANGED   = BITMASK(26), //!< Triggered when 2 actors become linked or unlinked via ties/hooks/ropes/slidenodes; args: #1 state (1=linked, 0=unlinked), #2 action `ActorLinkingRequestType` #3 master ActorInstanceID_t, #4 slave ActorInstanceID_t
+    SE_GENERIC_FREEFORCES_ACTIVITY     = BITMASK(27), //!< Triggered on freeforce add/update/delete or breaking; args: #1 `freeForcesActivityType`, #2 freeforce ID
 
     SE_ALL_EVENTS                      = 0xffffffff,
     SE_NO_EVENTS                       = 0
 
 };
 
-/// Argument #2 of script event `SE_ANGELSCRIPT_MANIPULATIONS`
+/// Argument #1 of script event `SE_ANGELSCRIPT_MANIPULATIONS`
 enum angelScriptManipulationType
 {
     ASMANIP_CONSOLE_SNIPPET_EXECUTED = 0, // 0 for Backwards compatibility.
     ASMANIP_SCRIPT_LOADED,                //!< Triggered after the script's `main()` completed; may trigger additional processing (for example, it delivers the *.mission file to mission system script). Args: #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename.
-    ASMANIP_SCRIPT_UNLOADING,              //!< Triggered before unloading the script to let it clean up (important for missions). Args: #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename.
+    ASMANIP_SCRIPT_UNLOADING,             //!< Triggered before unloading the script to let it clean up (important for missions). Args: #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename.
     ASMANIP_ACTORSIMATTR_SET              //!< Triggered when `setSimAttribute()` is called; additional args: #2 `RoR::ActorSimAtrr`, #3 ---, #4 ---, #5 attr name, #6 value converted to string.
 };
 
@@ -85,7 +85,7 @@ enum angelScriptThreadStatus
     ASTHREADSTATUS_CURLSTRING_FAILURE,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 message from `curl_easy_strerror()`
 };
 
-/// Argument #2 of script event `RoR::SE_GENERIC_MODCACHE_ACTIVITY`
+/// Argument #1 of script event `RoR::SE_GENERIC_MODCACHE_ACTIVITY`
 enum modCacheActivityType
 {
     MODCACHEACTIVITY_NONE,
@@ -97,6 +97,19 @@ enum modCacheActivityType
     MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args: #1 type, #2 entry number, --, --, #5 rg name
     MODCACHEACTIVITY_BUNDLE_RELOADED,  //!< Args: #1 type, #2 entry number, --, --, #5 rg name
     MODCACHEACTIVITY_BUNDLE_UNLOADED   //!< Args: #1 type, #2 entry number
+};
+
+/// Argument #1 of script event `RoR::SE_GENERIC_FREEFORCES_ACTIVITY`
+enum freeForcesActivityType
+{
+    FREEFORCESACTIVITY_NONE,
+
+    FREEFORCESACTIVITY_ADDED,
+    FREEFORCESACTIVITY_MODIFIED,
+    FREEFORCESACTIVITY_REMOVED,
+
+    FREEFORCESACTIVITY_DEFORMED, //!< Only with `HALFBEAM_*` types; arg #5 (string containing float) the actual stress, arg #6 (string containing float) maximum stress.
+    FREEFORCESACTIVITY_BROKEN, //!< Only with `HALFBEAM_*` types; arg #5 (string containing float) the applied force, arg #6 (string containing float) breaking threshold force.
 };
 
 /// Args for `eventCallbackEx()` queued via `MSG_SIM_SCRIPT_EVENT_TRIGGERED`

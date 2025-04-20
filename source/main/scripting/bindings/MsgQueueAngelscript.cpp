@@ -106,5 +106,6 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_CONSTANT", (int)FreeForceType::CONSTANT); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_TOWARDS_COORDS", (int)FreeForceType::TOWARDS_COORDS); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_TOWARDS_NODE", (int)FreeForceType::TOWARDS_NODE); ROR_ASSERT(result >= 0);
-
+    result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_HALFBEAM_GENERIC", (int)FreeForceType::HALFBEAM_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_HALFBEAM_ROPE", (int)FreeForceType::HALFBEAM_ROPE); ROR_ASSERT(result >= 0);
 }

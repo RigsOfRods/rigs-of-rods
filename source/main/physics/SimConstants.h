@@ -60,6 +60,7 @@ static const float IRON_DENSITY                 = 7874.0f;
 static const float BEAM_BREAK                   = 1000000.0f;
 static const float BEAM_DEFORM                  = 400000.0f;
 static const float BEAM_CREAK_DEFAULT           = 100000.0f;
+static const float BEAM_PLASTIC_COEF_DEFAULT    = 0.f;
 static const float WHEEL_FRICTION_COEF          = 2.0f;
 static const float CHASSIS_FRICTION_COEF        = 0.5f; //!< Chassis has 1/4 the friction of wheels.
 static const float SPEED_STOP                   = 0.2f;

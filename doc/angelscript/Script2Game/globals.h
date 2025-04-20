@@ -84,7 +84,7 @@ void print(const string message);
 
  };
  
-/// Argument #2 of script event `SE_ANGELSCRIPT_MANIPULATIONS`
+/// Argument #1 of script event `SE_ANGELSCRIPT_MANIPULATIONS`
 enum angelScriptManipulationType
 {
     ASMANIP_CONSOLE_SNIPPET_EXECUTED = 0, // 0 for Backwards compatibility.
@@ -101,7 +101,7 @@ enum angelScriptThreadStatus
     ASTHREADSTATUS_CURLSTRING_FAILURE,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 message from `curl_easy_strerror()`
 };
 
-/// Argument #2 of script event `RoR::SE_GENERIC_MODCACHE_ACTIVITY`
+/// Argument #1 of script event `RoR::SE_GENERIC_MODCACHE_ACTIVITY`
 enum modCacheActivityType
 {
     MODCACHEACTIVITY_NONE,
@@ -112,6 +112,19 @@ enum modCacheActivityType
     MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 rg name
     MODCACHEACTIVITY_BUNDLE_RELOADED,  //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 rg name
     MODCACHEACTIVITY_BUNDLE_UNLOADED   //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number
+};
+
+/// Argument #1 of script event `RoR::SE_GENERIC_FREEFORCES_ACTIVITY`
+enum freeForcesActivityType
+{
+    FREEFORCESACTIVITY_NONE,
+
+    FREEFORCESACTIVITY_ADDED,
+    FREEFORCESACTIVITY_MODIFIED,
+    FREEFORCESACTIVITY_REMOVED,
+
+    FREEFORCESACTIVITY_DEFORMED, //!< Only with `HALFBEAM_*` types; arg #5 (string containing float) the actual stress, arg #6 (string containing float) maximum stress.
+    FREEFORCESACTIVITY_BROKEN, //!< Only with `HALFBEAM_*` types; arg #5 (string containing float) the applied force, arg #6 (string containing float) breaking threshold force.
 };
 
 enum inputEvents
