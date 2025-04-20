@@ -358,7 +358,7 @@ void GameSettings::DrawAudioSettings()
 
     DrawGCheckbox(App::audio_menu_music,        _LC("GameSettings", "Main menu music"));
     DrawGFloatSlider(App::audio_master_volume,  _LC("GameSettings", "Master volume"), 0, 1);
-    DrawGFloatSlider(App::audio_doppler_factor, _LC("GameSettings", "Doppler factor (requires restart)"), 0, 10);
+    DrawGFloatSlider(App::audio_doppler_factor, _LC("GameSettings", "Doppler factor"), 0, 10);
 #endif // USE_OPENAL
 }
 
