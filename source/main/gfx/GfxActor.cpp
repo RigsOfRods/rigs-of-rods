@@ -1663,52 +1663,8 @@ void RoR::GfxActor::UpdateRods()
 
         rod.rod_scenenode->setPosition(pos1.midPoint(pos2));
         rod.rod_scenenode->setScale(beam_diameter, beam_length, beam_diameter);
-        rod.rod_scenenode->setOrientation(GfxActor::SpecialGetRotationTo(Ogre::Vector3::UNIT_Y, (pos1 - pos2)));
+        rod.rod_scenenode->setOrientation(GfxScene::SpecialGetRotationTo(Ogre::Vector3::UNIT_Y, (pos1 - pos2)));
     }
-}
-
-Ogre::Quaternion RoR::GfxActor::SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest)
-{
-    // Based on Stan Melax's article in Game Programming Gems
-    Ogre::Quaternion q;
-    // Copy, since cannot modify local
-    Ogre::Vector3 v0 = src;
-    Ogre::Vector3 v1 = dest;
-    v0.normalise();
-    v1.normalise();
-
-    // NB if the crossProduct approaches zero, we get unstable because ANY axis will do
-    // when v0 == -v1
-    Ogre::Real d = v0.dotProduct(v1);
-    // If dot == 1, vectors are the same
-    if (d >= 1.0f)
-    {
-        return Ogre::Quaternion::IDENTITY;
-    }
-    if (d < (1e-6f - 1.0f))
-    {
-        // Generate an axis
-        Ogre::Vector3 axis = Ogre::Vector3::UNIT_X.crossProduct(src);
-        if (axis.isZeroLength()) // pick another if colinear
-            axis = Ogre::Vector3::UNIT_Y.crossProduct(src);
-        axis.normalise();
-        q.FromAngleAxis(Ogre::Radian(Ogre::Math::PI), axis);
-    }
-    else
-    {
-        Ogre::Real s = fast_sqrt((1 + d) * 2);
-        if (s == 0)
-            return Ogre::Quaternion::IDENTITY;
-
-        Ogre::Vector3 c = v0.crossProduct(v1);
-        Ogre::Real invs = 1 / s;
-
-        q.x = c.x * invs;
-        q.y = c.y * invs;
-        q.z = c.z * invs;
-        q.w = s * 0.5;
-    }
-    return q;
 }
 
 void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)

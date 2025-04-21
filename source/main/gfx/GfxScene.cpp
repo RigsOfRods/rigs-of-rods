@@ -24,6 +24,7 @@
 #include "AppContext.h"
 #include "Actor.h"
 #include "ActorManager.h"
+#include "ApproxMath.h"
 #include "Console.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
@@ -73,16 +74,19 @@ void GfxScene::ClearScene()
 
     // Wipe scene manager
     m_scene_manager->clearScene();
+    m_gfx_freebeams_grouping_node = nullptr;
 
     // Recover from the wipe
     App::GetCameraManager()->ReCreateCameraNode();
     App::GetGuiManager()->DirectionArrow.CreateArrow();
+    m_gfx_freebeams_grouping_node = m_scene_manager->getRootSceneNode()->createChildSceneNode("FreeBeam Visuals");
 }
 
 void GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
     m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager();
+    m_gfx_freebeams_grouping_node = m_scene_manager->getRootSceneNode()->createChildSceneNode("FreeBeam Visuals");
 
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }
@@ -250,6 +254,8 @@ void GfxScene::UpdateScene(float dt)
     App::GetGuiManager()->DrawSimGuiBuffered(player_gfx_actor);
 
     App::GetGameContext()->GetSceneMouse().UpdateVisuals();
+
+    this->UpdateFreeBeamGfx(dt);
 
     // Actors - finalize threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
@@ -434,4 +440,183 @@ void GfxScene::AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys)
     }
 
     psys->setSpeedFactor(speed_factor);
+}
+
+void GfxScene::AddFreeBeamGfx(FreeBeamGfxRequest* rq)
+{
+    auto itor = std::find_if(m_gfx_freebeams.begin(), m_gfx_freebeams.end(),
+        [rq](const FreeBeamGfx& obj) { return obj.fbx_id == rq->fbr_id; });
+    if (itor != m_gfx_freebeams.end())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("FreeBeamGfx with ID %d already exists, ignoring request.",rq->fbr_id));
+        return;
+    }
+
+    FreeBeamGfx obj;
+    obj.fbx_id = rq->fbr_id;
+    obj.fbx_freeforce_primary = rq->fbr_freeforce_primary;
+    obj.fbx_freeforce_secondary = rq->fbr_freeforce_secondary;
+    obj.fbx_diameter = rq->fbr_diameter;
+
+    Ogre::Entity* e = m_scene_manager->createEntity(fmt::format("FreeBeamGfx_{}", rq->fbr_id), rq->fbr_mesh_name);
+    e->setMaterialName(rq->fbr_material_name);
+
+    obj.fbx_scenenode = m_gfx_freebeams_grouping_node->createChildSceneNode(fmt::format("FreeBeamGfx_{}", rq->fbr_id));
+    obj.fbx_scenenode->setScale(rq->fbr_diameter, -1, rq->fbr_diameter);
+    obj.fbx_scenenode->attachObject(e);
+
+    m_gfx_freebeams.push_back(obj);
+}
+
+void GfxScene::ModifyFreeBeamGfx(FreeBeamGfxRequest* rq)
+{
+    auto itor = std::find_if(m_gfx_freebeams.begin(), m_gfx_freebeams.end(),
+        [rq](const FreeBeamGfx& obj) { return obj.fbx_id == rq->fbr_id; });
+    if (itor == m_gfx_freebeams.end())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("FreeBeamGfx with ID %d not found, ignoring request.", rq->fbr_id));
+        return;
+    }
+
+    FreeBeamGfx& obj = *itor;
+    this->RemoveFreeBeamGfx(rq->fbr_id);
+    this->AddFreeBeamGfx(rq);
+}
+
+void GfxScene::RemoveFreeBeamGfx(FreeBeamGfxID_t id)
+{
+    auto itor = std::find_if(m_gfx_freebeams.begin(), m_gfx_freebeams.end(),
+        [id](const FreeBeamGfx& obj) { return obj.fbx_id == id; });
+    if (itor == m_gfx_freebeams.end())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("FreeBeamGfx with ID %d not found, ignoring request.", id));
+        return;
+    }
+
+    FreeBeamGfx& obj = *itor;
+    m_scene_manager->destroyEntity((Ogre::Entity*)obj.fbx_scenenode->getAttachedObject(0));
+    m_gfx_freebeams_grouping_node->removeChild(obj.fbx_scenenode);
+    m_gfx_freebeams.erase(itor);
+}
+
+void GfxScene::UpdateFreeBeamGfx(float dt)
+{
+    for (FreeBeamGfx& freebeam : m_gfx_freebeams)
+    {
+        // Sanity checks - primary freeforce
+        ROR_ASSERT(freebeam.fbx_id != FREEBEAMGFXID_INVALID);
+        ROR_ASSERT(freebeam.fbx_freeforce_primary != FREEFORCEID_INVALID);
+        ActorManager::FreeForceVec_t::iterator itor;
+        const bool exists = App::GetGameContext()->GetActorManager()->FindFreeForce(freebeam.fbx_freeforce_primary, itor);
+        ROR_ASSERT(exists);
+        if (!exists)
+        {
+            continue;
+        }
+        FreeForce& freeforce = *itor;
+        
+        // Sanity checks - base actor
+        ROR_ASSERT(freeforce.ffc_base_actor);
+        ROR_ASSERT(freeforce.ffc_base_actor->ar_state != ActorState::DISPOSED);
+        GfxActor* gfx_actor_base = freeforce.ffc_base_actor->GetGfxActor();
+        ROR_ASSERT(gfx_actor_base);
+        ROR_ASSERT(freeforce.ffc_base_node != NODENUM_INVALID);
+        ROR_ASSERT(freeforce.ffc_base_node < freeforce.ffc_base_actor->ar_num_nodes);
+
+        // Sanity checks - target actor
+        ROR_ASSERT(freeforce.ffc_target_actor);
+        ROR_ASSERT(freeforce.ffc_target_actor->ar_state != ActorState::DISPOSED);
+        GfxActor* gfx_actor_target = freeforce.ffc_target_actor->GetGfxActor();
+        ROR_ASSERT(gfx_actor_target);
+        ROR_ASSERT(freeforce.ffc_target_node != NODENUM_INVALID);
+        ROR_ASSERT(freeforce.ffc_target_node < freeforce.ffc_target_actor->ar_num_nodes);
+
+        // Get node positions
+        Ogre::Vector3 basenode_pos = gfx_actor_base->GetSimNodeBuffer()[freeforce.ffc_base_node].AbsPosition;
+        Ogre::Vector3 targetnode_pos = gfx_actor_target->GetSimNodeBuffer()[freeforce.ffc_target_node].AbsPosition;
+
+        // Do the transforms
+        freebeam.fbx_scenenode->setPosition(basenode_pos.midPoint(targetnode_pos));
+        freebeam.fbx_scenenode->setOrientation(GfxScene::SpecialGetRotationTo(Ogre::Vector3::UNIT_Y, (basenode_pos - targetnode_pos)));
+        freebeam.fbx_scenenode->setScale(freebeam.fbx_diameter, basenode_pos.distance(targetnode_pos), freebeam.fbx_diameter);
+    }
+}
+
+void GfxScene::OnFreeForceRemoved(FreeForceID_t id)
+{
+    auto itor_secondary = std::find_if(m_gfx_freebeams.begin(), m_gfx_freebeams.end(),
+        [id](const FreeBeamGfx& obj) { return obj.fbx_freeforce_secondary == id; });
+    if (itor_secondary != m_gfx_freebeams.end())
+    {
+        // Just clear the freeforce ID
+        itor_secondary->fbx_freeforce_secondary = FREEFORCEID_INVALID;
+    }
+    else
+    {
+        auto itor_primary = std::find_if(m_gfx_freebeams.begin(), m_gfx_freebeams.end(),
+            [id](const FreeBeamGfx& obj) { return obj.fbx_freeforce_primary == id; });
+        if (itor_primary != m_gfx_freebeams.end())
+        {
+            // Remove the whole freebeam
+            this->RemoveFreeBeamGfx(itor_primary->fbx_id);
+        }
+    }
+}
+
+void GfxScene::OnFreeForceBroken(FreeForceID_t id)
+{
+    auto itor = std::find_if(m_gfx_freebeams.begin(), m_gfx_freebeams.end(),
+        [id](const FreeBeamGfx& obj) { return obj.fbx_freeforce_primary == id || obj.fbx_freeforce_secondary == id; });
+    if (itor != m_gfx_freebeams.end())
+    {
+        // Remove the whole freebeam if either freeforce broke
+        this->RemoveFreeBeamGfx(itor->fbx_id);
+    }
+}
+
+Ogre::Quaternion RoR::GfxScene::SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest)
+{
+    // Based on Stan Melax's article in Game Programming Gems
+    Ogre::Quaternion q;
+    // Copy, since cannot modify local
+    Ogre::Vector3 v0 = src;
+    Ogre::Vector3 v1 = dest;
+    v0.normalise();
+    v1.normalise();
+
+    // NB if the crossProduct approaches zero, we get unstable because ANY axis will do
+    // when v0 == -v1
+    Ogre::Real d = v0.dotProduct(v1);
+    // If dot == 1, vectors are the same
+    if (d >= 1.0f)
+    {
+        return Ogre::Quaternion::IDENTITY;
+    }
+    if (d < (1e-6f - 1.0f))
+    {
+        // Generate an axis
+        Ogre::Vector3 axis = Ogre::Vector3::UNIT_X.crossProduct(src);
+        if (axis.isZeroLength()) // pick another if colinear
+            axis = Ogre::Vector3::UNIT_Y.crossProduct(src);
+        axis.normalise();
+        q.FromAngleAxis(Ogre::Radian(Ogre::Math::PI), axis);
+    }
+    else
+    {
+        Ogre::Real s = fast_sqrt((1 + d) * 2);
+        if (s == 0)
+            return Ogre::Quaternion::IDENTITY;
+
+        Ogre::Vector3 c = v0.crossProduct(v1);
+        Ogre::Real invs = 1 / s;
+
+        q.x = c.x * invs;
+        q.y = c.y * invs;
+        q.z = c.z * invs;
+        q.w = s * 0.5;
+    }
+    return q;
 }

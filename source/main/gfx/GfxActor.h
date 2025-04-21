@@ -155,10 +155,8 @@ public:
     std::string          getWheelRimMeshName(WheelID_t wheel_id) { return (wheel_id >= 0 && (size_t)wheel_id < m_wheels.size()) ? m_wheels[wheel_id].wx_rim_mesh_name : ""; }
     const ActorPtr&      getOwningActor() { return m_actor; }
     int                  countBeaconProps() const;
-
 private:
 
-    static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
     float UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate); // Helper for `CalcPropAnimation()`
 
     // Static info

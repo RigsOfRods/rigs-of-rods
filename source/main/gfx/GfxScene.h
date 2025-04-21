@@ -28,6 +28,7 @@
 #include "CameraManager.h"
 #include "ForwardDeclarations.h"
 #include "EnvironmentMap.h" // RoR::GfxEnvmap
+#include "GfxData.h"
 #include "SimBuffers.h"
 #include "Skidmark.h"
 
@@ -48,12 +49,25 @@ public:
 
     void           Init();
 
-    // Particles:
+    /// @name Particles
+    /// @{
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
     void           AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys);
-
     void           SetParticlesVisible(bool visible);
+    /// @}
+
+    /// @name Freebeam Gfx
+    /// @{
+    void           AddFreeBeamGfx(FreeBeamGfxRequest* rq);
+    void           ModifyFreeBeamGfx(FreeBeamGfxRequest* rq);
+    void           RemoveFreeBeamGfx(FreeBeamGfxID_t id);
+    FreeBeamGfxID_t GetFreeBeamGfxNextId() { return m_gfx_freebeam_next_id++; }
+    void           UpdateFreeBeamGfx(float dt);
+    void           OnFreeForceRemoved(FreeForceID_t id);
+    void           OnFreeForceBroken(FreeForceID_t id);
+    /// @}
+
     void           DrawNetLabel(Ogre::Vector3 pos, float cam_dist, std::string const& nick, int colornum);
     void           UpdateScene(float dt);
     void           ClearScene();
@@ -70,6 +84,8 @@ public:
     std::vector<GfxActor*>& GetGfxActors() { return m_all_gfx_actors; }
     std::vector<GfxCharacter*>& GetGfxCharacters() { return m_all_gfx_characters; }
 
+    static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
+
 private:
 
     std::map<std::string, DustPool *> m_dustpools;
@@ -80,6 +96,11 @@ private:
     RoR::GfxEnvmap                    m_envmap;
     GameContextSB                     m_simbuf;
     SkidmarkConfig                    m_skidmark_conf;
+
+    // Free beams GFX:
+    std::vector<FreeBeamGfx>          m_gfx_freebeams;
+    FreeBeamGfxID_t                   m_gfx_freebeam_next_id = 0;
+    Ogre::SceneNode*                  m_gfx_freebeams_grouping_node = nullptr; //!< Only for nicer scenegraph when viewing through Inspector gadget.
 };
 
 /// @} // addtogroup Gfx

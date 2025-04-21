@@ -487,6 +487,11 @@ public:
     */
     FreeForceID_t getFreeForceNextId();
 
+    /**
+    * Returns an unused (not reused) ID to use with `MSG_SIM_ADD_FREEBEAMGFX_REQUESTED`; see `game.pushMessage()`.
+    */
+    FreeBeamGfxID_t getFreeBeamGfxNextId();
+
     ///@}
 
     /// @name Waypoint AI for Actors; to understand these values, look in TopMenubar UI->VehicleAI tab.

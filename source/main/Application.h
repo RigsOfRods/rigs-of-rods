@@ -155,6 +155,9 @@ enum MsgType
     MSG_EDI_CREATE_PROJECT_REQUESTED,      //!< Payload = RoR::CreateProjectRequest* (owner)
     MSG_EDI_MODIFY_PROJECT_REQUESTED,      //!< Payload = RoR::UpdateProjectRequest* (owner)
     MSG_EDI_DELETE_PROJECT_REQUESTED,      //!< Payload = RoR::CacheEntryPtr* (owner)
+    MSG_EDI_ADD_FREEBEAMGFX_REQUESTED,     //!< Payload = RoR::FreeBeamGfxRequest* (owner)
+    MSG_EDI_MODIFY_FREEBEAMGFX_REQUESTED,  //!< Payload = RoR::FreeBeamGfxRequest* (owner)
+    MSG_EDI_DELETE_FREEBEAMGFX_REQUESTED,  //!< Payload = RoR::FreeBeamGfxID_t* (owner)
 };
 
 const char* MsgTypeToString(MsgType type);

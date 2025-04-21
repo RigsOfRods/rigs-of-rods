@@ -28,6 +28,7 @@
 #pragma once
 
 #include "MeshObject.h"
+#include "SimConstants.h"
 
 #include <Ogre.h>
 #include <stdint.h>
@@ -263,6 +264,35 @@ struct BeamGfx
     NodeNum_t        rod_node2           = NODENUM_INVALID;  //!< Node index - may change during simulation!
     ActorPtr         rod_target_actor;
     bool             rod_is_visible      = false;
+};
+
+/// Visuals of a 'freebeam' (a pair of HALFBEAM_ freeforces)
+struct FreeBeamGfx
+{
+    FreeBeamGfxID_t  fbx_id = FREEBEAMGFXID_INVALID; //!< ID of the freebeam gfx, use `GfxScene::GetFreeBeamGfxNextId()`
+
+    FreeForceID_t    fbx_freeforce_primary = FREEFORCEID_INVALID; //!< Required
+    FreeForceID_t    fbx_freeforce_secondary = FREEFORCEID_INVALID; //!< Not required for fixed-end beams.
+
+    // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
+    Ogre::SceneNode* fbx_scenenode = nullptr;
+    float            fbx_diameter = DEFAULT_BEAM_DIAMETER; //!< meters
+    bool             fbx_is_visible = false;
+};
+
+/// Used by `MSG_EDI_[ADD/MODIFY]_FREEBEAMGFX_REQUESTED`; tailored for use with AngelScript thru `GameScript::pushMessage()`.
+struct FreeBeamGfxRequest
+{
+    // AngelScript `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+
+    /*FreeBeamGfxID_t*/int64_t  fbr_id = FREEBEAMGFXID_INVALID; //!< ID of the freebeam gfx, use `GfxScene::GetFreeBeamGfxNextId()`
+
+    /*FreeForceID_t*/ int64_t   fbr_freeforce_primary = FREEFORCEID_INVALID; //!< Required
+    /*FreeForceID_t*/ int64_t   fbr_freeforce_secondary = FREEFORCEID_INVALID; //!< Not required for fixed-end beams.
+
+    std::string       fbr_mesh_name = "beam.mesh";
+    std::string       fbr_material_name = "tracks/beam";
+    double            fbr_diameter = DEFAULT_BEAM_DIAMETER; //!< meters
 };
 
 struct WheelGfx

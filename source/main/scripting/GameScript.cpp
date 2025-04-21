@@ -1802,6 +1802,45 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         break;
     }
 
+    // Payload = RoR::FreeBeamGfxRequest* (owner)
+    case MSG_EDI_ADD_FREEBEAMGFX_REQUESTED:
+    case MSG_EDI_MODIFY_FREEBEAMGFX_REQUESTED:
+    {
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        FreeBeamGfxRequest* rq = new FreeBeamGfxRequest();
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "id", "int64", rq->fbr_id) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "freeforce_primary", "int64", rq->fbr_freeforce_primary))
+        {
+            // Beams fixed to ground don't need a secondary free force
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "freeforce_secondary", "int64", rq->fbr_freeforce_secondary);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "mesh_name", "string", rq->fbr_mesh_name);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "material_name", "string", rq->fbr_material_name);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "diameter", "double", rq->fbr_diameter);
+            m.payload = rq;
+        }
+        else
+        {
+            delete rq;
+            return false;
+        }
+        break;
+    }
+
+    case MSG_EDI_DELETE_FREEBEAMGFX_REQUESTED:
+    {
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t id = -1;
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "id", "int64", id))
+        {
+            m.payload = new FreeBeamGfxID_t(id);
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    }
+
     default:;
     }
 
@@ -1817,6 +1856,11 @@ FreeForceID_t GameScript::getFreeForceNextId()
 ActorInstanceID_t GameScript::getActorNextInstanceId()
 {
     return App::GetGameContext()->GetActorManager()->GetActorNextInstanceId();
+}
+
+FreeBeamGfxID_t GameScript::getFreeBeamGfxNextId()
+{
+    return App::GetGfxScene()->GetFreeBeamGfxNextId();
 }
 
 // --------------------------------

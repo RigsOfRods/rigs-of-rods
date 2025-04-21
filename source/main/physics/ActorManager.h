@@ -71,8 +71,9 @@ public:
     void           AddFreeForce(FreeForceRequest* rq);
     void           ModifyFreeForce(FreeForceRequest* rq);
     void           RemoveFreeForce(FreeForceID_t id);
-    FreeForceVec_t::iterator FindFreeForce(FreeForceID_t id);
+    bool           FindFreeForce(FreeForceID_t id, FreeForceVec_t::iterator& out_itor);
     FreeForceID_t  GetFreeForceNextId() { return m_free_force_next_id++; } //!< Script proxy: `game.getFreeForceNextId()`
+    FreeForceVec_t& GetFreeForces() { return m_free_forces; }
     /// @}
 
     void           UpdateActors(ActorPtr player_actor);

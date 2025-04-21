@@ -1279,7 +1279,12 @@ int main(int argc, char *argv[])
                     ScriptEventArgs* args = static_cast<ScriptEventArgs*>(m.payload);
                     try
                     {
+                        if (args->type == SE_GENERIC_FREEFORCES_ACTIVITY && args->arg1 == freeForcesActivityType::FREEFORCESACTIVITY_BROKEN)
+                        {
+                            App::GetGfxScene()->OnFreeForceBroken(args->arg2ex);
+                        }
                         App::GetScriptEngine()->triggerEvent(args->type, args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex, args->arg8ex);
+
                     }
                     catch (...) 
                     {
@@ -1387,6 +1392,7 @@ int main(int argc, char *argv[])
                     try
                     {
                         App::GetGameContext()->GetActorManager()->RemoveFreeForce(*rq);
+                        App::GetGfxScene()->OnFreeForceRemoved(*rq);
                     }
                     catch (...) 
                     {
@@ -1750,6 +1756,51 @@ int main(int argc, char *argv[])
                         HandleMsgQueueException(m.type);
                     }
                     delete entry_ptr;
+                    break;
+                }
+
+                case MSG_EDI_ADD_FREEBEAMGFX_REQUESTED:
+                {
+                    FreeBeamGfxRequest* request = static_cast<FreeBeamGfxRequest*>(m.payload);
+                    try
+                    {
+                        App::GetGfxScene()->AddFreeBeamGfx(request);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
+                case MSG_EDI_MODIFY_FREEBEAMGFX_REQUESTED:
+                {
+                    FreeBeamGfxRequest* request = static_cast<FreeBeamGfxRequest*>(m.payload);
+                    try
+                    {
+                        App::GetGfxScene()->ModifyFreeBeamGfx(request);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
+                case MSG_EDI_DELETE_FREEBEAMGFX_REQUESTED:
+                {
+                    FreeBeamGfxID_t* request = static_cast<FreeBeamGfxID_t*>(m.payload);
+                    try
+                    {
+                        App::GetGfxScene()->RemoveFreeBeamGfx(*request);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
                     break;
                 }
 
