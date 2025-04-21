@@ -678,6 +678,9 @@ enum MsgType
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_UNLOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_CREATE_PROJECT_REQUESTED,          //!< Creates a subdir under 'projects/', pre-populates it and adds to modcache. Params: 'name' (string), 'ext' (string, optional), 'source_entry' (CacheEntryClass@)
+    MSG_EDI_ADD_FREEBEAMGFX_REQUESTED,         //!< Adds visuals for a freebeam (pair of HALFBEAM freeforces); Params: 'id' (int, use `game.getFreeBeamGfxNextId()`), 'freeforce_primary' (int), 'freeforce_secondary' (), 'mesh_name' (string), 'material_name' (string) ; For internals see `RoR::FreeBeamGfxRequest`
+    MSG_EDI_MODIFY_FREEBEAMGFX_REQUESTED,      //!< Updates visuals for a freebeam (pair of HALFBEAM freeforces); Params: 'id' (int, use `game.getFreeBeamGfxNextId()`), 'freeforce_primary' (int), 'freeforce_secondary' (), 'mesh_name' (string), 'material_name' (string) ; For internals see `RoR::FreeBeamGfxRequest`
+    MSG_EDI_DELETE_FREEBEAMGFX_REQUESTED,      //!< Removes visuals of a freebeam (pair of HALFBEAM freeforces).
 };
 
 /// Binding of `RoR::ScriptRetCode`; Common return codes for script manipulation funcs (add/get/delete | funcs/variables)

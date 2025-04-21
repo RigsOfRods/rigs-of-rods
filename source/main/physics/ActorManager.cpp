@@ -1758,15 +1758,17 @@ static bool ProcessFreeForce(FreeForceRequest* rq, FreeForce& freeforce)
     return true;
 }
 
-ActorManager::FreeForceVec_t::iterator ActorManager::FindFreeForce(FreeForceID_t id)
+bool ActorManager::FindFreeForce(FreeForceID_t id, ActorManager::FreeForceVec_t::iterator& out_itor)
 {
-    return std::find_if(m_free_forces.begin(), m_free_forces.end(), [id](FreeForce& item) { return id == item.ffc_id; });
+    out_itor = std::find_if(m_free_forces.begin(), m_free_forces.end(), [id](FreeForce& item) { return id == item.ffc_id; });
+    return out_itor != m_free_forces.end();
 }
 
 void ActorManager::AddFreeForce(FreeForceRequest* rq)
 {
     // Make sure ID is unique
-    if (this->FindFreeForce(rq->ffr_id) != m_free_forces.end())
+    ActorManager::FreeForceVec_t::iterator it;
+    if (this->FindFreeForce(rq->ffr_id, it))
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
             fmt::format("Cannot add free force with ID {}: ID already in use", rq->ffr_id));
@@ -1783,8 +1785,8 @@ void ActorManager::AddFreeForce(FreeForceRequest* rq)
 
 void ActorManager::ModifyFreeForce(FreeForceRequest* rq)
 {
-    auto it = this->FindFreeForce(rq->ffr_id);
-    if (it == m_free_forces.end())
+    ActorManager::FreeForceVec_t::iterator it;
+    if (!this->FindFreeForce(rq->ffr_id, it))
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
             fmt::format("Cannot modify free force with ID {}: ID not found", rq->ffr_id));
@@ -1801,8 +1803,8 @@ void ActorManager::ModifyFreeForce(FreeForceRequest* rq)
 
 void ActorManager::RemoveFreeForce(FreeForceID_t id)
 {
-    auto it = this->FindFreeForce(id);
-    if (it == m_free_forces.end())
+    ActorManager::FreeForceVec_t::iterator it;
+    if (!this->FindFreeForce(id, it))
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
             fmt::format("Cannot remove free force with ID {}: ID not found", id));

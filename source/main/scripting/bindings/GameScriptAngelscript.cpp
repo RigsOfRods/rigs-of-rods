@@ -176,6 +176,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
 
     // > FreeForces
     result = engine->RegisterObjectMethod("GameScriptClass", "int getFreeForceNextId()", asMETHOD(GameScript, getFreeForceNextId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getFreeBeamGfxNextId()", asMETHOD(GameScript, getFreeBeamGfxNextId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Waypoint AI for actors
     result = engine->RegisterObjectMethod("GameScriptClass", "BeamClassPtr @spawnTruckAI(string &in, vector3 &in, string &in, string &in, int x)", AngelScript::asMETHOD(GameScript, spawnTruckAI), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);

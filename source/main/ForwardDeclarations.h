@@ -90,6 +90,9 @@ namespace RoR
     typedef int TerrainEditorObjectID_t; //!< Offset into `RoR::TerrainObjectManager::m_editor_objects`, use `RoR::TERRAINEDITOROBJECTID_INVALID` as empty value.
     static const TerrainEditorObjectID_t TERRAINEDITOROBJECTID_INVALID = -1;
 
+    typedef int FreeBeamGfxID_t; //!< Index into `GfxScene::m_gfx_freebeams`, use `RoR::FREEBEAMGFXID_INVALID` as empty value
+    static const FreeBeamGfxID_t FREEBEAMGFXID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

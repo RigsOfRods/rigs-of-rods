@@ -5,6 +5,17 @@
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
+const string DEFAULT_MESH="beam.mesh";
+const string DEFAULT_MATERIAL="tracks/beam";
+
+// constants from the game source, see <SimConstants.h>
+const float DEFAULT_SPRING               = 9000000.0f;
+const float DEFAULT_DAMP                 = 12000.0f;
+const float DEFAULT_BEAM_DIAMETER        = 0.05f;         //!< 5 centimeters default beam width
+const float BEAM_BREAK                   = 1000000.0f;
+const float BEAM_DEFORM                  = 400000.0f;
+const float BEAM_PLASTIC_COEF_DEFAULT    = 0.f;
+
 // #region Record keeping
 class FFRecord
 {
@@ -17,6 +28,7 @@ class FFRecord
     int lastEventType = 0;
     string lastEventActualValue;
     string lastEventThresholdValue;
+    int freebeamGfxId = -1; // common for both freeforces that make up the freebeam
 };
 array<FFRecord@> addedFreeforces;
 // #endregion
@@ -25,37 +37,64 @@ array<FFRecord@> addedFreeforces;
 int ffBaseActorId = 0, ffTargetActorId = 0;
 int ffBaseNodeNum = 0, ffTargetNodeNum = 0;
 bool autoAddOppositeHalfbeam=true;
+// gfx args
+bool autoCreateGfx=true;
+string gfxMeshName = "beam.mesh";
+string gfxMaterialName = "tracks/beam";
+// halfbeam optional args (fine tuning)
+float halfbSpring=DEFAULT_SPRING;
+float halfbDamp=DEFAULT_DAMP;
+float halfbBreak=BEAM_BREAK;
+float halfbDeform=BEAM_DEFORM;
+float halfbDiameter=DEFAULT_BEAM_DIAMETER; 
+float halfbPlasticCoef=BEAM_PLASTIC_COEF_DEFAULT;
 
-void addFreeForce()
+void addSingleFreeForce(int id, int bActorId, int bNodeNum, int tActorId, int tNodeNum)
 {
-    int id = game.getFreeForceNextId();
     game.pushMessage(MSG_SIM_ADD_FREEFORCE_REQUESTED, {
     {'id', id},
     {'type', FREEFORCETYPE_HALFBEAM_GENERIC},
     {'force_magnitude', 0.f}, // unused by HALFBEAM but still required.
-    {'base_actor', ffBaseActorId},
-    {'base_node', ffBaseNodeNum},
-    {'target_actor', ffTargetActorId},
-    {'target_node', ffTargetNodeNum}
+    {'base_actor', bActorId},
+    {'base_node', bNodeNum},
+    {'target_actor', tActorId},
+    {'target_node', tNodeNum},
+        // set_beam_defaults...
+    {'halfb_spring', halfbSpring},
+    {'halfb_damp', halfbDamp},
+    {'halfb_strength', halfbBreak},
+    {'halfb_deform', halfbDeform},
+    {'halfb_diameter', halfbDiameter},
+    {'halfb_plastic_coef', halfbPlasticCoef}
     });
-    
+}
+
+void addFreeBeam()
+{
+    int id = game.getFreeForceNextId();
+    addSingleFreeForce(id, ffBaseActorId, ffBaseNodeNum, ffTargetActorId, ffTargetNodeNum);    
     addedFreeforces.insertLast(FFRecord(id));
     
+    int id2 = -1;
     if (autoAddOppositeHalfbeam)
     {
-        int id2 = game.getFreeForceNextId();
-        game.pushMessage(MSG_SIM_ADD_FREEFORCE_REQUESTED, {
-        {'id', id2},
-        {'type', FREEFORCETYPE_HALFBEAM_GENERIC},
-        {'force_magnitude', 0.f}, // unused by HALFBEAM but still required.
-        {'target_actor', ffBaseActorId},
-        {'target_node', ffBaseNodeNum},
-        {'base_actor', ffTargetActorId},
-        {'base_node', ffTargetNodeNum}
-        });
-        
+        id2 =  game.getFreeForceNextId();
+        addSingleFreeForce(id2,  ffTargetActorId, ffTargetNodeNum, ffBaseActorId, ffBaseNodeNum);            
         addedFreeforces.insertLast(FFRecord(id2));
     }
+    
+    if (autoCreateGfx)
+    {
+        int xid = game.getFreeBeamGfxNextId();
+        game.pushMessage(MSG_EDI_ADD_FREEBEAMGFX_REQUESTED, {
+        {'id', xid},
+        {'freeforce_primary', id},
+        {'freeforce_secondary', id2},
+        {'mesh_name', gfxMeshName},
+        {'material_name', gfxMaterialName}
+        });
+    }
+    
 }
 void removeFreeForce(uint iToRemove)
 {
@@ -164,6 +203,28 @@ void drawFFActivityEventInfo(uint i)
 // #endregion
 
 // #region UI - add freeforce form
+void inputSbd(string name, float&inout val, float defaultVal)
+{
+    ImGui::SetNextItemWidth(100);
+    ImGui::InputFloat(name, val);
+    ImGui::SameLine();
+    if (ImGui::SmallButton("reset to default##"+name))
+    {
+        val = defaultVal;
+    }
+}
+
+void inputGfx(string name, string&inout val, string defaultVal)
+{
+    ImGui::SetNextItemWidth(200);
+    ImGui::InputText(name, val);
+    ImGui::SameLine();
+    if (ImGui::SmallButton("reset to default##"+name))
+    {
+        val = defaultVal;
+    }
+}
+
 void drawFreeforceForm()
 {
     ImGui::TextDisabled("Add FreeForce (type HALFBEAM):");
@@ -185,11 +246,27 @@ void drawFreeforceForm()
     ImGui::SetNextItemWidth(100);
     ImGui::InputInt("node num##target", ffTargetNodeNum);
     
+    if (ImGui::CollapsingHeader("Fine tuning (set_beam_defaults)"))
+    {
+        inputSbd("Spring", halfbSpring, DEFAULT_SPRING);
+        inputSbd("Damp", halfbDamp, DEFAULT_DAMP);
+        inputSbd("Breaking threshold", halfbBreak, BEAM_BREAK);
+        inputSbd("Deform threshold", halfbDeform, BEAM_DEFORM);
+        inputSbd("Visual diameter", halfbDiameter, DEFAULT_BEAM_DIAMETER);
+        inputSbd("Plastic coef", halfbPlasticCoef, BEAM_PLASTIC_COEF_DEFAULT);
+    }
+    
     ImGui::Checkbox("Auto add opposite halfbeam", autoAddOppositeHalfbeam);
+    ImGui::Checkbox("Create gfx (auto-removed if either freeforce breaks)", autoCreateGfx);
+    if (autoCreateGfx)
+    {
+        inputGfx("mesh", gfxMeshName, DEFAULT_MESH);
+        inputGfx("material", gfxMaterialName, DEFAULT_MATERIAL);
+    }
     
     if (ImGui::Button("Add the FreeForce(s)"))
     {
-        addFreeForce();
+        addFreeBeam();
     }
     ImGui::SameLine();
     ImGui::Text("CAUTION: glitches out if either actor isn't activated!");
