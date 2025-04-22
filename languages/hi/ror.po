@@ -3,549 +3,551 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# "xc.tm" <necrotic@users.noreply.hosted.weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2018-12-15 11:34+0000\n"
-"Last-Translator: Edgar <Edgar@AnotherFoxGuy.com>\n"
-"Language-Team: Hindi (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/hi/)\n"
+"PO-Revision-Date: 2025-04-22 18:05+0000\n"
+"Last-Translator: \"xc.tm\" <necrotic@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.11.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr ""
+msgstr "स्टार्टअप त्रुटि"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "रेंडर सिस्टम प्लगइन नहीं मिला। कृपा plugins.cfg चेक करें"
 
 #: AppContext.cpp:378
 msgid "Screenshot: "
-msgstr ""
+msgstr "स्क्रीनशॉट: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "प्रोग्राम डायरेक्ट्री पथ प्राप्त करते समय त्रुटि"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "उपयोक्ता डायरेक्ट्री पथ प्राप्त करते समय त्रुटि"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
-msgstr ""
+msgstr "संसाधन फोल्डर नहीं मिला। जाँचें कि क्या यह सही तरीके से स्थापित है।"
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "दोषपूर्ण संसाधन फ़ोल्डर। जाँचें कि क्या सही तरीके से स्थापित है।"
 
 #: Application.cpp:387
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr ""
+msgstr "स्वचालित गियर शिफ़्ट"
 
 #: Application.cpp:388
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr ""
+msgstr "मैनुअल गियर शिफ्ट, स्वचालित क्लच के साथ"
 
 #: Application.cpp:389
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr ""
+msgstr "पूरी तरह से मैनुअल, अनुक्रमिक गियर शिफ्ट"
 
 #: Application.cpp:390
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr ""
+msgstr "पूरी तरह से मैनुअल, स्टिक शिफ्ट"
 
 #: Application.cpp:391
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr ""
+msgstr "पूरी तरह से मैनुअल, रेंज के साथ स्टिक शिफ्ट"
 
 #: Application.cpp:400
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "कोई भी नहीं (सबसे तेज)"
 
 #: Application.cpp:401
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr ""
+msgstr "कोई प्रकाश स्रोत नहीं"
 
 #: Application.cpp:402
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr ""
+msgstr "केवल चालू वाहन, मुख्य लाइटें"
 
 #: Application.cpp:403
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "सभी वाहन, मुख्य लाइटें"
 
 #: Application.cpp:404
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "सभी वाहन, सभी लाइटें"
 
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "अक्षम"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "Sandstorm (सबसे तेज)"
 
 #: Application.cpp:424
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "Caelum (बेहतरीन दिखने वाला, लेकिन धीरे)"
 
 #: Application.cpp:425
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "SkyX (बेहतरीन दिखने वाला, लेकिन धीरे)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "कोई भी नहीं"
 
 #: Application.cpp:435
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "द्विरेखीय"
 
 #: Application.cpp:436
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "त्रिरेखीय"
 
 #: Application.cpp:437
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr ""
+msgstr "एनिस्ट्रोपिक"
 
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "कोई भी नहीं"
 
 #: Application.cpp:447
 msgctxt "GfxVegetation"
 msgid "20%"
-msgstr ""
+msgstr "20%"
 
 #: Application.cpp:448
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "पूर्ण"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "कोई भी नहीं"
 
 #: Application.cpp:459
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "सरल (सबसे तेज)"
 
 #: Application.cpp:460
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "प्रतिबिंब"
 
 #: Application.cpp:461
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "परावर्तन और अपवर्तन (गति को प्राथमिकता देते हुए)"
 
 #: Application.cpp:462
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "परावर्तन और अपवर्तन (गुणवत्ता को प्राथमिकता देते हुए)"
 
 #: Application.cpp:463
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX (Ogre3D के लिए द्रव-प्रतिपादन लाइब्रेरी)"
 
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "कोई भी नहीं"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "स्थिर"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "पिचिंग"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "कोई भी नहीं"
 
 #: Application.cpp:484
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr ""
+msgstr "सभी"
 
 #: Application.cpp:485
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "स्फूर्त"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "कठोर"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "नरम"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
-msgstr ""
+msgstr "क्षेत्र नहीं मिला: "
 
 #: GameContext.cpp:122 GameContext.cpp:144
 msgid "Terrain loading error"
-msgstr ""
+msgstr "क्षेत्र लोड करने में त्रुटि"
 
 #: GameContext.cpp:658
 msgid "Please clear the place first"
-msgstr ""
+msgstr "कृपया पहले यह स्थान खाली करें"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "डिफ़ॉल्ट स्किन '{}' ऐक्टर '{}' के लिए नहीं मिला!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
-msgstr ""
+msgstr "पूर्ण रीसेट मोड सक्षम"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "आंशिक रीसेट मोड सक्षम"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
-msgstr ""
+msgstr "समय निर्धारित किया गया है "
 
 #: GameContext.cpp:1417
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "कोई रेस्क्यू ट्रक नहीं मिला!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "फ़ॉरवर्डकमांड (forwardcommands) सक्रिय"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "फ़ॉरवर्डकमांड (forwardcommands) अक्षम"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "आयातकमांड (importcommands) सक्रिय"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "आयातकमांड (importcommands) अक्षम"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
-msgstr ""
+msgstr " [फुसफुसाया] "
 
 #: gameplay/EngineSim.cpp:1463
 msgid "Low range selected"
-msgstr ""
+msgstr "नीचा रेंज चयनित"
 
 #: gameplay/EngineSim.cpp:1469
 msgid "Mid range selected"
-msgstr ""
+msgstr "बीच रेंज चयनित"
 
 #: gameplay/EngineSim.cpp:1475
 msgid "High range selected"
-msgstr ""
+msgstr "ऊंची रेंज चयनित"
 
 #: gameplay/Landusemap.cpp:101
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "लैंडयूज़ कॉन्फिग (landuse config) लोड करने में त्रुटि"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "दृश्य क्षेत्र (FOV): सीमा तक पहुंच गया"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
-msgstr ""
+msgstr "दृश्य क्षेत्र (FOV): "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "फ्री कैमरा"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "फिक्स्ड कैमरा"
 
 #: gfx/camera/CameraManager.cpp:870
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "सीमित कैमरा गतिविधि सक्षम"
 
 #: gfx/camera/CameraManager.cpp:874
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "सीमित कैमरा गतिविधि अक्षम"
 
 #: gfx/camera/CameraManager.cpp:1158
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "स्वचालित ट्रैकिंग सक्षम"
 
 #: gfx/camera/CameraManager.cpp:1162
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "स्वचालित ट्रैकिंग अक्षम"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "पुष्टि करने के लिए दबाए रखें"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
-msgstr "वर्तमान एफपीएस:"
+msgstr "वर्तमान फ्रेमरेट (FPS): "
 
 #: gui/OverlayWrapper.cpp:429
 msgid "Average FPS: "
-msgstr ""
+msgstr "औसत फ्रेमरेट (FPS): "
 
 #: gui/OverlayWrapper.cpp:430
 msgid "Best FPS: "
-msgstr ""
+msgstr "अधिकतम फ्रेमरेट (FPS): "
 
 #: gui/OverlayWrapper.cpp:431
 msgid "Worst FPS: "
-msgstr ""
+msgstr "न्यूनतम फ्रेमरेट: "
 
 #: gui/OverlayWrapper.cpp:432
 msgid "Triangle Count: "
-msgstr ""
+msgstr "त्रिकोण संख्या: "
 
 #: gui/OverlayWrapper.cpp:459
 msgid "Textures: "
-msgstr ""
+msgstr "टेक्सचर्स: "
 
 #: gui/OverlayWrapper.cpp:461
 msgid "Compositors: "
-msgstr ""
+msgstr "कम्पोजीटर: "
 
 #: gui/OverlayWrapper.cpp:463
 msgid "Fonts: "
-msgstr ""
+msgstr "फ़ॉन्ट्स: "
 
 #: gui/OverlayWrapper.cpp:465
 msgid "GPU Program: "
-msgstr ""
+msgstr "जी.पी.यू. (GPU) प्रोग्राम: "
 
 #: gui/OverlayWrapper.cpp:467
 msgid "HL GPU Program: "
-msgstr ""
+msgstr "एच.एल. जी.पी.यू. (HL GPU) प्रोग्राम: "
 
 #: gui/OverlayWrapper.cpp:469 gui/OverlayWrapper.cpp:475
 msgid "Materials: "
-msgstr ""
+msgstr "सामग्री: "
 
 #: gui/OverlayWrapper.cpp:471
 msgid "Meshes: "
-msgstr ""
+msgstr "जाल: "
 
 #: gui/OverlayWrapper.cpp:473
 msgid "Skeletons: "
-msgstr ""
+msgstr "स्केलेटन: "
 
 #: gui/OverlayWrapper.cpp:482
 msgid "Memory (Ogre): "
-msgstr ""
+msgstr "स्मरण (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr ""
+msgstr "वाहन को स्केल करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr ""
+msgstr "वाहन का नाम देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "वहां के ट्रकफ़ाइल (truckfile) का नाम देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "वहां के लोडेड सेक्शन का नाम देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr ""
+msgstr "वाहन का प्रकार देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr ""
+msgstr "वाहन को रीसेट करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr ""
+msgstr "पार्किंग ब्रेक को टॉगल करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr ""
+msgstr "ट्रैक्शन कंट्रोल (TCS) को टॉगल करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr ""
+msgstr "एंटी-लॉक ब्रेक (ABS) को टॉगल करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr ""
+msgstr "बीकन को टॉगल करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr ""
+msgstr "कस्टम पार्टिकल्स को टॉगल करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "वाहन के नोड्स की पूर्ण संख्या देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr ""
+msgstr "वाहन का पूरा वजन देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "पहिये के भीतर नोड्स की संख्या देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr ""
+msgstr "वाहन का वजन निर्धारित करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "यदि ब्रेक लाइट सक्षम है तो \"true\" लौटाता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "यदि संख्या के साथ कस्टम लाइट सक्षम है तो \"true\" लौटाता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr ""
+msgstr "कस्टम लाइट को सक्षम या अक्षम करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "बीकन का मोड देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "ब्लिंकिंग प्रकार सेट करता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "ब्लिंकिंग प्रकार देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr ""
+msgstr "कस्टम पार्टिकल का मोड देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "यदि रिवर्स लाइट सक्षम है तो \"true\" लौटाता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "वाहन के जाने का दिशा लौटाता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "यदि वाहन का हुक लॉक है तो \"true\" लौटाता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "वाहन की वर्तमान पहिया गति देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr ""
+msgstr "वाहन की वर्तमान गति देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "वाहन की वर्तमान जी-फोर्स (G-Forces) देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr ""
+msgstr "वाहन की वर्तमान रोटेशन देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr ""
+msgstr "वाहन की वर्तमान स्थिति देता है"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr ""
+msgstr "नोड की स्थिति देता है"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -562,14 +564,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2018-12-15 11:34+0000\n"
-"Last-Translator: Edgar <Edgar@AnotherFoxGuy.com>\n"
+"Last-Translator: Edgar <Edgar@AnotherFoxGuy.com>, xc.tm\n"
 "Language-Team: Hindi (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/hi/)\n"
+"language/hi/), https://hosted.weblate.org/projects/rigs-of-rods/game/hi/\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
 msgctxt "About"
