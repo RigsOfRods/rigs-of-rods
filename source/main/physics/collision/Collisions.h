@@ -176,8 +176,16 @@ public:
     Ogre::Vector3 getPosition(const Ogre::String& inst, const Ogre::String& box);
     Ogre::Quaternion getDirection(const Ogre::String& inst, const Ogre::String& box);
     collision_box_t* getBox(const Ogre::String& inst, const Ogre::String& box);
+    const int GetCellSize() const { return CELL_SIZE; }
 
     std::pair<bool, Ogre::Real> intersectsTris(Ogre::Ray ray);
+
+    /**
+     * Checks whether a Ray intersects the terrain. Intersection tests are only performed for the length of the direction vector of the ray.
+     * @param ray The ray that is checked for an intersection with the terrain.
+     * @return Pair of whether an intersection was found and the distance to the point of the intersection. The distance is measured in the ray's direction vector's unit and cannot be larger than 1.0.
+     */
+    std::pair<bool, Ogre::Real> intersectsTerrain(Ogre::Ray ray);
 
     float getSurfaceHeight(float x, float z);
     float getSurfaceHeightBelow(float x, float z, float height);
@@ -191,7 +199,7 @@ public:
 
     void finishLoadingTerrain();
 
-    int addCollisionBox(bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
+    int addCollisionBox(bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, const Ogre::String& reverb_preset_name, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
     void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0); //!< generate collision tris from existing mesh resource
     void registerCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::AxisAlignedBox bounding_box, ground_model_t* gm, int ctri_start, int ctri_count); //!< Mark already generated collision tris as belonging to (virtual) mesh.
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);

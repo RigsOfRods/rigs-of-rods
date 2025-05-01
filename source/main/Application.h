@@ -407,6 +407,14 @@ enum class GfxSkyMode
 };
 std::string ToLocalizedString(GfxSkyMode e);
 
+enum class EfxReverbEngine
+{
+    NONE,
+    REVERB,
+    EAXREVERB,
+};
+std::string ToLocalizedString(EfxReverbEngine e);
+
 enum class IoInputGrabMode
 {
     NONE,
@@ -734,8 +742,20 @@ extern CVar* io_invert_orbitcam;
 // Audio
 extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
+extern CVar* audio_enable_obstruction;
+extern CVar* audio_force_obstruction_inside_vehicles;
+extern CVar* audio_enable_occlusion;
+extern CVar* audio_enable_directed_sounds;
+extern CVar* audio_enable_reflection_panning;
+extern CVar* audio_enable_efx;
+extern CVar* audio_engine_controls_environmental_audio;
+extern CVar* audio_efx_reverb_engine;
+extern CVar* audio_default_efx_preset;
+extern CVar* audio_force_listener_efx_preset;
 extern CVar* audio_device_name;
+extern CVar* audio_doppler_factor;
 extern CVar* audio_menu_music;
+extern CVar* audio_sim_pause_disables_doppler_effect;
 
 // Graphics
 extern CVar* gfx_flares_mode;

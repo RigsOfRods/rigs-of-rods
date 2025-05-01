@@ -355,6 +355,34 @@ public:
     }
 };
 
+class SpeedOfSoundCmd: public ConsoleCmd
+{
+public:
+    SpeedOfSoundCmd(): ConsoleCmd("speedofsound", "[]", _L("speedofsound - outputs the current speed of sound")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        if (!this->CheckAppState(AppState::SIMULATION))
+            return;
+
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
+
+        SoundManager* sound_manager = App::GetSoundScriptManager()->getSoundManager();
+        if (sound_manager == nullptr)
+        {
+            reply << _L("unable to get sound manager");
+        }
+        else
+        {
+            reply << _L("Current speed of sound: ") << sound_manager->GetSpeedOfSound();
+        }
+
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
 class QuitCmd: public ConsoleCmd
 {
 public:
@@ -666,6 +694,7 @@ void Console::regBuiltinCommands()
     // Additions
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new SpeedOfSoundCmd();          m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->getName(), cmd));

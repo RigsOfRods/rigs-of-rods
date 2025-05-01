@@ -74,12 +74,14 @@ endbox
 beginbox
 boxcoords -11.5, -2.1, -0.5, 3.0, -9.70, -7.5
 virtual
+reverb_preset EFX_REVERB_PRESET_ROOM
 event repair avatar
 endbox
 
 beginbox
 boxcoords -12.0,  12.0, -0.5, 5.5, -7.0, 7.0
 virtual
+reverb_preset EFX_REVERB_PRESET_FACTORY_SMALLROOM
 forcecamera 11.35, 5.06, 6.41
 endbox
 

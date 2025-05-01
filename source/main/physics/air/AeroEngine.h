@@ -63,6 +63,8 @@ public:
     virtual bool getIgnition() =0;
     virtual void setIgnition(bool val) =0;
     virtual int getNoderef() =0;
+    virtual NodeNum_t GetFrontNode() const =0;
+    virtual NodeNum_t GetBackNode()  const =0;
     virtual bool getWarmup() =0;
     virtual float getRadius() =0;
 

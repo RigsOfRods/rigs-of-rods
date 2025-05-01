@@ -38,10 +38,11 @@ struct ODefCollisionBox
 {
     ODefCollisionBox(Ogre::Vector3 min, Ogre::Vector3 max, Ogre::Vector3 rot,
         Ogre::Vector3 campos, Ogre::Vector3 dir, Ogre::Vector3 scal,
-        std::string ev_name, CollisionEventFilter ev_filter, bool is_rot, bool is_virt, bool forcecam):
+        std::string reverb_preset_name, std::string ev_name, CollisionEventFilter ev_filter,
+        bool is_rot, bool is_virt, bool forcecam):
 
         aabb_min(min), aabb_max(max), box_rot(rot), cam_pos(campos), direction(dir), scale(scal),
-        event_name(ev_name), event_filter(ev_filter),
+        reverb_preset_name(reverb_preset_name), event_name(ev_name), event_filter(ev_filter),
         is_rotating(is_rot), is_virtual(is_virt), force_cam_pos(forcecam)
     {}
 
@@ -51,6 +52,7 @@ struct ODefCollisionBox
     Ogre::Vector3        cam_pos;
     Ogre::Vector3        direction;
     Ogre::Vector3        scale;
+    std::string          reverb_preset_name;
     std::string          event_name;
     CollisionEventFilter event_filter;
 
@@ -167,6 +169,7 @@ private:
         CollisionEventFilter cbox_event_filter;
         std::string          cbox_event_name;
         std::string          cbox_mesh_name;
+        std::string          cbox_reverb_preset_name;
         std::string          cbox_groundmodel_name;
         Ogre::Vector3        cbox_aabb_min;
         Ogre::Vector3        cbox_aabb_max;

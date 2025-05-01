@@ -79,6 +79,10 @@ const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
 const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
 const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
 
+const char* CONF_EFX_REVERB_ENGINE_EAXREVERB = "EAXREVERB (more realistic effects, slower)";
+const char* CONF_EFX_REVERB_ENGINE_REVERB    = "REVERB";
+const char* CONF_EFX_REVERB_ENGINE_NONE      = "None (no reverb, fastest)";
+
 const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
 const char* CONF_INPUT_GRAB_NONE    = "None";
 const char* CONF_INPUT_GRAB_ALL     = "All";
@@ -158,6 +162,14 @@ GfxSkyMode ParseGfxSkyMode(std::string const & s)
     if (s == CONF_SKY_CAELUM   )      { return GfxSkyMode::CAELUM    ; }
     if (s == CONF_SKY_SKYX     )      { return GfxSkyMode::SKYX      ; }
     else                              { return GfxSkyMode::SANDSTORM ; }
+}
+
+EfxReverbEngine ParseEfxReverbEngine(std::string const & s)
+{
+    if (s == CONF_EFX_REVERB_ENGINE_EAXREVERB)   { return EfxReverbEngine::EAXREVERB ; }
+    if (s == CONF_EFX_REVERB_ENGINE_REVERB)      { return EfxReverbEngine::REVERB    ; }
+    if (s == CONF_EFX_REVERB_ENGINE_NONE)        { return EfxReverbEngine::NONE      ; }
+    else                                         { return EfxReverbEngine::NONE      ; }
 }
 
 const char* IoInputGrabModeToStr(IoInputGrabMode v)
@@ -267,6 +279,17 @@ const char* GfxSkyModeToStr(GfxSkyMode v)
     }
 }
 
+const char* EfxReverbEngineToStr(EfxReverbEngine v)
+{
+    switch(v)
+    {
+    case EfxReverbEngine::EAXREVERB : return CONF_EFX_REVERB_ENGINE_EAXREVERB;
+    case EfxReverbEngine::REVERB    : return CONF_EFX_REVERB_ENGINE_REVERB;
+    case EfxReverbEngine::NONE      : return CONF_EFX_REVERB_ENGINE_NONE;
+    default                         : return "";
+    }
+}
+
 // --------------------------------
 // Config file parsing
 
@@ -333,6 +356,10 @@ void ParseHelper(CVar* cvar, std::string const & val)
             AssignHelper(cvar, fov);
         }
     }
+    else if (cvar->getName() == App::audio_efx_reverb_engine->getName())
+    {
+        AssignHelper(App::audio_efx_reverb_engine, (int)ParseEfxReverbEngine(val));
+    }
     else
     {
         App::GetConsole()->cVarAssign(cvar, val);
@@ -397,6 +424,7 @@ void WriteVarsHelper(std::stringstream& f, const char* label, const char* prefix
             else if (pair.second->getName() == App::gfx_water_mode->getName()      ){ f << GfxWaterModeToStr (App::gfx_water_mode      ->getEnum<GfxWaterMode>());  }
             else if (pair.second->getName() == App::gfx_sky_mode->getName()        ){ f << GfxSkyModeToStr   (App::gfx_sky_mode        ->getEnum<GfxSkyMode>());    }
             else if (pair.second->getName() == App::sim_gearbox_mode->getName()    ){ f << SimGearboxModeToStr(App::sim_gearbox_mode->getEnum<SimGearboxMode>());    }
+            else if (pair.second->getName() == App::audio_efx_reverb_engine->getName() ) {f << EfxReverbEngineToStr(App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>());}
             else                                                                    { f << pair.second->getStr(); }
 
             f << std::endl;

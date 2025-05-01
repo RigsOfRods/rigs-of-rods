@@ -86,6 +86,8 @@ public:
     bool getIgnition() { return ignition; };
     void setIgnition(bool val) { ignition = val; };
     int getNoderef() { return noderef; };
+    NodeNum_t GetFrontNode()  const override { return RoR::NODENUM_INVALID; }; // turboprops have no front node
+    NodeNum_t GetBackNode()   const override { return nodeback; };
     bool getWarmup() { return warmup; };
     float getRadius() { return radius; };
 
