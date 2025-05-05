@@ -87,6 +87,7 @@ private:
     // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
     void ProcessTweakWheel();
     void ProcessTweakNode();
+    void ProcessTweakCineCamera();
     void ProcessTweakFlexbody();
     void ProcessTweakProp();
     void ProcessTweakManagedMat();

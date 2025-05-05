@@ -173,6 +173,8 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
                     this->ProcessTweakFlexbody();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_managedmaterial")
                     this->ProcessTweakManagedMat();
+                else if (m_context->getTokKeyword() == "addonpart_tweak_cinecam")
+                    this->ProcessTweakCineCamera();
             }
 
             m_context->seekNextLine();
@@ -199,6 +201,7 @@ void AddonPartUtility::ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup)
     
     // Tweaked
     tuneup->node_tweaks.clear();
+    tuneup->cinecam_tweaks.clear();
     tuneup->wheel_tweaks.clear();
     tuneup->prop_tweaks.clear();
     tuneup->flexbody_tweaks.clear();
@@ -649,6 +652,51 @@ void AddonPartUtility::ProcessTweakNode()
         {
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping node '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum));
+        }
+    }
+    else
+    {
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessTweakCineCamera()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_cinecam"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokInt(1) && m_context->isTokNumeric(1) && m_context->isTokNumeric(2) && m_context->isTokNumeric(3))
+    {
+        CineCameraID_t cinecamid = (CineCameraID_t)m_context->getTokInt(1);
+        if (!m_tuneup->isCineCameraProtected(cinecamid))
+        {
+            if (m_tuneup->cinecam_tweaks.find(cinecamid) == m_tuneup->cinecam_tweaks.end())
+            {
+                TuneupCineCameraTweak data;
+                data.tct_origin = m_addonpart_entry->fname;
+                data.tct_cinecam_id = cinecamid;
+                data.tct_pos.x = m_context->getTokNumeric(2);
+                data.tct_pos.y = m_context->getTokNumeric(3);
+                data.tct_pos.z = m_context->getTokNumeric(4);
+                m_tuneup->cinecam_tweaks.insert(std::make_pair(cinecamid, data));
+            
+                this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for cinecam '{}'"
+                    " with params {{ x={}, y={}, z={} }}",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), cinecamid,
+                    data.tct_pos.x, data.tct_pos.y, data.tct_pos.z));
+            }
+            else if (m_tuneup->cinecam_tweaks[cinecamid].tct_origin != m_addonpart_entry->fname)
+            {
+                this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for cinecam '{}' due to conflict with '{}'",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), cinecamid,
+                    m_tuneup->cinecam_tweaks[cinecamid].tct_origin));
+
+                m_tuneup->cinecam_tweaks.erase(cinecamid);
+            }
+        }
+        else
+        {
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping cinecam '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), cinecamid));
         }
     }
     else
