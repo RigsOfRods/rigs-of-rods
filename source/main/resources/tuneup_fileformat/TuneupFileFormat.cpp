@@ -300,12 +300,41 @@ Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(TuneupDefPtr& tuneup_def, 
     }
 }
 
+Ogre::Vector3 RoR::TuneupUtil::getTweakedCineCameraPosition(TuneupDefPtr& tuneup_def, CineCameraID_t cinecamid, Ogre::Vector3 orig_val)
+{
+    TuneupCineCameraTweak* tweak = nullptr;
+    if (TuneupUtil::isCineCameraTweaked(tuneup_def, cinecamid, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return tweak->tct_pos;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
 bool RoR::TuneupUtil::isNodeTweaked(TuneupDefPtr& tuneup_def, NodeNum_t nodenum, TuneupNodeTweak*& out_tweak)
 {
     if (tuneup_def)
     {
         auto itor = tuneup_def->node_tweaks.find(nodenum);
         if (itor != tuneup_def->node_tweaks.end())
+        {
+            out_tweak = &itor->second;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool RoR::TuneupUtil::isCineCameraTweaked(TuneupDefPtr& tuneup_def, CineCameraID_t cinecamid, TuneupCineCameraTweak*& out_tweak)
+{
+    if (tuneup_def)
+    {
+        auto itor = tuneup_def->cinecam_tweaks.find(cinecamid);
+        if (itor != tuneup_def->cinecam_tweaks.end())
         {
             out_tweak = &itor->second;
             return true;

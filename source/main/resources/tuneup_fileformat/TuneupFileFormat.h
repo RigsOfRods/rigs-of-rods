@@ -48,6 +48,13 @@ struct TuneupNodeTweak //!< Data of 'addonpart_tweak_node <nodenum> <posX> <posY
     std::string     tnt_origin; //!< Addonpart filename
 };
 
+struct TuneupCineCameraTweak //!< Data of 'addonpart_tweak_cinecam <cinecam ID> <posX> <posY> <posZ>'
+{
+    CineCameraID_t  tct_cinecam_id = CINECAMERAID_INVALID; //!< Arg#1, required
+    Ogre::Vector3   tct_pos = Ogre::Vector3::ZERO; //!< Args#234, required
+    std::string     tct_origin; //!< Addonpart filename
+};
+
 struct TuneupWheelTweak //!< Data of 'addonpart_tweak_wheel <wheel ID> <media1> <media2> <side flag> <tire radius> <rim radius>'
 {
     WheelID_t          twt_wheel_id = WHEELID_INVALID;       //!< Arg#1, required
@@ -109,6 +116,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::set<std::string>                         use_addonparts;        //!< Addonpart filenames
 
     std::map<NodeNum_t, TuneupNodeTweak>          node_tweaks;           //!< Node position overrides via 'addonpart_tweak_node'
+    std::map<CineCameraID_t, TuneupCineCameraTweak>    cinecam_tweaks;   //!< Cinecam position overrides via 'addonpart_tweak_cinecam'
     std::map<WheelID_t, TuneupWheelTweak>         wheel_tweaks;          //!< Mesh name and radius overrides via 'addonpart_tweak_wheel'
     std::map<PropID_t, TuneupPropTweak>           prop_tweaks;           //!< Mesh name(s), offset and rotation overrides via 'addonpart_tweak_prop'
     std::map<FlexbodyID_t, TuneupFlexbodyTweak>   flexbody_tweaks;       //!< Mesh name, offset and rotation overrides via 'addonpart_tweak_flexbody'
@@ -134,6 +142,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     /// @name UI-controlled protection from addonpart tweaks
     /// @{
     std::set<NodeNum_t>                           protected_nodes;       //!< Nodes that cannot be altered via 'addonpart_tweak_node'
+    std::set<CineCameraID_t>                      protected_cinecams;    //!< Cinecams that cannot be altered via 'addonpart_tweak_cinecam'
     std::set<WheelID_t>                           protected_wheels;      //!< Wheels that cannot be altered via 'addonpart_tweak_wheel'
     std::set<PropID_t>                            protected_props;       //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_unwanted_prop' directive.
     std::set<FlexbodyID_t>                        protected_flexbodies;  //!< Flexbodies which cannot be altered via 'addonpart_tweak_flexbody' or 'addonpart_unwanted_flexbody' directive.
@@ -151,6 +160,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isFlexbodyProtected(FlexbodyID_t flexbodyid) const { return protected_flexbodies.find(flexbodyid) != protected_flexbodies.end(); }
     bool         isWheelProtected(WheelID_t wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
     bool         isNodeProtected(NodeNum_t nodenum) const { return protected_nodes.find(nodenum) != protected_nodes.end(); }
+    bool         isCineCameraProtected(CineCameraID_t cinecamid) const { return protected_cinecams.find(cinecamid) != protected_cinecams.end(); }
     bool         isFlareProtected(FlareID_t flareid) const { return protected_flares.find(flareid) != protected_flares.end(); }
     bool         isExhaustProtected(ExhaustID_t exhaustid) const { return protected_exhausts.find(exhaustid) != protected_exhausts.end(); }
     bool         isManagedMatProtected(const std::string& matname) const { return protected_managedmats.find(matname) != protected_managedmats.end(); }
@@ -203,6 +213,12 @@ public:
     /// @{
     static Ogre::Vector3      getTweakedNodePosition(TuneupDefPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
     static bool               isNodeTweaked(TuneupDefPtr& tuneup_entry, NodeNum_t nodenum, TuneupNodeTweak*& out_tweak);
+    /// @}
+
+    /// @name CineCamera helpers
+    /// @{
+    static Ogre::Vector3      getTweakedCineCameraPosition(TuneupDefPtr& tuneup_entry, CineCameraID_t cinecamid, Ogre::Vector3 orig_val);
+    static bool               isCineCameraTweaked(TuneupDefPtr& tuneup_entry, CineCameraID_t cinecamid, TuneupCineCameraTweak*& out_tweak);
     /// @}
 
     /// @name Prop helpers

@@ -6196,7 +6196,7 @@ void ActorSpawner::AddExhaust(
 void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
 {
     // Node
-    Ogre::Vector3 node_pos = m_spawn_position + def.position;
+    Ogre::Vector3 node_pos = m_spawn_position + TuneupUtil::getTweakedCineCameraPosition(m_actor->getWorkingTuneupDef(), m_actor->ar_num_cinecams, def.position);
     node_t & camera_node = GetAndInitFreeNode(node_pos);
     m_actor->ar_nodes_spawn_offsets[camera_node.pos] = def.position;
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
