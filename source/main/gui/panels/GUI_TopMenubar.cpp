@@ -580,7 +580,7 @@ void TopMenubar::Draw(float dt)
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
             if (App::gfx_envmap_enabled->getBool())
             {
-                DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 6);
+                DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 2);
             }
             DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
 

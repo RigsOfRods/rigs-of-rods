@@ -305,7 +305,7 @@ void ParseHelper(CVar* cvar, std::string const & val)
     {
         int rate = Ogre::StringConverter::parseInt(val);
         if (rate < 0) { rate = 0; }
-        if (rate > 6) { rate = 6; }
+        if (rate > 2) { rate = 2; }
         AssignHelper(App::gfx_envmap_rate, rate);
     }
     else if (cvar->getName() == App::gfx_shadow_quality->getName())
