@@ -1076,7 +1076,7 @@ bool SoundManager::IsHardwareSourceObstructed(const int hardware_index) const
         // perform line of sight check against actors
         const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
         bool soundsource_belongs_to_current_actor = false;
-        for (const ActorPtr actor : actors)
+        for (const ActorPtr& actor : actors)
         {
             // Trucks shouldn't obstruct their own sound sources since the
             // obstruction is most likely already contained in the recording.
