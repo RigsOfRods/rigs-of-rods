@@ -88,45 +88,6 @@ TuneupDefPtr TuneupDef::clone()
     return ret;
 }
 
-void TuneupDef::reset()
-{
-    // addonparts
-    this->use_addonparts.clear();
-
-    // props
-    this->protected_props.clear();
-    this->unwanted_props.clear();
-    this->force_remove_props.clear();
-    this->prop_tweaks.clear();
-
-    // flexbodies
-    this->protected_flexbodies.clear();
-    this->unwanted_flexbodies.clear();
-    this->force_remove_flexbodies.clear();
-    this->flexbody_tweaks.clear();
-
-    // wheels
-    this->protected_wheels.clear();
-    this->force_wheel_sides.clear();
-    this->wheel_tweaks.clear();
-
-    // nodes
-    this->protected_nodes.clear();
-    this->node_tweaks.clear();
-
-    // video cameras
-    this->force_video_cam_roles.clear();
-
-    // flares
-    this->protected_flares.clear();
-
-    // exhausts
-    this->protected_exhausts.clear();
-
-    // managed materials
-    this->protected_managedmats.clear();
-}
-
 bool TuneupDef::isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const
 {
     auto itor = force_wheel_sides.find(wheelid);
