@@ -50,8 +50,8 @@
     } \
 }
 
-namespace RigDef
-{
+using namespace RigDef;
+using namespace RoR;
 
 bool Validator::Validate()
 {
@@ -343,22 +343,24 @@ bool Validator::CheckCommand(RigDef::Command2 & def)
 {
     bool ok = true;
 
-    if (def.extend_key >= MAX_COMMANDS)
+    // Caution: commandkeys are numbered from 1 to MAX_COMMANDS including.
+
+    if (def.extend_key == COMMANDKEYID_INVALID || def.extend_key > MAX_COMMANDS)
     {
         std::stringstream msg;
         msg << "Section 'commands' or 'commands2': Invalid 'extend_key': ";
         msg << def.extend_key;
-        msg << "; valid range is <0 - " << MAX_COMMANDS << ">";
+        msg << "; valid range is <1 - " << MAX_COMMANDS << "> (plus any negative number is acceptable)";
         AddMessage(Message::TYPE_ERROR, msg.str());
         ok = false;
     }
 
-    if (def.contract_key >= MAX_COMMANDS)
+    if (def.contract_key == COMMANDKEYID_INVALID || def.contract_key > MAX_COMMANDS)
     {
         std::stringstream msg;
         msg << "Section 'commands' or 'commands2': Invalid 'contract_key': ";
         msg << def.contract_key;
-        msg << "; valid range is <0 - " << MAX_COMMANDS << ">";
+        msg << "; valid range is <1 - " << MAX_COMMANDS << "> (plus any negative number is acceptable)";
         AddMessage(Message::TYPE_ERROR, msg.str());
         ok = false;
     }
@@ -482,5 +484,3 @@ bool Validator::CheckVideoCamera(RigDef::VideoCamera & def)
 
     return ok;
 }
-
-} // namespace RigDef
