@@ -629,8 +629,8 @@ struct Command2 // 'commands' are auto-imported as 'commands2' (only 1 extra arg
     float lengthen_rate = 0.f;
     float max_contraction = 0.f;
     float max_extension = 0.f;
-    unsigned int contract_key = 0;
-    unsigned int extend_key = 0;
+    RoR::CommandkeyID_t contract_key = RoR::COMMANDKEYID_INVALID;
+    RoR::CommandkeyID_t extend_key = RoR::COMMANDKEYID_INVALID;
     Ogre::String description;
     Inertia inertia;
     float affect_engine = 1.f;
