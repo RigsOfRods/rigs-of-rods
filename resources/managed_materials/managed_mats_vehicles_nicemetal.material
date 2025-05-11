@@ -2,9 +2,9 @@ import * from "shadows.material"
 
 material managed/flexmesh_standard/specularonly_nicemetal
 {
-    technique BaseTechnique
+    technique BaseTechnique_hlsl
     {
-        pass BaseRender
+        pass BaseRender_hlsl
         {
             // Makes the pixel shader alpha output be used for alpha blending
             scene_blend alpha_blend
@@ -12,11 +12,11 @@ material managed/flexmesh_standard/specularonly_nicemetal
             //specular 0.5 0.5 0.5 1 12.5
 
             // Make this pass use the vertex shader
-            vertex_program_ref NiceMetal_VS_mm
+            vertex_program_ref NiceMetal_VS_mm_hlsl
             {
             }
             // Make this pass use the pixel shader
-            fragment_program_ref NiceMetal_PS_nodmg_mm
+            fragment_program_ref NiceMetal_PS_nodmg_mm_hlsl
             {
             }
            texture_unit Diffuse_Map
@@ -31,18 +31,18 @@ material managed/flexmesh_standard/specularonly_nicemetal
                 texture_alias specular_tex
                 tex_coord_set 1
             }
-        }
-        pass Specular
+        } 
+        pass Specular_hlsl
         {
             scene_blend add
             diffuse vertexcolour
   
             // Make this pass use the vertex shader
-            vertex_program_ref NiceMetal_Reflect_VS_mm
+            vertex_program_ref NiceMetal_Reflect_VS_mm_hlsl
             {
             }
             // Make this pass use the pixel shader
-             fragment_program_ref NiceMetal_Reflect_PS_mm
+             fragment_program_ref NiceMetal_Reflect_PS_mm_hlsl
               {
               }
               texture_unit Specular_Map
@@ -58,14 +58,11 @@ material managed/flexmesh_standard/specularonly_nicemetal
                   tex_coord_set 1
               }
           }
+    
     }
-}
-
-material managed/flexmesh_standard/speculardamage_nicemetal
-{
-    technique BaseTechnique
+    technique BaseTechnique_glsl
     {
-        pass BaseRender
+        pass BaseRender_glsl
         {
             // Makes the pixel shader alpha output be used for alpha blending
             scene_blend alpha_blend
@@ -73,11 +70,72 @@ material managed/flexmesh_standard/speculardamage_nicemetal
             //specular 0.5 0.5 0.5 1 12.5
 
             // Make this pass use the vertex shader
-            vertex_program_ref NiceMetal_VS_mm
+            vertex_program_ref NiceMetal_VS_mm_glsl
             {
             }
             // Make this pass use the pixel shader
-            fragment_program_ref NiceMetal_PS_mm
+            fragment_program_ref NiceMetal_PS_nodmg_mm_glsl
+            {
+            }
+           texture_unit Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds
+                tex_coord_set 0
+            }
+            texture_unit Specular_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias specular_tex
+                tex_coord_set 1
+            }
+        }       
+        pass Specular_glsl
+        {
+            scene_blend add
+            diffuse vertexcolour
+  
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_Reflect_VS_mm_glsl
+            {
+            }
+            // Make this pass use the pixel shader
+             fragment_program_ref NiceMetal_Reflect_PS_mm_glsl
+              {
+              }
+              texture_unit Specular_Map
+              {
+                  // This pass will use this 2D texture as its input
+                  texture_alias specular_tex
+                  tex_coord_set 0
+              }
+              texture_unit envmaptex
+              {
+                  cubic_texture EnvironmentTexture combinedUVW
+                  tex_address_mode clamp
+                  tex_coord_set 1
+              }
+          }          
+    }
+}
+
+material managed/flexmesh_standard/speculardamage_nicemetal
+{
+    technique BaseTechnique_hlsl
+    {
+        pass BaseRender_hlsl
+        {
+            // Makes the pixel shader alpha output be used for alpha blending
+            scene_blend alpha_blend
+            diffuse vertexcolour
+            //specular 0.5 0.5 0.5 1 12.5
+
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_VS_mm_hlsl
+            {
+            }
+            // Make this pass use the pixel shader
+            fragment_program_ref NiceMetal_PS_mm_hlsl
             {
             }
            texture_unit Diffuse_Map
@@ -99,17 +157,83 @@ material managed/flexmesh_standard/speculardamage_nicemetal
                 tex_coord_set 2
             }
         }
-        pass Specular
+        
+        
+        pass Specular_hlsl
         {
             scene_blend add
             diffuse vertexcolour
   
             // Make this pass use the vertex shader
-            vertex_program_ref NiceMetal_Reflect_VS_mm
+            vertex_program_ref NiceMetal_Reflect_VS_mm_hlsl
             {
             }
             // Make this pass use the pixel shader
-             fragment_program_ref NiceMetal_Reflect_PS_mm
+             fragment_program_ref NiceMetal_Reflect_PS_mm_hlsl
+              {
+              }
+              texture_unit Specular_Map
+              {
+                  // This pass will use this 2D texture as its input
+                  texture_alias specular_tex
+                  tex_coord_set 0
+              }
+              texture_unit envmaptex
+              {
+                  cubic_texture EnvironmentTexture combinedUVW
+                  tex_address_mode clamp
+                  tex_coord_set 1
+              }
+          }
+    }
+    
+    technique BaseTechnique_glsl
+    {
+        pass BaseRender_glsl
+        {
+            // Makes the pixel shader alpha output be used for alpha blending
+            scene_blend alpha_blend
+            diffuse vertexcolour
+            //specular 0.5 0.5 0.5 1 12.5
+
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_VS_mm_glsl
+            {
+            }
+            // Make this pass use the pixel shader
+            fragment_program_ref NiceMetal_PS_mm_glsl
+            {
+            }
+           texture_unit Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds
+                tex_coord_set 0
+            }
+            texture_unit Specular_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias specular_tex
+                tex_coord_set 1
+            }
+            texture_unit Dmg_Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds 2d
+                tex_coord_set 2
+            }
+        }       
+        pass Specular_glsl
+        {
+            scene_blend add
+            diffuse vertexcolour
+  
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_Reflect_VS_mm_glsl
+            {
+            }
+            // Make this pass use the pixel shader
+             fragment_program_ref NiceMetal_Reflect_PS_mm_glsl
               {
               }
               texture_unit Specular_Map
@@ -130,19 +254,19 @@ material managed/flexmesh_standard/speculardamage_nicemetal
 
 material managed/mesh_standard/specular_nicemetal
 {
-    technique BaseTechnique
+    technique BaseTechnique_hlsl
     {
-        pass BaseRender
+        pass BaseRender_hlsl
         {
             // Makes the pixel shader alpha output be used for alpha blending
             scene_blend alpha_blend
 
             // Make this pass use the vertex shader
-            vertex_program_ref NiceMetal_VS_mm
+            vertex_program_ref NiceMetal_VS_mm_hlsl
             {
             }
             // Make this pass use the pixel shader
-            fragment_program_ref SimpleMetal_PS_mm
+            fragment_program_ref SimpleMetal_PS_mm_hlsl
             {
             }
            texture_unit Diffuse_Map
@@ -158,16 +282,75 @@ material managed/mesh_standard/specular_nicemetal
                 tex_coord_set 1
             }
         }
-        pass Specular
+        
+
+        
+        pass Specular_hlsl
         {
             scene_blend add
             
             // Make this pass use the vertex shader
-            vertex_program_ref NiceMetal_Reflect_VS_mm
+            vertex_program_ref NiceMetal_Reflect_VS_mm_hlsl
             {
             }
             // Make this pass use the pixel shader
-             fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm
+             fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm_hlsl
+              {
+              }
+              texture_unit Specular_Map
+              {
+                  // This pass will use this 2D texture as its input
+                  texture_alias specular_tex
+                  tex_coord_set 0
+              }
+              texture_unit envmaptex
+              {
+                  cubic_texture EnvironmentTexture combinedUVW
+                  tex_address_mode clamp
+                  tex_coord_set 1
+              }
+        }
+    }
+    
+    technique BaseTechnique_glsl
+    {
+        pass BaseRender_glsl
+        {
+            // Makes the pixel shader alpha output be used for alpha blending
+            scene_blend alpha_blend
+
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_VS_mm_glsl
+            {
+            }
+            // Make this pass use the pixel shader
+            fragment_program_ref SimpleMetal_PS_mm_glsl
+            {
+            }
+           texture_unit Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias unknown.dds
+                tex_coord_set 0
+            }
+            texture_unit Specular_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias specular_tex
+                tex_coord_set 1
+            }
+        }    
+    
+        pass Specular_glsl
+        {
+            scene_blend add
+            
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_Reflect_VS_mm_glsl
+            {
+            }
+            // Make this pass use the pixel shader
+             fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm_glsl
               {
               }
               texture_unit Specular_Map
