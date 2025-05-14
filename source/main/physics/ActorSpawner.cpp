@@ -5982,14 +5982,14 @@ node_t* ActorSpawner::GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref)
     return node;
 }
 
-std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
+NodeNum_t ActorSpawner::RegisterNode(RigDef::Node::Id & id)
 {
     if (!id.IsValid())
     {
         std::stringstream msg;
         msg << "Attempt to add node with 'INVALID' flag: " << id.ToString() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
         this->AddMessage(Message::TYPE_ERROR, msg.str());
-        return std::make_pair(0, false);
+        return NODENUM_INVALID;
     }
 
     if (id.IsTypeNamed())
@@ -6001,13 +6001,13 @@ std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
             std::stringstream msg;
             msg << "Ignoring named node! Duplicate name: " << id.Str() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
             this->AddMessage(Message::TYPE_ERROR, msg.str());
-            return std::make_pair(0, false);
+            return NODENUM_INVALID;
         }
         m_actor->ar_nodes_name[new_index] = id.Str();
         m_actor->ar_nodes_id[new_index] = m_actor->ar_num_nodes;
         m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)id.Str().length());
         m_actor->ar_num_nodes++;
-        return std::make_pair(new_index, true);
+        return (NodeNum_t)new_index;
     }
     if (id.IsTypeNumbered())
     {
@@ -6020,7 +6020,7 @@ std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
         unsigned int new_index = static_cast<unsigned int>(m_actor->ar_num_nodes);
         m_actor->ar_nodes_id[new_index] = id.Num();
         m_actor->ar_num_nodes++;
-        return std::make_pair(new_index, true);
+        return (NodeNum_t)new_index;
     }
     // Invalid node ID without type flag!
     throw Exception("Invalid Node::Id without type flags!");
@@ -6028,18 +6028,18 @@ std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
 
 void ActorSpawner::ProcessNode(RigDef::Node & def)
 {
-    std::pair<unsigned int, bool> inserted_node = AddNode(def.id);
-    if (! inserted_node.second)
+    const NodeNum_t nodeid = RegisterNode(def.id);
+    if (!nodeid == NODENUM_INVALID)
     {
-        return;
+        return; // Error already logged
     }
 
-    node_t & node = m_actor->ar_nodes[inserted_node.first];
-    node.pos = inserted_node.first; /* Node index */
+    node_t & node = m_actor->ar_nodes[nodeid];
+    node.pos = nodeid;
 
     /* Positioning */
     const Ogre::Vector3 spawn_offset = TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
-    m_actor->ar_nodes_spawn_offsets[inserted_node.first] = spawn_offset;
+    m_actor->ar_nodes_spawn_offsets[nodeid] = spawn_offset;
 
     Ogre::Vector3 node_position = m_spawn_position + spawn_offset;
     ROR_ASSERT(!std::isnan(node_position.x));
@@ -6055,11 +6055,11 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     /* Mass */
     if (def.default_minimass)
     {
-        m_actor->ar_minimass[inserted_node.first] = def.default_minimass->min_mass_Kg;
+        m_actor->ar_minimass[nodeid] = def.default_minimass->min_mass_Kg;
     }
     else
     {
-        m_actor->ar_minimass[inserted_node.first] = m_state.global_minimass;
+        m_actor->ar_minimass[nodeid] = m_state.global_minimass;
     }
 
     if (def.node_defaults->load_weight >= 0.f) // The `>=` operator is intentional (negative value => use default).
@@ -6067,22 +6067,22 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         node.mass = def.node_defaults->load_weight;
         node.nd_override_mass = true;
         node.nd_loaded_mass = true;
-        m_actor->ar_nodes_override_loadweights[inserted_node.first] = def.node_defaults->load_weight;
+        m_actor->ar_nodes_override_loadweights[nodeid] = def.node_defaults->load_weight;
     }
     else
     {
         node.mass = NODE_LOADWEIGHT_DEFAULT;
         node.nd_loaded_mass = false;
-        m_actor->ar_nodes_override_loadweights[inserted_node.first] = -1.f;
+        m_actor->ar_nodes_override_loadweights[nodeid] = -1.f;
     }
-    m_actor->ar_nodes_default_loadweights[inserted_node.first] = def.node_defaults->load_weight;
+    m_actor->ar_nodes_default_loadweights[nodeid] = def.node_defaults->load_weight;
 
     /* Lockgroup */
     node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
 
     /* Options */
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
-    m_actor->ar_nodes_options[inserted_node.first] = options;
+    m_actor->ar_nodes_options[nodeid] = options;
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
         node.nd_loaded_mass = true;
@@ -6090,7 +6090,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         {
             node.nd_override_mass = true;
             node.mass = def.load_weight_override;
-            m_actor->ar_nodes_override_loadweights[inserted_node.first] = def.load_weight_override;
+            m_actor->ar_nodes_override_loadweights[nodeid] = def.load_weight_override;
         }
         else
         {
