@@ -6064,18 +6064,18 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
 
     if (def.node_defaults->load_weight >= 0.f) // The `>=` operator is intentional (negative value => use default).
     {
-        // orig = further override of hardcoded default.
-        node.mass = def.node_defaults->load_weight; 
+        node.mass = def.node_defaults->load_weight;
         node.nd_override_mass = true;
         node.nd_loaded_mass = true;
+        m_actor->ar_nodes_override_loadweights[inserted_node.first] = def.node_defaults->load_weight;
     }
     else
     {
         node.mass = NODE_LOADWEIGHT_DEFAULT;
         node.nd_loaded_mass = false;
+        m_actor->ar_nodes_override_loadweights[inserted_node.first] = -1.f;
     }
     m_actor->ar_nodes_default_loadweights[inserted_node.first] = def.node_defaults->load_weight;
-    m_actor->ar_nodes_override_loadweights[inserted_node.first] = -1.f;
 
     /* Lockgroup */
     node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
