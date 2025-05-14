@@ -286,8 +286,8 @@ private:
         float wheel_mass,
         float wheel_width = -1.f);
 
-    /// @return First: node index, second: True if the node was inserted, false if duplicate.
-    std::pair<unsigned int, bool> AddNode(RigDef::Node::Id & id);
+    /// @return Valid node number if resolved, or `NODENUM_INVALID` if not.
+    NodeNum_t                     RegisterNode(RigDef::Node::Id & id);
     void                          InitNode(node_t & node, Ogre::Vector3 const & position);
     void                          InitNode(unsigned int node_index, Ogre::Vector3 const & position);
     void                          InitNode(node_t & node, Ogre::Vector3 const & position, std::shared_ptr<RigDef::NodeDefaults> node_defaults);
