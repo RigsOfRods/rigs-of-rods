@@ -443,7 +443,7 @@ void GameSettings::DrawGraphicsSettings()
     if (App::gfx_envmap_enabled->getBool())
     {
         ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
-        DrawGIntSlider(App::gfx_envmap_rate, _LC("GameSettings", "Realtime refl. update rate"), 0, 6);
+        DrawGIntSlider(App::gfx_envmap_rate, _LC("GameSettings", "Realtime refl. update rate"), 0, 2);
         ImGui::PopItemWidth();
     }
 
