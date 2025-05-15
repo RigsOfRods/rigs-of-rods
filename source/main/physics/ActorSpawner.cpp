@@ -6153,7 +6153,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     NodeGfx nfx(node.pos);
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
-    nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_no_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     m_actor->m_gfx_actor->m_gfx_nodes.push_back(nfx);
 }
