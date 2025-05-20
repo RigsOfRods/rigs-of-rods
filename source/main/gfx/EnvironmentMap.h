@@ -34,20 +34,24 @@ class GfxEnvmap
 {
 public:
 
-    GfxEnvmap();
     ~GfxEnvmap();
 
     void SetupEnvMap();
     void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);
 
+    Ogre::RenderTarget* GetRenderTarget(int face) const
+    {
+        return m_render_targets[face];
+    }
+
 private:
 
     static const unsigned int NUM_FACES = 6;
 
-    Ogre::Camera*        m_cameras[NUM_FACES];
-    Ogre::RenderTarget*  m_render_targets[NUM_FACES];
+    std::array<Ogre::Camera*, NUM_FACES> m_cameras;
+    std::array<Ogre::RenderTarget*, NUM_FACES> m_render_targets;
     Ogre::TexturePtr     m_rtt_texture;
-    int                  m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
+    int                  m_update_round = 0; /// Render targets are updated one-by-one; this is the index of next target to update.
 };
 
 /// @} // addtogroup Gfx
