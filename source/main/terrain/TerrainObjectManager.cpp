@@ -1230,3 +1230,15 @@ TerrainEditorObjectID_t TerrainObjectManager::FindEditorObjectByInstanceName(std
     }
 }
 
+void TerrainObjectManager::SetAllObjectsVisible(bool visible)
+{
+    if (visible && !m_terrn2_grouping_node->isInSceneGraph())
+    {
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->addChild(m_terrn2_grouping_node);
+    }
+    else if (!visible && m_terrn2_grouping_node->isInSceneGraph())
+    {
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_terrn2_grouping_node);
+    }
+}
+
