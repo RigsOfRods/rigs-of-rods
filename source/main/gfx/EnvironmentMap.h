@@ -36,6 +36,8 @@ public:
 
     ~GfxEnvmap();
 
+    bool envmap_show_terrain_objects = true; // When false, all .ODEF objects are hidden when rendering envmap.
+
     void SetupEnvMap();
     void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);
     void CreateSceneNodes(); //!< Must be invoked repeatedly because we wipe the SceneManager after return to main menu.
@@ -48,6 +50,8 @@ public:
 private:
 
     void SetupCameras(); //only needs to be done once
+    void AdjustSceneBeforeRender(Ogre::Vector3 center, GfxActor* gfx_actor);
+    void RestoreSceneAfterRender(Ogre::Vector3 center, GfxActor* gfx_actor);
 
     static const unsigned int NUM_FACES = 6;
 

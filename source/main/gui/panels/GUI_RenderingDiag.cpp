@@ -99,6 +99,10 @@ void RenderingDiag::DrawEnvmapFace(int face)
 
 void RenderingDiag::DrawEnvmapTab()
 {
+    ImGui::Text(_LC("RenderingDiag", "Envmap - globals"));
+    ImGui::Checkbox(_LC("RenderingDiag", "Show terrain objects"), &App::GetGfxScene()->GetEnvMap().envmap_show_terrain_objects);
+    ImGui::Separator();
+
     ImGui::Text(_LC("RenderingDiag", "Envmap +X"));
     this->DrawEnvmapFace(0);
     ImGui::Separator();
