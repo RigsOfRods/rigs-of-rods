@@ -135,6 +135,7 @@ set(SOURCE_FILES
         gui/panels/GUI_ScriptMonitor.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
+        gui/panels/GUI_RenderingDiag.{h,cpp}
         network/CurlHelpers.{h,cpp}
         network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}
