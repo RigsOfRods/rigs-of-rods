@@ -33,19 +33,30 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlay.h>
 
-void RoR::GfxEnvmap::SetupEnvMap()
+void RoR::GfxEnvmap::SetupCameras() //only needs to be done once
 {
-    m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
-
     for (int face = 0; face < NUM_FACES; face++)
     {
-        m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
         m_cameras[face] = App::GetGfxScene()->GetSceneManager()->createCamera("EnvironmentCamera-" + TOSTRING(face));
         m_cameras[face]->setAspectRatio(1.0);
         m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
         m_cameras[face]->setFOVy(Ogre::Degree(90));
         m_cameras[face]->setNearClipDistance(0.1f);
         m_cameras[face]->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
+    }
+
+    this->CreateSceneNodes();
+}
+
+void RoR::GfxEnvmap::SetupEnvMap()
+{
+    this->SetupCameras();
+
+    m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
+
+    for (int face = 0; face < NUM_FACES; face++)
+    {
+        m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
 
         Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
         v->setOverlaysEnabled(false);
@@ -53,8 +64,6 @@ void RoR::GfxEnvmap::SetupEnvMap()
         v->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
         m_render_targets[face]->setAutoUpdated(false);
     }
-
-    this->CreateSceneNodes();
 
     if (App::diag_envmap->getBool())
     {

@@ -47,6 +47,8 @@ public:
 
 private:
 
+    void SetupCameras(); //only needs to be done once
+
     static const unsigned int NUM_FACES = 6;
 
     std::array<Ogre::Camera*, NUM_FACES> m_cameras;
