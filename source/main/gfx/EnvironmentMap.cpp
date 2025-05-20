@@ -35,14 +35,16 @@
 
 void RoR::GfxEnvmap::SetupCameras() //only needs to be done once
 {
+    envmap_camera_farclip_distance = App::GetCameraManager()->GetCamera()->getFarClipDistance();
+
     for (int face = 0; face < NUM_FACES; face++)
     {
         m_cameras[face] = App::GetGfxScene()->GetSceneManager()->createCamera("EnvironmentCamera-" + TOSTRING(face));
         m_cameras[face]->setAspectRatio(1.0);
         m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
         m_cameras[face]->setFOVy(Ogre::Degree(90));
-        m_cameras[face]->setNearClipDistance(0.1f);
-        m_cameras[face]->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
+        m_cameras[face]->setNearClipDistance(envmap_camera_nearclip_distance);
+        m_cameras[face]->setFarClipDistance(envmap_camera_farclip_distance);
     }
 
     this->CreateSceneNodes();
@@ -244,6 +246,8 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
     for (int i = 0; i < NUM_FACES; i++)
     {
         m_cameras[i]->getParentSceneNode()->setPosition(center);
+        m_cameras[i]->setNearClipDistance(envmap_camera_nearclip_distance);
+        m_cameras[i]->setFarClipDistance(envmap_camera_farclip_distance);
     }
 
     this->AdjustSceneBeforeRender(center, gfx_actor);
