@@ -33,13 +33,6 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlay.h>
 
-RoR::GfxEnvmap::GfxEnvmap():
-    m_update_round(0)
-{
-    memset(m_cameras, 0, sizeof(m_cameras));
-    memset(m_render_targets, 0, sizeof(m_render_targets));
-}
-
 void RoR::GfxEnvmap::SetupEnvMap()
 {
     m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
