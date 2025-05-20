@@ -33,13 +33,10 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlay.h>
 
-void RoR::GfxEnvmap::SetupEnvMap()
+void RoR::GfxEnvmap::SetupCameras() //only needs to be done once
 {
-    m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
-
     for (int face = 0; face < NUM_FACES; face++)
     {
-        m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
         m_cameras[face] = App::GetGfxScene()->GetSceneManager()->createCamera("EnvironmentCamera-" + TOSTRING(face));
         m_cameras[face]->setAspectRatio(1.0);
         m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
@@ -47,12 +44,6 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_cameras[face]->setFOVy(Ogre::Degree(90));
         m_cameras[face]->setNearClipDistance(0.1f);
         m_cameras[face]->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
-
-        Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
-        v->setOverlaysEnabled(false);
-        v->setClearEveryFrame(true);
-        v->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
-        m_render_targets[face]->setAutoUpdated(false);
     }
 
     m_cameras[0]->setDirection(+Ogre::Vector3::UNIT_X);
@@ -61,6 +52,24 @@ void RoR::GfxEnvmap::SetupEnvMap()
     m_cameras[3]->setDirection(-Ogre::Vector3::UNIT_Y);
     m_cameras[4]->setDirection(-Ogre::Vector3::UNIT_Z);
     m_cameras[5]->setDirection(+Ogre::Vector3::UNIT_Z);
+}
+
+void RoR::GfxEnvmap::SetupEnvMap()
+{
+    this->SetupCameras();
+
+    m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
+
+    for (int face = 0; face < NUM_FACES; face++)
+    {
+        m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
+
+        Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
+        v->setOverlaysEnabled(false);
+        v->setClearEveryFrame(true);
+        v->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
+        m_render_targets[face]->setAutoUpdated(false);
+    }
 
     if (App::diag_envmap->getBool())
     {
