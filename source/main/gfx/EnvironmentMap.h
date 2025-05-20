@@ -37,6 +37,8 @@ public:
     ~GfxEnvmap();
 
     bool envmap_show_terrain_objects = true; // When false, all .ODEF objects are hidden when rendering envmap.
+    float envmap_camera_nearclip_distance = 0.1f; // Loads every frame
+    float envmap_camera_farclip_distance = 0.0f; // Loads every frame (0 = infinite)
 
     void SetupEnvMap();
     void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);

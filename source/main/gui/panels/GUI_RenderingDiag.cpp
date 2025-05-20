@@ -43,7 +43,7 @@ using namespace GUI;
 void RenderingDiag::Draw()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
-    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
     bool keep_open = true;
     ImGui::Begin(_LC("RenderingDiag", "Rendering Diagnostics"), &keep_open, win_flags);
     
@@ -101,29 +101,37 @@ void RenderingDiag::DrawEnvmapTab()
 {
     ImGui::Text(_LC("RenderingDiag", "Envmap - globals"));
     ImGui::Checkbox(_LC("RenderingDiag", "Show terrain objects"), &App::GetGfxScene()->GetEnvMap().envmap_show_terrain_objects);
+    ImGui::InputFloat(_LC("RenderingDiag", "Camera near clip"), &App::GetGfxScene()->GetEnvMap().envmap_camera_nearclip_distance, 0.01f, 2.f, "%.2f");
+    ImGui::InputFloat(_LC("RenderingDiag", "Camera far clip"), &App::GetGfxScene()->GetEnvMap().envmap_camera_farclip_distance, 10.f, 100000.0f, "%.2f");
     ImGui::Separator();
 
-    ImGui::Text(_LC("RenderingDiag", "Envmap +X"));
+    ImGui::TextDisabled(_LC("RenderingDiag", "Envmap +X"));
+    ImGui::SameLine();
     this->DrawEnvmapFace(0);
     ImGui::Separator();
 
-    ImGui::Text(_LC("RenderingDiag", "Envmap -X"));
+    ImGui::TextDisabled(_LC("RenderingDiag", "Envmap -X"));
+    ImGui::SameLine();
     this->DrawEnvmapFace(1);
     ImGui::Separator();
 
-    ImGui::Text(_LC("RenderingDiag", "Envmap +Y"));
+    ImGui::TextDisabled(_LC("RenderingDiag", "Envmap +Y"));
+    ImGui::SameLine();
     this->DrawEnvmapFace(2);
     ImGui::Separator();
 
-    ImGui::Text(_LC("RenderingDiag", "Envmap -Y"));
+    ImGui::TextDisabled(_LC("RenderingDiag", "Envmap -Y"));
+    ImGui::SameLine();
     this->DrawEnvmapFace(3);
     ImGui::Separator();
 
-    ImGui::Text(_LC("RenderingDiag", "Envmap -Z"));
+    ImGui::TextDisabled(_LC("RenderingDiag", "Envmap -Z"));
+    ImGui::SameLine();
     this->DrawEnvmapFace(4);
     ImGui::Separator();
 
-    ImGui::Text(_LC("RenderingDiag", "Envmap +Z"));
+    ImGui::TextDisabled(_LC("RenderingDiag", "Envmap +Z"));
+    ImGui::SameLine();
     this->DrawEnvmapFace(5);
     ImGui::Separator();
 }
