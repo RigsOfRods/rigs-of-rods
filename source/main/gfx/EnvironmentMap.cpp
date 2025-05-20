@@ -205,6 +205,28 @@ RoR::GfxEnvmap::~GfxEnvmap()
     }
 }
 
+void RoR::GfxEnvmap::AdjustSceneBeforeRender(Ogre::Vector3 center, GfxActor* gfx_actor)
+{
+    if (gfx_actor != nullptr)
+    {
+        gfx_actor->SetAllMeshesVisible(false);
+        gfx_actor->SetRodsVisible(false);
+    }
+
+    App::GetGameContext()->GetTerrain()->getObjectManager()->SetAllObjectsVisible(envmap_show_terrain_objects);
+}
+
+void RoR::GfxEnvmap::RestoreSceneAfterRender(Ogre::Vector3 center, GfxActor* gfx_actor)
+{
+    if (gfx_actor != nullptr)
+    {
+        gfx_actor->SetRodsVisible(true);
+        gfx_actor->SetAllMeshesVisible(true);
+    }
+
+    App::GetGameContext()->GetTerrain()->getObjectManager()->SetAllObjectsVisible(true);
+}
+
 void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full/*=false*/)
 {
     // how many of the 6 render planes to update at once? Use cvar 'gfx_envmap_rate', unless instructed to do full render.
@@ -230,11 +252,7 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
         m_cameras[i]->setPosition(center);
     }
 
-    if (gfx_actor != nullptr)
-    {
-        gfx_actor->SetAllMeshesVisible(false);
-        gfx_actor->SetRodsVisible(false);
-    }
+    this->AdjustSceneBeforeRender(center, gfx_actor);
 
     for (int i = 0; i < update_rate; i++)
     {
@@ -255,9 +273,5 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
     }
 #endif // USE_CAELUM
 
-    if (gfx_actor != nullptr)
-    {
-        gfx_actor->SetRodsVisible(true);
-        gfx_actor->SetAllMeshesVisible(true);
-    }
+    this->RestoreSceneAfterRender(center, gfx_actor);
 }
