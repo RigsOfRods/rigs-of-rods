@@ -23,6 +23,7 @@
 #include "ForwardDeclarations.h"
 
 #include <Ogre.h>
+#include <OgreOverlay.h>
 
 namespace RoR {
 
@@ -36,9 +37,13 @@ public:
 
     ~GfxEnvmap();
 
-    bool envmap_show_terrain_objects = true; // When false, all .ODEF objects are hidden when rendering envmap.
-    float envmap_camera_nearclip_distance = 0.1f; // Loads every frame
-    float envmap_camera_farclip_distance = 0.0f; // Loads every frame (0 = infinite)
+    // Public envmap live options - they reload automatically every frame
+    bool envmap_show_terrain_objects = true;
+    float envmap_camera_nearclip_distance = 0.1f;
+    float envmap_camera_farclip_distance = 0.0f; // (0 = infinite)
+    float evmap_diag_overlay_pos_x = -0.8f;
+    float evmap_diag_overlay_pos_y = -0.5f;
+    float evmap_diag_overlay_scale = 0.35f;
 
     void SetupEnvMap();
     void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);
@@ -51,6 +56,8 @@ public:
 private:
 
     void SetupCameras(); //only needs to be done once
+    void SetupDebugOverlay(); // only needs to be done once
+    void SetDebugOverlayVisible(bool show);
     void AdjustSceneBeforeRender(Ogre::Vector3 center, GfxActor* gfx_actor);
     void RestoreSceneAfterRender(Ogre::Vector3 center, GfxActor* gfx_actor);
 
@@ -60,6 +67,8 @@ private:
     std::array<Ogre::RenderTarget*, NUM_FACES> m_render_targets;
     Ogre::TexturePtr     m_rtt_texture;
     int                  m_update_round = 0; /// Render targets are updated one-by-one; this is the index of next target to update.
+    Ogre::Overlay*       m_debug_overlay = nullptr;
+    Ogre::SceneNode*     m_debug_overlay_snode = nullptr;
 };
 
 /// @} // addtogroup Gfx
