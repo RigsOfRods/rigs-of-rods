@@ -223,7 +223,7 @@ material tracks/EnvMapDebug
 
 			texture_unit
 			{
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic combinedUVW
 			}
 		}
 	}

@@ -32,6 +32,7 @@
 #include "Collisions.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "Language.h"
 #include "Terrain.h"
 #include "GfxScene.h"
@@ -99,40 +100,41 @@ void RenderingDiag::DrawEnvmapFace(int face)
 
 void RenderingDiag::DrawEnvmapTab()
 {
-    ImGui::Text(_LC("RenderingDiag", "Envmap - globals"));
+    ImGui::TextDisabled(_LC("RenderingDiag", ":: O P T I O N S ::"));
+
     ImGui::Checkbox(_LC("RenderingDiag", "Show terrain objects"), &App::GetGfxScene()->GetEnvMap().envmap_show_terrain_objects);
     ImGui::InputFloat(_LC("RenderingDiag", "Camera near clip"), &App::GetGfxScene()->GetEnvMap().envmap_camera_nearclip_distance, 0.01f, 2.f, "%.2f");
     ImGui::InputFloat(_LC("RenderingDiag", "Camera far clip"), &App::GetGfxScene()->GetEnvMap().envmap_camera_farclip_distance, 10.f, 100000.0f, "%.2f");
+    DrawGCheckbox(App::diag_envmap, _LC("RenderingDiag", "Show cubemap overlay"));
+    ImGui::InputFloat(_LC("RenderingDiag", "Overlay pos X"), &App::GetGfxScene()->GetEnvMap().evmap_diag_overlay_pos_x, -10.f, 10.f, "%.2f");
+    ImGui::InputFloat(_LC("RenderingDiag", "Overlay pos Y"), &App::GetGfxScene()->GetEnvMap().evmap_diag_overlay_pos_y, -10.f, 10.f, "%.2f");
+    ImGui::InputFloat(_LC("RenderingDiag", "Overlay scale"), &App::GetGfxScene()->GetEnvMap().evmap_diag_overlay_scale, 0.1f, 10.f, "%.2f");
     ImGui::Separator();
+
+    ImGui::TextDisabled(_LC("RenderingDiag", ":: S T A T S ::"));
 
     ImGui::TextDisabled(_LC("RenderingDiag", "Envmap +X"));
     ImGui::SameLine();
     this->DrawEnvmapFace(0);
-    ImGui::Separator();
 
     ImGui::TextDisabled(_LC("RenderingDiag", "Envmap -X"));
     ImGui::SameLine();
     this->DrawEnvmapFace(1);
-    ImGui::Separator();
 
     ImGui::TextDisabled(_LC("RenderingDiag", "Envmap +Y"));
     ImGui::SameLine();
     this->DrawEnvmapFace(2);
-    ImGui::Separator();
 
     ImGui::TextDisabled(_LC("RenderingDiag", "Envmap -Y"));
     ImGui::SameLine();
     this->DrawEnvmapFace(3);
-    ImGui::Separator();
 
     ImGui::TextDisabled(_LC("RenderingDiag", "Envmap -Z"));
     ImGui::SameLine();
     this->DrawEnvmapFace(4);
-    ImGui::Separator();
 
     ImGui::TextDisabled(_LC("RenderingDiag", "Envmap +Z"));
     ImGui::SameLine();
     this->DrawEnvmapFace(5);
-    ImGui::Separator();
 }
 

@@ -32,6 +32,7 @@
 #include <OgreOverlaySystem.h>
 #include <OgreOverlayManager.h>
 #include <OgreOverlay.h>
+#include <OgreOverlayContainer.h>
 
 void RoR::GfxEnvmap::SetupCameras() //only needs to be done once
 {
@@ -66,128 +67,159 @@ void RoR::GfxEnvmap::SetupEnvMap()
         v->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
         m_render_targets[face]->setAutoUpdated(false);
     }
+}
 
-    if (App::diag_envmap->getBool())
+void RoR::GfxEnvmap::SetupDebugOverlay()
+{
+    ROR_ASSERT(!m_debug_overlay);
+
+    // create fancy mesh for debugging the envmap
+    m_debug_overlay = Ogre::OverlayManager::getSingleton().getByName("tracks/EnvMapDebugOverlay");
+    if (m_debug_overlay)
     {
-        // create fancy mesh for debugging the envmap
-        Ogre::Overlay* overlay = Ogre::OverlayManager::getSingleton().create("EnvMapDebugOverlay");
-        if (overlay)
+        // openGL fix
+        m_debug_overlay->show();
+        m_debug_overlay->hide();
+
+        Ogre::Vector3 position = Ogre::Vector3::ZERO;
+        float scale = 1.0f;
+
+        Ogre::MeshPtr mesh = Ogre::MeshManager::getSingletonPtr()->createManual("cubeMapDebug", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        // create sub mesh
+        Ogre::SubMesh* sub = mesh->createSubMesh();
+
+        // Initialize render operation
+        sub->operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
+        //
+        sub->useSharedVertices = true;
+        mesh->sharedVertexData = new Ogre::VertexData;
+        sub->indexData = new Ogre::IndexData;
+
+        // Create vertex declaration
+        size_t offset = 0;
+        mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+        offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
+        mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_TEXTURE_COORDINATES);
+
+        // Create and bind vertex buffer
+        mesh->sharedVertexData->vertexCount = 14;
+        Ogre::HardwareVertexBufferSharedPtr vertexBuffer =
+            Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
+                mesh->sharedVertexData->vertexDeclaration->getVertexSize(0),
+                mesh->sharedVertexData->vertexCount,
+                Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        mesh->sharedVertexData->vertexBufferBinding->setBinding(0, vertexBuffer);
+
+        // Vertex data
+        static const float vertexData[] = {
+            // Position      Texture coordinates    // Index
+            0.0, 2.0, -1.0, 1.0, 1.0, //  0
+            0.0, 1.0, -1.0, -1.0, 1.0, //  1
+            1.0, 2.0, -1.0, 1.0, -1.0, //  2
+            1.0, 1.0, -1.0, -1.0, -1.0, //  3
+            2.0, 2.0, 1.0, 1.0, -1.0, //  4
+            2.0, 1.0, 1.0, -1.0, -1.0, //  5
+            3.0, 2.0, 1.0, 1.0, 1.0, //  6
+            3.0, 1.0, 1.0, -1.0, 1.0, //  7
+            4.0, 2.0, -1.0, 1.0, 1.0, //  8
+            4.0, 1.0, -1.0, -1.0, 1.0, //  9
+            1.0, 3.0, -1.0, 1.0, 1.0, // 10
+            2.0, 3.0, 1.0, 1.0, 1.0, // 11
+            1.0, 0.0, -1.0, -1.0, 1.0, // 12
+            2.0, 0.0, 1.0, -1.0, 1.0, // 13
+        };
+
+        // Fill vertex buffer
+        float* pData = static_cast<float*>(vertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+        for (size_t vertex = 0, i = 0; vertex < mesh->sharedVertexData->vertexCount; vertex++)
         {
-            Ogre::Vector3 position = Ogre::Vector3::ZERO;
-            float scale = 1.0f;
+            // Position
+            *pData++ = position.x + scale * vertexData[i++];
+            *pData++ = position.y + scale * vertexData[i++];
+            *pData++ = 0.0;
 
-            Ogre::MeshPtr mesh = Ogre::MeshManager::getSingletonPtr()->createManual("cubeMapDebug", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-            // create sub mesh
-            Ogre::SubMesh* sub = mesh->createSubMesh();
+            // Texture coordinates
+            *pData++ = vertexData[i++];
+            *pData++ = vertexData[i++];
+            *pData++ = vertexData[i++];
+        }
+        vertexBuffer->unlock();
 
-            // Initialize render operation
-            sub->operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
-            //
-            sub->useSharedVertices = true;
-            mesh->sharedVertexData = new Ogre::VertexData;
-            sub->indexData = new Ogre::IndexData;
+        // Create index buffer
+        sub->indexData->indexCount = 36;
+        Ogre::HardwareIndexBufferSharedPtr indexBuffer =
+            Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
+                Ogre::HardwareIndexBuffer::IT_16BIT,
+                sub->indexData->indexCount,
+                Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        sub->indexData->indexBuffer = indexBuffer;
 
-            // Create vertex declaration
-            size_t offset = 0;
-            mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-            offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
-            mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_TEXTURE_COORDINATES);
+        // Index data
+        static const Ogre::uint16 indexData[] = {
+            // Indices         // Face
+                0,  1,  2,        //  0
+                2,  1,  3,        //  1
+                2,  3,  4,        //  2
+                4,  3,  5,        //  3
+                4,  5,  6,        //  4
+                6,  5,  7,        //  5
+                6,  7,  8,        //  6
+                8,  7,  9,        //  7
+            10,  2, 11,        //  8
+            11,  2,  4,        //  9
+                3, 12,  5,        // 10
+                5, 12, 13,        // 11
+        };
 
-            // Create and bind vertex buffer
-            mesh->sharedVertexData->vertexCount = 14;
-            Ogre::HardwareVertexBufferSharedPtr vertexBuffer =
-                Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-                    mesh->sharedVertexData->vertexDeclaration->getVertexSize(0),
-                    mesh->sharedVertexData->vertexCount,
-                    Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-            mesh->sharedVertexData->vertexBufferBinding->setBinding(0, vertexBuffer);
+        // Fill index buffer
+        indexBuffer->writeData(0, indexBuffer->getSizeInBytes(), indexData, true);
 
-            // Vertex data
-            static const float vertexData[] = {
-                // Position      Texture coordinates    // Index
-                0.0, 2.0, -1.0, 1.0, 1.0, //  0
-                0.0, 1.0, -1.0, -1.0, 1.0, //  1
-                1.0, 2.0, -1.0, 1.0, -1.0, //  2
-                1.0, 1.0, -1.0, -1.0, -1.0, //  3
-                2.0, 2.0, 1.0, 1.0, -1.0, //  4
-                2.0, 1.0, 1.0, -1.0, -1.0, //  5
-                3.0, 2.0, 1.0, 1.0, 1.0, //  6
-                3.0, 1.0, 1.0, -1.0, 1.0, //  7
-                4.0, 2.0, -1.0, 1.0, 1.0, //  8
-                4.0, 1.0, -1.0, -1.0, 1.0, //  9
-                1.0, 3.0, -1.0, 1.0, 1.0, // 10
-                2.0, 3.0, 1.0, 1.0, 1.0, // 11
-                1.0, 0.0, -1.0, -1.0, 1.0, // 12
-                2.0, 0.0, 1.0, -1.0, 1.0, // 13
-            };
+        // Finalize mesh
+        mesh->_setBounds(Ogre::AxisAlignedBox::BOX_INFINITE);
+        mesh->_setBoundingSphereRadius(10);
+        mesh->load();
 
-            // Fill vertex buffer
-            float* pData = static_cast<float*>(vertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
-            for (size_t vertex = 0, i = 0; vertex < mesh->sharedVertexData->vertexCount; vertex++)
-            {
-                // Position
-                *pData++ = position.x + scale * vertexData[i++];
-                *pData++ = position.y + scale * vertexData[i++];
-                *pData++ = 0.0;
+        // Create entity from the mesh
+        Ogre::Entity* ent = App::GetGfxScene()->GetSceneManager()->createEntity(mesh->getName());
+        ent->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
+        ent->setMaterialName("tracks/EnvMapDebug");
 
-                // Texture coordinates
-                *pData++ = vertexData[i++];
-                *pData++ = vertexData[i++];
-                *pData++ = vertexData[i++];
-            }
-            vertexBuffer->unlock();
+        // Display the mesh on the overlay
+        m_debug_overlay_snode = new Ogre::SceneNode(App::GetGfxScene()->GetSceneManager());
+        m_debug_overlay_snode->attachObject(ent);
+        m_debug_overlay_snode->setVisible(true);
+        m_debug_overlay_snode->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
+        m_debug_overlay->add3D(m_debug_overlay_snode);
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, "Could not find envmap debug overlay resource");
+        App::diag_envmap->setVal(false);
+    }
+}
 
-            // Create index buffer
-            sub->indexData->indexCount = 36;
-            Ogre::HardwareIndexBufferSharedPtr indexBuffer =
-                Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
-                    Ogre::HardwareIndexBuffer::IT_16BIT,
-                    sub->indexData->indexCount,
-                    Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-            sub->indexData->indexBuffer = indexBuffer;
-
-            // Index data
-            static const Ogre::uint16 indexData[] = {
-                // Indices         // Face
-                 0,  1,  2,        //  0
-                 2,  1,  3,        //  1
-                 2,  3,  4,        //  2
-                 4,  3,  5,        //  3
-                 4,  5,  6,        //  4
-                 6,  5,  7,        //  5
-                 6,  7,  8,        //  6
-                 8,  7,  9,        //  7
-                10,  2, 11,        //  8
-                11,  2,  4,        //  9
-                 3, 12,  5,        // 10
-                 5, 12, 13,        // 11
-            };
-
-            // Fill index buffer
-            indexBuffer->writeData(0, indexBuffer->getSizeInBytes(), indexData, true);
-
-            mesh->_setBounds(Ogre::AxisAlignedBox::BOX_INFINITE);
-            mesh->_setBoundingSphereRadius(10);
-            mesh->load();
-
-            Ogre::Entity* e = App::GetGfxScene()->GetSceneManager()->createEntity(mesh->getName());
-            e->setCastShadows(false);
-            e->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
-            e->setVisible(true);
-
-            e->setMaterialName("tracks/EnvMapDebug");
-            Ogre::SceneNode* mDebugSceneNode = new Ogre::SceneNode(App::GetGfxScene()->GetSceneManager());
-            mDebugSceneNode->attachObject(e);
-            mDebugSceneNode->setPosition(Ogre::Vector3(0, 0, -5));
-            mDebugSceneNode->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
-            mDebugSceneNode->setVisible(true);
-            mDebugSceneNode->_update(true, true);
-            mDebugSceneNode->_updateBounds();
-            overlay->add3D(mDebugSceneNode);
-            overlay->show();
+void RoR::GfxEnvmap::SetDebugOverlayVisible(bool show)
+{
+    if (show)
+    {
+        if (!m_debug_overlay)
+        {
+            SetupDebugOverlay();
+        }
+        if (m_debug_overlay)
+        {
+            m_debug_overlay->show();
+        }
+    }
+    else
+    {
+        if (m_debug_overlay)
+        {
+            m_debug_overlay->hide();
         }
     }
 }
+
 
 RoR::GfxEnvmap::~GfxEnvmap()
 {
@@ -241,6 +273,13 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
     if (!full && update_rate == 0)
     {
         return;
+    }
+
+    this->SetDebugOverlayVisible(App::diag_envmap->getBool());
+    if (m_debug_overlay_snode && m_debug_overlay->isVisible())
+    {
+        m_debug_overlay_snode->setScale(evmap_diag_overlay_scale, evmap_diag_overlay_scale, evmap_diag_overlay_scale);
+        m_debug_overlay_snode->setPosition(Ogre::Vector3(evmap_diag_overlay_pos_x, evmap_diag_overlay_pos_y, -1));
     }
 
     for (int i = 0; i < NUM_FACES; i++)
