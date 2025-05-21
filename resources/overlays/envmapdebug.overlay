@@ -1,0 +1,9 @@
+overlay tracks/EnvMapDebugOverlay
+{
+	zorder 600
+	overlay_element tracks/EnvMapDebugOverlay/MainPanel Panel
+	{
+		transparent true
+		material tracks/pointingArrowBackground
+	}
+}
