@@ -3773,7 +3773,8 @@ void Actor::hookToggle(int group, ActorLinkingRequestType mode, NodeNum_t mousen
             this->RemoveInterActorBeam(it->hk_beam, mode); // OK to invoke here - hookToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
             if (it->hk_group <= -2)
             {
-                it->hk_timer = it->hk_timer_preset; //timer reset for autolock nodes
+                // autolock timer: if we're hard-resetting the actor, force immediate relock, otherwise restart the countdown.
+                it->hk_timer = (mode == ActorLinkingRequestType::HOOK_RESET) ? 0.f : it->hk_timer_preset;
             }
             it->hk_lock_node = 0;
             it->hk_locked_actor = 0;
