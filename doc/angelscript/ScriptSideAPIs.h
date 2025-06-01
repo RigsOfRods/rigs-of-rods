@@ -21,9 +21,11 @@ namespace Script2Game {}
 /// @brief Pseudo-namespace; it doesn't exist in code or script runtime, only in this documentation.
 namespace ScriptValueTypes {}
 
-/// @brief OGRE-AngelScript bindings; Actually named `Ogre` in the scripts, just changed for docs to separate things.
-/// Each of these objects is a loose subset of it's OGRE counterpart, see [OGRE API Docs](https://ogrecave.github.io/ogre/api/1.11/).
+/// @brief OGRE-AngelScript bindings; Actually named `Ogre` in the scripts, just changed for docs to separate things; Each of these objects is a loose subset of it's OGRE counterpart, see [OGRE API Docs](https://ogrecave.github.io/ogre/api/1.11/).
 namespace AngelOgre {}    
+
+/// @brief OGRE-DearIMGUI bindings; Actually named `ImGui` in the scripts, just changed for docs to separate things; Note we use somewhat outdated version (v1.73) with hand-rolled bindings and some source tweaks.
+namespace AngelImGui {}    
 
 /// @}
 
