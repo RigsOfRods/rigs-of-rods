@@ -8,16 +8,6 @@ namespace Script2Game {
 /** \addtogroup Script2Game
  *  @{
  */    
- 
-enum autoswitch
-{
-    REAR,
-    NEUTRAL,
-    DRIVE,
-    TWO,
-    ONE,
-    MANUALMODE
-};
 
 /**
  * @brief Binding of RoR::EngineSim; A land vehicle engine + transmission

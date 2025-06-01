@@ -1,20 +1,7 @@
-/*
-This source file is part of Rigs of Rods
 
-For more information, see http://www.rigsofrods.org/
-
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
-
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
-*/
+  // =================================================== //
+  // THIS IS NOT A C++ HEADER! Only a dummy for Doxygen. //
+  // =================================================== //
 
 /** \addtogroup ScriptSideAPIs
  *  @{
@@ -29,7 +16,8 @@ namespace Script2Game {
 /**
 * Binding of `RoR::SoundTriggers`
 */
-enum SoundTriggers {
+enum SoundTriggers
+{
     SS_TRIG_NONE = -1,
     SS_TRIG_ENGINE = 0,
     SS_TRIG_AEROENGINE1,
@@ -97,43 +85,6 @@ enum SoundTriggers {
     SS_TRIG_AVICHAT13,
     SS_TRIG_LINKED_COMMAND,
     SS_TRIG_MAIN_MENU
-};
-
-/**
-* Binding of `RoR::ModulationSources`
-*/
-enum ModulationSources {
-    SS_MOD_NONE,
-    SS_MOD_ENGINE,
-    SS_MOD_TURBO,
-    SS_MOD_AEROENGINE1,
-    SS_MOD_AEROENGINE2,
-    SS_MOD_AEROENGINE3,
-    SS_MOD_AEROENGINE4,
-    SS_MOD_WHEELSPEED,
-    SS_MOD_INJECTOR,
-    SS_MOD_TORQUE,
-    SS_MOD_GEARBOX,
-    SS_MOD_CREAK,
-    SS_MOD_BREAK,
-    SS_MOD_SCREETCH,
-    SS_MOD_PUMP,
-    SS_MOD_THROTTLE1,
-    SS_MOD_THROTTLE2,
-    SS_MOD_THROTTLE3,
-    SS_MOD_THROTTLE4,
-    SS_MOD_THROTTLE5,
-    SS_MOD_THROTTLE6,
-    SS_MOD_THROTTLE7,
-    SS_MOD_THROTTLE8,
-    SS_MOD_AEROENGINE5,
-    SS_MOD_AEROENGINE6,
-    SS_MOD_AEROENGINE7,
-    SS_MOD_AEROENGINE8,
-    SS_MOD_AIRSPEED,
-    SS_MOD_AOA,
-    SS_MOD_LINKED_COMMANDRATE,
-    SS_MOD_MUSIC_VOLUME
 };
 
 } // namespace Script2Game
