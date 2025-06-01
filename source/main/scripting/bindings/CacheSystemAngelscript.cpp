@@ -131,9 +131,14 @@ void RoR::RegisterCacheSystem(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_EXTENSION", LT_Extension); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_SKIN", LT_Skin); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_ALLBEAM", LT_AllBeam); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_ADDONPART", LT_AddonPart); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_TUNEUP", LT_Tuneup); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_ASSETPACK", LT_AssetPack); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_DASHBOARD", LT_DashBoard); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("LoaderType", "LOADER_TYPE_GADGET", LT_Gadget); ROR_ASSERT(result >= 0);
 
     // class CacheEntry, with read-only property access
-    // (Please maintain the same order as in 'CacheSystem.h' and 'doc/*/CacheSystemClass.h')
+    // (Please maintain the same order as in 'CacheSystem.h' and 'doc/*/CacheEntryClass.h')
     
     result = engine->RegisterObjectMethod("CacheEntryClass", "const string& get_fpath() const property", asFUNCTIONPR([](CacheEntry* self) -> const std::string& {return self->fpath;}, (CacheEntry*), const std::string&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CacheEntryClass", "const string& get_fname() const property", asFUNCTIONPR([](CacheEntry* self) -> const std::string& {return self->fname;}, (CacheEntry*), const std::string&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);

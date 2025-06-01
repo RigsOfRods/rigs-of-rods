@@ -8,32 +8,6 @@ namespace Script2Game {
 /** \addtogroup Script2Game
  *  @{
  */
- 
-enum RoadType
-{
-    ROAD_AUTOMATIC,
-    ROAD_FLAT,
-    ROAD_LEFT,
-    ROAD_RIGHT,
-    ROAD_BOTH,
-    ROAD_BRIDGE,
-    ROAD_MONORAIL
-};
-
-enum TextureFit
-{
-    TEXFIT_NONE,
-    TEXFIT_BRICKWALL,
-    TEXFIT_ROADS1,
-    TEXFIT_ROADS2,
-    TEXFIT_ROAD,
-    TEXFIT_ROADS3,
-    TEXFIT_ROADS4,
-    TEXFIT_CONCRETEWALL,
-    TEXFIT_CONCRETEWALLI,
-    TEXFIT_CONCRETETOP,
-    TEXFIT_CONCRETEUNDER
-};
 
 /**
  * @brief Binding of RoR::ProceduralRoad; a dynamically generated road mesh.
