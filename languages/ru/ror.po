@@ -8,13 +8,14 @@
 # Rassul <r.eleuov@icloud.com>, 2021.
 # Лолло Нуб <lollo.samp@mail.ru>, 2021.
 # Сергей <asvmail.as@gmail.com>, 2023.
+# Егор <jaz644088@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2023-04-15 23:52+0000\n"
-"Last-Translator: Сергей <asvmail.as@gmail.com>\n"
+"PO-Revision-Date: 2025-06-02 12:01+0000\n"
+"Last-Translator: Егор <jaz644088@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
 "Language: ru\n"
@@ -22,9 +23,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
-"(n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 4.17-dev\n"
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || ("
+"n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -127,14 +128,14 @@ msgstr "Sandstorm (быстрее)"
 #| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr "Caelum (Качество)"
+msgstr "Caelum (Качество, работает медленнее)"
 
 #: Application.cpp:425
 #, fuzzy
 #| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Полное (Качество)"
+msgstr "Полное (Качество, работает медленнее)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
@@ -241,14 +242,15 @@ msgid "Dynamic"
 msgstr "Динамически"
 
 #: Application.cpp:494
+#, fuzzy
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Принудительный"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Постепенный"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -264,7 +266,7 @@ msgstr "Пожалуйста, сначала освободите площадк
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Стандартный скин '{}' для '{}' не найден!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
@@ -352,7 +354,7 @@ msgstr "Автоматическое слежение отключено"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Удерживайте, чтобы подтвердить"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -418,185 +420,157 @@ msgid "Scales the truck"
 msgstr "ускорение автомобиля"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "прикрепить груз к грузовику"
+msgstr "получить название транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Получает название файка транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Получает название загруженной секции транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "прикрепить груз к грузовику"
+msgstr "Получает тип транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "ускорение автомобиля"
+msgstr "Сбрасывает (респавнит) транпорт"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "переключение стояночного тормоза"
+msgstr "Переключает ручник"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "переключение тяги"
+msgstr "Переключает функцию контроля скольжения"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "Переключение антиблокировки тормозов"
+msgstr "Переключает антиблокировочную тормозную систему (ABS)"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "переключение автомобильных проблесковых маячков"
+msgstr "Переключает проблесковые маячки"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[использует пользовательские частицы]"
+msgstr "[Переключает пользовательские частицы]"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Получает количество нод транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "прикрепить груз к грузовику"
+msgstr "Получает общую массу транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Получает число нод в колёсах транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "прикрепить груз к грузовику"
+msgstr "Устанавливает массу транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Возвращает \"true\", если стоп-сигнал включен"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
 msgstr ""
+"Возвращает \"true\", если кастомный (пользовательский) фонарь с этим номером "
+"включен"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "включить или выключить режим повтора"
+msgstr "Включает или выключает кастомный (пользовательский) фонарь"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Получает режим проблескового маячка"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Устанавливает тип моргания"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Получает режим моргания"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr "[использует пользовательские частицы]"
+msgstr "Получает режим пользовательских частиц"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Возвращает \"true\", если огни заднего хода включены"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Возвращает угол наклона транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "Возвращает \"true\", если крючок этого транспорта зафиксирован"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Получает текущую скорость колёс автомобиля"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove current vehicle"
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr "Убрать текущий транспорт"
+msgstr "Получает текущую скорость автомобиля"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
 msgstr ""
+"Получает нагрузку, которую это транспортное средство испытывает прямо сейчас"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr "Сохранить текущую местность в файл"
+msgstr "Получает текущий поворот транспорта"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr "Сохранить текущую местность в файл"
+msgstr "Получает текущую позицию транспортного средства"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
-#, fuzzy
-#| msgid "reset the camera position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "сбросить позицию камеры"
+msgstr "Получает текущую позицию ноды"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -630,12 +604,9 @@ msgstr ""
 "X-Generator: Weblate 4.9-dev\n"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
-#, fuzzy
-#| msgctxt "FrictionSettings"
-#| msgid "Static friction coef"
 msgctxt "About"
 msgid "Static collision debug"
-msgstr "Статичный коэффициент трения"
+msgstr "Отладка статической коллизии"
 
 #: gui/panels/GUI_ConsoleView.cpp:249
 msgctxt "Console"
@@ -660,7 +631,7 @@ msgstr "Актёры"
 #: gui/panels/GUI_ConsoleView.cpp:253
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Местность"
+msgstr "Карта"
 
 #: gui/panels/GUI_ConsoleView.cpp:256
 msgctxt "Console"
@@ -698,21 +669,15 @@ msgid "Filter options"
 msgstr "Настройки фильтра"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Scripting"
 msgctxt "Console"
 msgid "AngelScript"
-msgstr "Скриптинг"
+msgstr "AngelScript"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Scripting"
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Скриптинг"
+msgstr "Монитор Скрипта"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 msgctxt "Console"
@@ -722,22 +687,22 @@ msgstr "Команда"
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "Отладка мягких тел/объектов"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "Сейчас вы пешком."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
-msgstr ""
+msgstr "У этого транспорта нет мягких тел или объектов."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "Выберите элемент"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 msgctxt "FrictionSettings"
@@ -986,18 +951,14 @@ msgid "Fluid Settings"
 msgstr "Настройки жидкости"
 
 #: gui/panels/GUI_FrictionSettings.cpp:89
-#, fuzzy
-#| msgid "Flow behavior index:"
 msgctxt "FrictionSettings"
 msgid "Flow behavior index:"
-msgstr "Поведение жидкости:"
+msgstr "Индекс поведения жидкости:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
-#, fuzzy
-#| msgid "Flow behavior index"
 msgctxt "FrictionSettings"
 msgid "Flow behavior index"
-msgstr "Поведение жидкости"
+msgstr "Индекс поведения жидкости"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
 msgctxt "FrictionSettings"
@@ -1182,16 +1143,14 @@ msgid "Used Libs"
 msgstr "Используемые библиотеки"
 
 #: gui/panels/GUI_GameChatBox.cpp:81
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
-msgstr "Только текущее транспортное средство, имеет основные фары"
+msgstr "Нажмите {}, чтобы создать транспорт"
 
 #: gui/panels/GUI_GameChatBox.cpp:143
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr "История чата (используйте мышку, чтобы прокрутить)"
+msgstr "История чата (используйте колёсико, чтобы прокрутить)"
 
 #: gui/panels/GUI_GameChatBox.cpp:144
 msgctxt "ChatBox"
@@ -1211,12 +1170,12 @@ msgstr "используйте: /whisper имя сообщение"
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Нажмите новую клавишу"
 
 #: gui/panels/GUI_GameControls.cpp:74
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "Expl"
 
 #: gui/panels/GUI_GameControls.cpp:83
 msgctxt "GameControls"
@@ -1224,6 +1183,9 @@ msgid ""
 "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"С тегом EXPL, только полностью совпадающие комбинации клавиш будут "
+"срабатывать\n"
+"Без тега, частичные совпадения тоже будут срабатывать."
 
 #: gui/panels/GUI_GameControls.cpp:87
 msgctxt "GameControls"
@@ -1231,6 +1193,8 @@ msgid ""
 "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
 "but not COMMANDS_02 which has EXPL tag."
 msgstr ""
+"Например: нажатие CTRL+F1 запустит COMMANDS_03 и COMMANDS_01\n"
+"но не COMMANDS_02, у которого есть тег EXPL."
 
 #: gui/panels/GUI_GameControls.cpp:108
 msgctxt "GameControls"
@@ -1238,38 +1202,29 @@ msgid "Game Controls"
 msgstr "Управление в игре"
 
 #: gui/panels/GUI_GameControls.cpp:116
-#, fuzzy
-#| msgid "Save as PNG"
 msgctxt "GameControls"
 msgid "Save changes"
-msgstr "Сохранить как PNG"
+msgstr "Сохранить изменения"
 
 #: gui/panels/GUI_GameControls.cpp:121
-#, fuzzy
-#| msgctxt "NodeBeamUtils"
-#| msgid "Reset search"
 msgctxt "GameControls"
 msgid "Reset changes"
-msgstr "Сбросить поиск"
+msgstr "Сбросить изменения"
 
 #. Device type selector
 #. - General BeginCombo() API, you have full control over your selection data and display type.
 #: gui/panels/GUI_GameControls.cpp:235
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "Тип события"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
-#, fuzzy
-#| msgid "OK"
 msgctxt "GameSettings"
 msgid "OK"
 msgstr "ОК"
 
 #: gui/panels/GUI_GameControls.cpp:285
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "GameSettings"
 msgid "Cancel"
 msgstr "Отменить"
@@ -1277,7 +1232,7 @@ msgstr "Отменить"
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Удалить"
 
 #: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
@@ -1399,7 +1354,7 @@ msgstr "Диагностика"
 #: gui/panels/GUI_GameSettings.cpp:114
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr "Система рендера (изменяется после перезапуска игры)"
+msgstr "Система рендера (изменения требуют перезапуск игры)"
 
 #: gui/panels/GUI_GameSettings.cpp:166
 msgctxt "GameSettings"
@@ -1426,7 +1381,7 @@ msgstr "Формат скриншота"
 #: gui/panels/GUI_GameSettings.cpp:224
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr "Дополнительный путь к модификации"
+msgstr "Дополнительный путь к модификациям"
 
 #: gui/panels/GUI_GameSettings.cpp:226
 msgctxt "GameSettings"
@@ -1472,7 +1427,7 @@ msgstr "Имперский спидометр (футы, мили, узлы)"
 #: gui/panels/GUI_GameSettings.cpp:250
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr "Автозапуск двигателя"
+msgstr "Транспорт создаётся с заведённым двигателем"
 
 #: gui/panels/GUI_GameSettings.cpp:252
 msgctxt "GameSettings"
@@ -1517,38 +1472,32 @@ msgstr "Расширенный статус в Discord"
 #: gui/panels/GUI_GameSettings.cpp:268
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
-msgstr ""
+msgstr "Показывать диалог подтверждения для быстрой загрузки"
 
 #: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show controls in live repair box"
-msgstr ""
+msgstr "Показывать управление в гараже починки"
 
 #: gui/panels/GUI_GameSettings.cpp:272
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Show vehicle description"
 msgctxt "GameSettings"
 msgid "Show vehicle buttons menu"
-msgstr "Показать описание грузовика"
+msgstr "Показать меню кнопок транспорта"
 
 #: gui/panels/GUI_GameSettings.cpp:274
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Enable particle gfx"
 msgctxt "GameSettings"
 msgid "Enable vehicle tuning"
-msgstr "Включить частицы"
+msgstr "Разрешить тюнинг транспорта"
 
 #: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr "Настройки Аудио"
+msgstr "Настройки аудио"
 
 #: gui/panels/GUI_GameSettings.cpp:296
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr "Аудио устройства"
+msgstr "Аудио устройство"
 
 #: gui/panels/GUI_GameSettings.cpp:301
 msgctxt "GameSettings"
@@ -1593,7 +1542,7 @@ msgstr "Качество теней"
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "Движок неба"
 
 #: gui/panels/GUI_GameSettings.cpp:331
 msgctxt "GameSettings"
@@ -1608,7 +1557,7 @@ msgstr "Фильтрация текстур"
 #: gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr "Анизатропная фильтрация"
+msgstr "Анизотропная фильтрация"
 
 #: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
@@ -1618,7 +1567,7 @@ msgstr "Плотность растительности"
 #: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
 msgid "Water gfx"
-msgstr "Частицы воды"
+msgstr "Движок воды"
 
 #: gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
@@ -1644,7 +1593,7 @@ msgstr "Отражение в реальном времени"
 #: gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
-msgstr "Частота обновлений отражений"
+msgstr "Частота обновления отражений"
 
 #: gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
@@ -1654,7 +1603,7 @@ msgstr "Рендер видеокамер"
 #: gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
 msgid "Overview map icons"
-msgstr "Значки обзорной карты"
+msgstr "Значки карты"
 
 #: gui/panels/GUI_GameSettings.cpp:370
 msgctxt "GameSettings"
@@ -1669,12 +1618,12 @@ msgstr "Волны в воде"
 #: gui/panels/GUI_GameSettings.cpp:373
 msgctxt "GameSettings"
 msgid "Use alternate vehicle materials"
-msgstr ""
+msgstr "Использовать альтернативные материалы для транспорта"
 
 #: gui/panels/GUI_GameSettings.cpp:378
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
-msgstr "Высота статичной камеры (метров)"
+msgstr "Высота статичной камеры (метры)"
 
 #: gui/panels/GUI_GameSettings.cpp:379
 msgctxt "GameSettings"
@@ -1713,7 +1662,7 @@ msgstr "Заранее выбранный транспорт"
 #: gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
-msgstr "Заранее выбранная конфиг. для Транспорта"
+msgstr "Заранее выбранная конфиг. для транспорта"
 
 #: gui/panels/GUI_GameSettings.cpp:391
 msgctxt "GameSettings"
@@ -1738,7 +1687,7 @@ msgstr "Статистика узла журнала (создание)"
 #: gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr "Режим отладки (рельсы)"
+msgstr "Отладка камеры (пути)"
 
 #: gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
@@ -1798,7 +1747,7 @@ msgstr "Регистрировать деформацию балок"
 #: gui/panels/GUI_GameSettings.cpp:407
 msgctxt "GameSettings"
 msgid "Log beam triggers"
-msgstr ""
+msgstr "Регистрировать триггеры балок"
 
 #: gui/panels/GUI_GameSettings.cpp:408
 msgctxt "GameSettings"
@@ -1813,22 +1762,22 @@ msgstr "Настройки контроллера"
 #: gui/panels/GUI_GameSettings.cpp:420
 msgctxt "GameSettings"
 msgid "Input grab mode"
-msgstr ""
+msgstr "Режим регистрации ввода"
 
 #: gui/panels/GUI_GameSettings.cpp:423
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
-msgstr ""
+msgstr "Сглаживание аналогового ввода"
 
 #: gui/panels/GUI_GameSettings.cpp:424
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
-msgstr ""
+msgstr "Чувствительность аналогового ввода"
 
 #: gui/panels/GUI_GameSettings.cpp:425
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
-msgstr ""
+msgstr "Диапазон блокировки маячка"
 
 #: gui/panels/GUI_GameSettings.cpp:427
 msgctxt "GameSettings"
@@ -1836,32 +1785,29 @@ msgid "Use arcade controls"
 msgstr "Использовать аркадное управление"
 
 #: gui/panels/GUI_GameSettings.cpp:428
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Render video cameras"
 msgctxt "GameSettings"
 msgid "Invert orbit camera"
-msgstr "Рендер видеокамер"
+msgstr "Инвертировать орбитальную камеру"
 
 #: gui/panels/GUI_GameSettings.cpp:430
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
-msgstr ""
+msgstr "Включить тактильную отдачу"
 
 #: gui/panels/GUI_GameSettings.cpp:434
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr ""
+msgstr "Усиление FFB камеры"
 
 #: gui/panels/GUI_GameSettings.cpp:435
 msgctxt "GameSettings"
 msgid "FFB center gain"
-msgstr ""
+msgstr "Усиление центра камеры FFB"
 
 #: gui/panels/GUI_GameSettings.cpp:436
 msgctxt "GameSettings"
 msgid "FFB master gain"
-msgstr ""
+msgstr "Общее усиление FFB"
 
 #: gui/panels/GUI_GameSettings.cpp:437
 msgctxt "GameSettings"
@@ -1871,27 +1817,27 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:441
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
-msgstr ""
+msgstr "Включить протокол OutGauge"
 
 #: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
 msgid "OutGauge IP"
-msgstr ""
+msgstr "IP OutGauge"
 
 #: gui/panels/GUI_GameSettings.cpp:446
 msgctxt "GameSettings"
 msgid "OutGauge port"
-msgstr ""
+msgstr "Порт OutGauge"
 
 #: gui/panels/GUI_GameSettings.cpp:447
 msgctxt "GameSettings"
 msgid "OutGauge ID"
-msgstr ""
+msgstr "ID OutGauge"
 
 #: gui/panels/GUI_GameSettings.cpp:448
 msgctxt "GameSettings"
 msgid "OutGauge delay"
-msgstr ""
+msgstr "Задержка OutGauge"
 
 #: gui/panels/GUI_LoadingWindow.cpp:76
 msgctxt "LoadingWindow"
@@ -1904,11 +1850,9 @@ msgid "Please wait"
 msgstr "Пожалуйста, подождите"
 
 #: gui/panels/GUI_MainSelector.cpp:95
-#, fuzzy
-#| msgid "Loader"
 msgctxt "MainSelector"
 msgid "Loader"
-msgstr "Выбор карты или транспортного средства"
+msgstr "Загрузить"
 
 #: gui/panels/GUI_MainSelector.cpp:301
 msgctxt "MainSelector"
@@ -2007,8 +1951,6 @@ msgid "Using Submeshs: "
 msgstr "Используются Субмеши: "
 
 #: gui/panels/GUI_MainSelector.cpp:343
-#, fuzzy
-#| msgid "None"
 msgctxt "MainSelector"
 msgid "No"
 msgstr "Нет"
@@ -2019,128 +1961,92 @@ msgid "Yes"
 msgstr "Да"
 
 #: gui/panels/GUI_MainSelector.cpp:347
-#, fuzzy
-#| msgid "Default Skin"
 msgctxt "MainSelector"
 msgid "Default skin: "
-msgstr "Стандартный скин"
+msgstr "Стандартный скин "
 
 #: gui/panels/GUI_MainSelector.cpp:351
-#, fuzzy
-#| msgid "Torque: "
 msgctxt "MainSelector"
 msgid "Torque: "
 msgstr "Крутящий момент: "
 
 #: gui/panels/GUI_MainSelector.cpp:352
-#, fuzzy
-#| msgid "Transmission Gear Count: "
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
 msgstr "Количество передач КПП: "
 
 #: gui/panels/GUI_MainSelector.cpp:355
-#, fuzzy
-#| msgid "Engine RPM: "
 msgctxt "MainSelector"
 msgid "Engine RPM: "
 msgstr "Обороты двигателя: "
 
 #: gui/panels/GUI_MainSelector.cpp:359
-#, fuzzy
-#| msgid "Unique ID: "
 msgctxt "MainSelector"
 msgid "Unique ID: "
 msgstr "Уникальный ID: "
 
 #: gui/panels/GUI_MainSelector.cpp:360
-#, fuzzy
-#| msgid "GUID: "
 msgctxt "MainSelector"
 msgid "GUID: "
 msgstr "GUID: "
 
 #: gui/panels/GUI_MainSelector.cpp:361
-#, fuzzy
-#| msgid "Times used: "
 msgctxt "MainSelector"
 msgid "Times used: "
 msgstr "Использовано раз: "
 
 #: gui/panels/GUI_MainSelector.cpp:362
-#, fuzzy
-#| msgid "Date and Time installed: "
 msgctxt "MainSelector"
 msgid "Date and Time modified: "
-msgstr "Дата и время установки: "
+msgstr "Дата и время изменения: "
 
 #: gui/panels/GUI_MainSelector.cpp:363
-#, fuzzy
-#| msgid "Date and Time installed: "
 msgctxt "MainSelector"
 msgid "Date and Time installed: "
 msgstr "Дата и время установки: "
 
 #: gui/panels/GUI_MainSelector.cpp:366
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
 msgstr "Тип транспортного средства: "
 
 #: gui/panels/GUI_MainSelector.cpp:369
-#, fuzzy
-#| msgid "[forwards commands]"
 msgctxt "MainSelector"
 msgid "[forwards commands]"
-msgstr "[ведущая команда]"
+msgstr "[есть команды]"
 
 #: gui/panels/GUI_MainSelector.cpp:370
-#, fuzzy
-#| msgid "[imports commands]"
 msgctxt "MainSelector"
 msgid "[imports commands]"
 msgstr "[ведомая команда]"
 
 #: gui/panels/GUI_MainSelector.cpp:371
-#, fuzzy
-#| msgid "[is rescuer]"
 msgctxt "MainSelector"
 msgid "[is rescuer]"
 msgstr "[спасатель]"
 
 #: gui/panels/GUI_MainSelector.cpp:372
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "MainSelector"
 msgid "[uses custom particles]"
 msgstr "[использует пользовательские частицы]"
 
 #: gui/panels/GUI_MainSelector.cpp:373
-#, fuzzy
-#| msgid "[has fixes]"
 msgctxt "MainSelector"
 msgid "[has fixes]"
 msgstr "[статичный]"
 
 #. Engine type 't' (truck) is the default, do not display it
 #: gui/panels/GUI_MainSelector.cpp:375
-#, fuzzy
-#| msgid "[car engine]"
 msgctxt "MainSelector"
 msgid "[car engine]"
 msgstr "[автомобильный двигатель]"
 
 #: gui/panels/GUI_MainSelector.cpp:376
-#, fuzzy
-#| msgid "[zip archive]"
 msgctxt "MainSelector"
 msgid "[zip archive]"
 msgstr "[zip архив]"
 
 #: gui/panels/GUI_MainSelector.cpp:377
-#, fuzzy
-#| msgid "[unpacked in directory]"
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
 msgstr "[распакован в директории]"
@@ -2202,64 +2108,46 @@ msgid "user country: "
 msgstr "Страна пользователя: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:173
-#, fuzzy
-#| msgid "user authentication level"
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
 msgstr "Уровень аутентификации пользователя"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:188
-#, fuzzy
-#| msgid "truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
 msgstr "Синхронизация транспортного средства"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:197
-#, fuzzy
-#| msgid "Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
 msgstr "Ошибки при синхронизации транспортного средства"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:198
-#, fuzzy
-#| msgid "Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loaded correctly, no errors"
 msgstr "Транспортное средство успешно синхронизировано"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:199
-#, fuzzy
-#| msgid "no truck loaded"
 msgctxt "MultiplayerClientList"
 msgid "no truck loaded"
 msgstr "Нет загруженного транспортного средства"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:203
-#, fuzzy
-#| msgid "remote truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
 msgstr "Синхронизация удалённого транспортного средства"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:212
-#, fuzzy
-#| msgid "Remote Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
 msgstr "Ошибки при синхронизации удалённого транспортного средства"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:213
-#, fuzzy
-#| msgid "Remote Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
 msgstr "Удалённое транспортное средство синхронизировано корректно"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:214
-#, fuzzy
-#| msgid "No Trucks loaded"
 msgctxt "MultiplayerClientList"
 msgid "No Trucks loaded"
 msgstr "Нет загруженных транспортных средств"
@@ -2277,7 +2165,7 @@ msgstr "Ошибка при подключении к серверу :("
 #: gui/panels/GUI_MultiplayerSelector.cpp:102
 msgctxt "MultiplayerSelector"
 msgid "Server returned invalid data :("
-msgstr ""
+msgstr "Сервер ответил неправильно :("
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:121
 msgctxt "MultiplayerSelector"
@@ -2297,7 +2185,7 @@ msgstr "В сети (нажмите, чтобы обновить)"
 #: gui/panels/GUI_MultiplayerSelector.cpp:167
 msgctxt "MultiplayerSelector"
 msgid "Direct IP"
-msgstr ""
+msgstr "Прямой IP"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:172
 msgctxt "MultiplayerSelector"
@@ -2310,11 +2198,9 @@ msgid "Auto connect"
 msgstr "Авто-подключение"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:192
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "MultiplayerSelector"
 msgid "Auto hide chat"
-msgstr "войти в чат"
+msgstr "Скрывать чат автоматически"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:193
 msgctxt "MultiplayerSelector"
@@ -2335,11 +2221,13 @@ msgstr "Коллизии в Мультиплеере"
 msgctxt "MultiplayerSelector"
 msgid "Include remote actors when cycling via hotkeys"
 msgstr ""
+"Переключать также и на транспорт других игроков через клавишу переключения "
+"транспорта"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:203
 msgctxt "MultiplayerSelector"
 msgid "Player nickname"
-msgstr "Псевдоним игрока"
+msgstr "Никнейм игрока"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:204
 msgctxt "MultiplayerSelector"
@@ -2352,11 +2240,9 @@ msgid "User token"
 msgstr "Токен пользователя"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:220
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "MultiplayerSelector"
 msgid "Server host"
-msgstr "Модератор сервера"
+msgstr "Хост сервера"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:221
 msgctxt "MultiplayerSelector"
@@ -2381,11 +2267,9 @@ msgid "Name"
 msgstr "Имя"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:278
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "MultiplayerSelector"
 msgid "Terrain"
-msgstr "Загрузка карты"
+msgstr "Карта"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:279
 msgctxt "MultiplayerSelector"
@@ -2404,7 +2288,7 @@ msgstr "Хост/Порт"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:415
 msgid "HTTP code: {}"
-msgstr ""
+msgstr "Код HTTP: {}"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:425
 msgctxt "MultiplayerSelector"
@@ -2414,12 +2298,12 @@ msgstr "Нет доступных серверов :/"
 #: gui/panels/GUI_NodeBeamUtils.cpp:44
 msgctxt "NodeBeamUtils"
 msgid "Node/Beam Utils"
-msgstr ""
+msgstr "Утилиты узлов/балок"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:49
 msgctxt "NodeBeamUtils"
 msgid "Total mass"
-msgstr "Полная масса"
+msgstr "Общая масса"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:56
 msgctxt "NodeBeamUtils"
@@ -2437,37 +2321,35 @@ msgid "Wheels:"
 msgstr "Колёса:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:87
-#, fuzzy
-#| msgid "Restore Defaults"
 msgctxt "NodeBeamUtils"
 msgid "Reset to default settings"
-msgstr "Восстановить по умолчанию"
+msgstr "Восстановить стандартные настройки"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:96
 msgctxt "NodeBeamUtils"
 msgid "Update initial node positions"
-msgstr ""
+msgstr "Обновить инициальные позиции узлов"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_NodeBeamUtils.cpp:103
 msgctxt "NodeBeamUtils"
 msgid "Physics steps:"
-msgstr ""
+msgstr "Шаги физики:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:110
 msgctxt "NodeBeamUtils"
 msgid "Beams (spring & damping search interval):"
-msgstr ""
+msgstr "Балки (интервал подсчёта упругости и гашения колебаний):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:118
 msgctxt "NodeBeamUtils"
 msgid "Shocks (spring & damping search interval):"
-msgstr ""
+msgstr "Амортизация (интервал подсчёта упругости и гашения колебаний):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:126
 msgctxt "NodeBeamUtils"
 msgid "Wheels (spring & damping search interval):"
-msgstr ""
+msgstr "Колёса (интервал подсчёта упругости и гашения колебаний):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
@@ -2497,12 +2379,12 @@ msgstr "Результаты поиска"
 #: gui/panels/GUI_NodeBeamUtils.cpp:158
 msgctxt "NodeBeamUtils"
 msgid "Reference"
-msgstr ""
+msgstr "Референс"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:160
 msgctxt "NodeBeamUtils"
 msgid "Optimum"
-msgstr ""
+msgstr "Оптимальные"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:163 gui/panels/GUI_NodeBeamUtils.cpp:167
 msgctxt "NodeBeamUtils"
@@ -2520,46 +2402,43 @@ msgid "Yitter"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:201
-#, fuzzy
-#| msgid "Could not create connection"
 msgctxt "RepositorySelector"
 msgid "Could not connect to server. Please check your connection."
-msgstr "Не удалось создать соединение"
+msgstr ""
+"Не удалось подключиться к серверу. Пожалуйста, проверьте своё соединение"
 
 #: gui/panels/GUI_RepositorySelector.cpp:217
 msgctxt "RepositorySelector"
 msgid "Received malformed data. Please try again."
-msgstr ""
+msgstr "Получены повреждённые данные. Пожалуйста, попробуйте снова."
 
 #: gui/panels/GUI_RepositorySelector.cpp:400
-#, fuzzy
-#| msgid "Rigs of Rods version: %s"
 msgctxt "RepositorySelector"
 msgid "Rigs of Rods Repository"
-msgstr "Версия Rigs of Rods: %s"
+msgstr "Репозиторий Rigs of Rods"
 
 #: gui/panels/GUI_RepositorySelector.cpp:490
 msgctxt "RepositorySelector"
 msgid "Sort"
-msgstr ""
+msgstr "Сортировать"
 
 #: gui/panels/GUI_RepositorySelector.cpp:492
 #: gui/panels/GUI_RepositorySelector.cpp:799
 #: gui/panels/GUI_RepositorySelector.cpp:921
 msgctxt "RepositorySelector"
 msgid "Last Update"
-msgstr ""
+msgstr "Последнее обновление"
 
 #: gui/panels/GUI_RepositorySelector.cpp:497
 msgctxt "RepositorySelector"
 msgid "Date Added"
-msgstr ""
+msgstr "Дата добавления"
 
 #: gui/panels/GUI_RepositorySelector.cpp:502
 #: gui/panels/GUI_RepositorySelector.cpp:795
 msgctxt "RepositorySelector"
 msgid "Title"
-msgstr ""
+msgstr "Название"
 
 #: gui/panels/GUI_RepositorySelector.cpp:507
 #: gui/panels/GUI_RepositorySelector.cpp:801
@@ -2587,22 +2466,22 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:531
 msgctxt "RepositorySelector"
 msgid "List"
-msgstr ""
+msgstr "Список"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
 msgid "Compact"
-msgstr ""
+msgstr "Компактный"
 
 #: gui/panels/GUI_RepositorySelector.cpp:539
 msgctxt "RepositorySelector"
 msgid "Basic"
-msgstr ""
+msgstr "Базовый"
 
 #: gui/panels/GUI_RepositorySelector.cpp:551
 msgctxt "RepositorySelector"
 msgid "Search Title, Author"
-msgstr ""
+msgstr "Искать по названию или автору"
 
 #: gui/panels/GUI_RepositorySelector.cpp:571
 msgctxt "RepositorySelector"
@@ -2612,7 +2491,7 @@ msgstr "Детали:"
 #: gui/panels/GUI_RepositorySelector.cpp:574
 msgctxt "RepositorySelector"
 msgid "Title:"
-msgstr ""
+msgstr "Название:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:580
 msgctxt "RepositorySelector"
@@ -2652,7 +2531,7 @@ msgstr "Подсчет рейтинга:"
 #: gui/panels/GUI_RepositorySelector.cpp:630
 msgctxt "RepositorySelector"
 msgid "Date Added:"
-msgstr ""
+msgstr "Дата добавления:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:637
 msgctxt "RepositorySelector"
@@ -2730,12 +2609,12 @@ msgstr "Скачано"
 #: gui/panels/GUI_RepositorySelector.cpp:1033
 msgctxt "RepositorySelector"
 msgid "times"
-msgstr ""
+msgstr "раз"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1177
 msgctxt "RepositorySelector"
 msgid "Sorry, the repository isn't available. Try again later."
-msgstr ""
+msgstr "Извините, репозиторий недоступен. Попробуйте позже."
 
 #: gui/panels/GUI_RepositorySelector.cpp:1193
 msgctxt "RepositorySelector"
@@ -2744,31 +2623,28 @@ msgstr "Нет доступных файлов :("
 
 #: gui/panels/GUI_RepositorySelector.cpp:1235
 msgid "HTTP response code: {}"
-msgstr ""
+msgstr "Код ответа HTTP: {}"
 
 #. Header
 #: gui/panels/GUI_ScriptMonitor.cpp:41
 msgctxt "ScriptMonitor"
 msgid "ID"
-msgstr ""
+msgstr "Айди"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:43
-#, fuzzy
-#| msgctxt "RepositorySelector"
-#| msgid "Filename:"
 msgctxt "ScriptMonitor"
 msgid "File name"
-msgstr "Имя файла:"
+msgstr "Имя файла"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:45
 msgctxt "ScriptMonitor"
 msgid "Options"
-msgstr ""
+msgstr "Настройки"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:47
 msgctxt "ScriptMonitor"
 msgid "Active"
-msgstr ""
+msgstr "Активный"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:66
 #, fuzzy
@@ -2779,39 +2655,34 @@ msgid "actor"
 msgstr "Тракторы"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:70
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ScriptMonitor"
 msgid "(terrain)"
-msgstr "Местность"
+msgstr "(карта)"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:75
 msgctxt "ScriptMonitor"
 msgid "Reload"
-msgstr ""
+msgstr "Перезагрузить"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:84
 msgctxt "ScriptMonitor"
 msgid "Stop"
-msgstr ""
+msgstr "Остановить"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:91
 msgctxt "ScriptMonitor"
 msgid "Autoload"
-msgstr ""
+msgstr "Автозагрузка"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:127
 msgctxt "ScriptMonitor"
 msgid "Recent"
-msgstr ""
+msgstr "Недавний"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:139
-#, fuzzy
-#| msgid "Loader"
 msgctxt "ScriptMonitor"
 msgid "Load"
-msgstr "Выбор карты или транспортного средства"
+msgstr "Загрузить"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:147 gui/panels/GUI_ScriptMonitor.cpp:150
 #, fuzzy
@@ -2822,18 +2693,14 @@ msgid "Remove"
 msgstr "Удалить"
 
 #: gui/panels/GUI_SimActorStats.cpp:53
-#, fuzzy
-#| msgid "Vehicle health: "
 msgctxt "SimActorStats"
 msgid "Vehicle health: "
-msgstr "Здоровье транспорта: "
+msgstr "Состояние транспорта: "
 
 #: gui/panels/GUI_SimActorStats.cpp:59
-#, fuzzy
-#| msgid "Vehicle position: "
 msgctxt "SimActorStats"
 msgid "Vehicle destruction: "
-msgstr "Позиция транспортного средства: "
+msgstr "Повреждение транспортного средства: "
 
 #: gui/panels/GUI_SimActorStats.cpp:66
 msgctxt "SimActorStats"
@@ -2843,12 +2710,12 @@ msgstr "Количество балок: "
 #: gui/panels/GUI_SimActorStats.cpp:71
 msgctxt "SimActorStats"
 msgid "Broken beams count: "
-msgstr ""
+msgstr "Количество сломанных балок: "
 
 #: gui/panels/GUI_SimActorStats.cpp:76
 msgctxt "SimActorStats"
 msgid "Deformed beams count: "
-msgstr ""
+msgstr "Количество деформированных балок: "
 
 #: gui/panels/GUI_SimActorStats.cpp:81
 msgctxt "SimActorStats"
@@ -2856,11 +2723,9 @@ msgid "Average deformation: "
 msgstr "Средняя деформация: "
 
 #: gui/panels/GUI_SimActorStats.cpp:86
-#, fuzzy
-#| msgid "Average FPS: "
 msgctxt "SimActorStats"
 msgid "Average stress: "
-msgstr "Средний FPS: "
+msgstr "Среднее напряжение: "
 
 #: gui/panels/GUI_SimActorStats.cpp:94
 msgctxt "SimActorStats"
@@ -2882,14 +2747,12 @@ msgstr "Обороты двигателя: "
 #: gui/panels/GUI_SimActorStats.cpp:120
 msgctxt "SimActorStats"
 msgid "Input shaft RPM: "
-msgstr ""
+msgstr "Обороты вводного вала: "
 
 #: gui/panels/GUI_SimActorStats.cpp:125
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "SimActorStats"
 msgid "Current torque: "
-msgstr "Текущая мощность:"
+msgstr "Текущий крутящий момент: "
 
 #: gui/panels/GUI_SimActorStats.cpp:130
 msgctxt "SimActorStats"
@@ -2897,23 +2760,19 @@ msgid "Current power: "
 msgstr "Текущая мощность: "
 
 #: gui/panels/GUI_SimActorStats.cpp:134
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "SimActorStats"
 msgid "Current gear: "
-msgstr "Текущая мощность:"
+msgstr "Текущая передача: "
 
 #: gui/panels/GUI_SimActorStats.cpp:138
 msgctxt "SimActorStats"
 msgid "Drive ratio: "
-msgstr ""
+msgstr "Передаточное число: "
 
 #: gui/panels/GUI_SimActorStats.cpp:157
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "SimActorStats"
 msgid "Wheel speed: "
-msgstr "Тип привода: "
+msgstr "Скорость колёс: "
 
 #: gui/panels/GUI_SimActorStats.cpp:161
 #, fuzzy
@@ -2923,8 +2782,6 @@ msgid "Vehicle speed: "
 msgstr "Скорость транспорта: "
 
 #: gui/panels/GUI_SimActorStats.cpp:168
-#, fuzzy
-#| msgid "Current speed: "
 msgctxt "SimActorStats"
 msgid "Current speed: "
 msgstr "Текущая скорость: "
@@ -2932,7 +2789,7 @@ msgstr "Текущая скорость: "
 #: gui/panels/GUI_SimActorStats.cpp:175
 msgctxt "SimActorStats"
 msgid "Altitude: "
-msgstr ""
+msgstr "Высота: "
 
 #: gui/panels/GUI_SimActorStats.cpp:182 gui/panels/GUI_SimActorStats.cpp:200
 msgctxt "SimActorStats"
@@ -2940,16 +2797,14 @@ msgid "Engine "
 msgstr "Двигатель "
 
 #: gui/panels/GUI_SimActorStats.cpp:212
-#, fuzzy
-#| msgid "Current speed: "
 msgctxt "SimActorStats"
 msgid "Top speed: "
-msgstr "Текущая скорость: "
+msgstr "Наибольшая скорость: "
 
 #: gui/panels/GUI_SimActorStats.cpp:218
 msgctxt "SimActorStats"
 msgid "G-Forces:"
-msgstr "G-Forces:"
+msgstr "Нагрузка:"
 
 #: gui/panels/GUI_SimPerfStats.cpp:81
 msgctxt "SimPerfStats"
@@ -2962,18 +2817,14 @@ msgid "Batch count: "
 msgstr ""
 
 #: gui/panels/GUI_TextureToolWindow.cpp:42
-#, fuzzy
-#| msgid "Texture Tool"
 msgctxt "TextureToolWindow"
 msgid "Texture Tool"
-msgstr "Инструмент текстуры"
+msgstr "Инструмент для текстур"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:51
-#, fuzzy
-#| msgid "Dynamically"
 msgctxt "TextureToolWindow"
 msgid "Dynamic only"
-msgstr "Динамически"
+msgstr "Только динамически"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:135
 msgctxt "TextureToolWindow"
@@ -2991,11 +2842,9 @@ msgid "saved texture as "
 msgstr "текстура сохранена как "
 
 #: gui/panels/GUI_TopMenubar.cpp:138
-#, fuzzy
-#| msgid "Configuration error"
 msgctxt "TopMenubar"
 msgid "Simulation"
-msgstr "Ошибка конфигурации"
+msgstr "Симуляция"
 
 #: gui/panels/GUI_TopMenubar.cpp:139
 msgctxt "TopMenubar"
@@ -3020,36 +2869,33 @@ msgstr "Инструменты"
 #: gui/panels/GUI_TopMenubar.cpp:143
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
-msgstr "ИИ транспорта"
+msgstr "Трафик"
 
 #: gui/panels/GUI_TopMenubar.cpp:144
-#, fuzzy
-#| msgctxt "LoadingWindow"
-#| msgid "Joining"
 msgctxt "TopMenubar"
 msgid "Tuning"
-msgstr "Присоединение к игре"
+msgstr "Тюнинг"
 
 #: gui/panels/GUI_TopMenubar.cpp:295
 msgctxt "TopMenubar"
 msgid "Sim menu"
-msgstr ""
+msgstr "Меню симуляции"
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
 #: gui/panels/GUI_TopMenubar.cpp:299
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
-msgstr "Получить новый транспорт"
+msgstr "Заспавнить транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:310
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
-msgstr "Показать описание грузовика"
+msgstr "Показать описание"
 
 #: gui/panels/GUI_TopMenubar.cpp:317
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
-msgstr "Перезагрузить текущее транспортное средство"
+msgstr "Перезагрузить текущий транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:325
 msgctxt "TopMenubar"
@@ -3059,21 +2905,17 @@ msgstr "Убрать текущий транспорт"
 #: gui/panels/GUI_TopMenubar.cpp:333
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr ""
+msgstr "Завести последний созданный транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:341
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Только текущее транспортное средство, имеет основные фары"
+msgstr "Перезагрузить последний созданный транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:349
-#, fuzzy
-#| msgid "get new vehicle"
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr "получить новый транспорт"
+msgstr "Убрать последний созданный транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:358
 msgctxt "TopMenubar"
@@ -3088,24 +2930,22 @@ msgstr " [!] Подтвердить удаление"
 #: gui/panels/GUI_TopMenubar.cpp:380
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
-msgstr "Активировать весь транспорт"
+msgstr "Завести весь транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:386
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
-msgstr ""
+msgstr "Заведённый транспорт никогда не глушится"
 
 #: gui/panels/GUI_TopMenubar.cpp:391
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
-msgstr ""
+msgstr "Заглушить весь транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:399
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
-msgstr "Только текущее транспортное средство, имеет основные фары"
+msgstr "Перезагрузить текущую карту"
 
 #: gui/panels/GUI_TopMenubar.cpp:412
 msgctxt "TopMenubar"
@@ -3125,7 +2965,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:470
 msgctxt "TopMenubar"
 msgid "Savegames"
-msgstr "Сохраненные игры"
+msgstr "Сохранения"
 
 #: gui/panels/GUI_TopMenubar.cpp:472
 msgctxt "TopMenubar"
@@ -3138,12 +2978,9 @@ msgid "Quickload"
 msgstr "Быстрая загрузка"
 
 #: gui/panels/GUI_TopMenubar.cpp:493
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "(Save with 'CTRL+ALT+1..5')"
 msgctxt "TopMenubar"
 msgid "(Save with CTRL+ALT+1..5)"
-msgstr "(Сохранить с помощью 'CTRL+ALT+1..5')"
+msgstr "(Сохранить с помощью CTRL+ALT+1..5)"
 
 #: gui/panels/GUI_TopMenubar.cpp:496
 msgctxt "TopMenubar"
@@ -3151,12 +2988,9 @@ msgid "Empty Slot"
 msgstr "Пустой Слот"
 
 #: gui/panels/GUI_TopMenubar.cpp:510
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "(Load with 'ALT+1..5')"
 msgctxt "TopMenubar"
 msgid "(Load with ALT+1..5)"
-msgstr "(Загрузить с помощью 'ALT+1..5')"
+msgstr "(Загрузить с помощью ALT+1..5)"
 
 #: gui/panels/GUI_TopMenubar.cpp:538
 #, fuzzy
@@ -3172,8 +3006,6 @@ msgid "Audio:"
 msgstr "Аудио:"
 
 #: gui/panels/GUI_TopMenubar.cpp:542
-#, fuzzy
-#| msgid "Sound Volume:"
 msgctxt "TopMenubar"
 msgid "Volume"
 msgstr "Громкость"
@@ -3184,11 +3016,9 @@ msgid "Frames per second:"
 msgstr "Кадров в секунду:"
 
 #: gui/panels/GUI_TopMenubar.cpp:547
-#, fuzzy
-#| msgid "Reflection"
 msgctxt "TopMenubar"
 msgid "Reflections"
-msgstr "Отражение"
+msgstr "Отражения"
 
 #: gui/panels/GUI_TopMenubar.cpp:549
 msgctxt "TopMenubar"
@@ -3196,21 +3026,19 @@ msgid "Game"
 msgstr "Игра"
 
 #: gui/panels/GUI_TopMenubar.cpp:552
-#, fuzzy
-#| msgid "New simulation speed: "
 msgctxt "TopMenubar"
 msgid "Simulation:"
-msgstr "Новая скорость симуляции:"
+msgstr "Симуляция:"
 
 #: gui/panels/GUI_TopMenubar.cpp:554
 msgctxt "TopMenubar"
 msgid "Slow motion"
-msgstr ""
+msgstr "Замедление"
 
 #: gui/panels/GUI_TopMenubar.cpp:559
 msgctxt "TopMenubar"
 msgid "Time lapse"
-msgstr "Промежуток времени"
+msgstr "Ускорение"
 
 #: gui/panels/GUI_TopMenubar.cpp:566 gui/panels/GUI_TopMenubar.cpp:573
 msgctxt "TopMenubar"
@@ -3231,7 +3059,7 @@ msgstr "Высота"
 #: gui/panels/GUI_TopMenubar.cpp:592
 msgctxt "TopMenubar"
 msgid "Tracking"
-msgstr ""
+msgstr "Отслеживание камеры"
 
 #: gui/panels/GUI_TopMenubar.cpp:599
 msgctxt "TopMenubar"
@@ -3241,20 +3069,17 @@ msgstr "Время дня:"
 #: gui/panels/GUI_TopMenubar.cpp:606
 msgctxt "TopMenubar"
 msgid "Cycle"
-msgstr ""
+msgstr "Цикл"
 
 #: gui/panels/GUI_TopMenubar.cpp:609 gui/panels/GUI_TopMenubar.cpp:1106
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "Скорость"
 
 #: gui/panels/GUI_TopMenubar.cpp:618
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Height"
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr "Высота"
+msgstr "Высота волн"
 
 #: gui/panels/GUI_TopMenubar.cpp:630
 msgctxt "TopMenubar"
@@ -3272,11 +3097,9 @@ msgid "Multiplayer:"
 msgstr "Мультиплеер:"
 
 #: gui/panels/GUI_TopMenubar.cpp:637
-#, fuzzy
-#| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions"
-msgstr "Отладка сетки деформаций"
+msgstr "Коллизии"
 
 #: gui/panels/GUI_TopMenubar.cpp:638
 msgctxt "TopMenubar"
@@ -3289,42 +3112,34 @@ msgid "Tools menu"
 msgstr "Меню инструментов"
 
 #: gui/panels/GUI_TopMenubar.cpp:655
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "TopMenubar"
 msgid "Friction settings"
 msgstr "Настройки трения"
 
 #: gui/panels/GUI_TopMenubar.cpp:661
-#, fuzzy
-#| msgid "show / hide the console"
 msgctxt "TopMenubar"
 msgid "Show console"
-msgstr "показать / убрать консоль"
+msgstr "Показать консоль"
 
 #: gui/panels/GUI_TopMenubar.cpp:667
-#, fuzzy
-#| msgid "Texture Tool"
 msgctxt "TopMenubar"
 msgid "Texture tool"
-msgstr "Инструмент текстуры"
+msgstr "Инструмент текстур"
 
 #: gui/panels/GUI_TopMenubar.cpp:673
-#, fuzzy
-#| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions debug"
-msgstr "Отладка сетки деформаций"
+msgstr "Отладка коллизий"
 
 #: gui/panels/GUI_TopMenubar.cpp:681
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
-msgstr ""
+msgstr "Утилита для узлов и балок"
 
 #: gui/panels/GUI_TopMenubar.cpp:687
 msgctxt "TopMenubar"
 msgid "FlexBody debug"
-msgstr ""
+msgstr "Отладка мягких тел"
 
 #: gui/panels/GUI_TopMenubar.cpp:695
 msgctxt "TopMenubar"
@@ -3334,98 +3149,89 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:698
 msgctxt "TopMenubar"
 msgid "Node mass recalc. logging"
-msgstr ""
+msgstr "Логирование пересчёта массы узлов"
 
 #: gui/panels/GUI_TopMenubar.cpp:705
+#, fuzzy
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - mass recalculation"
-msgstr ""
+msgstr "Дополнительное логирование при пересчёте массы"
 
 #: gui/panels/GUI_TopMenubar.cpp:710
-#, fuzzy
-#| msgid "Beam Break Debug"
 msgctxt "TopMenubar"
 msgid "Beam break logging"
-msgstr "Отладка повреждений ребёр"
+msgstr "Логирование поломок ребёр"
 
 #: gui/panels/GUI_TopMenubar.cpp:717 gui/panels/GUI_TopMenubar.cpp:729
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
-msgstr ""
+msgstr "Дополнительное логирование среды выполнения"
 
 #: gui/panels/GUI_TopMenubar.cpp:722
-#, fuzzy
-#| msgid "Beam Deform Debug"
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
-msgstr "Отладка деформации лучей"
+msgstr "Логирование деформации балок"
 
 #: gui/panels/GUI_TopMenubar.cpp:734
-#, fuzzy
-#| msgid "Trigger Debug"
 msgctxt "TopMenubar"
 msgid "Trigger logging"
-msgstr "Отладочный триггер"
+msgstr "Логирование триггеров"
 
 #: gui/panels/GUI_TopMenubar.cpp:741
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - trigger beams activity"
 msgstr ""
+"Дополнительное логирование среды выполнения - активность балок-триггеров"
 
 #: gui/panels/GUI_TopMenubar.cpp:746
 msgctxt "TopMenubar"
 msgid "VideoCamera direction marker"
-msgstr ""
+msgstr "Маркер направления видеокамеры"
 
 #: gui/panels/GUI_TopMenubar.cpp:753
 msgctxt "TopMenubar"
 msgid "Visual marker of VideoCameras direction"
-msgstr ""
+msgstr "Визуальный маркер направления видеокамер"
 
 #: gui/panels/GUI_TopMenubar.cpp:759
-#, fuzzy
-#| msgid "Vehicle position: "
 msgctxt "TopMenubar"
 msgid "Visual options:"
-msgstr "Позиция транспортного средства: "
+msgstr "Визуальные параметры:"
 
 #: gui/panels/GUI_TopMenubar.cpp:760
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Replay mode"
 msgctxt "TopMenubar"
 msgid "Polygon mode"
-msgstr "Режим повтора"
+msgstr "Режим полигонов"
 
 #: gui/panels/GUI_TopMenubar.cpp:764
 msgctxt "TopMenubar"
 msgid "1 = Solid"
-msgstr ""
+msgstr "1 = Цельный"
 
 #: gui/panels/GUI_TopMenubar.cpp:765
 msgctxt "TopMenubar"
 msgid "2 = Wireframe"
-msgstr ""
+msgstr "2 = Каркас"
 
 #: gui/panels/GUI_TopMenubar.cpp:766
 msgctxt "TopMenubar"
 msgid "3 = Points"
-msgstr ""
+msgstr "3 = Точки"
 
 #: gui/panels/GUI_TopMenubar.cpp:774
 msgctxt "TopMenubar"
 msgid "Live diagnostic views:"
-msgstr ""
+msgstr "Диагностический режим отображения:"
 
 #: gui/panels/GUI_TopMenubar.cpp:775
 msgctxt "TopMenubar"
 msgid "(Toggle with {})"
-msgstr ""
+msgstr "(Переключить с помощью {})"
 
 #: gui/panels/GUI_TopMenubar.cpp:776
 msgctxt "TopMenubar"
 msgid "(Cycle with {})"
-msgstr ""
+msgstr "(Зациклить с помощью {})"
 
 #: gui/panels/GUI_TopMenubar.cpp:783
 msgctxt "TopMenubar"
@@ -3433,26 +3239,24 @@ msgid "Normal view"
 msgstr "Нормальный вид"
 
 #: gui/panels/GUI_TopMenubar.cpp:784
-#, fuzzy
-#| msgid "Skeletons: "
 msgctxt "TopMenubar"
 msgid "Skeleton view"
-msgstr "Каркасы: "
+msgstr "Каркасный вид"
 
 #: gui/panels/GUI_TopMenubar.cpp:785
 msgctxt "TopMenubar"
 msgid "Node details"
-msgstr ""
+msgstr "Детали узла"
 
 #: gui/panels/GUI_TopMenubar.cpp:786
 msgctxt "TopMenubar"
 msgid "Beam details"
-msgstr ""
+msgstr "Детали балки"
 
 #: gui/panels/GUI_TopMenubar.cpp:789
 msgctxt "TopMenubar"
 msgid "Wheel details"
-msgstr ""
+msgstr "Детали колёс"
 
 #: gui/panels/GUI_TopMenubar.cpp:793
 msgctxt "TopMenubar"
