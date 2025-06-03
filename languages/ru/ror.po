@@ -9,13 +9,14 @@
 # Лолло Нуб <lollo.samp@mail.ru>, 2021.
 # Сергей <asvmail.as@gmail.com>, 2023.
 # Егор <jaz644088@gmail.com>, 2025.
+# Егор Печенька <jaz644088@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-06-03 22:04+0000\n"
-"Last-Translator: Егор <jaz644088@gmail.com>\n"
+"PO-Revision-Date: 2025-06-03 22:36+0000\n"
+"Last-Translator: Егор Печенька <jaz644088@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
 "Language: ru\n"
@@ -283,11 +284,11 @@ msgstr "forwardcommands отключено"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr "importcommands включена"
+msgstr "importcommands включено"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr "importcommands отключена"
+msgstr "importcommands отключено"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
@@ -429,7 +430,7 @@ msgstr "Получает тип транспорта"
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "Сбрасывает (респавнит) транпорт"
+msgstr "Респавнит транпорт"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
@@ -444,7 +445,7 @@ msgstr "Переключает функцию контроля скольжен�
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "Переключает антиблокировочную систему (ABS)"
+msgstr "Переключает антиблокировочную тормозную систему"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 msgctxt "AngelScript"
@@ -611,22 +612,22 @@ msgstr "Сообщения от скриптов"
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
 msgid "Actors"
-msgstr "Объекты"
+msgstr "Сообщения от объектов"
 
 #: gui/panels/GUI_ConsoleView.cpp:253
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Карта"
+msgstr "Сообщения от карты"
 
 #: gui/panels/GUI_ConsoleView.cpp:256
 msgctxt "Console"
 msgid "By level:"
-msgstr "По уровню:"
+msgstr "Уровень логгинга:"
 
 #: gui/panels/GUI_ConsoleView.cpp:257
 msgctxt "Console"
 msgid "Notices"
-msgstr "Замечания"
+msgstr "Информация"
 
 #: gui/panels/GUI_ConsoleView.cpp:258
 msgctxt "Console"
@@ -651,7 +652,7 @@ msgstr "Команды"
 #: gui/panels/GUI_ConsoleWindow.cpp:50
 msgctxt "Console"
 msgid "Filter options"
-msgstr "Настройки фильтра"
+msgstr "Фильтр"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
 msgctxt "Console"
@@ -662,7 +663,7 @@ msgstr "AngelScript"
 #: gui/panels/GUI_ConsoleWindow.cpp:96
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Монитор Скрипта"
+msgstr "Монитор скриптов"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 msgctxt "Console"
@@ -692,7 +693,7 @@ msgstr "Выберите элемент"
 #: gui/panels/GUI_FrictionSettings.cpp:46
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
-msgstr "Настройки трения"
+msgstr "Параметры трения"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
 msgctxt "FrictionSettings"
@@ -1389,7 +1390,7 @@ msgstr "Показывать диалог подтверждения для бы
 #: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show controls in live repair box"
-msgstr "Показывать управление в гараже починки"
+msgstr "Показать управление в режиме починки в реальном времени"
 
 #: gui/panels/GUI_GameSettings.cpp:272
 msgctxt "GameSettings"
@@ -2534,22 +2535,22 @@ msgstr "Код ответа HTTP: {}"
 #: gui/panels/GUI_ScriptMonitor.cpp:41
 msgctxt "ScriptMonitor"
 msgid "ID"
-msgstr "Айди"
+msgstr "ID"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:43
 msgctxt "ScriptMonitor"
 msgid "File name"
-msgstr "Имя файла"
+msgstr "Файл"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:45
 msgctxt "ScriptMonitor"
 msgid "Options"
-msgstr "Настройки"
+msgstr "Параметры"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:47
 msgctxt "ScriptMonitor"
 msgid "Active"
-msgstr "Активный"
+msgstr "Активные"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:66
 msgctxt "ScriptMonitor"
@@ -2564,7 +2565,7 @@ msgstr "(карта)"
 #: gui/panels/GUI_ScriptMonitor.cpp:75
 msgctxt "ScriptMonitor"
 msgid "Reload"
-msgstr "Перезагрузить"
+msgstr "Перезапустить"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:84
 msgctxt "ScriptMonitor"
@@ -2574,17 +2575,17 @@ msgstr "Остановить"
 #: gui/panels/GUI_ScriptMonitor.cpp:91
 msgctxt "ScriptMonitor"
 msgid "Autoload"
-msgstr "Автозагрузка"
+msgstr "Загружать автоматически"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:127
 msgctxt "ScriptMonitor"
 msgid "Recent"
-msgstr "Недавний"
+msgstr "Недавние"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:139
 msgctxt "ScriptMonitor"
 msgid "Load"
-msgstr "Загрузить"
+msgstr "Запустить"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:147 gui/panels/GUI_ScriptMonitor.cpp:150
 msgctxt "ScriptMonitor"
@@ -4475,7 +4476,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:424
 msgid "Script '{}' running with ID '{}'"
-msgstr "Скрипт '{}' запущен с айди '{}'"
+msgstr "Скрипт '{}' запущен с ID '{}'"
 
 #: system/ConsoleCmd.cpp:442
 msgid "Print cvars with one of <expr> in name"
