@@ -4,13 +4,14 @@
 #
 # Translators:
 # "xc.tm" <necrotic@users.noreply.hosted.weblate.org>, 2025.
+# "xc.tm" <xc.tm@users.noreply.hosted.weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-04-22 18:05+0000\n"
-"Last-Translator: \"xc.tm\" <necrotic@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2025-06-03 09:01+0000\n"
+"Last-Translator: \"xc.tm\" <xc.tm@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "hi/>\n"
 "Language: hi\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11.1-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -555,18 +556,16 @@ msgstr "नोड की स्थिति देता है"
 #
 # Translators:
 #: gui/panels/GUI_AngelScriptExamples.cpp:65
-#, fuzzy
-#| msgid ""
 msgctxt "Console"
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2018-12-15 11:34+0000\n"
-"Last-Translator: Edgar <Edgar@AnotherFoxGuy.com>, xc.tm\n"
-"Language-Team: Hindi (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/hi/), https://hosted.weblate.org/projects/rigs-of-rods/game/hi/\n"
+"PO-Revision-Date: 2025-06-03 11:34+0000\n"
+"Last-Translator: xc.tm <xc.tm@proton.me>\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"hi/>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
