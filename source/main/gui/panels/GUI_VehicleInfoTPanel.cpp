@@ -231,10 +231,16 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
     if (actorx->GetHelpTex())
     {
         ImGui::TextDisabled("%s", _LC("VehicleDescription", "Help image:"));
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(this->GetPanelWidth() - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
-        ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
-        
+        if (!App::ui_always_show_fullsize->getBool())
+        {
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(this->GetPanelWidth() - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
+            ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
+        }
+        else
+        {
+            m_helptext_fullsize = true;
+        }
         if (m_helptext_fullsize)
         {
             m_helptext_fullsize_screenpos = ImGui::GetCursorScreenPos();

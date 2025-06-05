@@ -377,6 +377,8 @@ void GameSettings::DrawUiSettings()
     
     DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
 
+    DrawGCheckbox(App::ui_always_show_fullsize, _LC("GameSettings", "Always show full size help image"));
+
 
     DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
     if (App::gfx_surveymap_icons->getBool())
