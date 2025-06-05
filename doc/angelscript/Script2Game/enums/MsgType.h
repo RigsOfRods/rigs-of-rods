@@ -14,7 +14,7 @@
 namespace Script2Game {
 
 /**
-* Binding of RoR::MsgType; Global gameplay message loop; used with `Script2Game::GameScriptClass::pushMessage()`.
+* Binding of RoR::MsgType; Global gameplay message loop; used with [`game.pushMessage()`](@ref Script2Game::GameScriptClass::pushMessage).
 */
 enum MsgType
 {

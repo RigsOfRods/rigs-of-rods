@@ -14,8 +14,7 @@
 namespace Script2Game {
 
 /**
- * Binding of `RoR::scriptEvents`; All the events that can be used by the script.
- * @see Script2Game::GameScriptClass::registerForEvent()
+ * Binding of `RoR::scriptEvents`; All the events that can be used by the script; use ([`game.registerForEvent()`](@ref Script2Game::GameScriptClass::registerForEvent)) to start receiving a given event type, and implement [`eventCallbackEx()`](@ref Game2Script::eventCallbackEx) to intercept events.
  */
  enum scriptEvents
  {
