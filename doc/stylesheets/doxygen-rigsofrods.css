@@ -1,0 +1,26 @@
+/* Doxygen-RigsOfRods: CSS fixups for Doxygen & Doxygen-Awesome */
+
+/*
+Fix a 1px light blue bottom border on main nav. From Doxygen.css (1.14.0)
+*/
+#main-nav { border: none; }
+
+/*
+Fix double bottom border on main navigation bar. From Doxygen.css (1.14.0)
+*/
+#navrow1.tabs { border: none; }
+
+/*
+Fix rogue 1px light blue border on pretty much everything.
+*/
+.memItemLeft { border: none; }
+.mdescLeft { border: none; }
+.memItemRight { border: none; }
+.mdescRight { border: none; }
+
+/*
+Put back visible separator between name(link)/description pairs.
+It used to be done via dedicated table row using `.memSeparator`, but that's history.
+*/
+.memItemLeft { border-top: 1px solid var(--separator-color); }
+.memItemRight { border-top: 1px solid var(--separator-color); }

@@ -166,16 +166,22 @@ enum class CacheSearchMethod // Always case-insensitive
 
 struct CacheQuery
 {
+    /// @name Query parameters
+    /// @{
     RoR::LoaderType                cqy_filter_type = RoR::LoaderType::LT_None;
     int                            cqy_filter_category_id = CacheCategoryId::CID_All;
     std::string                    cqy_filter_guid; //!< Exact match (case-insensitive); leave empty to disable
     std::string                    cqy_filter_target_filename; //!< Exact match (case-insensitive); leave empty to disable (currently only used with addonparts)
     CacheSearchMethod              cqy_search_method = CacheSearchMethod::NONE;
     std::string                    cqy_search_string;
-    
+    /// @}
+
+    /// @name Query results
+    /// @{
     std::vector<CacheQueryResult>  cqy_results;
     std::map<int, size_t>          cqy_res_category_usage; //!< Total usage (ignores search params + category filter)
     std::time_t                    cqy_res_last_update = std::time_t();
+    /// @}
 
     void resetResults()
     {

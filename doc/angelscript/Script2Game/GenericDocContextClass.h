@@ -6,19 +6,7 @@ namespace Script2Game {
 
 /** \addtogroup Script2Game
  *  @{
- */   
-
-enum TokenType
-{
-    TOKEN_TYPE_NONE,
-    TOKEN_TYPE_LINEBREAK,
-    TOKEN_TYPE_COMMENT,
-    TOKEN_TYPE_STRING,
-    TOKEN_TYPE_FLOAT,
-	TOKEN_TYPE_INT,
-    TOKEN_TYPE_BOOL,
-    TOKEN_TYPE_KEYWORD
-};
+ */
 
 /**
  * @brief Binding of RoR::GenericDocContext; Traverses document tokens; See 'demo_script.as' for an example.
