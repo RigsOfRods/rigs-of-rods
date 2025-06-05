@@ -129,6 +129,12 @@ public:
     * Retrieves the OGRE scene manager object.
     */
     AngelOgre::SceneManager@ getSceneManager();
+    
+    /**
+    * Proxy to `Ogre::ResourceGroupManager::findResourceFileInfo()`, see https://ogrecave.github.io/ogre/api/1.11/class_ogre_1_1_resource_group_manager.html#a662f68163310401718d3c3981a7baec4
+    */
+    AngelScript::CScriptArray* findResourceFileInfo(const std::string& resource_group, const std::string& pattern, bool dirs = false);
+    
 
     /**
     * Opens URL (must start with 'http://' or 'https://') in system's default web browser.
