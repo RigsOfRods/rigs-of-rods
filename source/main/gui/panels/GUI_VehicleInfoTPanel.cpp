@@ -36,9 +36,15 @@ using namespace RoR;
 using namespace GUI;
 
 const float HELP_TEXTURE_WIDTH = 512.f;
-const float HELP_TEXTURE_HEIGHT = 128.f;
+const float HELP_TEXTURE_HEIGHT = 80.f;
+const float HELP_TEXTURE_HEIGHT_FULL = 128.f;
 const ImVec2 MAX_PREVIEW_SIZE(100.f, 100.f);
 const float MIN_PANEL_WIDTH = 230.f;
+
+float VehicleInfoTPanel::GetPanelWidth()
+{
+    return m_helptext_fullsize ? std::max(MIN_PANEL_WIDTH, HELP_TEXTURE_WIDTH) : MIN_PANEL_WIDTH;
+}
 
 void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
 {
@@ -86,10 +92,19 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 110)));
-    ImGui::SetNextWindowContentWidth(MIN_PANEL_WIDTH);
+
+    if (m_current_focus == TPANELFOCUS_COMMANDS)
+    {
+      ImGui::SetNextWindowContentWidth(this->GetPanelWidth());
+    }
+    else
+    {
+      ImGui::SetNextWindowContentWidth(MIN_PANEL_WIDTH);
+    }
+
     switch (m_visibility_mode)
     {
         case TPANELMODE_OPAQUE:
@@ -216,14 +231,20 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
     if (actorx->GetHelpTex())
     {
         ImGui::TextDisabled("%s", _LC("VehicleDescription", "Help image:"));
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(MIN_PANEL_WIDTH - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
-        ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
-        
+        if (!App::ui_always_show_fullsize->getBool())
+        {
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(this->GetPanelWidth() - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
+            ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
+        }
+        else
+        {
+            m_helptext_fullsize = true;
+        }
         if (m_helptext_fullsize)
         {
             m_helptext_fullsize_screenpos = ImGui::GetCursorScreenPos();
-            ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT));
+            ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT_FULL));
             this->DrawVehicleHelpTextureFullsize(actorx);
         }
         else
@@ -864,13 +885,13 @@ void VehicleInfoTPanel::DrawVehicleHelpTextureFullsize(RoR::GfxActor* actorx)
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
         | ImGuiWindowFlags_NoSavedSettings ;
     ImGui::SetNextWindowPos(m_helptext_fullsize_screenpos - ImGui::GetStyle().WindowPadding);
-    ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT) + ImGui::GetStyle().WindowPadding);
+    ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL) + ImGui::GetStyle().WindowPadding);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0)); // Fully transparent background!
     ImGui::Begin("T-Panel help tex fullsize", NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
     drawlist->AddImage(im_tex, m_helptext_fullsize_screenpos,
-        m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
+        m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL));
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
 }
