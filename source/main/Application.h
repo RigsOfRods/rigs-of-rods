@@ -814,6 +814,7 @@ extern CVar* ui_preset;                    //!< enum `RoR::UiPreset`
 extern CVar* ui_hide_gui;                  //!< bool; The 'hide GUI' hotkey state
 extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
+extern CVar* ui_always_show_fullsize;
 
 // ------------------------------------------------------------------------------------------------
 // Global objects
