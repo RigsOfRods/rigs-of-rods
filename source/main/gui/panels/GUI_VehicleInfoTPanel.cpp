@@ -92,7 +92,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 110)));
 
