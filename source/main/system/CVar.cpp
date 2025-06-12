@@ -217,6 +217,7 @@ void Console::cVarSetupBuiltins()
     App::ui_hide_gui                       = this->cVarCreate("ui_hide_gui",                       "", CVAR_TYPE_BOOL, "false");
     App::ui_default_truck_dash             = this->cVarCreate("ui_default_truck_dash",             "", CVAR_ARCHIVE, "default_truck_digital.dashboard");
     App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
+    App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

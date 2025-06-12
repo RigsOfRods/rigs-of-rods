@@ -277,6 +277,7 @@ CVar* ui_preset;
 CVar* ui_hide_gui;
 CVar* ui_default_truck_dash;
 CVar* ui_default_boat_dash;
+CVar* ui_always_show_fullsize;
 
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };
