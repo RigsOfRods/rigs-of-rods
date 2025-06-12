@@ -38,26 +38,6 @@ namespace Script2Game {
  */    
 
 /**
-*	Enum with AI events
-*/
-enum Ai_events
-{
-	AI_HORN,
-	AI_LIGHTSTOGGLE,
-	AI_WAIT_SECONDS,
-	AI_BEACONSTOGGLE
-};
-
-/**
-*	Enum with AI values that can be set.
-*/
-enum Ai_values
-{
-	AI_SPEED,
-	AI_POWER
-};
-
-/**
  * @brief Binding of RoR::VehicleAI; Vehicle driving AI using waypoints.
  */
 class VehicleAIClass

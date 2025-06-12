@@ -53,7 +53,7 @@ float ImGuiPlotLinesScriptValueGetterFunc(void* data, int index)
 void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
     // ENUMS (global namespace)
-
+    // PLEASE maintain the same order as in 'doc/angelscript/Script2Game/AngelImGui/AngelImGui_enums.h'
 
     engine->RegisterEnum("ImGuiStyleVar"); 
     engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_Alpha", ImGuiStyleVar_Alpha);                         // float     Alpha
