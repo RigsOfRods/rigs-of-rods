@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-03-01 23:18+0000\n"
+"PO-Revision-Date: 2025-06-15 17:01+0000\n"
 "Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "ta/>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -136,7 +136,7 @@ msgstr "பிலினியர்"
 #: Application.cpp:436
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr "Trilinear"
+msgstr "மூன்றுகோடுகள்"
 
 #: Application.cpp:437
 msgctxt "GfxTexFilter"
@@ -552,7 +552,7 @@ msgstr "முனை நிலையைப் பெறுகிறது"
 #: gui/panels/GUI_AngelScriptExamples.cpp:65
 msgctxt "Console"
 msgid ""
-msgstr ""
+msgstr " "
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
 msgctxt "About"
@@ -2256,7 +2256,7 @@ msgstr "தகைவு"
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
 msgid "Yitter"
-msgstr "Yitter"
+msgstr "யிட்டர்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:201
 msgctxt "RepositorySelector"
@@ -4001,7 +4001,7 @@ msgstr "உள்ளமைவு பிழை"
 msgid "Your ground configuration is too old, please copy skeleton/config/"
 "ground_models.cfg to My Documents/Rigs of Rods/config"
 msgstr ""
-"உங்கள் தரை உள்ளமைவு மிகவும் பழையது, தயவுசெய்து எலும்புக்கூடு/கட்டமைப்பு/தரை_மாடல்ச்."
+"உங்கள் தரை உள்ளமைவு மிகவும் பழையது, தயவுசெய்து எலும்புக்கூடு/கட்டமைப்பு/தரை_மாடல்ச்"
 
 #: resources/CacheSystem.cpp:513
 msgctxt "MainSelector"
@@ -4308,10 +4308,10 @@ msgstr ""
 " -truckconfig <ctical>\n"
 " -இண்டர் (பிளேயர் தேர்ந்தெடுக்கப்பட்ட டிரக்கில் நுழைகிறார்)\n"
 " முந்தைய ஆட்டோசேவை -ரெச்யூம் ஏற்றுகிறது\n"
-" -செக் கேச் கேச் புதுப்பிப்பை கட்டாயப்படுத்துகிறது\n"
-" பதிப்பு பதிப்பு தகவலைக் காட்டுகிறது\n"
+" -செக்கேச் கேச் புதுப்பிப்பை கட்டாயப்படுத்துகிறது\n"
+"-பதிப்புப் பதிப்பு தகவலைக் காட்டுகிறது\n"
 " -சோயின்சர்வர் = <server>: <port> (மல்டிபிளேயர் சேவையகத்தில் சேரவும்)\n"
-" -ununscript <filename> (சுமை ச்கிரிப்ட், மீண்டும் மீண்டும் செய்ய முடியும்)\n"
+" -ununscript <filename> (சுமை ச்கிரிப்ட், மறுநிகழ்வு செய்ய முடியும்)\n"
 " எடுத்துக்காட்டாக: ror.exe -map simmen2 -pos '518 0 518' -rot 45 -truck "
 "semi.truck -enter"
 
@@ -6023,12 +6023,12 @@ msgstr "வலதுபுறம் பக்கவாட்டு"
 #: utils/InputEngine.cpp:335
 msgctxt "InputEvent"
 msgid "rotate view up"
-msgstr "பார்வையை சுழற்றுங்கள்"
+msgstr "பார்வையை மேல் சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:336
 msgctxt "InputEvent"
 msgid "rotate view down"
-msgstr "பார்வையை சுழற்றுங்கள்"
+msgstr "பார்வையை கீழே சுழற்றுங்கள்"
 
 #. Camera
 #: utils/InputEngine.cpp:339
@@ -6049,12 +6049,12 @@ msgstr "கேமரா நிலையை மீட்டமைக்கவு�
 #: utils/InputEngine.cpp:342
 msgctxt "InputEvent"
 msgid "rotate camera down"
-msgstr "கேமராவை சுழற்றுங்கள்"
+msgstr "கேமராவை கீழே சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:343
 msgctxt "InputEvent"
 msgid "rotate camera left"
-msgstr "கேமராவை சுழற்றுங்கள்"
+msgstr "கேமராவை இடது பக்கம் சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:344
 msgctxt "InputEvent"
@@ -6064,7 +6064,7 @@ msgstr "கேமராவை சரியாக சுழற்றுங்க�
 #: utils/InputEngine.cpp:345
 msgctxt "InputEvent"
 msgid "rotate camera up"
-msgstr "கேமராவை சுழற்றுங்கள்"
+msgstr "கேமராவை மேலே சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:346
 msgctxt "InputEvent"
