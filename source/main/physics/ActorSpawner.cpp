@@ -5795,7 +5795,7 @@ void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Ri
             default_deform = BEAM_DEFORM;
         }
 
-        if (beam_defaults->plastic_deform_coef != BEAM_PLASTIC_COEF_DEFAULT)
+        if (beam_defaults->plastic_deform_coef >= BEAM_PLASTIC_COEF_DEFAULT)
         {
             beam_creak = 0.f;
         }
