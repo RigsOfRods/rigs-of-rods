@@ -1,4 +1,8 @@
 
+  // =================================================== //
+  // THIS IS NOT A C++ HEADER! Only a dummy for Doxygen. //
+  // =================================================== //
+
 
 /** \addtogroup ScriptSideAPIs
  *  @{
@@ -42,6 +46,7 @@ public:
     /// @{
 
         /**
+        * @param type Script2Server::serverSayType
         */
         void say(const string &in, int uid, int type);
 
@@ -58,6 +63,7 @@ public:
         bool unban(int buid);
 
         /**
+        * Runs an AngelScript code snippet on a client.!
         */
         int cmd(int uid, string cmd);
 
@@ -144,6 +150,7 @@ public:
         uint get_listenPort();
 
         /**
+        * @returns Script2Server::ServerType
         */
         int get_serverMode();
 
@@ -191,7 +198,13 @@ public:
     
         /**
         */
-        int rangeRandomInt(int, int);    
+        int rangeRandomInt(int, int);
+        
+        /**
+         * Launches a background task, use [`curlStatus` callback](@ref Server2Script::curlStatus) to monitor progress and receive result.
+         * @param displayname The "correlation ID" - the label passed to the callback to identify the transfer.
+         */
+        void curlRequestAsync(string url, string displayname);    
     
     /// @}
     

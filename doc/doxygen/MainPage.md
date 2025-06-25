@@ -10,8 +10,10 @@ To ask questions and suggest extensions, visit our [Discord #development](https:
 
 > **Quick links** (for regulars)
 > * Script doc modules: [ScriptrSideAPIs](@ref ScriptSideAPIs) | [Script2Game](@ref Script2Game), [Game2Script](@ref Game2Script), [Script2Script](@ref Script2Script) |  @ref Script2Server @ref Server2Script
-> * Script global objects: [`game`](@ref Script2Game::GameScriptClass), [`inputs`](@ref Script2Game::InputEngineClass), [`modcache`](@ref Script2Game::CacheSystemClass), [`console`](@ref Script2Game::CacheSystemClass)
-> * Script principal enums: [`scriptEvents`](@ref Script2Game::scriptEvents), [`MsgType`](@ref Script2Game::MsgType)
+> * Client global objects: [`game`](@ref Script2Game::GameScriptClass), [`inputs`](@ref Script2Game::InputEngineClass), [`modcache`](@ref Script2Game::CacheSystemClass), [`console`](@ref Script2Game::CacheSystemClass)
+> * Client principal enums: [`scriptEvents`](@ref Script2Game::scriptEvents), [`MsgType`](@ref Script2Game::MsgType)
+> * Server global object: [`server`](@ref Script2Server::ServerScriptClass)
+> * Server principal enums: [`broadcastType`](@ref Script2Server::broadcastType), [`authType`](@ref Script2Server::authType), [`serverSayType`](@ref Script2Server::authType)
 
 
 Scripting introduction
@@ -42,12 +44,14 @@ For a friendly introduction, read [Scripting features overview](@ref ScriptingFe
 Scripting reference manual
 --------------------------
 
-See page [ScriptrSideAPIs](@ref ScriptSideAPIs).
-
-This documentation covers both the game (client) and server, each with distinct features.
+The [Script Side APIs](@ref ScriptSideAPIs) Doxygen page covers both the game (client) and server, each with distinct features.
 Both are also documented from "both angles", meaning they describe both the API available to scripts and the callback functions invoked by the applications.
 Finally, also game subsystems implemented as scripts (race system) are included.
 To help user navigate all these topics the reference is split into categories 'Who2Who', where Who is Server/Game/Script.
+
+Additionally there is [Server scripting reference on GitHub Wiki](https://github.com/RigsOfRods/ror-server/wiki/Scripting-reference) which nicely sums up the API on one page.
+See also [Server example script on GitHub repo](https://github.com/RigsOfRods/ror-server/blob/master/contrib/example-script.as).
+
 
 
 Game developer resources

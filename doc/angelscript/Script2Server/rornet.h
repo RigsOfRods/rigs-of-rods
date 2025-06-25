@@ -1,4 +1,8 @@
 
+  // =================================================== //
+  // THIS IS NOT A C++ HEADER! Only a dummy for Doxygen. //
+  // =================================================== //
+
 
 /** \addtogroup ScriptSideAPIs
  *  @{
