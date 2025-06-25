@@ -1,4 +1,8 @@
 
+  // =================================================== //
+  // THIS IS NOT A C++ HEADER! Only a dummy for Doxygen. //
+  // =================================================== //
+
 namespace Server2Script {
 
 /** \addtogroup ScriptSideAPIs
@@ -54,6 +58,12 @@ int playerChat(int uid, const string &in msg);
 * ONLY ONE AT A TIME ~ invoked when a script running on client calls `game.sendGameCmd()`
 */  
 void gameCmd(int uid, const string &in cmd);
+
+/**
+* Reports status of background CURL request - use [`game.curlRequestAsync()`](@ref Script2Server::ServerScriptClass::curlRequestAsync) to invoke one.
+* @param type [`curlStatusType`](@ref Script2Server::curlStatusType) Determines meaning of n1/12 params.
+*/
+void curlStatus(curlStatusType type, int n1, int n2, string displayname, string message);
 
 /** @}*/   //addtogroup Server2Script
 /** @}*/   //addtogroup ScriptSideAPIs
