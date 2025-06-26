@@ -6,14 +6,14 @@
 # Filip Mašata <F.masata@gmail.com>, 2015
 # Jakub veselý <klubajs@gmail.com>, 2016
 # Petr Ohlidal <nobodysbussiness1@gmail.com>, 2015
-# Petr Ohlídal <petr@ohlidal.cz>, 2021, 2024.
+# Petr Ohlídal <petr@ohlidal.cz>, 2021, 2024, 2025.
 # Lukáš Zuzaňák <lukas@zuzanak.eu>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-09-14 16:09+0000\n"
+"PO-Revision-Date: 2025-06-27 11:01+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -57,43 +57,31 @@ msgstr ""
 "Chybná složka 'resources'. Zkontrolujte jestli je správně nainstalována."
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Automatické řazení"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
 msgstr "Ruční řazení - automatická spojka"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
 msgstr "Plně manuální: sekvenční řazení"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: stick shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
 msgstr "Plně manuální: řadící páka"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
 msgstr "Plně manuální: řadicí páka s rozsahy"
 
 #: Application.cpp:400
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Žádné (nejrychlejší)"
@@ -109,15 +97,11 @@ msgid "Only current vehicle, main lights"
 msgstr "pouze aktuální vozidlo, hlavní světla"
 
 #: Application.cpp:403
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
 msgstr "Všechna vozidla, hlavní světla"
 
 #: Application.cpp:404
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr "Všechna vozidla, všechna světla"
@@ -133,15 +117,11 @@ msgid "PSSM"
 msgstr "PSSM"
 
 #: Application.cpp:423
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
 msgstr "Sandstorm (nejrychlejší)"
 
 #: Application.cpp:424
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
 msgstr "Caelum (nejhezčí, pomalejší)"
@@ -157,23 +137,16 @@ msgid "None"
 msgstr "žádný"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr "Bilineární"
 
 #: Application.cpp:436
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr "Trilineární"
 
 #: Application.cpp:437
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
 msgstr "Anisotropie"
@@ -184,8 +157,6 @@ msgid "None"
 msgstr "Žádné"
 
 #: Application.cpp:447
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
@@ -251,38 +222,32 @@ msgstr "Statická"
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Houpající"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Žádný"
 
 #: Application.cpp:484
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr "Všechny"
+msgstr "Všechno"
 
 #: Application.cpp:485
-#, fuzzy
-#| msgctxt "TextureToolWindow"
-#| msgid "Dynamic only"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Pouze dynamické"
+msgstr "Dynamické"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Tvrdý"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Měkký"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -298,7 +263,7 @@ msgstr "Prosím nejdříve uvolněte prostor"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Výchozí skin '{}' pro aktéra '{}' nenalezen!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
@@ -386,7 +351,7 @@ msgstr "Automat. sledování vypnuto"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Podržte pro potvrzení"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -445,46 +410,34 @@ msgid "Memory (Ogre): "
 msgstr "Paměť (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "akcelerovat vozidlo"
+msgstr "Změní velikost vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "upevnit náklad k vozidlu"
+msgstr "Sdělí název vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Sdělí název souboru definice vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Sdělí název aktivní konfigurace vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "upevnit náklad k vozidlu"
+msgstr "Sdělí typ vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "akcelerovat vozidlo"
+msgstr "Resetuje vozidlo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 #, fuzzy
@@ -495,20 +448,14 @@ msgid "Toggles the parking brake"
 msgstr "parkovací brzda"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "přepnout kontrolu trakce"
+msgstr "Přepne tempomat"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "protiblokovací systém"
+msgstr "Přepne ABS (protiskluzový systém)"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 #, fuzzy
@@ -519,134 +466,109 @@ msgid "Toggles the beacons"
 msgstr "majáky vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[používá vlastní částice]"
+msgstr "Speciální částicové efekty"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Sdělí celkový počet nodů vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "upevnit náklad k vozidlu"
+msgstr "Sdělí celkovou hmotnost vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Sdělí celkový počet nodů na kolech vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "upevnit náklad k vozidlu"
+msgstr "Nastaví hmotnost vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Sdělí jestli je brzdové světlo rozsvícené"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "Sdělí jestli je volitelné světlo s tímto číslem rozsvícené"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "enable or disable physics"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "povolit nebo zakázat fyziku"
+msgstr "Přepne volitelné světlo se zadaným číslem"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Sdělí režim majáků"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Nastaví typ blikání"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Sdělí režim blikání"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr "[používá vlastní částice]"
+msgstr "Sdělí režim částicových efektů"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Sdělí jestli je couvací světlo rozsvícené"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Sdělí úhel natočení vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "Sdělí jestli je hák tohoto vozidla upevněn"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Sdělí aktuální rychlost rotace kol vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove current vehicle"
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr "Odebrat současné vozidlo"
+msgstr "Sdělí aktuální rychlost pohybu vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "Sdělí odstředivé síly které působí na vozidlo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr "uložit aktuálně načtený terén do mesh souboru"
+msgstr "Sdělí aktuální nasměrování vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
-#, fuzzy
-#| msgid "pos - outputs the current position"
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr "vypíše současnou pozici"
+msgstr "Vypíše současnou pozici vozidla"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
-#, fuzzy
-#| msgid "reset the camera position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "resetovat pozici kamery"
+msgstr "Sdělí souřadnice nodu"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -680,12 +602,9 @@ msgstr ""
 "X-Generator: Weblate 4.9.1-dev\n"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
-#, fuzzy
-#| msgctxt "FrictionSettings"
-#| msgid "Static friction coef"
 msgctxt "About"
 msgid "Static collision debug"
-msgstr "Součinitel statického tření"
+msgstr "Diagnostika statických kolizí"
 
 #: gui/panels/GUI_ConsoleView.cpp:249
 msgctxt "Console"
@@ -757,12 +676,9 @@ msgstr "Skriptování"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Scripting"
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Skriptování"
+msgstr "Monitoring skriptů"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 msgctxt "Console"
@@ -772,22 +688,22 @@ msgstr "Příkaz"
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "Diagnostika props/flexbodies"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "Jdete pěšky."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
-msgstr ""
+msgstr "Toto vozidlo nemá žádné props/flexbodies."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "Vyberte element"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 msgctxt "FrictionSettings"
@@ -1155,12 +1071,9 @@ msgid "Used Libs"
 msgstr "Použité knihovny"
 
 #: gui/panels/GUI_GameChatBox.cpp:81
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload last spawned vehicle"
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
-msgstr "Znovu nahrát naposled přidané vozidlo"
+msgstr "Stiskněte {} pro nahrání vozidla"
 
 #: gui/panels/GUI_GameChatBox.cpp:143
 msgctxt "ChatBox"
@@ -1185,12 +1098,12 @@ msgstr "použití: /whisper jmenouzivatele Text zprávy"
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Stiskněte novou klávesu"
 
 #: gui/panels/GUI_GameControls.cpp:74
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "EXPL"
 
 #: gui/panels/GUI_GameControls.cpp:83
 msgctxt "GameControls"
@@ -1198,6 +1111,8 @@ msgid ""
 "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"S tagem EXPL budou aktivována jen přesně odpovídající komba.\n"
+"Bez něj budou aktivována i částečně odpovídající komba."
 
 #: gui/panels/GUI_GameControls.cpp:87
 msgctxt "GameControls"
@@ -1205,6 +1120,8 @@ msgid ""
 "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
 "but not COMMANDS_02 which has EXPL tag."
 msgstr ""
+"Například: Stisk CTRL+F1 aktivuje COMMANDS_03 a COMMANDS_01\n"
+"ale ne COMMANDS_02 které má EXPL tag."
 
 #: gui/panels/GUI_GameControls.cpp:108
 msgctxt "GameControls"
@@ -1212,27 +1129,21 @@ msgid "Game Controls"
 msgstr "Ovládání hry"
 
 #: gui/panels/GUI_GameControls.cpp:116
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Savegames"
 msgctxt "GameControls"
 msgid "Save changes"
-msgstr "Uložené hry"
+msgstr "Uložit změny"
 
 #: gui/panels/GUI_GameControls.cpp:121
-#, fuzzy
-#| msgctxt "NodeBeamUtils"
-#| msgid "Reset search"
 msgctxt "GameControls"
 msgid "Reset changes"
-msgstr "Resetovat hledání"
+msgstr "Zrušit změny"
 
 #. Device type selector
 #. - General BeginCombo() API, you have full control over your selection data and display type.
 #: gui/panels/GUI_GameControls.cpp:235
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "EventType"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
@@ -1254,7 +1165,7 @@ msgstr "Storno"
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Smazat"
 
 #: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
@@ -1272,11 +1183,9 @@ msgid "Multiplayer"
 msgstr "Více hráčů"
 
 #: gui/panels/GUI_GameMainMenu.cpp:149
-#, fuzzy
-#| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr "Kompozitory: "
+msgstr "Repozitář"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
 msgctxt "MainMenu"
@@ -1498,23 +1407,17 @@ msgstr "Žádat potvrzení před rychlým nahráním"
 #: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show controls in live repair box"
-msgstr ""
+msgstr "Zobraz. ovládání v panelu rychlé opravy"
 
 #: gui/panels/GUI_GameSettings.cpp:272
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Show vehicle description"
 msgctxt "GameSettings"
 msgid "Show vehicle buttons menu"
-msgstr "Ukázat popis vozidla"
+msgstr "Ukázat ovládací panel vozidla"
 
 #: gui/panels/GUI_GameSettings.cpp:274
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Enable particle gfx"
 msgctxt "GameSettings"
 msgid "Enable vehicle tuning"
-msgstr "Zapnout částicové efekty"
+msgstr "Aktivovat tuning vozidla"
 
 #: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
@@ -1569,7 +1472,7 @@ msgstr "Kvalita stínů"
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "Vykreslení nebe"
 
 #: gui/panels/GUI_GameSettings.cpp:331
 msgctxt "GameSettings"
@@ -1645,7 +1548,7 @@ msgstr "Vlny na vodě"
 #: gui/panels/GUI_GameSettings.cpp:373
 msgctxt "GameSettings"
 msgid "Use alternate vehicle materials"
-msgstr ""
+msgstr "Použít alternativní materiály na vozidlech"
 
 #: gui/panels/GUI_GameSettings.cpp:378
 msgctxt "GameSettings"
