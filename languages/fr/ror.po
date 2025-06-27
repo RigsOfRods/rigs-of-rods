@@ -9,13 +9,14 @@
 # Maxime Leroy <lisacintosh@gmail.com>, 2022.
 # MeblIkea <salulespotos@gmail.com>, 2022.
 # Xploder98 <xploder9825@yandex.com>, 2022.
+# Ashley Brooke Agnew <garrettleesmommy@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2022-07-23 18:24+0000\n"
-"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
+"PO-Revision-Date: 2025-06-28 10:01+0000\n"
+"Last-Translator: Ashley Brooke Agnew <garrettleesmommy@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -120,7 +121,7 @@ msgstr "PSSM"
 #: Application.cpp:423
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "Sandstorm (plus rapide)"
+msgstr "Tempête de sable (plus rapide)"
 
 #: Application.cpp:424
 msgctxt "GfxSkyMode"
