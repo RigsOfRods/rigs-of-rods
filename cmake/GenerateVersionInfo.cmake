@@ -40,9 +40,9 @@
 # https://github.com/minetest/minetest/blob/master/cmake/Modules/GenerateVersion.cmake
 
 macro(version_str_to_ints version year month suffix)
-    string(REGEX REPLACE "([0-9]+).[0-9]+[^\n\r]+" "\\1" ${year} ${version})
-    string(REGEX REPLACE "[0-9]+.([0-9]+)[^\n\r]+" "\\1" ${month} ${version})
-    string(REGEX REPLACE "[0-9]+.[0-9]+([^\n\r]+)" "\\1" ${suffix} ${version})
+    string(REGEX REPLACE "([0-9]+)\\.[0-9]+[^\n\r]*" "\\1" ${year} ${version})
+    string(REGEX REPLACE "[0-9]+\\.([0-9]+)[^\n\r]*" "\\1" ${month} ${version})
+    string(REGEX REPLACE "[0-9]+\\.[0-9]+([^\n\r]*)" "\\1" ${suffix} ${version})
 endmacro(version_str_to_ints)
 
 # Default variables

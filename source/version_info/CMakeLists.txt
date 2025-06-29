@@ -9,18 +9,27 @@ set(VERSION_DEF_H ${CMAKE_CURRENT_BINARY_DIR}/version_def.h)
 # Search for Git executable
 find_package(Git)
 
+if(ROR_BUILD_INSTALLER STREQUAL "Off")
+    set(VERSION_FLAGS -DBUILD_DEV_VERSION=${ROR_BUILD_DEV_VERSION})
+    if (DEFINED ROR_CUSTOM_VERSION)
+        list(
+            APPEND VERSION_FLAGS
+            -DBUILD_CUSTOM_VERSION=TRUE
+            -DCUSTOM_VERSION=${ROR_CUSTOM_VERSION}
+        )
+    endif ()
+else()
+    # When packaging the installer use the version from the project 
+    set(VERSION_FLAGS 
+        -DBUILD_DEV_VERSION=OFF 
+        -DBUILD_CUSTOM_VERSION=TRUE 
+        -DCUSTOM_VERSION=${PROJECT_VERSION}
+    )
+endif()
+
 # CMake custom targets are always out of date. Therefore the following target will update the
 # versioning information on each build. It executes the GenerateVersionInfo.cmake script which
 # generates the version_info.cpp and version_def.h files.
-set(VERSION_FLAGS -DBUILD_DEV_VERSION=${BUILD_DEV_VERSION})
-
-if (DEFINED ${_PREFIX}CUSTOM_VERSION)
-    list(
-            APPEND VERSION_FLAGS
-            -DBUILD_CUSTOM_VERSION=TRUE
-            -DCUSTOM_VERSION=${${_PREFIX}CUSTOM_VERSION}
-    )
-endif ()
 
 add_custom_target(
         generate_version
