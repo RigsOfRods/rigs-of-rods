@@ -527,6 +527,7 @@ struct BeamDefaults
         beam_material_name("tracks/beam"),
         breaking_threshold(-1.f),
         _enable_advanced_deformation(false),
+        _is_plastic_deform_coef_user_defined(false),
         _is_user_defined(false)
     {}
 
@@ -558,6 +559,7 @@ struct BeamDefaults
     Ogre::String beam_material_name;
     float plastic_deform_coef = BEAM_PLASTIC_COEF_DEFAULT;
     bool _enable_advanced_deformation; //!< Informs whether "enable_advanced_deformation" directive preceded these defaults.
+    bool _is_plastic_deform_coef_user_defined;
     bool _is_user_defined; //!< Informs whether these data were read from "set_beam_defaults" directive or filled in by the parser on startup.
     BeamDefaultsScale scale;
 };

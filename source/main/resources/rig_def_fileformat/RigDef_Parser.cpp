@@ -612,6 +612,8 @@ void Parser::ParseDirectiveSetBeamDefaults()
     if (m_num_args > 6) { d.beam_material_name     = this->GetArgStr  (6); }
     if (m_num_args > 7) { d.plastic_deform_coef    = this->GetArgFloat(7); }
 
+    if (m_num_args > 7 && d.plastic_deform_coef >= 0.0f) { d._is_plastic_deform_coef_user_defined = true;       }
+
     if (d.springiness           < 0.f) { d.springiness           = DEFAULT_SPRING;                              }
     if (d.damping_constant      < 0.f) { d.damping_constant      = DEFAULT_DAMP;                                }
     if (d.deformation_threshold < 0.f) { d.deformation_threshold = BEAM_DEFORM;                                 }
