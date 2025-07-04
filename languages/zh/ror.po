@@ -6,21 +6,22 @@
 # Elizabeth Sherrock <lizzyd710@gmail.com>, 2021.
 # 404 <212174808@qq.com>, 2022.
 # Galspong Veil <yscmatthew@gmail.com>, 2023.
+# 左莫莫 <1778553013@qq.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2023-05-15 02:48+0000\n"
-"Last-Translator: Galspong Veil <yscmatthew@gmail.com>\n"
-"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
-"rigs-of-rods/game/zh_Hans/>\n"
+"PO-Revision-Date: 2025-07-04 16:01+0000\n"
+"Last-Translator: 左莫莫 <1778553013@qq.com>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/rigs-of-rods/game/zh_Hans/>\n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -64,12 +65,12 @@ msgstr ""
 #: Application.cpp:389
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr ""
+msgstr "手动挡：顺序切换"
 
 #: Application.cpp:390
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr ""
+msgstr "全手动"
 
 #: Application.cpp:391
 msgctxt "SimGearboxMode"
@@ -524,15 +525,12 @@ msgstr ""
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "获取车辆轮胎速度"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove current vehicle"
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr "移除当前车辆"
+msgstr "获取车辆当前空速"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
@@ -548,11 +546,9 @@ msgid "Gets the current rotation of the vehicle"
 msgstr "将当前加载的地形保存到网格文件中"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
-#, fuzzy
-#| msgid "pos - outputs the current position"
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr "pos - 输出当前位置"
+msgstr "获取车辆的当前位置"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
 #, fuzzy
@@ -685,7 +681,7 @@ msgstr ""
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "正在行走"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
