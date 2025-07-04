@@ -681,7 +681,7 @@ msgstr ""
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr "正在行走"
+msgstr "正在行走。"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
@@ -1376,12 +1376,9 @@ msgid "Show controls in live repair box"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:272
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Show vehicle description"
 msgctxt "GameSettings"
 msgid "Show vehicle buttons menu"
-msgstr "显示车辆描述"
+msgstr "显示车辆菜单"
 
 #: gui/panels/GUI_GameSettings.cpp:274
 #, fuzzy
@@ -1860,7 +1857,7 @@ msgstr "是的"
 #: gui/panels/GUI_MainSelector.cpp:347
 msgctxt "MainSelector"
 msgid "Default skin: "
-msgstr ""
+msgstr "默认皮肤： "
 
 #: gui/panels/GUI_MainSelector.cpp:351
 msgctxt "MainSelector"
@@ -2297,11 +2294,9 @@ msgid "Yitter"
 msgstr "伊特"
 
 #: gui/panels/GUI_RepositorySelector.cpp:201
-#, fuzzy
-#| msgid "Could not create connection"
 msgctxt "RepositorySelector"
 msgid "Could not connect to server. Please check your connection."
-msgstr "无法创建连接"
+msgstr "无法连接到服务器。请检查您的互联网连接。"
 
 #: gui/panels/GUI_RepositorySelector.cpp:217
 msgctxt "RepositorySelector"
@@ -2316,7 +2311,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:490
 msgctxt "RepositorySelector"
 msgid "Sort"
-msgstr ""
+msgstr "排序"
 
 #: gui/panels/GUI_RepositorySelector.cpp:492
 #: gui/panels/GUI_RepositorySelector.cpp:799
@@ -2328,20 +2323,20 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:497
 msgctxt "RepositorySelector"
 msgid "Date Added"
-msgstr ""
+msgstr "添加日期"
 
 #: gui/panels/GUI_RepositorySelector.cpp:502
 #: gui/panels/GUI_RepositorySelector.cpp:795
 msgctxt "RepositorySelector"
 msgid "Title"
-msgstr ""
+msgstr "标题"
 
 #: gui/panels/GUI_RepositorySelector.cpp:507
 #: gui/panels/GUI_RepositorySelector.cpp:801
 #: gui/panels/GUI_RepositorySelector.cpp:927
 msgctxt "RepositorySelector"
 msgid "Downloads"
-msgstr ""
+msgstr "下载"
 
 #: gui/panels/GUI_RepositorySelector.cpp:512
 #: gui/panels/GUI_RepositorySelector.cpp:803
@@ -2366,7 +2361,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:531
 msgctxt "RepositorySelector"
 msgid "List"
-msgstr ""
+msgstr "列表"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
