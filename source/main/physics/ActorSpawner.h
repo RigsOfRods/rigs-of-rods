@@ -300,6 +300,7 @@ private:
     RailGroup*                    CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
     void                          InitializeRig();
     void                          FinalizeRig();
+    void                          AddBaseFlare(RigDef::FlareBase& flare_def);
     /// @}
 
     /// @name Actor building utilities

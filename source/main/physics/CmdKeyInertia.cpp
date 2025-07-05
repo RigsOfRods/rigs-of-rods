@@ -240,13 +240,14 @@ float RoR::SimpleInertia::CalcSimpleDelay(bool input, float dt)
         }
     }
 
+    // If spline isn't set, just return 0.f/1.f (no inertia).
     if (input)
     {
-        return m_start_spline->interpolate(m_spline_time).y;
+        return m_start_spline ? m_start_spline->interpolate(m_spline_time).y : 1.f;
     }
     else
     {
-        return m_stop_spline->interpolate(m_spline_time).y;
+        return m_stop_spline ? m_stop_spline->interpolate(m_spline_time).y : 0.f;
     }
 }
 

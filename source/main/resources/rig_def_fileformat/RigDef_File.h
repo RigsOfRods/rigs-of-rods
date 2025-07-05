@@ -737,12 +737,12 @@ struct Fileinfo
     int file_version = 0;
 };
 
-struct Flare2 // Used for both 'flares' and 'flares2' sections
+struct FlareBase
 {
     Node::Ref reference_node;
     Node::Ref node_axis_x;
     Node::Ref node_axis_y;
-    Ogre::Vector3 offset = Ogre::Vector3(0, 0, 1); // Section 'flares(1)' has offset.z hardcoded to 1
+    Ogre::Vector3 offset = Ogre::Vector3(0, 0, 1); // Note `offset.z` is only used by flares2+
     RoR::FlareType type = RoR::FlareType::HEADLIGHT;
     int control_number = -1; //!< Only 'u' type flares.
     std::string dashboard_link; //!< Only 'd' type flares.
@@ -751,7 +751,11 @@ struct Flare2 // Used for both 'flares' and 'flares2' sections
     Ogre::String material_name;
 };
 
-struct Flare3: public Flare2
+struct Flare2 : public FlareBase // Note 'flares' are auto-imported as 'flares2' (only 1 extra argument)
+{
+};
+
+struct Flare3: public FlareBase
 {
     std::shared_ptr<Inertia> inertia_defaults;
 };
