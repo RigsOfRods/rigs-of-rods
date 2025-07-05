@@ -2145,10 +2145,23 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     m_actor->m_gfx_actor->m_props.push_back(prop);
 }
 
+void ActorSpawner::ProcessFlare2(RigDef::Flare2& def)
+{
+    // Handles both 'flares' and 'flares2' (both use struct `Flare2`)
+    // --------------------------------------------------------------
+
+    if (m_actor->m_flares_mode == GfxFlaresMode::NONE) { return; }
+
+    // Do the common processing
+    this->AddBaseFlare(def);
+}
+
 void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
 {
+    if (m_actor->m_flares_mode == GfxFlaresMode::NONE) { return; }
+
     // Do the common processing
-    this->ProcessFlare2(def);
+    this->AddBaseFlare(def);
 
     // Now setup the extra inertia feature
     flare_t& f = m_actor->ar_flares.back();
@@ -2156,11 +2169,8 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
     this->_ProcessSimpleInertia(*def.inertia_defaults, f.inertia);
 }
 
-void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
+void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
 {
-    // This processes both 'flares' and 'flares2' (the parser auto-imports 'flares' as `RigDef::Flare2`)
-    // -------------------------------------------------------------------------------------------------
-
     if (m_actor->m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     int blink_delay = def.blink_delay_milis;
