@@ -3236,6 +3236,13 @@ void RoR::GfxActor::UpdateFlares(float dt, bool is_player)
 
         // The billboard flare
         flare.snode->setVisible(flare.intensity > 0);
+        if (flare.uses_inertia)
+        {
+            // simulate incandescence by adjusting opacity
+            // Reference: https://forums.ogre3d.org/viewtopic.php?p=226205&sid=c108bfca815d507cbebe1781651e5e67#p226205
+            flare.bbs->getMaterial()->getTechniques()[0]->getPasses()[0]->getTextureUnitStates()[0]->setAlphaOperation(
+                Ogre::LBX_BLEND_TEXTURE_ALPHA, Ogre::LBS_MANUAL, Ogre::LBS_TEXTURE, flare.intensity);
+        }
 
         // The light source
         if (flare.light)
@@ -3259,7 +3266,7 @@ void RoR::GfxActor::UpdateFlares(float dt, bool is_player)
         float amplitude = normal.dotProduct(vdir);
         flare.snode->setPosition(mposition - 0.1 * amplitude * normal * flare.offsetz);
         flare.snode->setDirection(normal);
-        float fsize = flare.size * flare.intensity;
+        float fsize = flare.size;
         if (fsize < 0)
         {
             amplitude = 1;

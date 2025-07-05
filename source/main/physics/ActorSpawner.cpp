@@ -2167,6 +2167,10 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
     flare_t& f = m_actor->ar_flares.back();
     f.uses_inertia = true;
     this->_ProcessSimpleInertia(*def.inertia_defaults, f.inertia);
+
+    // Also create unique copy of the material, so we can adjust opacity via Ogre::Material to simulate incandescence.
+    f.bbs->setMaterial(f.bbs->getMaterial()->clone(f.snode->getName() + "_mat"));
+
 }
 
 void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
