@@ -292,7 +292,8 @@ enum class Keyword
     WHEELDETACHERS,
     WHEELS,
     WHEELS2,
-    WINGS
+    WINGS,
+    WINGS_DISABLE_NAV_LIGHTS
 };
 
 const char* KeywordToString(Keyword keyword);
