@@ -108,6 +108,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     m_actor->ar_rescuer_flag             = m_file->rescuer;
     m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
+    m_generate_wing_position_lights      = !m_file->wings_disable_nav_lights;
 
     PROCESS_ELEMENT(RigDef::Keyword::MINIMASS, minimass, ProcessMinimass);
     PROCESS_ELEMENT(RigDef::Keyword::SET_COLLISION_RANGE, set_collision_range, ProcessCollisionRange);

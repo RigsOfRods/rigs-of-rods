@@ -1462,6 +1462,7 @@ struct Document
     bool lockgroup_default_nolock;
     bool rescuer;
     bool disable_default_sounds;
+    bool wings_disable_nav_lights = false;
     Ogre::String name;
 
     // File hash

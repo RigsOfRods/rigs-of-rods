@@ -114,6 +114,7 @@ void Parser::ProcessCurrentLine()
         case Keyword::RESCUER:
         case Keyword::ROLLON:
         case Keyword::SLIDENODE_CONNECT_INSTANTLY:
+        case Keyword::WINGS_DISABLE_NAV_LIGHTS:
             this->ProcessGlobalDirective(keyword);
             return;
         case Keyword::END_SECTION:
@@ -670,6 +671,7 @@ void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should
     case Keyword::RESCUER:                   m_definition->rescuer = true;                       return;
     case Keyword::ROLLON:                    m_definition->rollon = true;                        return;
     case Keyword::SLIDENODE_CONNECT_INSTANTLY: m_definition->slide_nodes_connect_instantly = true; return;
+    case Keyword::WINGS_DISABLE_NAV_LIGHTS: m_definition->wings_disable_nav_lights = true; return;
 
     default: return;
     }
