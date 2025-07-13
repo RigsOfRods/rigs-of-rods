@@ -27,6 +27,7 @@
 #include "GUI_RepositorySelector.h"
 
 #include "Application.h"
+#include "BBDocument.h"
 #include "GameContext.h"
 #include "AppContext.h"
 #include "Console.h"
@@ -56,6 +57,7 @@
 
 using namespace RoR;
 using namespace GUI;
+using namespace bbcpp; // See 'BBDocument.h'
 
 #if defined(USE_CURL)
 
@@ -244,6 +246,7 @@ void GetResources(std::string portal_url)
         resc[i].resource_date = j_row["resource_date"].GetInt();
         resc[i].view_count = j_row["view_count"].GetInt();
         resc[i].preview_tex = Ogre::TexturePtr(); // null
+        // NOTE: description is stripped here for bandwidth reasons - fetched separately from individual resources.
     }
 
     cdata_ptr->items = resc;
@@ -306,6 +309,13 @@ void GetResourceFiles(std::string portal_url, int resource_id)
     }
 
     cdata_ptr->files = resc;
+
+    // Also pass on the description (via a dummy item)
+    ResourceItem item;
+    item.description = bbcpp::BBDocument::create();
+    item.description->load(j_data_doc["resource"]["description"].GetString());
+    item.resource_id = j_data_doc["resource"]["resource_id"].GetInt();
+    cdata_ptr->items.push_back(item);
 
     App::GetGameContext()->PushMessage(
             Message(MSG_NET_OPEN_RESOURCE_SUCCESS, (void*)cdata_ptr));
@@ -566,7 +576,9 @@ void RepositorySelector::Draw()
             // Scroll area
             ImGui::BeginChild("resource-view-scrolling", ImVec2(0.f, table_height), false);
 
-            float text_pos = 140.f;
+            this->DrawResourceDescriptionBBCode(m_selected_item);
+
+            const float text_pos = 140.f;
 
             ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
             ImGui::Separator();
@@ -1186,6 +1198,7 @@ void RepositorySelector::UpdateResources(ResourcesCollection* data)
 
 void RepositorySelector::UpdateFiles(ResourcesCollection* data)
 {
+    // Assign data to currently viewed resource item.
     m_data.files = data->files;
 
     if (m_data.files.empty())
@@ -1196,6 +1209,18 @@ void RepositorySelector::UpdateFiles(ResourcesCollection* data)
     {
         m_repofiles_msg = "";
     }
+
+    // Fill in currently viewed item's description (stripped from resource list for bandwidth reasons).
+    for (auto& item : m_data.items)
+    {
+        if (item.resource_id == m_selected_item.resource_id)
+        {
+            item.description = m_selected_item.description;
+            break;
+        }
+    }
+    // Also update the local copy of selected item.
+    m_selected_item.description = data->items[0].description;
 }
 
 void RepositorySelector::OpenResource(int resource_id)
@@ -1251,6 +1276,57 @@ void RepositorySelector::SetVisible(bool visible)
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
         }
     }
+}
+
+// Adopted from 'bbcpp' library's utility code.
+// See BBDocument.h.
+void DrawBBCodeChildrenRecursive(const BBNode& parent, unsigned int indent)
+{
+    for (const auto node : parent.getChildren())
+    {
+        switch (node->getNodeType())
+        {
+        default:
+            break;
+
+        case BBNode::NodeType::ELEMENT:
+        {
+            const auto element = node->downCast<BBElementPtr>();
+            ImGui::TextDisabled(fmt::format("[{}{}]"
+                , (element->getElementType() == BBElement::CLOSING ? "/" : "")
+                , element->getNodeName()).c_str());
+
+            if (element->getElementType() == BBElement::PARAMETER)
+            {
+                std::stringstream ss;
+                ss << element->getParameters();
+                ImGui::TextDisabled(ss.str().c_str());
+            }
+        }
+        break;
+
+        case BBNode::NodeType::TEXT:
+        {
+            const auto textnode = node->downCast<BBTextPtr>();
+            ImGui::Text(textnode->getText().c_str());
+        }
+        break;
+        }
+
+        DrawBBCodeChildrenRecursive(*node, indent + 1);
+    }
+}
+
+void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
+{
+    // Decomposes BBCode into DearIMGUI function calls.
+    // ------------------------------------------------
+
+    if (!item.description)
+        return; // Not loaded yet.
+
+    auto indent = 0u;
+    DrawBBCodeChildrenRecursive(*item.description, indent);
 }
 
 // --------------------------------------------

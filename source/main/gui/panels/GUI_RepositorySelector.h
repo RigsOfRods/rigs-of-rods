@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "BBDocument.h"
 #include "OgreImGui.h" // ImVec4
 
 #include <future>
@@ -57,6 +58,7 @@ struct ResourceItem
     std::string         icon_url;
     std::string         authors;
     std::string         version;
+    bbcpp::BBDocumentPtr description;
     int                 download_count;
     int                 last_update;
     int                 resource_category_id;
@@ -104,6 +106,7 @@ public:
     void                                UpdateFiles(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(int resource_item_idx);
+    void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
 
     /// Ogre::WorkQueue API
     virtual Ogre::WorkQueue::Response*  handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ) override; //!< Processes tasks on background thread
