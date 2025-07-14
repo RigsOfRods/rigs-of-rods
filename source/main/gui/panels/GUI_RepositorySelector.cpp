@@ -1278,44 +1278,119 @@ void RepositorySelector::SetVisible(bool visible)
     }
 }
 
-// Adopted from 'bbcpp' library's utility code.
-// See BBDocument.h.
-void DrawBBCodeChildrenRecursive(const BBNode& parent, unsigned int indent)
+// Internal helper used by `DrawResourceDescriptionBBCode()`
+// Adopted from 'bbcpp' library's utility code. See 'BBDocument.h'.
+class BBCodeDrawingContext
 {
-    for (const auto node : parent.getChildren())
+    // Because we simulate text effect with just color, we need rules.
+    bool m_italic_text = false;
+    bool m_bold_text = false; // Wins over italic
+    bool m_underline_text = false; // Wins over bold
+
+    ImTextFeeder& m_feeder;
+
+    void HandleBBText(const BBTextPtr& textnode)
     {
-        switch (node->getNodeType())
+        ImVec4 color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        if (m_italic_text)
         {
-        default:
-            break;
-
-        case BBNode::NodeType::ELEMENT:
+            color = ImVec4(0.205f, 0.789f, 0.820f, 1.f);
+        }
+        if (m_bold_text) // wins over italic
         {
-            const auto element = node->downCast<BBElementPtr>();
-            ImGui::TextDisabled(fmt::format("[{}{}]"
-                , (element->getElementType() == BBElement::CLOSING ? "/" : "")
-                , element->getNodeName()).c_str());
+            color = ImVec4(0.860f, 0.740f, 0.0602f, 1.f);
+        }
+        if (m_underline_text) // wins over bold
+        {
+            color = ImVec4(0.00f, 0.930f, 0.480f, 1.f);
+        }
+        std::string text = textnode->getText();
+        if (text != "")
+        {
+            m_feeder.AddMultiline(ImColor(color), -1, text.c_str(), text.c_str() + text.length());
+        }
+    }
 
-            if (element->getElementType() == BBElement::PARAMETER)
+    bool HandleBBElement(const BBElementPtr& element)
+    {
+        bool recurse_children = true;
+        if (element->getNodeName() == "B")
+        {
+            m_bold_text = element->getElementType() != BBElement::CLOSING;
+        }
+        else if (element->getNodeName() == "I")
+        {
+            m_italic_text = element->getElementType() != BBElement::CLOSING;
+        }
+        else if (element->getNodeName() == "U")
+        {
+            m_underline_text = element->getElementType() != BBElement::CLOSING;
+        }
+        else if (element->getNodeName() == "ATTACH")
+        {
+            recurse_children = false; // the only child is the image ID text
+            std::string image_id = "~~~";
+            ImVec4 color = ImVec4(0.8f, 0.7f, 0.3f, 1.f);
+            if (element->getChildren().size() > 0)
             {
-                std::stringstream ss;
-                ss << element->getParameters();
-                ImGui::TextDisabled(ss.str().c_str());
+                const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
+                if (textnode)
+                {
+                    color = ImColor(0.8f, 0.6f, 0.4f);
+                    image_id = textnode->getText().c_str();
+                }
+            }
+            m_feeder.AddMultiline(ImColor(color), -1, &image_id.front(), &image_id.back());
+        }
+        else if (element->getNodeName() == "*")
+        {
+            // We can't just call `ImGui::BulletText()` in the middle of using the feeder.
+            // Adapted from `ImGui::BuletTextV()` ...
+            ImU32 text_col = ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]);
+            ImVec2 center = m_feeder.cursor + ImVec2(ImGui::GetStyle().FramePadding.x + ImGui::GetFontSize() * 0.5f, ImGui::GetTextLineHeight() * 0.5f);
+            ImGui::RenderBullet(ImGui::GetWindowDrawList(), center, text_col);
+            m_feeder.cursor += ImVec2(ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetFontSize(), 0.f);
+        }
+        return recurse_children;
+
+        /* for reference:
+                if (element->getElementType() == BBElement::PARAMETER)
+                {
+                    std::stringstream ss;
+                    ss << element->getParameters();
+                    ImGui::TextDisabled(ss.str().c_str());
+                }
+        */
+    }
+
+public:
+    BBCodeDrawingContext(ImTextFeeder& feeder) : m_feeder(feeder) {}
+
+    void DrawBBCodeChildrenRecursive(const BBNode& parent)
+    {
+        for (const auto node : parent.getChildren())
+        {
+            switch (node->getNodeType())
+            {
+            default:
+                this->DrawBBCodeChildrenRecursive(*node);
+                break;
+
+            case BBNode::NodeType::ELEMENT:
+                if (this->HandleBBElement(node->downCast<BBElementPtr>()))
+                {
+                    this->DrawBBCodeChildrenRecursive(*node);
+                }
+                break;
+
+            case BBNode::NodeType::TEXT:
+                this->HandleBBText(node->downCast<BBTextPtr>());
+                break;
             }
         }
-        break;
-
-        case BBNode::NodeType::TEXT:
-        {
-            const auto textnode = node->downCast<BBTextPtr>();
-            ImGui::Text(textnode->getText().c_str());
-        }
-        break;
-        }
-
-        DrawBBCodeChildrenRecursive(*node, indent + 1);
     }
-}
+
+};
 
 void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
 {
@@ -1325,8 +1400,15 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
     if (!item.description)
         return; // Not loaded yet.
 
-    auto indent = 0u;
-    DrawBBCodeChildrenRecursive(*item.description, indent);
+    ImVec2 text_pos = ImGui::GetCursorScreenPos();
+    ImTextFeeder feeder(ImGui::GetWindowDrawList(), text_pos);
+    BBCodeDrawingContext bb_ctx(feeder);
+    bb_ctx.DrawBBCodeChildrenRecursive(*item.description);
+
+    // From `ImGui::TextEx()` ...
+    ImRect bb(text_pos, text_pos + feeder.size);
+    ImGui::ItemSize(feeder.size);
+    ImGui::ItemAdd(bb, 0);
 }
 
 // --------------------------------------------
