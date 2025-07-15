@@ -1452,6 +1452,7 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
     ImTextFeeder feeder(ImGui::GetWindowDrawList(), text_pos);
     BBCodeDrawingContext bb_ctx(feeder);
     bb_ctx.DrawBBCodeChildrenRecursive(*item.description);
+    feeder.NextLine(); // Account correctly for last line height - there may be images on it.
 
     // From `ImGui::TextEx()` ...
     ImRect bb(text_pos, text_pos + feeder.size);
@@ -1544,19 +1545,33 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
     if (itor != m_repo_attachments.end())
     {
         // Attachment image is already downloaded - draw it.
-        ImVec2 img_size(64, 64);
+        Ogre::TexturePtr& tex = itor->second;
+        // Scale down and maintain ratio.
+        float img_scale = ATTACH_MAX_WIDTH / tex->getWidth();
+        if (tex->getHeight() * img_scale > ATTACH_MAX_HEIGHT)
+        {
+            img_scale = ATTACH_MAX_HEIGHT / tex->getHeight();
+        }
+        ImVec2 img_size(tex->getWidth() * img_scale, tex->getHeight() * img_scale);
+        // Draw directly via ImGui Drawlist
         context->m_feeder.drawlist->AddImage(
-            reinterpret_cast<ImTextureID>(itor->second->getHandle()),
+            reinterpret_cast<ImTextureID>(tex->getHandle()),
             context->m_feeder.cursor,
             context->m_feeder.cursor + img_size);
+        // Update feeder to account the image
         context->m_feeder.cursor += ImVec2(img_size.x + ImGui::GetStyle().ItemSpacing.x, 0.f);
+        context->m_feeder.line_height = std::max(context->m_feeder.line_height, img_size.y + ImGui::GetStyle().ItemSpacing.y);
     }
     else
     {
         // Attachment image is not downloaded yet - draw spinner
-        float spinner_size = 15;
-        LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-        context->m_feeder.cursor += ImVec2(spinner_size, 0.f);
+        ImVec2 backup_screenpos = ImGui::GetCursorScreenPos();
+        ImGui::SetCursorScreenPos(context->m_feeder.cursor + ATTACH_SPINNER_PADDING);
+        LoadingIndicatorCircle("spinner", ATTACH_SPINNER_RADIUS, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+        ImGui::SetCursorScreenPos(backup_screenpos);
+        // Update feeder to account the spinner
+        context->m_feeder.cursor += ImVec2(ATTACH_SPINNER_RADIUS*2.f + ATTACH_SPINNER_PADDING.x*2.f + ImGui::GetStyle().ItemSpacing.x, 0.f);
+        context->m_feeder.line_height = std::max(context->m_feeder.line_height, ATTACH_SPINNER_RADIUS*2.f + ATTACH_SPINNER_PADDING.y * 2.f + ImGui::GetStyle().ItemSpacing.y);
     }
 }
 

@@ -111,6 +111,10 @@ class RepositorySelector:
 {
 public:
     const Ogre::uint16                  WORKQUEUE_ROR_REPO_THUMBNAIL = 1; // Work queue request type, named by OGRE convention.
+    const float                         ATTACH_MAX_WIDTH = 160.f;
+    const float                         ATTACH_MAX_HEIGHT = 90.f;
+    const float                         ATTACH_SPINNER_RADIUS = 20.f;
+    const ImVec2                        ATTACH_SPINNER_PADDING = ImVec2(55.f, 25.f);
 
     RepositorySelector();
     ~RepositorySelector();

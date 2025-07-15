@@ -32,6 +32,12 @@ static const int         TEXT_COLOR_MAX_LEN = 5000;
 // --------------------------------
 // ImTextFeeder
 
+RoR::ImTextFeeder::ImTextFeeder(ImDrawList* _drawlist, ImVec2 _origin)
+    : drawlist(_drawlist), origin(_origin), cursor(_origin)
+{
+    line_height = ImGui::GetTextLineHeight();
+}
+
 void RoR::ImTextFeeder::AddInline(ImU32 color, ImVec2 text_size, const char* text_begin, const char* text_end)
 {
     drawlist->AddText(this->cursor, color, text_begin, text_end);
@@ -116,10 +122,10 @@ void RoR::ImTextFeeder::AddMultiline(ImU32 color, float wrap_width, const char* 
 
 void RoR::ImTextFeeder::NextLine()
 {
-    const float height = ImGui::GetTextLineHeight();
-    this->size.y += height;
+    this->size.y += this->line_height;
     this->cursor.x = this->origin.x;
-    this->cursor.y += height;
+    this->cursor.y += this->line_height;
+    this->line_height = ImGui::GetTextLineHeight();
 }
 
 // --------------------------------
