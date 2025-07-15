@@ -68,7 +68,10 @@ struct ResourceItem
     int                 resource_date;
     int                 view_count;
     Ogre::TexturePtr    preview_tex;
+
+    // Repo UI state:
     bool                thumbnail_dl_queued = false;
+    bool                attachments_dl_queued = false; //!< Attachments are requested in bulk on first display
 };
 
 struct ResourceFiles
@@ -84,6 +87,23 @@ struct ResourcesCollection
     std::vector<ResourceCategories>     categories;
     std::vector<ResourceFiles>          files;
 };
+
+typedef std::map<int, Ogre::TexturePtr> RepoAttachmentsMap; //!< Maps attachment ID to Ogre::TexturePtr
+
+struct RepoWorkQueueTicket
+{
+    // Only one should be set!
+    int thumb_resourceitem_idx = -1; //!< fetch thumbnail
+    int attachment_id = -1; //!< download attachment
+};
+
+// `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile.
+inline std::ostream& operator<<(std::ostream& os, RepoWorkQueueTicket& val)
+{
+    return os;
+}
+
+class BBCodeDrawingContext;
 
 class RepositorySelector:
     public Ogre::WorkQueue::RequestHandler, // Processes tasks on background thread
@@ -103,10 +123,13 @@ public:
     void                                DownloadFinished();
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
-    void                                UpdateFiles(ResourcesCollection* data);
+    void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(int resource_item_idx);
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
+    void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
+    void                                DownloadAttachment(int attachment_id);
+    void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);
 
     /// Ogre::WorkQueue API
     virtual Ogre::WorkQueue::Response*  handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ) override; //!< Processes tasks on background thread
@@ -129,6 +152,7 @@ private:
     ResourceItem                        m_selected_item;
     Ogre::uint16                        m_ogre_workqueue_channel = 0;
     Ogre::TexturePtr                    m_fallback_thumbnail;
+    RepoAttachmentsMap                  m_repo_attachments; //!< Fully loaded images in memory.
 #ifdef USE_CURL
     CURL                                *curl_th = curl_easy_init(); // One connection for fetching thumbnails using connection reuse
 #endif

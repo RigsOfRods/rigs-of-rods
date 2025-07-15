@@ -341,7 +341,7 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
     try // We write using Ogre::DataStream which throws exceptions
     {
         // smart pointer - closes stream automatically
-        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_REPO);
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_THUMBNAILS);
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -1196,7 +1196,7 @@ void RepositorySelector::UpdateResources(ResourcesCollection* data)
     }
 }
 
-void RepositorySelector::UpdateFiles(ResourcesCollection* data)
+void RepositorySelector::UpdateResourceFilesAndDescription(ResourcesCollection* data)
 {
     // Assign data to currently viewed resource item.
     m_data.files = data->files;
@@ -1221,6 +1221,58 @@ void RepositorySelector::UpdateFiles(ResourcesCollection* data)
     }
     // Also update the local copy of selected item.
     m_selected_item.description = data->items[0].description;
+
+    // Finally, initiate download of attachments (images included in description).
+    // To do that we must locate [ATTACH] BBCode tags in the description.
+    this->DownloadBBCodeAttachmentsRecursive(*m_selected_item.description);
+}
+
+void RepositorySelector::DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent)
+{
+    for (const auto node : parent.getChildren())
+    {
+        if (node->getNodeType() == BBNode::NodeType::ELEMENT)
+        {
+            const auto element = node->downCast<BBElementPtr>();
+            if (element && element->getChildren().size() > 0)
+            {
+                const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
+                if (textnode)
+                {
+                    this->DownloadAttachment(std::stoi(textnode->getText()));
+                }
+            }
+        }
+        this->DownloadBBCodeAttachmentsRecursive(*node);
+    }
+}
+
+void RepositorySelector::DownloadAttachment(int attachment_id)
+{
+    // Chheck if file is already downloaded
+    const std::string filename = fmt::format("{}.png", attachment_id);
+    const std::string filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
+    if (FileExists(filepath))
+    {
+        // Load image to memory
+        Ogre::TexturePtr tex;
+        try // Check if loads correctly (not null, not invalid etc...)
+        {
+            tex = Ogre::TextureManager::getSingleton().load(filename, RGN_REPO_ATTACHMENTS);
+        }
+        catch (...) // Doesn't load, fallback
+        {
+            tex = m_fallback_thumbnail;
+        }
+        m_repo_attachments[attachment_id] = tex;
+    }
+    else
+    {
+        // Request the async download
+        RepoWorkQueueTicket ticket;
+        ticket.attachment_id = attachment_id;
+        Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
+    }
 }
 
 void RepositorySelector::OpenResource(int resource_id)
@@ -1280,14 +1332,12 @@ void RepositorySelector::SetVisible(bool visible)
 
 // Internal helper used by `DrawResourceDescriptionBBCode()`
 // Adopted from 'bbcpp' library's utility code. See 'BBDocument.h'.
-class BBCodeDrawingContext
+class RoR::GUI::BBCodeDrawingContext
 {
     // Because we simulate text effect with just color, we need rules.
     bool m_italic_text = false;
     bool m_bold_text = false; // Wins over italic
     bool m_underline_text = false; // Wins over bold
-
-    ImTextFeeder& m_feeder;
 
     void HandleBBText(const BBTextPtr& textnode)
     {
@@ -1336,11 +1386,9 @@ class BBCodeDrawingContext
                 const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
                 if (textnode)
                 {
-                    color = ImColor(0.8f, 0.6f, 0.4f);
-                    image_id = textnode->getText().c_str();
+                    App::GetGuiManager()->RepositorySelector.DrawAttachment(this, std::stoi(textnode->getText()));
                 }
             }
-            m_feeder.AddMultiline(ImColor(color), -1, &image_id.front(), &image_id.back());
         }
         else if (element->getNodeName() == "*")
         {
@@ -1365,7 +1413,7 @@ class BBCodeDrawingContext
 
 public:
     BBCodeDrawingContext(ImTextFeeder& feeder) : m_feeder(feeder) {}
-
+    ImTextFeeder& m_feeder;
     void DrawBBCodeChildrenRecursive(const BBNode& parent)
     {
         for (const auto node : parent.getChildren())
@@ -1411,8 +1459,8 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
     ImGui::ItemAdd(bb, 0);
 }
 
-// --------------------------------------------
-// Async thumbnail download via Ogre::WorkQueue
+// -------------------------------------------------------
+// Async thumbnail/attachment download via Ogre::WorkQueue
 // see https://wiki.ogre3d.org/How+to+use+the+WorkQueue
 
 void RepositorySelector::DrawThumbnail(int resource_item_idx)
@@ -1447,7 +1495,9 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
                 && !m_data.items[resource_item_idx].thumbnail_dl_queued)
             {
                 // Image is in visible screen area and not yet downloading.
-                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(resource_item_idx));
+                RepoWorkQueueTicket ticket;
+                ticket.thumb_resourceitem_idx = resource_item_idx;
+                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
                 m_data.items[resource_item_idx].thumbnail_dl_queued = true;
             }
         }
@@ -1481,30 +1531,80 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
     }
 }
 
+void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attachment_id)
+{
+    // Runs on main thread when drawing GUI
+    // Displays a thumbnail image if already downloaded, or shows a spinner if not yet.
+    // Note that downloading attachments is initiated in `UpdateResourceFilesAndDescription()`
+    // -----------------------------------------------------------------------------------------
+
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+    auto itor = m_repo_attachments.find(attachment_id);
+    if (itor != m_repo_attachments.end())
+    {
+        // Attachment image is already downloaded - draw it.
+        ImVec2 img_size(64, 64);
+        context->m_feeder.drawlist->AddImage(
+            reinterpret_cast<ImTextureID>(itor->second->getHandle()),
+            context->m_feeder.cursor,
+            context->m_feeder.cursor + img_size);
+        context->m_feeder.cursor += ImVec2(img_size.x + ImGui::GetStyle().ItemSpacing.x, 0.f);
+    }
+    else
+    {
+        // Attachment image is not downloaded yet - draw spinner
+        float spinner_size = 15;
+        LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+        context->m_feeder.cursor += ImVec2(spinner_size, 0.f);
+    }
+}
+
 Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ)
 {
     // This runs on background worker thread in Ogre::WorkQueue's thread pool.
     // Purpose: to fetch one thumbnail image using CURL.
     // -----------------------------------------------------------------------
 
-    int item_idx = Ogre::any_cast<int>(req->getData());
-    std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
-    std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
+    std::string filename, filepath, rg_name, url;
+    if (ticket.thumb_resourceitem_idx != -1)
+    {
+        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+        rg_name = RGN_THUMBNAILS;
+        url = m_data.items[ticket.thumb_resourceitem_idx].icon_url;
+
+    }
+    else if (ticket.attachment_id != -1)
+    {
+        filename = std::to_string(ticket.attachment_id) + ".png";
+        filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
+        rg_name = RGN_REPO_ATTACHMENTS;
+        url = "https://forum.rigsofrods.org/attachments/" + std::to_string(ticket.attachment_id);
+    }
+    else
+    {
+        // Invalid request, return empty response.
+        LOG("[RoR|RepoUI] Invalid (empty) download request - ignoring it");
+        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+    }
     long response_code = 0;
 
-    if (FileExists(file))
+    if (FileExists(filepath))
     {
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
     }
     else
     {
         try // We write using Ogre::DataStream which throws exceptions
         {
             // smart pointer - closes stream automatically
-            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, RGN_REPO);
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, rg_name);
 
-            curl_easy_setopt(curl_th, CURLOPT_URL, m_data.items[item_idx].icon_url.c_str());
+            curl_easy_setopt(curl_th, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl_th, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_easy_setopt(curl_th, CURLOPT_FOLLOWLOCATION, 1L); // Necessary for attachment images
 #ifdef _WIN32
             curl_easy_setopt(curl_th, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
@@ -1515,24 +1615,26 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
             if (curl_result != CURLE_OK || response_code != 200)
             {
                 Ogre::LogManager::getSingleton().stream()
-                    << "[RoR|Repository] Failed to download thumbnail;"
-                    << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+                    << "[RoR|Repository] Failed to download image;"
+                    << " URL: '" << url << "',"
+                    << " Error: '" << curl_easy_strerror(curl_result) << "',"
+                    << " HTTP status code: " << response_code;
 
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
             }
             else
             {
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(item_idx));
+                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(ticket));
             }
         }
         catch (Ogre::Exception& oex)
         {
             App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("Repository UI: cannot download thumbnail '{}' - {}",
-                    m_data.items[item_idx].icon_url, oex.getFullDescription()));
+                fmt::format("Repository UI: cannot download image '{}' - {}",
+                    url, oex.getDescription()));
 
-            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
         }
     }
 }
@@ -1543,20 +1645,48 @@ void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, co
     // It's safe to load the texture and modify GUI data.
     // --------------------------------------------------
 
-    int item_idx = Ogre::any_cast<int>(req->getData());
-    std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
-    std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
-
-    if (FileExists(file)) // We have an image
+    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
+    std::string filename, filepath, rg_name;
+    if (ticket.thumb_resourceitem_idx != -1)
     {
+        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+        rg_name = RGN_THUMBNAILS;
+    }
+    else if (ticket.attachment_id != -1)
+    {
+        filename = std::to_string(ticket.attachment_id) + ".png";
+        filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
+        rg_name = RGN_REPO_ATTACHMENTS;
+    }
+    else
+    {
+        // Invalid request, nothing to do.
+        LOG("[RoR|RepoUI] Invalid (empty) download response - ignoring it");
+        return;
+    }
+
+    if (FileExists(filepath)) // We have an image
+    {
+        Ogre::TexturePtr tex;
         try // Check if loads correctly (not null, not invalid etc...)
         {
-            m_data.items[item_idx].preview_tex = FetchIcon(file.c_str());
-            m_data.items[item_idx].preview_tex->load();
+            tex = Ogre::TextureManager::getSingleton().load(filename, rg_name);
         }
         catch (...) // Doesn't load, fallback
         {
-            m_data.items[item_idx].preview_tex = m_fallback_thumbnail;
+            tex = m_fallback_thumbnail;
+        }
+
+        if (ticket.thumb_resourceitem_idx != -1)
+        {
+            // Thumbnail for resource item
+            m_data.items[ticket.thumb_resourceitem_idx].preview_tex = tex;
+        }
+        else if (ticket.attachment_id != -1)
+        {
+            // Attachment image to display in description
+            m_repo_attachments[ticket.attachment_id] = tex;
         }
     }
 }
