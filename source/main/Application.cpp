@@ -171,6 +171,7 @@ CVar* sys_savegames_dir;
 CVar* sys_screenshot_dir;
 CVar* sys_scripts_dir;
 CVar* sys_projects_dir;
+CVar* sys_repo_attachments_dir;
 
 // OS command line
 CVar* cli_server_host;
