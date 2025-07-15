@@ -26,7 +26,7 @@ namespace RoR {
 
 struct ImTextFeeder /// Helper for drawing multiline wrapped & colored text.
 {
-    ImTextFeeder(ImDrawList* _drawlist, ImVec2 _origin): drawlist(_drawlist), origin(_origin), cursor(_origin) {}
+    ImTextFeeder(ImDrawList* _drawlist, ImVec2 _origin);
 
     /// No wrapping or trimming
     void AddInline(ImU32 color, ImVec2 text_size, const char* text, const char* text_end);
@@ -36,10 +36,11 @@ struct ImTextFeeder /// Helper for drawing multiline wrapped & colored text.
     void AddMultiline(ImU32 color, float wrap_width, const char* text, const char* text_end);
     void NextLine();
 
-    ImDrawList* drawlist;
+    ImDrawList* drawlist = nullptr;
     ImVec2 cursor; //!< Next draw position, screen space
     ImVec2 origin; //!< First draw position, screen space
     ImVec2 size = ImVec2(0,0); //!< Accumulated text size
+    float line_height = 0.f;
 };
 
 /// Draws animated loading spinner
