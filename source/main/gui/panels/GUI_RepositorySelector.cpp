@@ -489,6 +489,7 @@ void RepositorySelector::Draw()
 
         // Search box
         ImGui::SameLine();
+        float searchbox_x = ImGui::GetCursorPosX();
         ImGui::SetNextItemWidth(170);
         float search_pos = ImGui::GetCursorPosX();
         ImGui::InputText("##Search", m_search_input.GetBuffer(), m_search_input.GetCapacity());
@@ -573,224 +574,11 @@ void RepositorySelector::Draw()
 
         if (m_resource_view)
         {
-            // Scroll area
-            ImGui::BeginChild("resource-view-scrolling", ImVec2(0.f, table_height), false);
-
-            this->DrawResourceDescriptionBBCode(m_selected_item);
-
-            const float text_pos = 140.f;
-
-            ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Title:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.title.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.resource_id);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Category:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-
-            for (int i = 0; i < m_data.categories.size(); i++)
-            {
-                if (m_data.categories[i].resource_category_id == m_selected_item.resource_category_id)
-                {
-                    ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.categories[i].title.c_str());
-                }
-            }
-
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Description:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.tag_line.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Downloads:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.download_count);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.view_count);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%f", m_selected_item.rating_avg);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating Count:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.rating_count);
-            ImGui::Separator();
-
-            ImGui::TextDisabled(_LC("RepositorySelector", "Date Added:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            time_t a = (const time_t)m_selected_item.resource_date;
-            ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&a)));
-            ImGui::Separator();
-
-            ImGui::TextDisabled(_LC("RepositorySelector", "Last Update:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            time_t b = (const time_t)m_selected_item.last_update;
-            ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&b)));
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Version:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.version.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Authors:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.authors.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
-            ImGui::Separator();
-
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-            ImGui::Text("%s", _LC("RepositorySelector", "Files:"));
-
-            // Spinner
-            if (m_data.files.empty() && m_repofiles_msg.empty())
-            {
-                ImGui::SameLine();
-                float spinner_size = 7.f;
-                LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-            }
-
-            ImGui::Separator();
-
-            if (!m_repofiles_msg.empty())
-            {
-                ImGui::TextDisabled("%s", m_repofiles_msg.c_str());
-            }
-
-            // Check for duplicate files, remove the outdated one (lower id)
-            std::sort(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.id > b.id; });
-            auto last = std::unique(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.filename == b.filename; });
-            m_data.files.erase(last, m_data.files.end());
-
-            for (int i = 0; i < m_data.files.size(); i++)
-            {
-                ImGui::PushID(i);
-
-                ImGui::AlignTextToFramePadding();
-                float pos_y = ImGui::GetCursorPosY();
-
-                ImGui::TextDisabled("%s", _LC("RepositorySelector", "Filename:"));
-                ImGui::SameLine();
-                ImGui::SetCursorPosX(text_pos);
-
-                // File
-                std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
-                std::string file = PathCombine(path, m_data.files[i].filename);
-
-                // Get created time
-                int file_time = 0;
-                if (FileExists(file))
-                {
-                    file_time = GetFileLastModifiedTime(file);
-                }
-
-                ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
-
-                if (FileExists(file) && ImGui::IsItemHovered())
-                {
-                    ImGui::BeginTooltip();
-
-                    time_t c = (const time_t)file_time;
-                    ImGui::TextDisabled("%s %s", "Installed on", asctime(gmtime (&c)));
-
-                    ImGui::EndTooltip();
-                }
-
-                // File size
-                ImGui::SameLine();
-
-                int size = m_data.files[i].size / 1024;
-                ImGui::TextDisabled("(%d %s)", size, "KB");
-
-                // File exists show indicator
-                if (FileExists(file))
-                {
-                    ImGui::SameLine();
-                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
-                    ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16));
-                }
-
-                // Buttons
-                ImGui::SameLine();
-                ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 220);
-                ImGui::SetCursorPosY(pos_y);
-
-                std::string btn_label;
-                if (FileExists(file) && m_selected_item.last_update > file_time)
-                {
-                    btn_label = fmt::format(_LC("RepositorySelector", "Update"));
-                }
-                else if (FileExists(file))
-                {
-                    btn_label = fmt::format(_LC("RepositorySelector", "Reinstall"));
-                }
-                else
-                {
-                    btn_label = fmt::format(_LC("RepositorySelector", "Install"));
-                }
-
-                if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
-                {
-                    this->Download(m_selected_item.resource_id, m_data.files[i].filename, m_data.files[i].id);
-                }
-
-                ImGui::SameLine();
-
-                if (FileExists(file) && ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
-                {
-                    Ogre::ArchiveManager::getSingleton().unload(file);
-                    Ogre::FileSystemLayer::removeFile(file);
-                    m_update_cache = true;
-                }
-                else if (!FileExists(file))
-                {
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-                    ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
-                    ImGui::PopItemFlag();
-                    ImGui::PopStyleVar();
-                }
-
-                ImGui::Separator();
-
-                ImGui::PopID();
-            }
-            ImGui::EndChild();
+            this->DrawResourceView(searchbox_x);
         }
         else
         {
+
             float col0_width = 0.40f * ImGui::GetWindowContentRegionWidth();
             float col1_width = 0.15f * ImGui::GetWindowContentRegionWidth();
             float col2_width = 0.20f * ImGui::GetWindowContentRegionWidth();
@@ -849,17 +637,17 @@ void RepositorySelector::Draw()
                 {
                     // Simple search filter: convert both title/author and input to lowercase, if input not found in the title/author continue
                     std::string title = m_data.items[i].title;
-                    for(auto& c : title)
+                    for (auto& c : title)
                     {
                         c = tolower(c);
                     }
                     std::string author = m_data.items[i].authors;
-                    for(auto& c : author)
+                    for (auto& c : author)
                     {
                         c = tolower(c);
                     }
                     std::string search = m_search_input.GetBuffer();
-                    for(auto& c : search)
+                    for (auto& c : search)
                     {
                         c = tolower(c);
                     }
@@ -934,7 +722,7 @@ void RepositorySelector::Draw()
                         ImGui::SameLine();
                         ImGui::SetCursorPosX(width);
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
-                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&rawtime)));
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
                         ImGui::TextDisabled("%s:", _LC("RepositorySelector", "Downloads"));
                         ImGui::SameLine();
@@ -962,7 +750,7 @@ void RepositorySelector::Draw()
                         }
 
                         // Skip to new line if at least 50% of the box can't fit on current line.
-                        if (orig_cursor_x > ImGui::GetWindowContentRegionMax().x - (box_width * 0.5)) 
+                        if (orig_cursor_x > ImGui::GetWindowContentRegionMax().x - (box_width * 0.5))
                         {
                             // Unless this is the 1st line... not much to do with such narrow window.
                             if (num_drawn_items != 0)
@@ -1005,7 +793,7 @@ void RepositorySelector::Draw()
                         {
                             pos_y = ImGui::GetCursorPosY();
                             ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(11, 11), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
-                            if ( i < 5) { ImGui::SameLine(); }
+                            if (i < 5) { ImGui::SameLine(); }
                         }
 
                         int rating = round(m_data.items[i].rating_avg);
@@ -1039,7 +827,7 @@ void RepositorySelector::Draw()
 
                         ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
-                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&rawtime)));
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
                         ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
                         ImGui::TextColored(theme.value_blue_text_color, "%s %d %s", _LC("RepositorySelector", "Downloaded"), m_data.items[i].download_count, _LC("RepositorySelector", "times"));
@@ -1072,17 +860,17 @@ void RepositorySelector::Draw()
 
                         // Draw columns
                         ImGui::SameLine();
-                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 2*ImGui::GetStyle().ItemSpacing.x);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 2 * ImGui::GetStyle().ItemSpacing.x);
                         ImGui::Text("%s", m_data.items[i].title.c_str());
 
                         ImGui::NextColumn();
 
-                        ImGui::TextColored(theme.value_blue_text_color, "%s",  m_data.items[i].version.c_str());
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.items[i].version.c_str());
 
                         ImGui::NextColumn();
 
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
-                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&rawtime)));
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
                         ImGui::NextColumn();
 
@@ -1160,6 +948,268 @@ void RepositorySelector::Draw()
     if (!keep_open)
     {
         this->SetVisible(false);
+    }
+}
+
+void RepositorySelector::DrawResourceView(float searchbox_x)
+{
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    Ogre::TexturePtr tex2 = FetchIcon("accept.png");
+    Ogre::TexturePtr tex3 = FetchIcon("star.png");
+    Ogre::TexturePtr tex4 = FetchIcon("arrow_left.png");
+
+    const float INFOBAR_HEIGHT = 100.f;
+    const float INFOBAR_SPACING_LEFTSIDE = 2.f;
+    const float INFOBAR_SPACING_RIGHTSIDE = 0.f;
+
+    // --- top info bar, left side ---
+
+    // Black background
+    ImVec2 leftmost_cursor = ImGui::GetCursorPos();
+    ImVec2 backdrop_size = ImVec2(ImGui::GetContentRegionAvailWidth(), INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 2);
+    ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + backdrop_size, ImColor(0.f, 0.f, 0.f, 0.5f), /*rounding:*/5.f);
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().ItemSpacing);
+
+    // The thumbnail again (like on web repo)
+    ImVec2 thumbnail_cursor = ImGui::GetCursorPos();
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_selected_item.preview_tex->getHandle()), ImVec2(INFOBAR_HEIGHT, INFOBAR_HEIGHT));
+
+    // Title + version (like on web repo)
+    ImGui::SameLine();
+    ImVec2 newline_cursor = ImGui::GetCursorPos();
+    ImGui::TextColored(RESOURCE_TITLE_COLOR, "%s", m_selected_item.title.c_str());
+    ImGui::SameLine();
+
+    // One line below - the tagline
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::Text("%s", m_selected_item.tag_line.c_str()); // Also add tagline
+
+    // One line below (bigger gap) - the version and num downloads
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE * 4);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Version:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.version.c_str());
+    ImGui::SameLine();
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Downloads:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.download_count);
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x); // Don't put gap between the blue value and gray parentheses
+    ImGui::TextDisabled(")");
+
+    // One line below - the rating and rating count
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%.1f", m_selected_item.rating_avg);
+    ImGui::SameLine();
+    // (Rating stars)
+    ImVec2 stars_cursor = ImGui::GetCursorPos();
+    int rating = round(m_selected_item.rating_avg);
+    for (int i = 1; i <= 5; i++)
+    {
+        ImGui::SetCursorPosX(stars_cursor.x + 16 * (i-1));
+        ImVec4 tint_color = (i <= rating) ? ImVec4(1, 1, 1, 1) : ImVec4(1.f, 1.f, 1.f, 0.2f);
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), tint_color);
+        ImGui::SameLine();
+    }
+    ImGui::SetCursorPosX(stars_cursor.x + 16 * 5 + ImGui::GetStyle().ItemSpacing.x);
+    ImGui::TextDisabled("(%s", _LC("RepositorySelector", "Rating Count:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.rating_count);
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x); // Don't put gap between the blue value and gray parentheses
+    ImGui::TextDisabled(")");
+
+    // One line below - authors
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Authors:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.authors.c_str());
+
+    // --- top info bar, right side ---
+
+    // Right side: The detail text
+    ImVec2 rightside_cursor = ImVec2(searchbox_x, thumbnail_cursor.y);
+    ImGui::SetCursorPos(rightside_cursor);
+    ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
+
+    // Right side, next line
+    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
+    ImGui::SetCursorPos(rightside_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.resource_id);
+
+    // Right side, next line
+    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
+    ImGui::SetCursorPos(rightside_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.view_count);
+
+    // Right side, next line
+    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
+    ImGui::SetCursorPos(rightside_cursor);
+    ImGui::TextDisabled(_LC("RepositorySelector", "Date Added:"));
+    ImGui::SameLine();
+    time_t a = (const time_t)m_selected_item.resource_date;
+    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&a)));
+
+    // Right side, next line
+    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
+    ImGui::SetCursorPos(rightside_cursor);
+    ImGui::TextDisabled(_LC("RepositorySelector", "Last Update:"));
+    ImGui::SameLine();
+    time_t b = (const time_t)m_selected_item.last_update;
+    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&b)));
+
+    // Right side, next line
+    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
+    ImGui::SetCursorPos(rightside_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
+
+    // --- content area ---
+
+    const float table_height = ImGui::GetWindowHeight()
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+            - ImGui::GetStyle().ItemSpacing.y);
+
+    // Scroll area
+    ImGui::SetCursorPos(leftmost_cursor + ImVec2(0.f, INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 3));
+    ImGui::BeginChild("resource-view-scrolling", ImVec2(0.f, table_height), false);
+
+    if (!m_repofiles_msg.empty())
+    {
+        // Downloading failed
+        ImGui::TextDisabled("%s", m_repofiles_msg.c_str());
+    }
+    else if (m_data.files.empty())
+    {
+        // Downloading in progress - show spinner (centered)
+        float spinner_radius = 25.f;
+        ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(ImGui::GetContentRegionAvailWidth() / 2 - spinner_radius, 200.f));
+        LoadingIndicatorCircle("spinner", spinner_radius, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+    }
+    else
+    {
+        // Files + description downloaded OK
+        this->DrawResourceDescriptionBBCode(m_selected_item);
+        ImGui::Separator();
+        this->DrawResourceFiles();
+    }
+
+    ImGui::EndChild();
+}
+
+void RepositorySelector::DrawResourceFiles()
+{
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    Ogre::TexturePtr tex2 = FetchIcon("accept.png");
+    ImGui::Text("%s", _LC("RepositorySelector", "Files:"));
+
+    // Check for duplicate files, remove the outdated one (lower id)
+    std::sort(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.id > b.id; });
+    auto last = std::unique(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.filename == b.filename; });
+    m_data.files.erase(last, m_data.files.end());
+
+    for (int i = 0; i < m_data.files.size(); i++)
+    {
+        ImGui::PushID(i);
+
+        ImGui::AlignTextToFramePadding();
+        float pos_y = ImGui::GetCursorPosY();
+
+        ImGui::TextDisabled("%s", _LC("RepositorySelector", "Filename:"));
+        ImGui::SameLine();
+
+        // File
+        std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
+        std::string file = PathCombine(path, m_data.files[i].filename);
+
+        // Get created time
+        int file_time = 0;
+        if (FileExists(file))
+        {
+            file_time = GetFileLastModifiedTime(file);
+        }
+
+        ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
+
+        if (FileExists(file) && ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+
+            time_t c = (const time_t)file_time;
+            ImGui::TextDisabled("%s %s", "Installed on", asctime(gmtime(&c)));
+
+            ImGui::EndTooltip();
+        }
+
+        // File size
+        ImGui::SameLine();
+
+        int size = m_data.files[i].size / 1024;
+        ImGui::TextDisabled("(%d %s)", size, "KB");
+
+        // File exists show indicator
+        if (FileExists(file))
+        {
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16));
+        }
+
+        // Buttons
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 220);
+        ImGui::SetCursorPosY(pos_y);
+
+        std::string btn_label;
+        if (FileExists(file) && m_selected_item.last_update > file_time)
+        {
+            btn_label = fmt::format(_LC("RepositorySelector", "Update"));
+        }
+        else if (FileExists(file))
+        {
+            btn_label = fmt::format(_LC("RepositorySelector", "Reinstall"));
+        }
+        else
+        {
+            btn_label = fmt::format(_LC("RepositorySelector", "Install"));
+        }
+
+        if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
+        {
+            this->Download(m_selected_item.resource_id, m_data.files[i].filename, m_data.files[i].id);
+        }
+
+        ImGui::SameLine();
+
+        if (FileExists(file) && ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
+        {
+            Ogre::ArchiveManager::getSingleton().unload(file);
+            Ogre::FileSystemLayer::removeFile(file);
+            m_update_cache = true;
+        }
+        else if (!FileExists(file))
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+
+        ImGui::Separator();
+
+        ImGui::PopID();
     }
 }
 
