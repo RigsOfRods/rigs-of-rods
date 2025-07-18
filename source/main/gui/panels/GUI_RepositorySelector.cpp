@@ -1207,13 +1207,17 @@ void RepositorySelector::DrawResourceViewRightColumn()
         }
         ImGui::PopStyleColor(2); // Button, Text
 
-        if (FileExists(file) && ImGui::SmallButton(_LC("RepositorySelector", "Remove")))
+        if (FileExists(file))
         {
-            Ogre::ArchiveManager::getSingleton().unload(file);
-            Ogre::FileSystemLayer::removeFile(file);
-            m_update_cache = true;
+            ImGui::SameLine();
+            if (ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
+            {
+                Ogre::ArchiveManager::getSingleton().unload(file);
+                Ogre::FileSystemLayer::removeFile(file);
+                m_update_cache = true;
+            }
         }
-        else if (!FileExists(file))
+        else
         {
             ImGui::SameLine();
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -1326,7 +1330,8 @@ void RepositorySelector::DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode&
 {
     for (const auto node : parent.getChildren())
     {
-        if (node->getNodeType() == BBNode::NodeType::ELEMENT)
+        if (node->getNodeType() == BBNode::NodeType::ELEMENT
+            && node->getNodeName() == "ATTACH")
         {
             const auto element = node->downCast<BBElementPtr>();
             if (element && element->getChildren().size() > 0)
@@ -1732,7 +1737,8 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
             curl_easy_setopt(curl_th, CURLOPT_WRITEDATA, datastream.get());
             CURLcode curl_result = curl_easy_perform(curl_th);
 
-            if (curl_result != CURLE_OK || response_code != 200)
+            // If CURL follows a redirect then it returns 0 for HTTP response code.
+            if (curl_result != CURLE_OK || (response_code != 0 && response_code != 200))
             {
                 Ogre::LogManager::getSingleton().stream()
                     << "[RoR|Repository] Failed to download image;"
