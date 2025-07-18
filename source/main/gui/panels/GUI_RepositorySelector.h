@@ -152,6 +152,7 @@ private:
     int                                 m_current_category_id = 1;
     std::string                         m_all_category_label;
     std::string                         m_current_category_label;
+    int                                 m_gallery_mode_attachment_id = -1;
     bool                                m_update_cache = false;
     bool                                m_show_spinner = false;
     std::string                         m_current_sort = "Last Update";
