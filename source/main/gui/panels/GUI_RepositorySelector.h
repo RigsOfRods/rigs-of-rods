@@ -116,6 +116,7 @@ public:
     const float                         ATTACH_SPINNER_RADIUS = 20.f;
     const ImVec2                        ATTACH_SPINNER_PADDING = ImVec2(55.f, 25.f);
     const ImVec4                        RESOURCE_TITLE_COLOR = ImVec4(1.f, 1.f, 0.7f, 1.f);
+    const ImVec4                        RESOURCE_INSTALL_BTN_COLOR = ImVec4(0.830, 0.655, 0.174, 1.f);
 
     RepositorySelector();
     ~RepositorySelector();

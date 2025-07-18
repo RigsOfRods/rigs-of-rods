@@ -960,13 +960,13 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
 
     const float INFOBAR_HEIGHT = 100.f;
     const float INFOBAR_SPACING_LEFTSIDE = 2.f;
-    const float INFOBAR_SPACING_RIGHTSIDE = 0.f;
 
     // --- top info bar, left side ---
 
     // Black background
     ImVec2 leftmost_cursor = ImGui::GetCursorPos();
-    ImVec2 backdrop_size = ImVec2(ImGui::GetContentRegionAvailWidth(), INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 2);
+    float left_pane_width = searchbox_x - leftmost_cursor.x;
+    ImVec2 backdrop_size = ImVec2(left_pane_width - ImGui::GetStyle().ItemSpacing.x, INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + backdrop_size, ImColor(0.f, 0.f, 0.f, 0.5f), /*rounding:*/5.f);
     ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().ItemSpacing);
 
@@ -1031,59 +1031,20 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     ImGui::SameLine();
     ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.authors.c_str());
 
-    // --- top info bar, right side ---
+    // --- Right column ---
 
-    // Right side: The detail text
-    ImVec2 rightside_cursor = ImVec2(searchbox_x, thumbnail_cursor.y);
-    ImGui::SetCursorPos(rightside_cursor);
-    ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
-
-    // Right side, next line
-    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
-    ImGui::SetCursorPos(rightside_cursor);
-    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
-    ImGui::SameLine();
-    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.resource_id);
-
-    // Right side, next line
-    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
-    ImGui::SetCursorPos(rightside_cursor);
-    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
-    ImGui::SameLine();
-    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.view_count);
-
-    // Right side, next line
-    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
-    ImGui::SetCursorPos(rightside_cursor);
-    ImGui::TextDisabled(_LC("RepositorySelector", "Date Added:"));
-    ImGui::SameLine();
-    time_t a = (const time_t)m_selected_item.resource_date;
-    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&a)));
-
-    // Right side, next line
-    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
-    ImGui::SetCursorPos(rightside_cursor);
-    ImGui::TextDisabled(_LC("RepositorySelector", "Last Update:"));
-    ImGui::SameLine();
-    time_t b = (const time_t)m_selected_item.last_update;
-    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&b)));
-
-    // Right side, next line
-    rightside_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_RIGHTSIDE);
-    ImGui::SetCursorPos(rightside_cursor);
-    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
-    ImGui::SameLine();
-    ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
+    ImGui::SetCursorPos(ImVec2(searchbox_x, leftmost_cursor.y));
+    this->DrawResourceFiles();
 
     // --- content area ---
-
+    ImGui::SetCursorPos(leftmost_cursor + ImVec2(0.f, INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 3));
     const float table_height = ImGui::GetWindowHeight()
         - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
-            - ImGui::GetStyle().ItemSpacing.y);
+            - ImGui::GetStyle().ItemSpacing.y
+            - INFOBAR_HEIGHT);
 
     // Scroll area
-    ImGui::SetCursorPos(leftmost_cursor + ImVec2(0.f, INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 3));
-    ImGui::BeginChild("resource-view-scrolling", ImVec2(0.f, table_height), false);
+    ImGui::BeginChild("resource-view-scrolling", ImVec2(searchbox_x - ImGui::GetStyle().ItemSpacing.x, table_height), false);
 
     if (!m_repofiles_msg.empty())
     {
@@ -1102,7 +1063,6 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
         // Files + description downloaded OK
         this->DrawResourceDescriptionBBCode(m_selected_item);
         ImGui::Separator();
-        this->DrawResourceFiles();
     }
 
     ImGui::EndChild();
@@ -1110,6 +1070,18 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
 
 void RepositorySelector::DrawResourceFiles()
 {
+    if (m_data.files.size() == 0)
+    {
+        return; // Nothing to draw yet
+    }
+
+    const float table_height = ImGui::GetWindowHeight()
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+            - ImGui::GetStyle().ItemSpacing.y);
+
+    ImVec2 rightcol_size = ImVec2(ImGui::GetContentRegionAvailWidth(), table_height);
+    ImGui::BeginChild("resource-view-files", rightcol_size, false);
+
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
     Ogre::TexturePtr tex2 = FetchIcon("accept.png");
     ImGui::Text("%s", _LC("RepositorySelector", "Files:"));
@@ -1124,10 +1096,7 @@ void RepositorySelector::DrawResourceFiles()
         ImGui::PushID(i);
 
         ImGui::AlignTextToFramePadding();
-        float pos_y = ImGui::GetCursorPosY();
-
-        ImGui::TextDisabled("%s", _LC("RepositorySelector", "Filename:"));
-        ImGui::SameLine();
+        
 
         // File
         std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
@@ -1140,6 +1109,7 @@ void RepositorySelector::DrawResourceFiles()
             file_time = GetFileLastModifiedTime(file);
         }
 
+        // Filename and size on separate line
         ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
 
         if (FileExists(file) && ImGui::IsItemHovered())
@@ -1166,12 +1136,11 @@ void RepositorySelector::DrawResourceFiles()
             ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16));
         }
 
-        // Buttons
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 220);
-        ImGui::SetCursorPosY(pos_y);
+        // Buttons (new line)
 
         std::string btn_label;
+        ImVec4 btn_color = ImGui::GetStyle().Colors[ImGuiCol_Button];
+        ImVec4 text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
         if (FileExists(file) && m_selected_item.last_update > file_time)
         {
             btn_label = fmt::format(_LC("RepositorySelector", "Update"));
@@ -1183,16 +1152,19 @@ void RepositorySelector::DrawResourceFiles()
         else
         {
             btn_label = fmt::format(_LC("RepositorySelector", "Install"));
+            btn_color = RESOURCE_INSTALL_BTN_COLOR;
+            text_color = ImVec4(0.1, 0.1, 0.1, 1.0);
         }
 
+        ImGui::PushStyleColor(ImGuiCol_Button, btn_color);
+        ImGui::PushStyleColor(ImGuiCol_Text, text_color);
         if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
         {
             this->Download(m_selected_item.resource_id, m_data.files[i].filename, m_data.files[i].id);
         }
+        ImGui::PopStyleColor(2); // Button, Text
 
-        ImGui::SameLine();
-
-        if (FileExists(file) && ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
+        if (FileExists(file) && ImGui::SmallButton(_LC("RepositorySelector", "Remove")))
         {
             Ogre::ArchiveManager::getSingleton().unload(file);
             Ogre::FileSystemLayer::removeFile(file);
@@ -1200,6 +1172,7 @@ void RepositorySelector::DrawResourceFiles()
         }
         else if (!FileExists(file))
         {
+            ImGui::SameLine();
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
             ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
@@ -1207,10 +1180,44 @@ void RepositorySelector::DrawResourceFiles()
             ImGui::PopStyleVar();
         }
 
-        ImGui::Separator();
 
-        ImGui::PopID();
+        ImGui::PopID(); // i
     }
+
+    ImGui::Separator();
+    ImGui::NewLine();
+
+    // Right side: The detail text
+    ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
+
+    // Right side, next line
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.resource_id);
+
+    // Right side, next line
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.view_count);
+
+    // Right side, next line
+    ImGui::TextDisabled(_LC("RepositorySelector", "Date Added:"));
+    ImGui::SameLine();
+    time_t a = (const time_t)m_selected_item.resource_date;
+    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&a)));
+
+    // Right side, next line
+    ImGui::TextDisabled(_LC("RepositorySelector", "Last Update:"));
+    ImGui::SameLine();
+    time_t b = (const time_t)m_selected_item.last_update;
+    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&b)));
+
+    // Right side, next line
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
+
+    ImGui::EndChild();
 }
 
 void RepositorySelector::Refresh()
