@@ -411,7 +411,14 @@ void RepositorySelector::Draw()
 
     if (m_resource_view && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(16, 16)))
     {
-        m_resource_view = false;
+        if (m_gallery_mode_attachment_id != -1)
+        {
+            m_gallery_mode_attachment_id = -1;
+        }
+        else
+        {
+            m_resource_view = false;
+        }
     }
     else if (!m_resource_view && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
     {
@@ -958,6 +965,32 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     Ogre::TexturePtr tex3 = FetchIcon("star.png");
     Ogre::TexturePtr tex4 = FetchIcon("arrow_left.png");
 
+    if (m_gallery_mode_attachment_id != -1)
+    {
+        // Gallery mode - just draw the pic and be done with it.
+        auto itor = m_repo_attachments.find(m_gallery_mode_attachment_id);
+        if (itor != m_repo_attachments.end())
+        {
+            Ogre::TexturePtr& tex = itor->second;
+            ImVec2 img_size(tex->getWidth(), tex->getHeight());
+            float scale_ratio = 1.f;
+            // Shrink to fit
+            if (img_size.x > ImGui::GetContentRegionAvail().x)
+            {
+                scale_ratio = ImGui::GetContentRegionAvail().x / img_size.x;
+                if ((img_size.y * scale_ratio) > ImGui::GetContentRegionAvail().y)
+                {
+                    scale_ratio = ImGui::GetContentRegionAvail().y / img_size.y;
+                }
+            }
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), img_size * scale_ratio);
+        }
+        else
+        {
+            m_gallery_mode_attachment_id = -1; // Image not found - close gallery mode.
+        }
+    }
+
     const float INFOBAR_HEIGHT = 100.f;
     const float INFOBAR_SPACING_LEFTSIDE = 2.f;
 
@@ -980,6 +1013,11 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     ImGui::SetCursorPos(newline_cursor);
     ImGui::TextColored(RESOURCE_TITLE_COLOR, "%s", m_selected_item.title.c_str());
     ImGui::SameLine();
+
+    // Far right - "view in browser" hyperlink.
+    std::string browser_text = _LC("RepositorySelector", "View in web browser");
+    ImGui::SetCursorPosX(searchbox_x - (ImGui::CalcTextSize(browser_text.c_str()).x + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().WindowPadding.x));
+    ImHyperlink(m_selected_item.view_url, browser_text);
 
     // One line below - the tagline
     newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
@@ -1216,11 +1254,6 @@ void RepositorySelector::DrawResourceViewRightColumn()
     ImGui::SameLine();
     time_t b = (const time_t)m_selected_item.last_update;
     ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&b)));
-
-    // Right side, next line
-    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
-    ImGui::SameLine();
-    ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
 
     ImGui::EndChild();
 }
@@ -1615,14 +1648,24 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
             img_scale = ATTACH_MAX_HEIGHT / tex->getHeight();
         }
         ImVec2 img_size(tex->getWidth() * img_scale, tex->getHeight() * img_scale);
+        const ImVec2 img_min = context->m_feeder.cursor;
+        const ImVec2 img_max = context->m_feeder.cursor + img_size;
         // Draw directly via ImGui Drawlist
         context->m_feeder.drawlist->AddImage(
-            reinterpret_cast<ImTextureID>(tex->getHandle()),
-            context->m_feeder.cursor,
-            context->m_feeder.cursor + img_size);
+            reinterpret_cast<ImTextureID>(tex->getHandle()), img_min, img_max);
         // Update feeder to account the image
         context->m_feeder.cursor += ImVec2(img_size.x + ImGui::GetStyle().ItemSpacing.x, 0.f);
         context->m_feeder.line_height = std::max(context->m_feeder.line_height, img_size.y + ImGui::GetStyle().ItemSpacing.y);
+        // Handle mouse hover and click
+        if (ImGui::GetMousePos().x > img_min.x && ImGui::GetMousePos().y > img_min.y
+            && ImGui::GetMousePos().x < img_max.x && ImGui::GetMousePos().y < img_max.y)
+        {
+            ImGui::SetMouseCursor(7);//Hand cursor
+            if (ImGui::IsMouseClicked(0))
+            {
+                m_gallery_mode_attachment_id = attachment_id;
+            }
+        }
     }
     else
     {

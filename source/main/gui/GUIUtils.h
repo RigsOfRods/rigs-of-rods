@@ -95,4 +95,8 @@ bool ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton,
 // Returns true if succeeded (needs the text box to have focus).
 bool ImMoveTextInputCursorToEnd(const char* label);
 
+/// Looks and behaves (mouuse cursor) like a hypertext, but doesn't open URL.
+void ImDummyHyperlink(std::string caption);
+void ImHyperlink(std::string url, std::string caption = "", bool tooltip = true);
+
 } // namespace RoR
