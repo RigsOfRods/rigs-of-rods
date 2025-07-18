@@ -125,7 +125,7 @@ public:
     bool                                IsVisible() const { return m_is_visible; }
     void                                Draw();
     void                                DrawResourceView(float searchbox_x);
-    void                                DrawResourceFiles();
+    void                                DrawResourceViewRightColumn();
     void                                OpenResource(int resource_id);
     void                                Download(int resource_id, std::string filename, int id);
     void                                DownloadFinished();
