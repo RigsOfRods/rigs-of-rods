@@ -965,10 +965,10 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
 
     // Black background
     ImVec2 leftmost_cursor = ImGui::GetCursorPos();
-    float left_pane_width = searchbox_x - leftmost_cursor.x;
-    ImVec2 backdrop_size = ImVec2(left_pane_width - ImGui::GetStyle().ItemSpacing.x, INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 2);
+    float left_pane_width = searchbox_x - (leftmost_cursor.x + ImGui::GetStyle().ItemSpacing.x);
+    ImVec2 backdrop_size = ImVec2(left_pane_width, INFOBAR_HEIGHT + ImGui::GetStyle().WindowPadding.y * 2);
     ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + backdrop_size, ImColor(0.f, 0.f, 0.f, 0.5f), /*rounding:*/5.f);
-    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().ItemSpacing);
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().WindowPadding);
 
     // The thumbnail again (like on web repo)
     ImVec2 thumbnail_cursor = ImGui::GetCursorPos();
@@ -976,7 +976,8 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
 
     // Title + version (like on web repo)
     ImGui::SameLine();
-    ImVec2 newline_cursor = ImGui::GetCursorPos();
+    ImVec2 newline_cursor = ImGui::GetCursorPos() + ImVec2(ImGui::GetStyle().WindowPadding.x, 0.f);
+    ImGui::SetCursorPos(newline_cursor);
     ImGui::TextColored(RESOURCE_TITLE_COLOR, "%s", m_selected_item.title.c_str());
     ImGui::SameLine();
 
@@ -992,7 +993,7 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     ImGui::SameLine();
     ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.version.c_str());
     ImGui::SameLine();
-    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Downloads:"));
+    ImGui::TextDisabled("(%s", _LC("RepositorySelector", "Downloads:"));
     ImGui::SameLine();
     ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.download_count);
     ImGui::SameLine();
@@ -1034,17 +1035,19 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     // --- Right column ---
 
     ImGui::SetCursorPos(ImVec2(searchbox_x, leftmost_cursor.y));
-    this->DrawResourceFiles();
+    this->DrawResourceViewRightColumn();
 
     // --- content area ---
-    ImGui::SetCursorPos(leftmost_cursor + ImVec2(0.f, INFOBAR_HEIGHT + ImGui::GetStyle().ItemSpacing.y * 3));
+    ImGui::SetCursorPos(leftmost_cursor + ImVec2(0.f, backdrop_size.y + ImGui::GetStyle().ItemSpacing.y));
     const float table_height = ImGui::GetWindowHeight()
-        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
-            - ImGui::GetStyle().ItemSpacing.y
-            - INFOBAR_HEIGHT);
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing() + backdrop_size.y + ImGui::GetStyle().ItemSpacing.y));
 
     // Scroll area
-    ImGui::BeginChild("resource-view-scrolling", ImVec2(searchbox_x - ImGui::GetStyle().ItemSpacing.x, table_height), false);
+    // Make child windows use padding - only works when border is visible, so set it to transparent
+    // see https://github.com/ocornut/imgui/issues/462
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::BeginChild("resource-view-scrolling", ImVec2(left_pane_width, table_height), /*border:*/true);
+    ImGui::PopStyleColor();
 
     if (!m_repofiles_msg.empty())
     {
@@ -1062,13 +1065,12 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     {
         // Files + description downloaded OK
         this->DrawResourceDescriptionBBCode(m_selected_item);
-        ImGui::Separator();
     }
 
     ImGui::EndChild();
 }
 
-void RepositorySelector::DrawResourceFiles()
+void RepositorySelector::DrawResourceViewRightColumn()
 {
     if (m_data.files.size() == 0)
     {
@@ -1080,7 +1082,11 @@ void RepositorySelector::DrawResourceFiles()
             - ImGui::GetStyle().ItemSpacing.y);
 
     ImVec2 rightcol_size = ImVec2(ImGui::GetContentRegionAvailWidth(), table_height);
-    ImGui::BeginChild("resource-view-files", rightcol_size, false);
+    // Make child windows use padding - only works when border is visible, so set it to transparent
+    // see https://github.com/ocornut/imgui/issues/462
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::BeginChild("resource-view-files", rightcol_size, /*border:*/true);
+    ImGui::PopStyleColor();
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
     Ogre::TexturePtr tex2 = FetchIcon("accept.png");
@@ -1096,7 +1102,6 @@ void RepositorySelector::DrawResourceFiles()
         ImGui::PushID(i);
 
         ImGui::AlignTextToFramePadding();
-        
 
         // File
         std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
