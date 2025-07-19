@@ -821,6 +821,7 @@ const char * KeywordToString(RigDef::Keyword keyword)
         case Keyword::WHEELS:               return "wheels";
         case Keyword::WHEELS2:              return "wheels2";
         case Keyword::WINGS:                return "wings";
+        case Keyword::WINGS_DISABLE_NAV_LIGHTS: return "wings_disable_nav_lights";
 
         default:                           return "";
     }

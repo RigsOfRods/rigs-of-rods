@@ -236,7 +236,8 @@ namespace Regexes
     E_KEYWORD_BLOCK("wheeldetachers")                             \
     E_KEYWORD_BLOCK("wheels")                                     \
     E_KEYWORD_BLOCK("wheels2")                                    \
-    E_KEYWORD_BLOCK("wings")
+    E_KEYWORD_BLOCK("wings")                                      \
+    E_KEYWORD_BLOCK("wings_disable_nav_lights")
 
 DEFINE_REGEX_IGNORECASE( IDENTIFY_KEYWORD_IGNORE_CASE,  IDENTIFY_KEYWORD_REGEX_STRING )
 
