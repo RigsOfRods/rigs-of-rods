@@ -74,6 +74,9 @@ struct ResourceItem
     bool                attachments_dl_queued = false; //!< Attachments are requested in bulk on first display
 };
 
+typedef int ResourceItemArrayPos_t;
+const int RESOURCEITEMARRAYPOS_INVALID = -1;
+
 struct ResourceFiles
 {
     int                 id;
@@ -133,7 +136,7 @@ public:
     void                                UpdateResources(ResourcesCollection* data);
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
-    void                                DrawThumbnail(int resource_item_idx, ImVec2 image_size, float spinner_radius, ImVec2 spinner_cursor);
+    void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
     void                                DownloadAttachment(int attachment_id);
@@ -157,8 +160,7 @@ private:
     bool                                m_show_spinner = false;
     std::string                         m_current_sort = "Last Update";
     std::string                         m_view_mode = "List";
-    bool                                m_resource_view = false;
-    ResourceItem                        m_selected_item;
+    ResourceItemArrayPos_t              m_resourceview_item_arraypos = RESOURCEITEMARRAYPOS_INVALID;
     Ogre::uint16                        m_ogre_workqueue_channel = 0;
     Ogre::TexturePtr                    m_fallback_thumbnail;
     RepoAttachmentsMap                  m_repo_attachments; //!< Fully loaded images in memory.
