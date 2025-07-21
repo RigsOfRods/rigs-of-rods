@@ -133,7 +133,7 @@ public:
     void                                UpdateResources(ResourcesCollection* data);
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
-    void                                DrawThumbnail(int resource_item_idx);
+    void                                DrawThumbnail(int resource_item_idx, ImVec2 image_size, float spinner_radius, ImVec2 spinner_cursor);
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
     void                                DownloadAttachment(int attachment_id);

@@ -669,7 +669,11 @@ void RepositorySelector::Draw()
                     {
                         // Thumbnail
                         ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-                        this->DrawThumbnail(i);
+                        const ImVec2 thumb_size = ImVec2(ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x, 96);
+                        const float spinner_radius = ImGui::GetColumnWidth() / 4;
+                        const float spinner_cursor_x(((ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x) / 2.f) - spinner_radius);
+                        const float spinner_cursor_y(ImGui::GetCursorPosY() + 5 * ImGui::GetStyle().ItemSpacing.y);
+                        this->DrawThumbnail(i, thumb_size, spinner_radius, ImVec2(spinner_cursor_x, spinner_cursor_y));
 
                         float width = (ImGui::GetColumnWidth() + 90);
                         ImGui::NextColumn();
@@ -792,7 +796,15 @@ void RepositorySelector::Draw()
                         ImGui::PopStyleColor(3);
 
                         // Thumbnail
-                        this->DrawThumbnail(i);
+                        const ImVec2 thumbnail_size(76, 86);
+                        const float spinner_radius = 25;
+                        const float spinner_cursor_x(ImGui::GetCursorPosX() + 2 * ImGui::GetStyle().ItemSpacing.x);
+                        const float spinner_cursor_y(ImGui::GetCursorPosY() + 20);
+                        this->DrawThumbnail(i, thumbnail_size, spinner_radius, ImVec2(spinner_cursor_x, spinner_cursor_y));
+                        if (!m_data.items[i].preview_tex)
+                        {
+                            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 76 - (35 + spinner_radius)); //adjustment after spinner
+                        }
 
                         // Rating
                         float pos_y;
@@ -1564,23 +1576,13 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
 // Async thumbnail/attachment download via Ogre::WorkQueue
 // see https://wiki.ogre3d.org/How+to+use+the+WorkQueue
 
-void RepositorySelector::DrawThumbnail(int resource_item_idx)
+void RepositorySelector::DrawThumbnail(int resource_item_idx, ImVec2 image_size, float spinner_radius, ImVec2 spinner_cursor)
 {
     // Runs on main thread when drawing GUI
     // Displays a thumbnail image if available, or shows a spinner and initiates async download.
     // -----------------------------------------------------------------------------------------
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
-
-    ImVec2 image_size;
-    if (m_view_mode == "List")
-    {
-        image_size = ImVec2(ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x, 96);
-    }
-    else
-    {
-        image_size = ImVec2(76, 86);
-    }
 
     if (!m_data.items[resource_item_idx].preview_tex)
     {
@@ -1614,21 +1616,8 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
     else
     {
         // Thumbnail is downloading - draw spinner.
-        if (m_view_mode == "List")
-        {
-            float spinner_size = ImGui::GetColumnWidth() / 4;
-            ImGui::SetCursorPosX(((ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x) / 2.f) - spinner_size);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5*ImGui::GetStyle().ItemSpacing.y);
-            LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-        }
-        else
-        {
-            float spinner_size = 25;
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 2*ImGui::GetStyle().ItemSpacing.x);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-            LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 76 - (35 + spinner_size));
-        }
+        ImGui::SetCursorPos(spinner_cursor);
+        LoadingIndicatorCircle("spinner", spinner_radius, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
     }
 }
 
