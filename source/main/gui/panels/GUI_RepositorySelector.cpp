@@ -1340,6 +1340,36 @@ void RepositorySelector::UpdateResourceFilesAndDescription(ResourcesCollection* 
     this->DownloadBBCodeAttachmentsRecursive(*data->items[0].description);
 }
 
+bool DecodeBBAttachment(bbcpp::BBNodePtr node, int& attachment_id, std::string& attachment_ext)
+{
+    const auto element = node->downCast<BBElementPtr>();
+    if (!element 
+        || element->getElementType() == bbcpp::BBElement::CLOSING 
+        || element->getChildren().size() == 0)
+    {
+        return false;
+    }
+    const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
+    if (!textnode)
+    {
+        return false;
+    }
+
+    try // `std::stoi()` throws exception on bad input
+    {
+        attachment_id = std::stoi(textnode->getText());
+
+        // Our XenForo always stores original filename in 'alt' attribute.
+        std::string basename; // dummy
+        Ogre::StringUtil::splitBaseFilename(element->findParameter("alt"), basename, attachment_ext);
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 void RepositorySelector::DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent)
 {
     for (const auto node : parent.getChildren())
@@ -1347,24 +1377,23 @@ void RepositorySelector::DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode&
         if (node->getNodeType() == BBNode::NodeType::ELEMENT
             && node->getNodeName() == "ATTACH")
         {
-            const auto element = node->downCast<BBElementPtr>();
-            if (element && element->getChildren().size() > 0)
+            int attachment_id = 0;
+            std::string attachment_ext = "";
+            if (DecodeBBAttachment(node, /*[out]*/ attachment_id, /*[out]*/ attachment_ext))
             {
-                const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
-                if (textnode)
-                {
-                    this->DownloadAttachment(std::stoi(textnode->getText()));
-                }
+                this->DownloadAttachment(attachment_id, attachment_ext);
             }
+            // Don't log any error - the node may not be applicable (end tag)
+            // and parsing will also fail upon render, so the image won't be missed.
         }
         this->DownloadBBCodeAttachmentsRecursive(*node);
     }
 }
 
-void RepositorySelector::DownloadAttachment(int attachment_id)
+void RepositorySelector::DownloadAttachment(int attachment_id, std::string const& attachment_ext)
 {
-    // Chheck if file is already downloaded
-    const std::string filename = fmt::format("{}.png", attachment_id);
+    // Check if file is already downloaded
+    const std::string filename = fmt::format("{}.{}", attachment_id, attachment_ext);
     const std::string filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
     if (FileExists(filepath))
     {
@@ -1385,6 +1414,7 @@ void RepositorySelector::DownloadAttachment(int attachment_id)
         // Request the async download
         RepoWorkQueueTicket ticket;
         ticket.attachment_id = attachment_id;
+        ticket.attachment_ext = attachment_ext;
         Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
     }
 }
@@ -1493,15 +1523,16 @@ class RoR::GUI::BBCodeDrawingContext
         else if (element->getNodeName() == "ATTACH")
         {
             recurse_children = false; // the only child is the image ID text
-            std::string image_id = "~~~";
-            ImVec4 color = ImVec4(0.8f, 0.7f, 0.3f, 1.f);
-            if (element->getChildren().size() > 0)
+
+            int attachment_id = 0;
+            std::string attachment_ext = "";
+            if (DecodeBBAttachment(element, /*[out]*/ attachment_id, /*[out]*/ attachment_ext))
             {
-                const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
-                if (textnode)
-                {
-                    App::GetGuiManager()->RepositorySelector.DrawAttachment(this, std::stoi(textnode->getText()));
-                }
+                App::GetGuiManager()->RepositorySelector.DrawAttachment(this, attachment_id);
+            }
+            else
+            {
+                ImGui::TextColored(ImVec4(1, 0, 0, 1), "<bad image>");
             }
         }
         else if (element->getNodeName() == "*")
@@ -1694,7 +1725,7 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
     }
     else if (ticket.attachment_id != -1)
     {
-        filename = std::to_string(ticket.attachment_id) + ".png";
+        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
         filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
         rg_name = RGN_REPO_ATTACHMENTS;
         url = "https://forum.rigsofrods.org/attachments/" + std::to_string(ticket.attachment_id);
@@ -1772,7 +1803,7 @@ void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, co
     }
     else if (ticket.attachment_id != -1)
     {
-        filename = std::to_string(ticket.attachment_id) + ".png";
+        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
         filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
         rg_name = RGN_REPO_ATTACHMENTS;
     }

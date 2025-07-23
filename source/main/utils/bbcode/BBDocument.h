@@ -205,11 +205,11 @@ public:
         _parameters.insert({key,value});
     }
 
-    std::string getParameter(const std::string& key, bool bDoThrow = true)
+    std::string findParameter(const std::string& key)
     {
-        if (_parameters.find(key) == _parameters.end() && bDoThrow)
+        if (_parameters.find(key) == _parameters.end())
         {
-            throw std::invalid_argument("Undefine attribute '" + key + "'");
+            return "";
         }
 
         return _parameters.at(key);
@@ -303,6 +303,10 @@ class BBDocument : public BBNode
          // .................................................^^^
          int internal_openbracket_stack = 0;
 
+         // RIGSOFRODS: to properly terminate at closing quotes (if used at all), we must track quotation state.
+         bool quote_mode_known = false;
+         bool is_value_quoted = false;
+
          std::stringstream temp;
 
          for (auto it = start; it != end; it++)
@@ -313,13 +317,35 @@ class BBDocument : public BBNode
 
              if (*it == '\"') // RIGSOFRODS: added support for quoted attribute values
              {
-                 // Opening or closing quotemark - skip it.
-                 continue;
+                 if (!quote_mode_known)
+                 {
+                     // Opening quotes - update state and skip the character
+                     quote_mode_known = true;
+                     is_value_quoted = true;
+                     continue;
+                 }
+                 else if (is_value_quoted)
+                 {
+                     // Closing quotes - skip the character and return result
+                     it++;
+                     value.assign(temp.str());
+                     return it;
+                 }
+                 else
+                 {
+                     // Quotes inside string - just append to value
+                     temp << *it;
+                 }
              }
              else if (*it == '[') // RIGSOFRODS: tolerate [] inside attribute value, if matching
              {
                  internal_openbracket_stack++;
                  temp << *it;
+                 if (!quote_mode_known)
+                 {
+                     quote_mode_known = true;
+                     is_value_quoted = false;
+                 }
              }
              else if (*it == ']')
              {
@@ -337,6 +363,11 @@ class BBDocument : public BBNode
              else
              {
                  temp << *it;
+                 if (!quote_mode_known)
+                 {
+                     quote_mode_known = true;
+                     is_value_quoted = false;
+                 }
              }
          }
 
