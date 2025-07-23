@@ -298,6 +298,11 @@ class BBDocument : public BBNode
              return end;
          }
 
+         // RIGSOFRODS: Apparently XenForo allows [] inside alt text:
+         // [ATTACH alt="screenshot_2018-07-16_23-35-33_1_tzC[1].png"]1612[/ATTACH]
+         // .................................................^^^
+         int internal_openbracket_stack = 0;
+
          std::stringstream temp;
 
          for (auto it = start; it != end; it++)
@@ -311,10 +316,23 @@ class BBDocument : public BBNode
                  // Opening or closing quotemark - skip it.
                  continue;
              }
+             else if (*it == '[') // RIGSOFRODS: tolerate [] inside attribute value, if matching
+             {
+                 internal_openbracket_stack++;
+                 temp << *it;
+             }
              else if (*it == ']')
              {
-                 value.assign(temp.str());
-                 return it;
+                 if (internal_openbracket_stack == 0)
+                 {
+                     value.assign(temp.str());
+                     return it;
+                 }
+                 else
+                 {
+                     internal_openbracket_stack--;
+                     temp << *it;
+                 }
              }
              else
              {
