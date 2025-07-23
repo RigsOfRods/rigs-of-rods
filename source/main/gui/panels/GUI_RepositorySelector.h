@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "BBDocument.h"
 #include "OgreImGui.h" // ImVec4
 
 #include <future>
@@ -57,6 +58,7 @@ struct ResourceItem
     std::string         icon_url;
     std::string         authors;
     std::string         version;
+    bbcpp::BBDocumentPtr description;
     int                 download_count;
     int                 last_update;
     int                 resource_category_id;
@@ -66,8 +68,14 @@ struct ResourceItem
     int                 resource_date;
     int                 view_count;
     Ogre::TexturePtr    preview_tex;
+
+    // Repo UI state:
     bool                thumbnail_dl_queued = false;
+    bool                attachments_dl_queued = false; //!< Attachments are requested in bulk on first display
 };
+
+typedef int ResourceItemArrayPos_t;
+const int RESOURCEITEMARRAYPOS_INVALID = -1;
 
 struct ResourceFiles
 {
@@ -83,12 +91,36 @@ struct ResourcesCollection
     std::vector<ResourceFiles>          files;
 };
 
+typedef std::map<int, Ogre::TexturePtr> RepoAttachmentsMap; //!< Maps attachment ID to Ogre::TexturePtr
+
+struct RepoWorkQueueTicket
+{
+    // Only one should be set!
+    int thumb_resourceitem_idx = -1; //!< fetch thumbnail
+    int attachment_id = -1; //!< download attachment
+    std::string attachment_ext;
+};
+
+// `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile.
+inline std::ostream& operator<<(std::ostream& os, RepoWorkQueueTicket& val)
+{
+    return os;
+}
+
+class BBCodeDrawingContext;
+
 class RepositorySelector:
     public Ogre::WorkQueue::RequestHandler, // Processes tasks on background thread
     public Ogre::WorkQueue::ResponseHandler // Processes task results on rendering thread
 {
 public:
     const Ogre::uint16                  WORKQUEUE_ROR_REPO_THUMBNAIL = 1; // Work queue request type, named by OGRE convention.
+    const float                         ATTACH_MAX_WIDTH = 160.f;
+    const float                         ATTACH_MAX_HEIGHT = 90.f;
+    const float                         ATTACH_SPINNER_RADIUS = 20.f;
+    const ImVec2                        ATTACH_SPINNER_PADDING = ImVec2(55.f, 25.f);
+    const ImVec4                        RESOURCE_TITLE_COLOR = ImVec4(1.f, 1.f, 0.7f, 1.f);
+    const ImVec4                        RESOURCE_INSTALL_BTN_COLOR = ImVec4(0.830, 0.655, 0.174, 1.f);
 
     RepositorySelector();
     ~RepositorySelector();
@@ -96,14 +128,20 @@ public:
     void                                SetVisible(bool visible);
     bool                                IsVisible() const { return m_is_visible; }
     void                                Draw();
+    void                                DrawResourceView(float searchbox_x);
+    void                                DrawResourceViewRightColumn();
     void                                OpenResource(int resource_id);
     void                                Download(int resource_id, std::string filename, int id);
     void                                DownloadFinished();
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
-    void                                UpdateFiles(ResourcesCollection* data);
+    void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
-    void                                DrawThumbnail(int resource_item_idx);
+    void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
+    void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
+    void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
+    void                                DownloadAttachment(int attachment_id, std::string const& attachment_ext);
+    void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);
 
     /// Ogre::WorkQueue API
     virtual Ogre::WorkQueue::Response*  handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ) override; //!< Processes tasks on background thread
@@ -118,14 +156,15 @@ private:
     int                                 m_current_category_id = 1;
     std::string                         m_all_category_label;
     std::string                         m_current_category_label;
+    int                                 m_gallery_mode_attachment_id = -1;
     bool                                m_update_cache = false;
     bool                                m_show_spinner = false;
     std::string                         m_current_sort = "Last Update";
     std::string                         m_view_mode = "List";
-    bool                                m_resource_view = false;
-    ResourceItem                        m_selected_item;
+    ResourceItemArrayPos_t              m_resourceview_item_arraypos = RESOURCEITEMARRAYPOS_INVALID;
     Ogre::uint16                        m_ogre_workqueue_channel = 0;
     Ogre::TexturePtr                    m_fallback_thumbnail;
+    RepoAttachmentsMap                  m_repo_attachments; //!< Fully loaded images in memory.
 #ifdef USE_CURL
     CURL                                *curl_th = curl_easy_init(); // One connection for fetching thumbnails using connection reuse
 #endif

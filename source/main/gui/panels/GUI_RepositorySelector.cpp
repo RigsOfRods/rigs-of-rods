@@ -27,6 +27,7 @@
 #include "GUI_RepositorySelector.h"
 
 #include "Application.h"
+#include "BBDocument.h"
 #include "GameContext.h"
 #include "AppContext.h"
 #include "Console.h"
@@ -56,6 +57,7 @@
 
 using namespace RoR;
 using namespace GUI;
+using namespace bbcpp; // See 'BBDocument.h'
 
 #if defined(USE_CURL)
 
@@ -244,6 +246,7 @@ void GetResources(std::string portal_url)
         resc[i].resource_date = j_row["resource_date"].GetInt();
         resc[i].view_count = j_row["view_count"].GetInt();
         resc[i].preview_tex = Ogre::TexturePtr(); // null
+        // NOTE: description is stripped here for bandwidth reasons - fetched separately from individual resources.
     }
 
     cdata_ptr->items = resc;
@@ -307,6 +310,13 @@ void GetResourceFiles(std::string portal_url, int resource_id)
 
     cdata_ptr->files = resc;
 
+    // Also pass on the description (via a dummy item)
+    ResourceItem item;
+    item.description = bbcpp::BBDocument::create();
+    item.description->load(j_data_doc["resource"]["description"].GetString());
+    item.resource_id = j_data_doc["resource"]["resource_id"].GetInt();
+    cdata_ptr->items.push_back(item);
+
     App::GetGameContext()->PushMessage(
             Message(MSG_NET_OPEN_RESOURCE_SUCCESS, (void*)cdata_ptr));
 }
@@ -331,7 +341,7 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
     try // We write using Ogre::DataStream which throws exceptions
     {
         // smart pointer - closes stream automatically
-        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_REPO);
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_THUMBNAILS);
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -399,11 +409,20 @@ void RepositorySelector::Draw()
 
     ImGui::Begin(_LC("RepositorySelector", "Rigs of Rods Repository"), &keep_open, window_flags);
 
-    if (m_resource_view && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(16, 16)))
+    if (m_resourceview_item_arraypos != RESOURCEITEMARRAYPOS_INVALID
+        && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(16, 16)))
     {
-        m_resource_view = false;
+        if (m_gallery_mode_attachment_id != -1)
+        {
+            m_gallery_mode_attachment_id = -1;
+        }
+        else
+        {
+            m_resourceview_item_arraypos = RESOURCEITEMARRAYPOS_INVALID;
+        }
     }
-    else if (!m_resource_view && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
+    else if (m_resourceview_item_arraypos == RESOURCEITEMARRAYPOS_INVALID
+        && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
     {
         this->Refresh();
     }
@@ -412,7 +431,7 @@ void RepositorySelector::Draw()
     if (m_draw)
     {
         // Deactivate in resource view
-        if (m_resource_view)
+        if (m_resourceview_item_arraypos != RESOURCEITEMARRAYPOS_INVALID)
         {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -479,6 +498,7 @@ void RepositorySelector::Draw()
 
         // Search box
         ImGui::SameLine();
+        float searchbox_x = ImGui::GetCursorPosX();
         ImGui::SetNextItemWidth(170);
         float search_pos = ImGui::GetCursorPosX();
         ImGui::InputText("##Search", m_search_input.GetBuffer(), m_search_input.GetCapacity());
@@ -551,7 +571,7 @@ void RepositorySelector::Draw()
             ImGui::TextDisabled("%s", _LC("RepositorySelector", "Search Title, Author"));
         }
 
-        if (m_resource_view)
+        if (m_resourceview_item_arraypos != RESOURCEITEMARRAYPOS_INVALID)
         {
             ImGui::PopItemFlag();
             ImGui::PopStyleVar();
@@ -561,224 +581,13 @@ void RepositorySelector::Draw()
                 - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
                 - ImGui::GetStyle().ItemSpacing.y);
 
-        if (m_resource_view)
+        if (m_resourceview_item_arraypos != RESOURCEITEMARRAYPOS_INVALID)
         {
-            // Scroll area
-            ImGui::BeginChild("resource-view-scrolling", ImVec2(0.f, table_height), false);
-
-            float text_pos = 140.f;
-
-            ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Title:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.title.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.resource_id);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Category:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-
-            for (int i = 0; i < m_data.categories.size(); i++)
-            {
-                if (m_data.categories[i].resource_category_id == m_selected_item.resource_category_id)
-                {
-                    ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.categories[i].title.c_str());
-                }
-            }
-
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Description:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.tag_line.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Downloads:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.download_count);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.view_count);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%f", m_selected_item.rating_avg);
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating Count:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.rating_count);
-            ImGui::Separator();
-
-            ImGui::TextDisabled(_LC("RepositorySelector", "Date Added:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            time_t a = (const time_t)m_selected_item.resource_date;
-            ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&a)));
-            ImGui::Separator();
-
-            ImGui::TextDisabled(_LC("RepositorySelector", "Last Update:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            time_t b = (const time_t)m_selected_item.last_update;
-            ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&b)));
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Version:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.version.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Authors:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.authors.c_str());
-            ImGui::Separator();
-
-            ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(text_pos);
-            ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
-            ImGui::Separator();
-
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-            ImGui::Text("%s", _LC("RepositorySelector", "Files:"));
-
-            // Spinner
-            if (m_data.files.empty() && m_repofiles_msg.empty())
-            {
-                ImGui::SameLine();
-                float spinner_size = 7.f;
-                LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-            }
-
-            ImGui::Separator();
-
-            if (!m_repofiles_msg.empty())
-            {
-                ImGui::TextDisabled("%s", m_repofiles_msg.c_str());
-            }
-
-            // Check for duplicate files, remove the outdated one (lower id)
-            std::sort(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.id > b.id; });
-            auto last = std::unique(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.filename == b.filename; });
-            m_data.files.erase(last, m_data.files.end());
-
-            for (int i = 0; i < m_data.files.size(); i++)
-            {
-                ImGui::PushID(i);
-
-                ImGui::AlignTextToFramePadding();
-                float pos_y = ImGui::GetCursorPosY();
-
-                ImGui::TextDisabled("%s", _LC("RepositorySelector", "Filename:"));
-                ImGui::SameLine();
-                ImGui::SetCursorPosX(text_pos);
-
-                // File
-                std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
-                std::string file = PathCombine(path, m_data.files[i].filename);
-
-                // Get created time
-                int file_time = 0;
-                if (FileExists(file))
-                {
-                    file_time = GetFileLastModifiedTime(file);
-                }
-
-                ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
-
-                if (FileExists(file) && ImGui::IsItemHovered())
-                {
-                    ImGui::BeginTooltip();
-
-                    time_t c = (const time_t)file_time;
-                    ImGui::TextDisabled("%s %s", "Installed on", asctime(gmtime (&c)));
-
-                    ImGui::EndTooltip();
-                }
-
-                // File size
-                ImGui::SameLine();
-
-                int size = m_data.files[i].size / 1024;
-                ImGui::TextDisabled("(%d %s)", size, "KB");
-
-                // File exists show indicator
-                if (FileExists(file))
-                {
-                    ImGui::SameLine();
-                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
-                    ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16));
-                }
-
-                // Buttons
-                ImGui::SameLine();
-                ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 220);
-                ImGui::SetCursorPosY(pos_y);
-
-                std::string btn_label;
-                if (FileExists(file) && m_selected_item.last_update > file_time)
-                {
-                    btn_label = fmt::format(_LC("RepositorySelector", "Update"));
-                }
-                else if (FileExists(file))
-                {
-                    btn_label = fmt::format(_LC("RepositorySelector", "Reinstall"));
-                }
-                else
-                {
-                    btn_label = fmt::format(_LC("RepositorySelector", "Install"));
-                }
-
-                if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
-                {
-                    this->Download(m_selected_item.resource_id, m_data.files[i].filename, m_data.files[i].id);
-                }
-
-                ImGui::SameLine();
-
-                if (FileExists(file) && ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
-                {
-                    Ogre::ArchiveManager::getSingleton().unload(file);
-                    Ogre::FileSystemLayer::removeFile(file);
-                    m_update_cache = true;
-                }
-                else if (!FileExists(file))
-                {
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-                    ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
-                    ImGui::PopItemFlag();
-                    ImGui::PopStyleVar();
-                }
-
-                ImGui::Separator();
-
-                ImGui::PopID();
-            }
-            ImGui::EndChild();
+            this->DrawResourceView(searchbox_x);
         }
         else
         {
+
             float col0_width = 0.40f * ImGui::GetWindowContentRegionWidth();
             float col1_width = 0.15f * ImGui::GetWindowContentRegionWidth();
             float col2_width = 0.20f * ImGui::GetWindowContentRegionWidth();
@@ -837,17 +646,17 @@ void RepositorySelector::Draw()
                 {
                     // Simple search filter: convert both title/author and input to lowercase, if input not found in the title/author continue
                     std::string title = m_data.items[i].title;
-                    for(auto& c : title)
+                    for (auto& c : title)
                     {
                         c = tolower(c);
                     }
                     std::string author = m_data.items[i].authors;
-                    for(auto& c : author)
+                    for (auto& c : author)
                     {
                         c = tolower(c);
                     }
                     std::string search = m_search_input.GetBuffer();
-                    for(auto& c : search)
+                    for (auto& c : search)
                     {
                         c = tolower(c);
                     }
@@ -862,7 +671,11 @@ void RepositorySelector::Draw()
                     {
                         // Thumbnail
                         ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-                        this->DrawThumbnail(i);
+                        const ImVec2 thumb_size = ImVec2(ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x, 96);
+                        const float spinner_size = ImGui::GetColumnWidth() / 4;
+                        const float spinner_cursor_x(((ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x) / 2.f) - spinner_size);
+                        const float spinner_cursor_y(ImGui::GetCursorPosY() + 5 * ImGui::GetStyle().ItemSpacing.y);
+                        this->DrawThumbnail(i, thumb_size, spinner_size, ImVec2(spinner_cursor_x, spinner_cursor_y));
 
                         float width = (ImGui::GetColumnWidth() + 90);
                         ImGui::NextColumn();
@@ -876,11 +689,10 @@ void RepositorySelector::Draw()
                         float orig_cursor_y = ImGui::GetCursorPosY();
                         std::string item_id = "##" + std::to_string(i);
 
-                        if (ImGui::Selectable(item_id.c_str(), m_selected_item.resource_id == m_data.items[i].resource_id, 0, ImVec2(0, 100)))
+                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, 0, ImVec2(0, 100)))
                         {
-                            m_selected_item = m_data.items[i];
-                            this->OpenResource(m_selected_item.resource_id);
-                            m_resource_view = true;
+                            m_resourceview_item_arraypos = i;
+                            this->OpenResource(m_data.items[i].resource_id);
                         }
 
                         ImGui::SetCursorPosY(orig_cursor_y);
@@ -922,7 +734,7 @@ void RepositorySelector::Draw()
                         ImGui::SameLine();
                         ImGui::SetCursorPosX(width);
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
-                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&rawtime)));
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
                         ImGui::TextDisabled("%s:", _LC("RepositorySelector", "Downloads"));
                         ImGui::SameLine();
@@ -950,7 +762,7 @@ void RepositorySelector::Draw()
                         }
 
                         // Skip to new line if at least 50% of the box can't fit on current line.
-                        if (orig_cursor_x > ImGui::GetWindowContentRegionMax().x - (box_width * 0.5)) 
+                        if (orig_cursor_x > ImGui::GetWindowContentRegionMax().x - (box_width * 0.5))
                         {
                             // Unless this is the 1st line... not much to do with such narrow window.
                             if (num_drawn_items != 0)
@@ -969,11 +781,10 @@ void RepositorySelector::Draw()
                         float orig_cursor_y = ImGui::GetCursorPosY();
                         std::string item_id = "##" + std::to_string(i);
 
-                        if (ImGui::Selectable(item_id.c_str(), m_selected_item.resource_id == m_data.items[i].resource_id, 0, ImVec2(box_width - ImGui::GetStyle().ItemSpacing.x, 100)))
+                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, 0, ImVec2(box_width - ImGui::GetStyle().ItemSpacing.x, 100)))
                         {
-                            m_selected_item = m_data.items[i];
-                            this->OpenResource(m_selected_item.resource_id);
-                            m_resource_view = true;
+                            m_resourceview_item_arraypos = i;
+                            this->OpenResource(m_data.items[i].resource_id);
                         }
 
                         // Add a light background
@@ -985,7 +796,15 @@ void RepositorySelector::Draw()
                         ImGui::PopStyleColor(3);
 
                         // Thumbnail
-                        this->DrawThumbnail(i);
+                        const ImVec2 thumbnail_size(76, 86);
+                        const float spinner_size = 25;
+                        const float spinner_cursor_x(ImGui::GetCursorPosX() + 2 * ImGui::GetStyle().ItemSpacing.x);
+                        const float spinner_cursor_y(ImGui::GetCursorPosY() + 20);
+                        this->DrawThumbnail(i, thumbnail_size, spinner_size, ImVec2(spinner_cursor_x, spinner_cursor_y));
+                        if (!m_data.items[i].preview_tex)
+                        {
+                            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 76 - (35 + spinner_size)); //adjustment after spinner
+                        }
 
                         // Rating
                         float pos_y;
@@ -993,7 +812,7 @@ void RepositorySelector::Draw()
                         {
                             pos_y = ImGui::GetCursorPosY();
                             ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(11, 11), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
-                            if ( i < 5) { ImGui::SameLine(); }
+                            if (i < 5) { ImGui::SameLine(); }
                         }
 
                         int rating = round(m_data.items[i].rating_avg);
@@ -1027,7 +846,7 @@ void RepositorySelector::Draw()
 
                         ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
-                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&rawtime)));
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
                         ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
                         ImGui::TextColored(theme.value_blue_text_color, "%s %d %s", _LC("RepositorySelector", "Downloaded"), m_data.items[i].download_count, _LC("RepositorySelector", "times"));
@@ -1049,28 +868,27 @@ void RepositorySelector::Draw()
                         // Wrap a Selectable around the whole column
                         std::string item_id = "##" + std::to_string(i);
 
-                        if (ImGui::Selectable(item_id.c_str(), m_selected_item.resource_id == m_data.items[i].resource_id, ImGuiSelectableFlags_SpanAllColumns))
+                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, ImGuiSelectableFlags_SpanAllColumns))
                         {
-                            m_selected_item = m_data.items[i];
-                            this->OpenResource(m_selected_item.resource_id);
-                            m_resource_view = true;
+                            m_resourceview_item_arraypos = i;
+                            this->OpenResource(m_data.items[i].resource_id);
                         }
 
                         ImGui::PopStyleColor(3);
 
                         // Draw columns
                         ImGui::SameLine();
-                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 2*ImGui::GetStyle().ItemSpacing.x);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 2 * ImGui::GetStyle().ItemSpacing.x);
                         ImGui::Text("%s", m_data.items[i].title.c_str());
 
                         ImGui::NextColumn();
 
-                        ImGui::TextColored(theme.value_blue_text_color, "%s",  m_data.items[i].version.c_str());
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.items[i].version.c_str());
 
                         ImGui::NextColumn();
 
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
-                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&rawtime)));
+                        ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
                         ImGui::NextColumn();
 
@@ -1151,6 +969,315 @@ void RepositorySelector::Draw()
     }
 }
 
+void RepositorySelector::DrawResourceView(float searchbox_x)
+{
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    Ogre::TexturePtr tex2 = FetchIcon("accept.png");
+    Ogre::TexturePtr tex3 = FetchIcon("star.png");
+    Ogre::TexturePtr tex4 = FetchIcon("arrow_left.png");
+    ResourceItem& selected_item = m_data.items[m_resourceview_item_arraypos];
+
+    if (m_gallery_mode_attachment_id != -1)
+    {
+        // Gallery mode - just draw the pic and be done with it.
+        auto itor = m_repo_attachments.find(m_gallery_mode_attachment_id);
+        if (itor != m_repo_attachments.end())
+        {
+            Ogre::TexturePtr& tex = itor->second;
+            ImVec2 img_size(tex->getWidth(), tex->getHeight());
+            float scale_ratio = 1.f;
+            // Shrink to fit
+            if (img_size.x > ImGui::GetContentRegionAvail().x)
+            {
+                scale_ratio = ImGui::GetContentRegionAvail().x / img_size.x;
+                if ((img_size.y * scale_ratio) > ImGui::GetContentRegionAvail().y)
+                {
+                    scale_ratio = ImGui::GetContentRegionAvail().y / img_size.y;
+                }
+            }
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), img_size * scale_ratio);
+        }
+        else
+        {
+            m_gallery_mode_attachment_id = -1; // Image not found - close gallery mode.
+        }
+    }
+
+    const float INFOBAR_HEIGHT = 100.f;
+    const float INFOBAR_SPACING_LEFTSIDE = 2.f;
+
+    // --- top info bar, left side ---
+
+    // Black background
+    ImVec2 leftmost_cursor = ImGui::GetCursorPos();
+    float left_pane_width = searchbox_x - (leftmost_cursor.x + ImGui::GetStyle().ItemSpacing.x);
+    ImVec2 backdrop_size = ImVec2(left_pane_width, INFOBAR_HEIGHT + ImGui::GetStyle().WindowPadding.y * 2);
+    ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + backdrop_size, ImColor(0.f, 0.f, 0.f, 0.5f), /*rounding:*/5.f);
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().WindowPadding);
+
+    // The thumbnail again (like on web repo)
+    ImVec2 thumbnail_cursor = ImGui::GetCursorPos();
+    const float spinner_size = INFOBAR_HEIGHT / 4;
+    const ImVec2 spinner_cursor = thumbnail_cursor + ImVec2(INFOBAR_HEIGHT/5, INFOBAR_HEIGHT/5);
+    this->DrawThumbnail(m_resourceview_item_arraypos, ImVec2(INFOBAR_HEIGHT, INFOBAR_HEIGHT), spinner_size, spinner_cursor);
+
+    // Title + version (like on web repo)
+    ImGui::SameLine();
+    ImVec2 newline_cursor = thumbnail_cursor + ImVec2(INFOBAR_HEIGHT + ImGui::GetStyle().WindowPadding.x*2, 0.f);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextColored(RESOURCE_TITLE_COLOR, "%s", m_data.items[m_resourceview_item_arraypos].title.c_str());
+    ImGui::SameLine();
+
+    // Far right - "view in browser" hyperlink.
+    std::string browser_text = _LC("RepositorySelector", "View in web browser");
+    ImGui::SetCursorPosX(searchbox_x - (ImGui::CalcTextSize(browser_text.c_str()).x + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().WindowPadding.x));
+    ImHyperlink(selected_item.view_url, browser_text);
+
+    // One line below - the tagline
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::Text("%s", selected_item.tag_line.c_str()); // Also add tagline
+
+    // One line below (bigger gap) - the version and num downloads
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE * 4);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Version:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", selected_item.version.c_str());
+    ImGui::SameLine();
+    ImGui::TextDisabled("(%s", _LC("RepositorySelector", "Downloads:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", selected_item.download_count);
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x); // Don't put gap between the blue value and gray parentheses
+    ImGui::TextDisabled(")");
+
+    // One line below - the rating and rating count
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%.1f", selected_item.rating_avg);
+    ImGui::SameLine();
+    // (Rating stars)
+    ImVec2 stars_cursor = ImGui::GetCursorPos();
+    int rating = round(selected_item.rating_avg);
+    for (int i = 1; i <= 5; i++)
+    {
+        ImGui::SetCursorPosX(stars_cursor.x + 16 * (i-1));
+        ImVec4 tint_color = (i <= rating) ? ImVec4(1, 1, 1, 1) : ImVec4(1.f, 1.f, 1.f, 0.2f);
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), tint_color);
+        ImGui::SameLine();
+    }
+    ImGui::SetCursorPosX(stars_cursor.x + 16 * 5 + ImGui::GetStyle().ItemSpacing.x);
+    ImGui::TextDisabled("(%s", _LC("RepositorySelector", "Rating Count:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", selected_item.rating_count);
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x); // Don't put gap between the blue value and gray parentheses
+    ImGui::TextDisabled(")");
+
+    // One line below - authors
+    newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
+    ImGui::SetCursorPos(newline_cursor);
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Authors:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", selected_item.authors.c_str());
+
+    // --- Right column ---
+
+    ImGui::SetCursorPos(ImVec2(searchbox_x, leftmost_cursor.y));
+    this->DrawResourceViewRightColumn();
+
+    // --- content area ---
+    ImGui::SetCursorPos(leftmost_cursor + ImVec2(0.f, backdrop_size.y + ImGui::GetStyle().ItemSpacing.y));
+    const float table_height = ImGui::GetWindowHeight()
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing() + backdrop_size.y + ImGui::GetStyle().ItemSpacing.y));
+
+    // Scroll area
+    // Make child windows use padding - only works when border is visible, so set it to transparent
+    // see https://github.com/ocornut/imgui/issues/462
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::BeginChild("resource-view-scrolling", ImVec2(left_pane_width, table_height), /*border:*/true);
+    ImGui::PopStyleColor();
+
+    if (!m_repofiles_msg.empty())
+    {
+        // Downloading failed
+        ImGui::TextDisabled("%s", m_repofiles_msg.c_str());
+    }
+    else if (m_data.files.empty())
+    {
+        // Downloading in progress - show spinner (centered)
+        float spinner_radius = 25.f;
+        ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(ImGui::GetContentRegionAvailWidth() / 2 - spinner_radius, 200.f));
+        LoadingIndicatorCircle("spinner", spinner_radius, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+    }
+    else
+    {
+        // Files + description downloaded OK
+        this->DrawResourceDescriptionBBCode(selected_item);
+    }
+
+    ImGui::EndChild();
+}
+
+void RepositorySelector::DrawResourceViewRightColumn()
+{
+    if (m_data.files.size() == 0)
+    {
+        return; // Nothing to draw yet
+    }
+
+    ResourceItem& selected_item = m_data.items[m_resourceview_item_arraypos];
+
+    const float table_height = ImGui::GetWindowHeight()
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+            - ImGui::GetStyle().ItemSpacing.y);
+
+    ImVec2 rightcol_size = ImVec2(ImGui::GetContentRegionAvailWidth(), table_height);
+    // Make child windows use padding - only works when border is visible, so set it to transparent
+    // see https://github.com/ocornut/imgui/issues/462
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::BeginChild("resource-view-files", rightcol_size, /*border:*/true);
+    ImGui::PopStyleColor();
+
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    Ogre::TexturePtr tex2 = FetchIcon("accept.png");
+    ImGui::Text("%s", _LC("RepositorySelector", "Files:"));
+
+    // Check for duplicate files, remove the outdated one (lower id)
+    std::sort(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.id > b.id; });
+    auto last = std::unique(m_data.files.begin(), m_data.files.end(), [](ResourceFiles a, ResourceFiles b) { return a.filename == b.filename; });
+    m_data.files.erase(last, m_data.files.end());
+
+    for (int i = 0; i < m_data.files.size(); i++)
+    {
+        ImGui::PushID(i);
+
+        ImGui::AlignTextToFramePadding();
+
+        // File
+        std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
+        std::string file = PathCombine(path, m_data.files[i].filename);
+
+        // Get created time
+        int file_time = 0;
+        if (FileExists(file))
+        {
+            file_time = GetFileLastModifiedTime(file);
+        }
+
+        // Filename and size on separate line
+        ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
+
+        if (FileExists(file) && ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+
+            time_t c = (const time_t)file_time;
+            ImGui::TextDisabled("%s %s", "Installed on", asctime(gmtime(&c)));
+
+            ImGui::EndTooltip();
+        }
+
+        // File size
+        ImGui::SameLine();
+
+        int size = m_data.files[i].size / 1024;
+        ImGui::TextDisabled("(%d %s)", size, "KB");
+
+        // File exists show indicator
+        if (FileExists(file))
+        {
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16));
+        }
+
+        // Buttons (new line)
+
+        std::string btn_label;
+        ImVec4 btn_color = ImGui::GetStyle().Colors[ImGuiCol_Button];
+        ImVec4 text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        if (FileExists(file) && selected_item.last_update > file_time)
+        {
+            btn_label = fmt::format(_LC("RepositorySelector", "Update"));
+        }
+        else if (FileExists(file))
+        {
+            btn_label = fmt::format(_LC("RepositorySelector", "Reinstall"));
+        }
+        else
+        {
+            btn_label = fmt::format(_LC("RepositorySelector", "Install"));
+            btn_color = RESOURCE_INSTALL_BTN_COLOR;
+            text_color = ImVec4(0.1, 0.1, 0.1, 1.0);
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_Button, btn_color);
+        ImGui::PushStyleColor(ImGuiCol_Text, text_color);
+        if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
+        {
+            this->Download(selected_item.resource_id, m_data.files[i].filename, m_data.files[i].id);
+        }
+        ImGui::PopStyleColor(2); // Button, Text
+
+        if (FileExists(file))
+        {
+            ImGui::SameLine();
+            if (ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
+            {
+                Ogre::ArchiveManager::getSingleton().unload(file);
+                Ogre::FileSystemLayer::removeFile(file);
+                m_update_cache = true;
+            }
+        }
+        else
+        {
+            ImGui::SameLine();
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+
+
+        ImGui::PopID(); // i
+    }
+
+    ImGui::Separator();
+    ImGui::NewLine();
+
+    // Right side: The detail text
+    ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
+
+    // Right side, next line
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", selected_item.resource_id);
+
+    // Right side, next line
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
+    ImGui::SameLine();
+    ImGui::TextColored(theme.value_blue_text_color, "%d", selected_item.view_count);
+
+    // Right side, next line
+    ImGui::TextDisabled(_LC("RepositorySelector", "Date Added:"));
+    ImGui::SameLine();
+    time_t a = (const time_t)selected_item.resource_date;
+    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&a)));
+
+    // Right side, next line
+    ImGui::TextDisabled(_LC("RepositorySelector", "Last Update:"));
+    ImGui::SameLine();
+    time_t b = (const time_t)selected_item.last_update;
+    ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&b)));
+
+    ImGui::EndChild();
+}
+
 void RepositorySelector::Refresh()
 {
 #if defined(USE_CURL)
@@ -1184,8 +1311,9 @@ void RepositorySelector::UpdateResources(ResourcesCollection* data)
     }
 }
 
-void RepositorySelector::UpdateFiles(ResourcesCollection* data)
+void RepositorySelector::UpdateResourceFilesAndDescription(ResourcesCollection* data)
 {
+    // Assign data to currently viewed resource item.
     m_data.files = data->files;
 
     if (m_data.files.empty())
@@ -1195,6 +1323,99 @@ void RepositorySelector::UpdateFiles(ResourcesCollection* data)
     else
     {
         m_repofiles_msg = "";
+    }
+
+    // Fill in item's description (stripped from resource list for bandwidth reasons).
+    for (auto& item : m_data.items)
+    {
+        if (item.resource_id == data->items[0].resource_id)
+        {
+            item.description = data->items[0].description;
+            break;
+        }
+    }
+
+    // Finally, initiate download of attachments (images included in description).
+    // To do that we must locate [ATTACH] BBCode tags in the description.
+    this->DownloadBBCodeAttachmentsRecursive(*data->items[0].description);
+}
+
+bool DecodeBBAttachment(bbcpp::BBNodePtr node, int& attachment_id, std::string& attachment_ext)
+{
+    const auto element = node->downCast<BBElementPtr>();
+    if (!element 
+        || element->getElementType() == bbcpp::BBElement::CLOSING 
+        || element->getChildren().size() == 0)
+    {
+        return false;
+    }
+    const auto textnode = element->getChildren().front()->downCast<BBTextPtr>();
+    if (!textnode)
+    {
+        return false;
+    }
+
+    try // `std::stoi()` throws exception on bad input
+    {
+        attachment_id = std::stoi(textnode->getText());
+
+        // Our XenForo always stores original filename in 'alt' attribute.
+        std::string basename; // dummy
+        Ogre::StringUtil::splitBaseFilename(element->findParameter("alt"), basename, attachment_ext);
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+void RepositorySelector::DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent)
+{
+    for (const auto node : parent.getChildren())
+    {
+        if (node->getNodeType() == BBNode::NodeType::ELEMENT
+            && node->getNodeName() == "ATTACH")
+        {
+            int attachment_id = 0;
+            std::string attachment_ext = "";
+            if (DecodeBBAttachment(node, /*[out]*/ attachment_id, /*[out]*/ attachment_ext))
+            {
+                this->DownloadAttachment(attachment_id, attachment_ext);
+            }
+            // Don't log any error - the node may not be applicable (end tag)
+            // and parsing will also fail upon render, so the image won't be missed.
+        }
+        this->DownloadBBCodeAttachmentsRecursive(*node);
+    }
+}
+
+void RepositorySelector::DownloadAttachment(int attachment_id, std::string const& attachment_ext)
+{
+    // Check if file is already downloaded
+    const std::string filename = fmt::format("{}.{}", attachment_id, attachment_ext);
+    const std::string filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
+    if (FileExists(filepath))
+    {
+        // Load image to memory
+        Ogre::TexturePtr tex;
+        try // Check if loads correctly (not null, not invalid etc...)
+        {
+            tex = Ogre::TextureManager::getSingleton().load(filename, RGN_REPO_ATTACHMENTS);
+        }
+        catch (...) // Doesn't load, fallback
+        {
+            tex = m_fallback_thumbnail;
+        }
+        m_repo_attachments[attachment_id] = tex;
+    }
+    else
+    {
+        // Request the async download
+        RepoWorkQueueTicket ticket;
+        ticket.attachment_id = attachment_id;
+        ticket.attachment_ext = attachment_ext;
+        Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
     }
 }
 
@@ -1253,11 +1474,142 @@ void RepositorySelector::SetVisible(bool visible)
     }
 }
 
-// --------------------------------------------
-// Async thumbnail download via Ogre::WorkQueue
+// Internal helper used by `DrawResourceDescriptionBBCode()`
+// Adopted from 'bbcpp' library's utility code. See 'BBDocument.h'.
+class RoR::GUI::BBCodeDrawingContext
+{
+    // Because we simulate text effect with just color, we need rules.
+    bool m_italic_text = false;
+    bool m_bold_text = false; // Wins over italic
+    bool m_underline_text = false; // Wins over bold
+
+    void HandleBBText(const BBTextPtr& textnode)
+    {
+        ImVec4 color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        if (m_italic_text)
+        {
+            color = ImVec4(0.205f, 0.789f, 0.820f, 1.f);
+        }
+        if (m_bold_text) // wins over italic
+        {
+            color = ImVec4(0.860f, 0.740f, 0.0602f, 1.f);
+        }
+        if (m_underline_text) // wins over bold
+        {
+            color = ImVec4(0.00f, 0.930f, 0.480f, 1.f);
+        }
+        std::string text = textnode->getText();
+        if (text != "")
+        {
+            m_feeder.AddMultiline(ImColor(color), -1, text.c_str(), text.c_str() + text.length());
+        }
+    }
+
+    bool HandleBBElement(const BBElementPtr& element)
+    {
+        bool recurse_children = true;
+        if (element->getNodeName() == "B")
+        {
+            m_bold_text = element->getElementType() != BBElement::CLOSING;
+        }
+        else if (element->getNodeName() == "I")
+        {
+            m_italic_text = element->getElementType() != BBElement::CLOSING;
+        }
+        else if (element->getNodeName() == "U")
+        {
+            m_underline_text = element->getElementType() != BBElement::CLOSING;
+        }
+        else if (element->getNodeName() == "ATTACH")
+        {
+            recurse_children = false; // the only child is the image ID text
+
+            int attachment_id = 0;
+            std::string attachment_ext = "";
+            if (DecodeBBAttachment(element, /*[out]*/ attachment_id, /*[out]*/ attachment_ext))
+            {
+                App::GetGuiManager()->RepositorySelector.DrawAttachment(this, attachment_id);
+            }
+            else
+            {
+                ImGui::TextColored(ImVec4(1, 0, 0, 1), "<bad image>");
+            }
+        }
+        else if (element->getNodeName() == "*")
+        {
+            // We can't just call `ImGui::BulletText()` in the middle of using the feeder.
+            // Adapted from `ImGui::BuletTextV()` ...
+            ImU32 text_col = ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]);
+            ImVec2 center = m_feeder.cursor + ImVec2(ImGui::GetStyle().FramePadding.x + ImGui::GetFontSize() * 0.5f, ImGui::GetTextLineHeight() * 0.5f);
+            ImGui::RenderBullet(ImGui::GetWindowDrawList(), center, text_col);
+            m_feeder.cursor += ImVec2(ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetFontSize(), 0.f);
+        }
+        return recurse_children;
+
+        /* for reference:
+                if (element->getElementType() == BBElement::PARAMETER)
+                {
+                    std::stringstream ss;
+                    ss << element->getParameters();
+                    ImGui::TextDisabled(ss.str().c_str());
+                }
+        */
+    }
+
+public:
+    BBCodeDrawingContext(ImTextFeeder& feeder) : m_feeder(feeder) {}
+    ImTextFeeder& m_feeder;
+    void DrawBBCodeChildrenRecursive(const BBNode& parent)
+    {
+        for (const auto node : parent.getChildren())
+        {
+            switch (node->getNodeType())
+            {
+            default:
+                this->DrawBBCodeChildrenRecursive(*node);
+                break;
+
+            case BBNode::NodeType::ELEMENT:
+                if (this->HandleBBElement(node->downCast<BBElementPtr>()))
+                {
+                    this->DrawBBCodeChildrenRecursive(*node);
+                }
+                break;
+
+            case BBNode::NodeType::TEXT:
+                this->HandleBBText(node->downCast<BBTextPtr>());
+                break;
+            }
+        }
+    }
+
+};
+
+void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
+{
+    // Decomposes BBCode into DearIMGUI function calls.
+    // ------------------------------------------------
+
+    if (!item.description)
+        return; // Not loaded yet.
+
+    ImVec2 text_pos = ImGui::GetCursorScreenPos();
+    ImTextFeeder feeder(ImGui::GetWindowDrawList(), text_pos);
+    BBCodeDrawingContext bb_ctx(feeder);
+    bb_ctx.DrawBBCodeChildrenRecursive(*item.description);
+    feeder.NextLine(); // Account correctly for last line height - there may be images on it.
+
+    // From `ImGui::TextEx()` ...
+    ImRect bb(text_pos, text_pos + feeder.size);
+    ImGui::ItemSize(feeder.size);
+    ImGui::ItemAdd(bb, 0);
+}
+
+// -------------------------------------------------------
+// Async thumbnail/attachment download via Ogre::WorkQueue
 // see https://wiki.ogre3d.org/How+to+use+the+WorkQueue
 
-void RepositorySelector::DrawThumbnail(int resource_item_idx)
+void RepositorySelector::DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor)
 {
     // Runs on main thread when drawing GUI
     // Displays a thumbnail image if available, or shows a spinner and initiates async download.
@@ -1265,61 +1617,93 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    ImVec2 image_size;
-    if (m_view_mode == "List")
+    if (!m_data.items[resource_arraypos].preview_tex)
     {
-        image_size = ImVec2(ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x, 96);
-    }
-    else
-    {
-        image_size = ImVec2(76, 86);
-    }
-
-    if (!m_data.items[resource_item_idx].preview_tex)
-    {
-        if (m_data.items[resource_item_idx].icon_url == "")
+        if (m_data.items[resource_arraypos].icon_url == "")
         {
             // No thumbnail defined - use a placeholder logo.
-            m_data.items[resource_item_idx].preview_tex = m_fallback_thumbnail;
+            m_data.items[resource_arraypos].preview_tex = m_fallback_thumbnail;
         }
         else
         {
             // Thumbnail defined - see if we want to initiate download.
             if (ImGui::IsRectVisible(image_size)
-                && !m_data.items[resource_item_idx].thumbnail_dl_queued)
+                && !m_data.items[resource_arraypos].thumbnail_dl_queued)
             {
                 // Image is in visible screen area and not yet downloading.
-                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(resource_item_idx));
-                m_data.items[resource_item_idx].thumbnail_dl_queued = true;
+                RepoWorkQueueTicket ticket;
+                ticket.thumb_resourceitem_idx = resource_arraypos;
+                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
+                m_data.items[resource_arraypos].thumbnail_dl_queued = true;
             }
         }
     }
 
-    if (m_data.items[resource_item_idx].preview_tex)
+    if (m_data.items[resource_arraypos].preview_tex)
     {
         // Thumbnail downloaded or replaced by placeholder - draw it.
         ImGui::Image(
-            reinterpret_cast<ImTextureID>(m_data.items[resource_item_idx].preview_tex->getHandle()),
+            reinterpret_cast<ImTextureID>(m_data.items[resource_arraypos].preview_tex->getHandle()),
             image_size);
     }
     else
     {
         // Thumbnail is downloading - draw spinner.
-        if (m_view_mode == "List")
+        ImGui::SetCursorPos(spinner_cursor);
+        LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+    }
+}
+
+void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attachment_id)
+{
+    // Runs on main thread when drawing GUI
+    // Displays a thumbnail image if already downloaded, or shows a spinner if not yet.
+    // Note that downloading attachments is initiated in `UpdateResourceFilesAndDescription()`
+    // -----------------------------------------------------------------------------------------
+
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+    auto itor = m_repo_attachments.find(attachment_id);
+    if (itor != m_repo_attachments.end())
+    {
+        // Attachment image is already downloaded - draw it.
+        Ogre::TexturePtr& tex = itor->second;
+        // Scale down and maintain ratio.
+        float img_scale = ATTACH_MAX_WIDTH / tex->getWidth();
+        if (tex->getHeight() * img_scale > ATTACH_MAX_HEIGHT)
         {
-            float spinner_size = ImGui::GetColumnWidth() / 4;
-            ImGui::SetCursorPosX(((ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x) / 2.f) - spinner_size);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5*ImGui::GetStyle().ItemSpacing.y);
-            LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+            img_scale = ATTACH_MAX_HEIGHT / tex->getHeight();
         }
-        else
+        ImVec2 img_size(tex->getWidth() * img_scale, tex->getHeight() * img_scale);
+        const ImVec2 img_min = context->m_feeder.cursor;
+        const ImVec2 img_max = context->m_feeder.cursor + img_size;
+        // Draw directly via ImGui Drawlist
+        context->m_feeder.drawlist->AddImage(
+            reinterpret_cast<ImTextureID>(tex->getHandle()), img_min, img_max);
+        // Update feeder to account the image
+        context->m_feeder.cursor += ImVec2(img_size.x + ImGui::GetStyle().ItemSpacing.x, 0.f);
+        context->m_feeder.line_height = std::max(context->m_feeder.line_height, img_size.y + ImGui::GetStyle().ItemSpacing.y);
+        // Handle mouse hover and click
+        if (ImGui::GetMousePos().x > img_min.x && ImGui::GetMousePos().y > img_min.y
+            && ImGui::GetMousePos().x < img_max.x && ImGui::GetMousePos().y < img_max.y)
         {
-            float spinner_size = 25;
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 2*ImGui::GetStyle().ItemSpacing.x);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-            LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 76 - (35 + spinner_size));
+            ImGui::SetMouseCursor(7);//Hand cursor
+            if (ImGui::IsMouseClicked(0))
+            {
+                m_gallery_mode_attachment_id = attachment_id;
+            }
         }
+    }
+    else
+    {
+        // Attachment image is not downloaded yet - draw spinner
+        ImVec2 backup_screenpos = ImGui::GetCursorScreenPos();
+        ImGui::SetCursorScreenPos(context->m_feeder.cursor + ATTACH_SPINNER_PADDING);
+        LoadingIndicatorCircle("spinner", ATTACH_SPINNER_RADIUS, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+        ImGui::SetCursorScreenPos(backup_screenpos);
+        // Update feeder to account the spinner
+        context->m_feeder.cursor += ImVec2(ATTACH_SPINNER_RADIUS*2.f + ATTACH_SPINNER_PADDING.x*2.f + ImGui::GetStyle().ItemSpacing.x, 0.f);
+        context->m_feeder.line_height = std::max(context->m_feeder.line_height, ATTACH_SPINNER_RADIUS*2.f + ATTACH_SPINNER_PADDING.y * 2.f + ImGui::GetStyle().ItemSpacing.y);
     }
 }
 
@@ -1329,24 +1713,45 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
     // Purpose: to fetch one thumbnail image using CURL.
     // -----------------------------------------------------------------------
 
-    int item_idx = Ogre::any_cast<int>(req->getData());
-    std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
-    std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
+    std::string filename, filepath, rg_name, url;
+    if (ticket.thumb_resourceitem_idx != -1)
+    {
+        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+        rg_name = RGN_THUMBNAILS;
+        url = m_data.items[ticket.thumb_resourceitem_idx].icon_url;
+
+    }
+    else if (ticket.attachment_id != -1)
+    {
+        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
+        filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
+        rg_name = RGN_REPO_ATTACHMENTS;
+        url = "https://forum.rigsofrods.org/attachments/" + std::to_string(ticket.attachment_id);
+    }
+    else
+    {
+        // Invalid request, return empty response.
+        LOG("[RoR|RepoUI] Invalid (empty) download request - ignoring it");
+        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+    }
     long response_code = 0;
 
-    if (FileExists(file))
+    if (FileExists(filepath))
     {
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
     }
     else
     {
         try // We write using Ogre::DataStream which throws exceptions
         {
             // smart pointer - closes stream automatically
-            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, RGN_REPO);
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, rg_name);
 
-            curl_easy_setopt(curl_th, CURLOPT_URL, m_data.items[item_idx].icon_url.c_str());
+            curl_easy_setopt(curl_th, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl_th, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_easy_setopt(curl_th, CURLOPT_FOLLOWLOCATION, 1L); // Necessary for attachment images
 #ifdef _WIN32
             curl_easy_setopt(curl_th, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
@@ -1354,27 +1759,30 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
             curl_easy_setopt(curl_th, CURLOPT_WRITEDATA, datastream.get());
             CURLcode curl_result = curl_easy_perform(curl_th);
 
-            if (curl_result != CURLE_OK || response_code != 200)
+            // If CURL follows a redirect then it returns 0 for HTTP response code.
+            if (curl_result != CURLE_OK || (response_code != 0 && response_code != 200))
             {
                 Ogre::LogManager::getSingleton().stream()
-                    << "[RoR|Repository] Failed to download thumbnail;"
-                    << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+                    << "[RoR|Repository] Failed to download image;"
+                    << " URL: '" << url << "',"
+                    << " Error: '" << curl_easy_strerror(curl_result) << "',"
+                    << " HTTP status code: " << response_code;
 
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
             }
             else
             {
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(item_idx));
+                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(ticket));
             }
         }
         catch (Ogre::Exception& oex)
         {
             App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("Repository UI: cannot download thumbnail '{}' - {}",
-                    m_data.items[item_idx].icon_url, oex.getFullDescription()));
+                fmt::format("Repository UI: cannot download image '{}' - {}",
+                    url, oex.getDescription()));
 
-            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
         }
     }
 }
@@ -1385,20 +1793,48 @@ void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, co
     // It's safe to load the texture and modify GUI data.
     // --------------------------------------------------
 
-    int item_idx = Ogre::any_cast<int>(req->getData());
-    std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
-    std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
-
-    if (FileExists(file)) // We have an image
+    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
+    std::string filename, filepath, rg_name;
+    if (ticket.thumb_resourceitem_idx != -1)
     {
+        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+        rg_name = RGN_THUMBNAILS;
+    }
+    else if (ticket.attachment_id != -1)
+    {
+        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
+        filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
+        rg_name = RGN_REPO_ATTACHMENTS;
+    }
+    else
+    {
+        // Invalid request, nothing to do.
+        LOG("[RoR|RepoUI] Invalid (empty) download response - ignoring it");
+        return;
+    }
+
+    if (FileExists(filepath)) // We have an image
+    {
+        Ogre::TexturePtr tex;
         try // Check if loads correctly (not null, not invalid etc...)
         {
-            m_data.items[item_idx].preview_tex = FetchIcon(file.c_str());
-            m_data.items[item_idx].preview_tex->load();
+            tex = Ogre::TextureManager::getSingleton().load(filename, rg_name);
         }
         catch (...) // Doesn't load, fallback
         {
-            m_data.items[item_idx].preview_tex = m_fallback_thumbnail;
+            tex = m_fallback_thumbnail;
+        }
+
+        if (ticket.thumb_resourceitem_idx != -1)
+        {
+            // Thumbnail for resource item
+            m_data.items[ticket.thumb_resourceitem_idx].preview_tex = tex;
+        }
+        else if (ticket.attachment_id != -1)
+        {
+            // Attachment image to display in description
+            m_repo_attachments[ticket.attachment_id] = tex;
         }
     }
 }

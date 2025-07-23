@@ -21,6 +21,7 @@
 
 #include "Actor.h"
 #include "Utils.h"
+#include "PlatformUtils.h"
 
 #include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
@@ -31,6 +32,12 @@ static const int         TEXT_COLOR_MAX_LEN = 5000;
 
 // --------------------------------
 // ImTextFeeder
+
+RoR::ImTextFeeder::ImTextFeeder(ImDrawList* _drawlist, ImVec2 _origin)
+    : drawlist(_drawlist), origin(_origin), cursor(_origin)
+{
+    line_height = ImGui::GetTextLineHeight();
+}
 
 void RoR::ImTextFeeder::AddInline(ImU32 color, ImVec2 text_size, const char* text_begin, const char* text_end)
 {
@@ -116,10 +123,10 @@ void RoR::ImTextFeeder::AddMultiline(ImU32 color, float wrap_width, const char* 
 
 void RoR::ImTextFeeder::NextLine()
 {
-    const float height = ImGui::GetTextLineHeight();
-    this->size.y += height;
+    this->size.y += this->line_height;
     this->cursor.x = this->origin.x;
-    this->cursor.y += height;
+    this->cursor.y += this->line_height;
+    this->line_height = ImGui::GetTextLineHeight();
 }
 
 // --------------------------------
@@ -552,4 +559,39 @@ bool RoR::GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, ImVec2& out_s
         return true;
     }
     return false;
+}
+
+/// Looks and behaves (mouuse cursor) like a hypertext, but doesn't open URL.
+void RoR::ImDummyHyperlink(std::string caption)
+{
+    const ImVec4 LINKCOLOR = ImVec4(0.3, 0.5, 0.9, 1.0);
+    ImGui::PushStyleColor(0, LINKCOLOR);  //Text
+    ImVec2 cursorBefore = ImGui::GetCursorScreenPos();
+    ImGui::Text(caption.c_str());
+    ImVec2 textSize = ImGui::CalcTextSize(caption.c_str());
+    ImGui::GetWindowDrawList()->AddLine(
+        cursorBefore + ImVec2(0, textSize.y), cursorBefore + textSize,  //from-to
+        ImColor(LINKCOLOR));
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(7);//Hand cursor
+    }
+    ImGui::PopStyleColor(1); //Text
+}
+
+/// Full-featured hypertext with tooltip showing full URL.
+void RoR::ImHyperlink(std::string url, std::string caption /*= ""*/, bool tooltip /* = true */)
+{
+    if (caption == "") { caption = url; tooltip = false; }
+    ImDummyHyperlink(caption);
+    if (ImGui::IsItemClicked())
+    {
+        RoR::OpenUrlInDefaultBrowser(url); // PlatformUtils.h
+    }
+    if (tooltip && ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImDummyHyperlink(url);
+        ImGui::EndTooltip();
+    }
 }

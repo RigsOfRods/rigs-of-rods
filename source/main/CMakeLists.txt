@@ -223,6 +223,7 @@ set(SOURCE_FILES
         utils/WriteTextToTexture.{h,cpp}
         utils/memory/RefCountingObject.h
         utils/memory/RefCountingObjectPtr.h
+        utils/bbcode/BBDocument.{h,cpp}
         )
 
 if (ROR_USE_ANGELSCRIPT)
@@ -363,6 +364,7 @@ target_include_directories(${BINNAME} PRIVATE
         threadpool
         utils
         utils/memory
+        utils/bbcode
         )
 
 

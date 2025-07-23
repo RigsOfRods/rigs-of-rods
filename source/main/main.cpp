@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
         App::sys_screenshot_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "screenshots"));
         App::sys_scripts_dir   ->setStr(PathCombine(App::sys_user_dir->getStr(), "scripts"));
         App::sys_projects_dir  ->setStr(PathCombine(App::sys_user_dir->getStr(), "projects"));
+        App::sys_repo_attachments_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "repo_attachments"));
 
         // Load RoR.cfg - updates cvars
         App::GetConsole()->loadConfig();
@@ -749,7 +750,7 @@ int main(int argc, char *argv[])
                     GUI::ResourcesCollection* data = static_cast<GUI::ResourcesCollection*>(m.payload);
                     try
                     {
-                        App::GetGuiManager()->RepositorySelector.UpdateFiles(data);
+                        App::GetGuiManager()->RepositorySelector.UpdateResourceFilesAndDescription(data);
                     }
                     catch (...) 
                     {
