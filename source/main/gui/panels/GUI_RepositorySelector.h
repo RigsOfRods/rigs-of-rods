@@ -98,6 +98,7 @@ struct RepoWorkQueueTicket
     // Only one should be set!
     int thumb_resourceitem_idx = -1; //!< fetch thumbnail
     int attachment_id = -1; //!< download attachment
+    std::string attachment_ext;
 };
 
 // `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile.
@@ -139,7 +140,7 @@ public:
     void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
-    void                                DownloadAttachment(int attachment_id);
+    void                                DownloadAttachment(int attachment_id, std::string const& attachment_ext);
     void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);
 
     /// Ogre::WorkQueue API
