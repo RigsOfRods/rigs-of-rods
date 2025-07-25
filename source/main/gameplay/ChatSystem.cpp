@@ -50,7 +50,8 @@ void ReceiveStreamData(unsigned int type, int source, char* buffer)
     if (type != MSG2_UTF8_CHAT && type != MSG2_UTF8_PRIVCHAT)
         return;
 
-    if (source != -1) // user ID -1 is a server broadcast message, defined as `TO_ALL` in rorserver.
+    if (source != App::GetNetwork()->GetLocalUserData().uniqueid // Skip mute check for player's own messages (server broadcasts to all by default)
+        && source != -1) // user ID -1 is a server broadcast message, defined as `TO_ALL` in rorserver.
     {
         BitMask_t peeropts = BitMask_t(0);
         if (!App::GetNetwork()->GetUserPeerOpts(source, peeropts) || BITMASK_IS_1(peeropts, RoRnet::PEEROPT_MUTE_CHAT))
