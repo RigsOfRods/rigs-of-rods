@@ -18,8 +18,8 @@ namespace Script2Game {
  */
  enum scriptEvents
  {
-    SE_EVENTBOX_ENTER,                  //!< An actor or person entered an eventbox; Arguments of `eventCallbackEx()`: #1 type, #2 Actor Instance ID (use `game.getTruckByNum()`), #3 Actor node ID, #4 unused, #5 object instance name, #6 eventbox name #7 unused #8 unused.
-    SE_EVENTBOX_EXIT,                   //!< An actor or person entered an eventbox; Arguments of `eventCallbackEx()`: #1 type, #2 Actor Instance ID (use `game.getTruckByNum()`), #3 unused, #4 unused, #5 object instance name, #6 eventbox name #7 unused #8 unused.
+    SE_EVENTBOX_ENTER,                  //!< An actor or person entered an eventbox<br> Arguments of `eventCallbackEx()`:<br> #1 type,<br> #2 Actor Instance ID (use `game.getTruckByNum()`),<br> #3 Actor node ID,<br> #4 unused,<br> #5 object instance name,<br> #6 eventbox name<br> #7 unused #8 unused.
+    SE_EVENTBOX_EXIT,                   //!< An actor or person entered an eventbox<br> Arguments of `eventCallbackEx()`:<br> #1 type<br> #2 Actor Instance ID (use `game.getTruckByNum()`)<br> #3 unused<br> #4 unused<br> #5 object instance name<br> #6 eventbox name<br> #7 unused<br> #8 unused.
      
  	SE_TRUCK_ENTER,                     //!< triggered when switching from person mode to truck mode, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
  	SE_TRUCK_EXIT,                      //!< triggered when switching from truck mode to person mode, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
@@ -40,17 +40,17 @@ namespace Script2Game {
     SE_TRUCK_TELEPORT,                  //!< triggered when the user teleports the truck, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
     SE_TRUCK_MOUSE_GRAB,                //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
 
-    SE_ANGELSCRIPT_MANIPULATIONS,       //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating) args:  #1 `angelScriptManipulationType` - see enum doc comments for more args.
-    SE_ANGELSCRIPT_MSGCALLBACK,         //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
-    SE_ANGELSCRIPT_LINECALLBACK,        //!< The diagnostic info directly from AngelScript engine (see `SetLineCallback()`), args: #1 ScriptUnitID, #2 LineNumber, #3 CallstackSize, #4 unused, #5 FunctionName, #6 FunctionObjectTypeName #7 ObjectName
-    SE_ANGELSCRIPT_EXCEPTIONCALLBACK,   //!< The diagnostic info directly from AngelScript engine (see `SetExceptionCallback()`), args: #1 ScriptUnitID, #2 unused, #3 row (`GetExceptionLineNumber()`), #4 unused, #5 funcName, #6 message (`GetExceptionString()`)
-    SE_ANGELSCRIPT_THREAD_STATUS,       //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `Script2Game::angelScriptThreadStatus`.    
+    SE_ANGELSCRIPT_MANIPULATIONS,       //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)<br> args:<br>  #1 `angelScriptManipulationType` - see enum doc comments for more args.
+    SE_ANGELSCRIPT_MSGCALLBACK,         //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`),<br> args:<br> #1 ScriptUnitID,<br> #2 asEMsgType,<br> #3 row,<br> #4 col,<br> #5 sectionName,<br> #6 message
+    SE_ANGELSCRIPT_LINECALLBACK,        //!< The diagnostic info directly from AngelScript engine (see `SetLineCallback()`),<br> args:<br> #1 ScriptUnitID,<br> #2 LineNumber,<br> #3 CallstackSize,<br> #4 unused,<br> #5 FunctionName,<br> #6 FunctionObjectTypeName<br> #7 ObjectName
+    SE_ANGELSCRIPT_EXCEPTIONCALLBACK,   //!< The diagnostic info directly from AngelScript engine (see `SetExceptionCallback()`),<br> args:<br> #1 ScriptUnitID,<br> #2 unused,<br> #3 row (`GetExceptionLineNumber()`),<br> #4 unused,<br> #5 funcName,<br> #6 message (`GetExceptionString()`)
+    SE_ANGELSCRIPT_THREAD_STATUS,       //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download).<br> args:<br> #1 type, see `Script2Game::angelScriptThreadStatus`.    
 
  	SE_GENERIC_MESSAGEBOX_CLICK,        //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
-    SE_GENERIC_EXCEPTION_CAUGHT,        //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
-    SE_GENERIC_MODCACHE_ACTIVITY,       //!< Triggered when status of modcache changes, args: #1 type, #2 entry number, for other args see `RoR::modCacheActivityType`  
+    SE_GENERIC_EXCEPTION_CAUGHT,        //!< Triggered when C++ exception (usually Ogre::Exception) is thrown;<br> #1 ScriptUnitID,<br> #5 originFuncName,<br> #6 type,<br> #7 message.
+    SE_GENERIC_MODCACHE_ACTIVITY,       //!< Triggered when status of modcache changes,<br> args:<br> #1 type,<br> #2 entry number,<br> for other args see `RoR::modCacheActivityType`  
 
-    SE_GENERIC_TRUCK_LINKING_CHANGED,   //!< Triggered when 2 actors become linked or unlinked via ties/hooks/ropes/slidenodes; args: #1 state (1=linked, 0=unlinked), #2 action `ActorLinkingRequestType` #3 master ActorInstanceID_t, #4 slave ActorInstanceID_t
+    SE_GENERIC_TRUCK_LINKING_CHANGED,   //!< Triggered when 2 actors become linked or unlinked via ties/hooks/ropes/slidenodes;<br> args:<br> #1 state (1=linked, 0=unlinked),<br> #2 action `ActorLinkingRequestType`<br> #3 master ActorInstanceID_t,<br> #4 slave ActorInstanceID_t
 
  	SE_ALL_EVENTS                      = 0xffffffff,
     SE_NO_EVENTS                       = 0
