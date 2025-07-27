@@ -233,6 +233,96 @@ void TerrainEditor::UpdateInputEvents(float dt)
 
 void TerrainEditor::WriteOutputFile()
 {
+    if (App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "Zip")
+    {
+        // This is a zipped (readonly) mod - write separate 'editor_out.log' file.
+        this->WriteSeparateOutputFile();
+    }
+    else
+    {
+        // This is a project (unzipped mod) - update TOBJ files in place
+        this->WriteEditsToTobjFiles();
+    }
+}
+
+void TerrainEditor::WriteSeparateOutputFile()
+{
+    // FIXME: This code was originally removed in favor of `TObjFileFormat::WriteToStream()`
+    //  but later brought back due to bugs - there is duplication.
+    // ====================================================================================
+
+
+    const char* filename = "editor_out.log";
+    std::string editor_logpath = PathCombine(App::sys_logs_dir->getStr(), filename);
+    try
+    {
+        Ogre::DataStreamPtr stream
+            = Ogre::ResourceGroupManager::getSingleton().createResource(
+                editor_logpath, RGN_CONFIG, /*overwrite=*/true);
+
+        for (auto object : App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects())
+        {
+            SceneNode* sn = object->static_object_node;
+            if (sn != nullptr)
+            {
+                String pos = StringUtil::format("%8.3f, %8.3f, %8.3f", object->position.x, object->position.y, object->position.z);
+                String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f", object->rotation.x, object->rotation.y, object->rotation.z);
+
+                String line = pos + ", " + rot + ", " + object->name + "\n";
+                stream->write(line.c_str(), line.length());
+            }
+        }
+
+        // Export procedural roads
+        int num_roads = App::GetGameContext()->GetTerrain()->getProceduralManager()->getNumObjects();
+        for (int i = 0; i < num_roads; i++)
+        {
+            ProceduralObjectPtr obj = App::GetGameContext()->GetTerrain()->getProceduralManager()->getObject(i);
+            int num_points = obj->getNumPoints();
+            if (num_points > 0)
+            {
+                stream->write("\nbegin_procedural_roads\n", 24);
+                for (int j = 0; j < num_points; j++)
+                {
+                    ProceduralPointPtr point = obj->getPoint(j);
+                    std::string type_str;
+                    switch (point->type)
+                    {
+                    case RoadType::ROAD_AUTOMATIC: type_str = "auto"; break;
+                    case RoadType::ROAD_FLAT: type_str = "flat"; break;
+                    case RoadType::ROAD_LEFT: type_str = "left"; break;
+                    case RoadType::ROAD_RIGHT: type_str = "right"; break;
+                    case RoadType::ROAD_BOTH: type_str = "both"; break;
+                    case RoadType::ROAD_BRIDGE: type_str = (point->pillartype == 1) ? "bridge" : "bridge_no_pillars"; break;
+                    case RoadType::ROAD_MONORAIL: type_str = (point->pillartype == 2) ? "monorail" : "monorail2"; break;
+                    }
+
+                    Ogre::Matrix3 point_rot_matrix;
+                    point->rotation.ToRotationMatrix(point_rot_matrix);
+                    Ogre::Radian yaw, pitch, roll;
+                    point_rot_matrix.ToEulerAnglesYXZ(yaw, pitch, roll);
+
+                    std::string line = fmt::format(
+                        "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
+                        point->position.x, point->position.y, point->position.z,
+                        yaw.valueDegrees(),
+                        point->width, point->bwidth, point->bheight, type_str);
+                    stream->write(line.c_str(), line.length());
+                }
+                stream->write("end_procedural_roads\n", 21);
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR|MapEditor]"
+            "Error saving file '%s' (resource group '%s'), message: '%s'",
+            filename, RGN_CONFIG, e.what());
+    }
+}
+
+void TerrainEditor::WriteEditsToTobjFiles()
+{
     TerrainPtr terrain = App::GetGameContext()->GetTerrain();
 
     // Assert on Debug, minimize harm on Release
