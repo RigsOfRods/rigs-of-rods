@@ -2000,14 +2000,14 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         m_entries.push_back(project_entry);
     }
 
+    // Reload the underlying OGRE resource group to properly pick up all added files.
+    this->ReLoadResource(project_entry); // OK to call here ~ processing `MSG_EDI_CREATE_PROJECT_REQUESTED`
+
     // notify script
     modCacheActivityType activity_type = (project_entry_created) ? MODCACHEACTIVITY_ENTRY_ADDED : MODCACHEACTIVITY_ENTRY_MODIFIED;
     TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
         /*ints*/ activity_type, project_entry->number, 0, 0,
         /*strings*/ project_entry->fname, project_entry->fext);
-
-    // Unload the preliminary resource group - force proper load of complete bundle.
-    this->UnLoadResource(project_entry);
 
     return project_entry;
 }
