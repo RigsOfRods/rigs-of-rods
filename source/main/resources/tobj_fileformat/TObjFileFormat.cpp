@@ -577,10 +577,15 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
                 }
             }
 
+            Ogre::Matrix3 point_rot_matrix;
+            point->rotation.ToRotationMatrix(point_rot_matrix);
+            Ogre::Radian yaw, pitch, roll;
+            point_rot_matrix.ToEulerAnglesYXZ(yaw, pitch, roll);
+
             std::string line = fmt::format(
                 "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
                 point->position.x, point->position.y, point->position.z,
-                point->rotation.getYaw(false).valueDegrees(),
+                yaw.valueDegrees(),
                 point->width, point->bwidth, point->bheight, type_str);
             stream->write(line.c_str(), line.length());
         }
