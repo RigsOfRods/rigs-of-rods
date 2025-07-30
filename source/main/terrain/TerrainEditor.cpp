@@ -231,20 +231,6 @@ void TerrainEditor::UpdateInputEvents(float dt)
     }
 }
 
-void TerrainEditor::WriteOutputFile()
-{
-    if (App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "Zip")
-    {
-        // This is a zipped (readonly) mod - write separate 'editor_out.log' file.
-        this->WriteSeparateOutputFile();
-    }
-    else
-    {
-        // This is a project (unzipped mod) - update TOBJ files in place
-        this->WriteEditsToTobjFiles();
-    }
-}
-
 void TerrainEditor::WriteSeparateOutputFile()
 {
     // FIXME: This code was originally removed in favor of `TObjFileFormat::WriteToStream()`
