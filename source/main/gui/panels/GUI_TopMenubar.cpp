@@ -443,7 +443,7 @@ void TopMenubar::Draw(float dt)
                     && ImGui::Button(_LC("TopMenubar", "Save changes to terrain")))
                 {
                     // This is a project (unzipped mod) - update TOBJ files in place
-                    App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteEditsToTobjFiles();
+                    App::GetGameContext()->PushMessage(Message(MsgType::MSG_EDI_SAVE_TERRN_CHANGES_REQUESTED));
                 }
             }
 
