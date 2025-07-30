@@ -83,6 +83,7 @@ enum MsgType
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,      //!< Used by Friction UI, DO NOT PUSH MANUALLY.
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,      //!< No params.
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,      //!< No params.
+    MSG_EDI_SAVE_TERRN_CHANGES_REQUESTED,      //!< No params.
     MSG_EDI_LOAD_BUNDLE_REQUESTED,             //!< Load a resource bundle (= ZIP or directory) for a given cache entry. Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_UNLOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)

@@ -1609,6 +1609,26 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_EDI_SAVE_TERRN_CHANGES_REQUESTED:
+                {
+                    try
+                    {
+                        if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE
+                            && App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "FileSystem")
+                        {
+                            // This is a project (unzipped mod) - update TOBJ files in place
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteEditsToTobjFiles();
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                _L("Terrain files have been updated"));
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
                 case MSG_EDI_LOAD_BUNDLE_REQUESTED:
                 {
                     CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
