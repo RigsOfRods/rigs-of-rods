@@ -437,6 +437,14 @@ void TopMenubar::Draw(float dt)
                     App::GetGameContext()->ChainMessage(Message(MsgType::MSG_SIM_LOAD_TERRN_REQUESTED,
                         App::GetGameContext()->GetTerrain()->getCacheEntry()->fname));
                 }
+
+                if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE
+                    && App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "FileSystem"
+                    && ImGui::Button(_LC("TopMenubar", "Save changes to terrain")))
+                {
+                    // This is a project (unzipped mod) - update TOBJ files in place
+                    App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteEditsToTobjFiles();
+                }
             }
 
             ImGui::Separator();
@@ -2339,19 +2347,21 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     else if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
         special_color = GREEN_TEXT;
+        special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to exit"),
+            App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
+
         if (App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "Zip")
         {
             // This is a read-only (ZIPped) terrain; offer the importer script.
-            special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to exit"),
-                App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
             content_width = ImGui::CalcTextSize(special_text.c_str()).x + 25.f;
             m_state_box = StateBox::STATEBOX_IMPORT_TERRAIN;
         }
         else
         {
-            special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to save and exit"),
+            special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to exit"),
                 App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
             content_width = ImGui::CalcTextSize(special_text.c_str()).x;
+            m_state_box = StateBox::STATEBOX_OVERWRITE_TERRAIN;
         }
     }
 
@@ -2502,6 +2512,14 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                     m_terrn_import_started = true;
                 }
                 ImGui::PopStyleColor(); // ImGuiCol_Button
+            }
+            else if (m_state_box == StateBox::STATEBOX_OVERWRITE_TERRAIN)
+            {
+                // Info text
+                std::string lbl_usemenu = _LC("TopMenubar", "Use 'Simulation' menu to save changes.");
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()
+                    + (ImGui::GetWindowContentRegionWidth() / 2 - ImGui::CalcTextSize(lbl_usemenu.c_str()).x / 2));
+                ImGui::TextDisabled("%s", lbl_usemenu.c_str());
             }
             const ImVec2 PAD = ImVec2(5, 5); // To bridge top menubar hoverbox and statebox hoverbox
             m_state_box_hoverbox_min = box_pos - PAD;
