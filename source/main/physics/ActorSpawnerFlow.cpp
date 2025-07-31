@@ -79,11 +79,20 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
 
-    m_generate_wing_position_lights = true;
-
-    if (m_file->root_module->engine.size() > 0) // Engine present => it's a land vehicle.
+    // Disable aerial pos. lights for land vehicles (detect by 'engine' element).
+    if (m_file->root_module->engine.size() > 0)
     {
-        m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
+        m_generate_wing_position_lights = false; 
+    }
+    else
+    {
+        for (auto& sel_module : m_selected_modules)
+        {
+            if (sel_module->engine.size() > 0)
+            {
+                m_generate_wing_position_lights = false;
+            }
+        }
     }
 
     // Create the built-in "renderdash" material for use in meshes.

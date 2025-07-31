@@ -457,7 +457,7 @@ private:
     Ogre::Vector3            m_spawn_position;
     bool                     m_apply_simple_materials;
     std::string              m_custom_resource_group;
-    bool                     m_generate_wing_position_lights;
+    bool                     m_generate_wing_position_lights = true;
     ActorMemoryRequirements  m_memory_requirements;
     /// @}
 
