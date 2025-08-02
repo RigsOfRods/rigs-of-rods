@@ -1632,7 +1632,7 @@ private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedReg
                 RegionInfo@ newRegionInfo = findRegion(collectedRegions, newRegionNames[j]);
                 if (oldRegionInfo.regionStartsAtLineIndex == newRegionInfo.regionStartsAtLineIndex)
                 {
-                    game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' was renamed to '"+newRegionNames[j]+"'");
+                    // game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' was renamed to '"+newRegionNames[j]+"'");
                     isGone = false;
                     renamedRegionsOldName.insertLast(oldRegionNames[i]);
                     renamedRegionsNewName.insertLast(newRegionNames[j]);
@@ -1650,9 +1650,9 @@ private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedReg
     // Resolve renamed regions
     for (uint i = 0; i < renamedRegionsOldName.length(); i++)
     {
+        RegionInfo@ regionInfo = findRegion(this.workBufferRegions, renamedRegionsOldName[i]);
         this.workBufferRegions.delete(renamedRegionsOldName[i]);
-        RegionInfo@ newRegionInfo = findRegion(collectedRegions, renamedRegionsNewName[i]);
-        this.workBufferRegions.set(renamedRegionsNewName[i], newRegionInfo);
+        this.workBufferRegions.set(renamedRegionsNewName[i], regionInfo);
     }
 
     // Find regions that were (re)created
@@ -1676,6 +1676,7 @@ private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedReg
             */
 
             existingRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
+            existingRegionInfo.regionStartsAtLineIndex = newRegionInfo.regionStartsAtLineIndex;
 
             if (!existingRegionInfo.isFolded)
             {
@@ -2053,17 +2054,17 @@ private void unFoldRegionInternal(string regionName) //  do NOT invoke during dr
     "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
     // END DEBUG //*/
     
-    if (!regionInfo.isFolded)
-    {
-        return; // nothing to do
-    }
-    
     if (@regionInfo == null) // sanity check - this means `#endregion` isn't available
     {
         game.log("ERROR|script_editor.as|`unFoldRegionInternal()` ~ regionName='"+regionName
             +"' ~ regionInfo null - this means `#endregion` isn't available");
         return;
     }
+    
+    if (!regionInfo.isFolded)
+    {
+        return; // nothing to do
+    }    
     
     // DEBUG // Investigating a C++ exception triggered by bad `string::insert` args 
     if (regionInfo.regionBodyStartOffset < 0
