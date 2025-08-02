@@ -122,7 +122,7 @@ string arg5ex, string arg6ex, string arg7ex, string arg8ex)
     {
         for (uint i=0; i<editorWindow.tabs.length(); i++)
         {
-            editorWindow.tabs[i].onEventAngelScriptMsg(
+            editorWindow.tabs[editorWindow.currentTab].onEventAngelScriptMsg(
             /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex, // ints
             /*sectionName:*/arg5ex, /*msg:*/arg6ex); // strings
         }
@@ -267,6 +267,7 @@ class ScriptEditorWindow
 
             this.tabs[this.currentTab].drawTextArea();
             this.tabs[this.currentTab].drawExceptionsPanel();
+            this.tabs[this.currentTab].drawMessagesPanel();
             this.tabs[this.currentTab].drawFooter();
 
             // To draw on top of editor text, we must trick DearIMGUI using an extra invisible window
@@ -694,6 +695,7 @@ class ScriptEditorTab
     int messagesTotalErr = 0;
     int messagesTotalWarn = 0;
     int messagesTotalInfo = 0;
+    MessagesPanel@ mpanel;
     // END messages from angelscript
 
 
@@ -724,10 +726,12 @@ class ScriptEditorTab
     bool requestAutoSaveFile = false;
     bool requestRunBuffer = false;
     bool requestStopBuffer = false;
+    float desiredScrollY = -1.f; // special - handled by `ScriptEditorTab::drawTextArea()`
 
     ScriptEditorTab()
     {
         @epanel = ExceptionsPanel(this);
+        @mpanel = MessagesPanel(this);
     }
 
     void drawStartStopButton()
@@ -1064,9 +1068,12 @@ class ScriptEditorTab
                 int msgType = int(this.messages[msgIdx]['type']);
                 string msgText = string(this.messages[msgIdx]['message']);
                 string containingFoldedRegionName = string(this.messages[msgIdx]['inFoldedRegion']); // HACK: dynamic field inserted by `analyzeMessages()`
+                bool shouldDraw = bool(this.messages[msgIdx]['show']);// HACK: dynamic field updated by `MessagesPanel::drawMessages()`
+                
+                if (!shouldDraw)
+                continue;                
 
                 color col, bgCol;
-                bool shouldDraw = false;
                 switch (msgType)
                 {
                     case asMSGTYPE_ERROR:
@@ -1096,20 +1103,20 @@ class ScriptEditorTab
                 if (containingFoldedRegionName != "")
                 {
                     // Special handling for folded regions - place message in-between lines, after region name (expect #endregion to be 'named' too!)
-                errText = " } "+msgText;
-                textPos += vector2(ImGui::CalcTextSize("// #***region "+containingFoldedRegionName).x, ImGui::GetTextLineHeight()/2);
+                    errText = " } "+msgText;
+                    textPos += vector2(ImGui::CalcTextSize("// #***region "+containingFoldedRegionName).x, ImGui::GetTextLineHeight()/2);
+                }
+                vector2 errTextSize = ImGui::CalcTextSize(errText);
+                drawlist.AddRectFilled(textPos, textPos+errTextSize, bgCol);
+                drawlist.AddText(textPos , col, errText);
+
+                // advance to next line
+                lineCursor.y += ImGui::GetTextLineHeight();
             }
-            vector2 errTextSize = ImGui::CalcTextSize(errText);
-            drawlist.AddRectFilled(textPos, textPos+errTextSize, bgCol);
-            drawlist.AddText(textPos , col, errText);
-
-            // advance to next line
-            lineCursor.y += ImGui::GetTextLineHeight();
         }
+
+
     }
-
-
-}
 
 void drawTextArea()
 {
@@ -1120,7 +1127,7 @@ void drawTextArea()
     // Draw the multiline text input
     this.textAreaSize = vector2(
     ImGui::GetWindowSize().x - (metaColumnsTotalWidth + 20),
-    ImGui::GetWindowSize().y - (115 + epanel.getHeightToReserve()));
+    ImGui::GetWindowSize().y - (115 + epanel.getHeightToReserve() + mpanel.getHeightToReserve()));
 
     vector2 screenCursor = ImGui::GetCursorScreenPos() + /*frame padding:*/vector2(0.f, 4.f);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + metaColumnsTotalWidth);
@@ -1128,6 +1135,11 @@ void drawTextArea()
 
     // Trick: re-enter the inputtext panel to scroll it; see https://github.com/ocornut/imgui/issues/1523
     ImGui::BeginChild(ImGui::GetID(BUFFER_TEXTINPUT_LABEL));
+    if (this.desiredScrollY != -1.f)
+    {
+        ImGui::SetScrollY(this.desiredScrollY);
+        this.desiredScrollY = -1.f;
+    }
     this.scrollX = ImGui::GetScrollX();
     this.scrollY = ImGui::GetScrollY();
     this.scrollMaxX = ImGui::GetScrollMaxX();
@@ -1165,6 +1177,22 @@ void drawExceptionsPanel()
     epanel.getHeightToReserve());
     ImGui::BeginChild("ExceptionsPanel", ePanelSize);
     epanel.drawExceptions();
+    ImGui::EndChild();    // must always be called - legacy reasons
+}
+
+void drawMessagesPanel()
+{
+    if (mpanel.getHeightToReserve() == 0)
+    {
+        return; // panel is empty, do not draw
+    }
+
+    // Draw the messages panel
+    vector2 mPanelSize(
+        ImGui::GetWindowSize().x - (20),
+        mpanel.getHeightToReserve());
+    ImGui::BeginChild("MessagesPanel", mPanelSize);
+    mpanel.drawMessages();
     ImGui::EndChild();    // must always be called - legacy reasons
 }
 
@@ -1245,7 +1273,7 @@ void onEventAngelScriptMsg(int scriptUnitId, int msgType, int row, int col, stri
     + ", msgType:" + msgType + ", row:" + row + ", col:" + col // ints
     + ", sectionName:" + sectionName + ", message:" + message); // strings*/
 
-messages.insertLast({ {'type', msgType}, {'row',row}, {'col', col}, {'sectionName', sectionName}, {'message', message} });
+messages.insertLast({ {'type', msgType}, {'row',row}, {'col', col}, {'sectionName', sectionName}, {'message', message}, {'show', true} });
     this.analyzeMessages();
 }
 
@@ -1783,7 +1811,7 @@ private uint determineLineIdxForMessage(uint msgIndex, string&inout inFoldedRegi
 
             if (regionInfo.isFolded)
             {
-                if (!lowerBoundReached)
+                if (lowerBoundReached && upperBoundReached)
                 {
                     // This region precedes the message
                     lineIdx -= regionInfo.regionLineCount;
@@ -2000,7 +2028,7 @@ private void unFoldAllRegionsInternal() //  do NOT invoke during drawing! use `r
     this.requestUnFoldAll = false;
 }
 
-private void foldRegionInternal(string regionName)  // do NOT invoke during drawing! use `foldRegionRequested`
+private void foldRegionInternal(string regionName)  // do NOT invoke during drawing! use `requestFoldRegion`
 {
     RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
     
@@ -2045,7 +2073,7 @@ private void foldRegionInternal(string regionName)  // do NOT invoke during draw
 
 }
 
-private void unFoldRegionInternal(string regionName) //  do NOT invoke during drawing! use `unFoldRegionRequested`
+private void unFoldRegionInternal(string regionName) //  do NOT invoke during drawing! use `requestUnFoldRegion`
 {
     RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
     
@@ -2081,6 +2109,24 @@ private void unFoldRegionInternal(string regionName) //  do NOT invoke during dr
     regionInfo.isFolded = false;
     this.analyzeLines();
     this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+}
+
+void jumpToLine(int lineIdx)
+{
+    float desiredScrollY = this.scrollMaxY * (float(lineIdx) / float(this.bufferLinesMeta.length()));
+    /* // DEBUG
+    game.log("ScriptEditor DBG: navigating to line "+lineIdx
+        +", bufferLinesMeta.length()="+bufferLinesMeta.length()
+        +", this.scrollMaxY="+this.scrollMaxY
+        +", desiredScrollY="+desiredScrollY); 
+        */
+        
+    if (desiredScrollY > this.scrollMaxY)
+    {
+        desiredScrollY = this.scrollMaxY;
+    }
+
+    this.desiredScrollY = desiredScrollY;
 }
 
 private void backUpRegionFoldStates()
@@ -2283,6 +2329,85 @@ class ExceptionsPanel
     }
 
 } // class ExceptionsPanel
+
+// Panel-view of AngelScript messages which are stored in EditorTab (for showing as overlay)
+class MessagesPanel
+{
+    ScriptEditorTab@ parentEditorTab;
+    
+    MessagesPanel(ScriptEditorTab@ editorTab)
+    {
+        @parentEditorTab = @editorTab;
+    }    
+    
+    float getHeightToReserve()
+    {
+        if (parentEditorTab.messages.length() == 0) return 0;
+        return 6.f + float(parentEditorTab.messages.length())*ImGui::GetTextLineHeightWithSpacing();
+    }
+    
+    void drawMessages()
+    {
+        string clearall_btn_text = "Clear all";
+        vector2 cursorBackup = ImGui::GetCursorPos();
+        ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - (ImGui::CalcTextSize(clearall_btn_text).x + 8.f));
+        if (ImGui::SmallButton(clearall_btn_text))
+        {
+            this.parentEditorTab.messages.resize(0); // clear all
+            this.parentEditorTab.bufferMessageIDs.resize(0); // clear all
+            return;
+        }
+        cursorBackup.y += 5.f;
+        ImGui::SetCursorPos(cursorBackup);
+        
+        for (uint i=0; i<this.parentEditorTab.messages.length(); i++)
+        {
+            ImGui::PushID(i);
+            dictionary@ msgInfo = this.parentEditorTab.messages[i];
+            string inFoldedRegion = string(msgInfo['inFoldedRegion']); // HACK: inserted by `ScriptEditorTab::analyzeMessages()`
+            int msgRow = int(msgInfo['row']);
+            int msgCol = int(msgInfo['col']);
+            int msgType = int(msgInfo['type']);
+            string msgText = string(msgInfo['message']);
+            bool msgShow = bool(msgInfo['show']);
+            
+            ImGui::Bullet();
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, vector2(0,0));
+            if (ImGui::Checkbox("##ShowMsg", msgShow))
+            {
+                msgInfo['show'] = msgShow;
+            }
+            ImGui::SameLine();
+            ImGui::PopStyleVar(); // ImGuiStyleVar_FramePadding
+            
+            if (msgType == asMSGTYPE_ERROR)
+            {
+                ImGui::TextColored(errorTextColor, "Error | row "+msgRow+" | col "+msgCol+" ");
+                ImGui::SameLine();
+            }
+            else if (msgType == asMSGTYPE_WARNING)
+            {
+                ImGui::TextColored(warnTextColor, "Warning | row "+msgRow+" | col "+msgCol+" ");
+                ImGui::SameLine();
+            }
+            else if (msgType == asMSGTYPE_INFORMATION)
+            {
+                ImGui::Text("Info | row "+msgRow+" | col "+msgCol+" ");
+                ImGui::SameLine();
+            }
+            
+            if (ImGui::SmallButton("jump to"))
+            {
+                this.parentEditorTab.jumpToLine(msgRow);
+            }            
+            ImGui::SameLine();
+            ImGui::Text(msgText);
+
+
+            ImGui::PopID(); // i
+        }
+    }
+}
 
 // Code folding with `#region`/`#endregion`
 class RegionInfo
