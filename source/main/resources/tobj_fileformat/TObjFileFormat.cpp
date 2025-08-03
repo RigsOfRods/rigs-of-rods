@@ -174,8 +174,13 @@ bool TObjParser::ProcessCurrentLine()
     {
         if (m_in_procedural_road)
         {
-            const char* value = m_cur_line_trimmed + 17; // C pointer arithmetic
-            m_cur_procedural_obj->collision_enabled = Ogre::StringConverter::parseBool(value, false);
+            char valuebuf[100] = {};
+            int result = sscanf(m_cur_line_trimmed, "collision_enabled %s", &valuebuf);
+            if (result != 1)
+            {
+                LOG(fmt::format("[RoR|TObj] not enough parameters at line '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
+            }
+            m_cur_procedural_obj->collision_enabled = Ogre::StringConverter::parseBool(valuebuf, false);
         }
         return true;
     }
