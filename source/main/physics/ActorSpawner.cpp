@@ -5637,37 +5637,21 @@ void ActorSpawner::ProcessCamera(RigDef::Camera & def)
     m_actor->ar_num_cameras++;
 };
 
-node_t* ActorSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)
-{
-    node_t* node = GetNodePointer(node_ref);
-    if (node != nullptr)
-    {
-        return node;
-    }
-    return nullptr;
-}
-
 void ActorSpawner::ProcessBeam(RigDef::Beam & def)
 {
     // Nodes
-    node_t* ar_nodes[] = {nullptr, nullptr};
-    ar_nodes[0] = GetBeamNodePointer(def.nodes[0]);
-    if (ar_nodes[0] == nullptr)
+    const NodeNum_t n1 = this->ResolveNodeRef(def.nodes[0]);
+    const NodeNum_t n2 = this->ResolveNodeRef(def.nodes[1]);
+    if (n1 == NODENUM_INVALID || n2 == NODENUM_INVALID)
     {
-        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[0].ToString());
-        return;
-    }
-    ar_nodes[1] = GetBeamNodePointer(def.nodes[1]);
-    if (ar_nodes[1] == nullptr)
-    {
-        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[1].ToString());
+        AddMessage(Message::TYPE_WARNING, "Skipping beam, some nodes not found."); // Node IDs already logged by `ResolveNodeRef()`
         return;
     }
 
     // Beam
     int beam_index = m_actor->ar_num_beams;
     m_actor->ar_beams_user_defined[beam_index] = true;
-    beam_t & beam = AddBeam(*ar_nodes[0], *ar_nodes[1], def.defaults, def.detacher_group);
+    beam_t & beam = AddBeam(m_actor->ar_nodes[n1], m_actor->ar_nodes[n2], def.defaults, def.detacher_group);
     beam.bm_type = BEAM_NORMAL;
     beam.k = def.defaults->GetScaledSpringiness();
     beam.d = def.defaults->GetScaledDamping();
