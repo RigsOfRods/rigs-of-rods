@@ -4017,10 +4017,6 @@ void Actor::updateDashBoards(float dt)
     if (cam_roll != Vector3::ZERO)
     {
         float angle = asin(cam_roll.dotProduct(Vector3::UNIT_Y));
-        if (angle < -1)
-            angle = -1;
-        if (angle > 1)
-            angle = 1;
 
         float f = Radian(angle).valueDegrees();
         ar_dashboard->setFloat(DD_ROLL, f);
@@ -4041,10 +4037,6 @@ void Actor::updateDashBoards(float dt)
     if (cam_dir != Vector3::ZERO)
     {
         float angle = asin(cam_dir.dotProduct(Vector3::UNIT_Y));
-        if (angle < -1)
-            angle = -1;
-        if (angle > 1)
-            angle = 1;
 
         float f = Radian(angle).valueDegrees();
         ar_dashboard->setFloat(DD_PITCH, f);
