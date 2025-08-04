@@ -42,13 +42,13 @@ namespace RoR {
 
 #define MAX_CONTROLS      1024
 
-typedef union dataContainer_t
+struct dataContainer_t
 {
-    bool value_bool;
-    int value_int;
-    float value_float;
-    char value_char[DD_MAXCHAR];
-} dataContainer_t;
+    bool value_bool = false;
+    int value_int = 0;
+    float value_float = 0.f;
+    char value_char[DD_MAXCHAR] = {};
+};
 
 enum
 {
@@ -68,13 +68,11 @@ typedef struct dashData_t
 
     dashData_t() : type(DC_INVALID), name("")
     {
-        memset(&data, 0, sizeof(data));
         enabled = false;
     }
 
     dashData_t(char type, const char* name) : type(type), name(name)
     {
-        memset(&data, 0, sizeof(data));
         enabled = true;
     }
 } dashData_t;
