@@ -4619,7 +4619,7 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 
     m_actor->ar_wheels[wheel_id].wh_arg_keyword = RigDef::Keyword::MESHWHEELS;
     m_actor->ar_wheels[wheel_id].wh_arg_num_rays = meshwheel_def.num_rays;
-    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(meshwheel_def.rigidity_node);
+    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(meshwheel_def.rigidity_node, /* optional: */ true);
     m_actor->ar_wheels[wheel_id].wh_arg_simple_spring = meshwheel_def.spring;
     m_actor->ar_wheels[wheel_id].wh_arg_simple_damping = meshwheel_def.damping;
     m_actor->ar_wheels[wheel_id].wh_arg_side = meshwheel_def.side;
@@ -4688,7 +4688,7 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
     // --- Args ---
     m_actor->ar_wheels[wheel_id].wh_arg_keyword = RigDef::Keyword::MESHWHEELS2;
     m_actor->ar_wheels[wheel_id].wh_arg_num_rays = def.num_rays;
-    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(def.rigidity_node);
+    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(def.rigidity_node, /* optional: */ true);
     m_actor->ar_wheels[wheel_id].wh_arg_simple_spring = def.spring;
     m_actor->ar_wheels[wheel_id].wh_arg_simple_damping = def.damping;
     m_actor->ar_wheels[wheel_id].wh_arg_side = def.side;
@@ -4969,7 +4969,7 @@ void ActorSpawner::ProcessWheel(RigDef::Wheel & wheel_def)
 
     m_actor->ar_wheels[wheel_id].wh_arg_keyword = RigDef::Keyword::WHEELS;
     m_actor->ar_wheels[wheel_id].wh_arg_num_rays = wheel_def.num_rays;
-    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(wheel_def.rigidity_node);
+    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(wheel_def.rigidity_node, /* optional: */ true);
     m_actor->ar_wheels[wheel_id].wh_arg_simple_spring =  wheel_def.springiness;
     m_actor->ar_wheels[wheel_id].wh_arg_simple_damping = wheel_def.damping;
     m_actor->ar_wheels[wheel_id].wh_arg_media1 = wheel_def.face_material_name;
@@ -5129,7 +5129,7 @@ void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & wheel_2_def)
     m_actor->ar_wheels[wheel_id].wh_radius = wheel_2_def.tyre_radius;
     m_actor->ar_wheels[wheel_id].wh_rim_radius = wheel_2_def.rim_radius;
     m_actor->ar_wheels[wheel_id].wh_arg_num_rays = wheel_2_def.num_rays;    
-    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(wheel_2_def.rigidity_node);
+    m_actor->ar_wheels[wheel_id].wh_arg_rigidity_node = this->ResolveNodeRef(wheel_2_def.rigidity_node, /* optional: */ true);
     m_actor->ar_wheels[wheel_id].wh_arg_rim_spring =  wheel_2_def.rim_springiness;
     m_actor->ar_wheels[wheel_id].wh_arg_rim_damping = wheel_2_def.rim_damping;
     m_actor->ar_wheels[wheel_id].wh_arg_simple_spring =  wheel_2_def.tyre_springiness;
