@@ -13,7 +13,7 @@ jobs:
             mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfreetype6-dev nvidia-cg-dev \
             libssl-dev libopenal-dev libois-dev libcurl4-openssl-dev rapidjson-dev gettext libfmt-dev
             
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Build OGRE
         run: |
