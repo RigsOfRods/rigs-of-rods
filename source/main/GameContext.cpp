@@ -399,11 +399,11 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
-        CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, actor->ar_filename);
-        if (!entry)
+        if (actor->getUsedActorEntry()->deleted)
         {
-            Str<500> msg; msg <<"Cannot reload vehicle; file '" << actor->ar_filename << "' not found in ModCache.";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("GameContext", "Cannot reload '{}' ({}) - the associated modcache entry was deleted."),
+                    actor->getUsedActorEntry()->dname, actor->getUsedActorEntry()->fname));
             return;
         }
 
@@ -414,12 +414,12 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         srq->asr_config     = actor->getSectionConfig();
         srq->asr_skin_entry = actor->getUsedSkinEntry();
         srq->asr_working_tuneup = actor->getWorkingTuneupDef();
-        srq->asr_cache_entry= entry;
+        srq->asr_cache_entry= actor->getUsedActorEntry();
         srq->asr_debugview  = (int)actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
 
         // This deletes all actors using the resource bundle, including the one we're reloading.
-        this->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(entry)));
+        this->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(actor->getUsedActorEntry())));
 
         // Load our actor again, but only after all actors are deleted.
         this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
