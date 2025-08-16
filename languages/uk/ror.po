@@ -2,22 +2,23 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Anatolii “๖ۣۜLord” Ohorodnyk <tolanos.1998@gmail.com>, 2023.
+# gamadil3000 <susikvlad39@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2023-05-26 08:50+0000\n"
-"Last-Translator: Anatolii “๖ۣۜLord” Ohorodnyk <tolanos.1998@gmail.com>\n"
+"PO-Revision-Date: 2025-08-17 00:02+0000\n"
+"Last-Translator: gamadil3000 <susikvlad39@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.13\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -199,7 +200,7 @@ msgstr "HydraX"
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
@@ -214,7 +215,7 @@ msgstr "Похитування"
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: Application.cpp:484
 msgctxt "IoInputGrabMode"
@@ -242,15 +243,15 @@ msgstr "Місцевість не знайдена: "
 
 #: GameContext.cpp:122 GameContext.cpp:144
 msgid "Terrain loading error"
-msgstr ""
+msgstr "Помилка завантаження місцевості"
 
 #: GameContext.cpp:658
 msgid "Please clear the place first"
-msgstr ""
+msgstr "Будь-ласка, очистіть місце спочатку"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Стандартний скін '{}' для '{}' не знайдено!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
@@ -262,31 +263,31 @@ msgstr ""
 
 #: GameContext.cpp:1230
 msgid "Time set to "
-msgstr ""
+msgstr "Час встановлений на "
 
 #: GameContext.cpp:1417
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Рятувальної вантажівки не знайдено!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "\"forwardcommands\" увімкнено"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "\"forwardcommands\" вимкнено"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "\"importcommands\" увімкнено"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "\"importcommands\" вимкнено"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
-msgstr ""
+msgstr " [прошепотів] "
 
 #: gameplay/EngineSim.cpp:1463
 msgid "Low range selected"
