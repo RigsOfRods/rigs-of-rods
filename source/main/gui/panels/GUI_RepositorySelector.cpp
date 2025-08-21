@@ -1033,10 +1033,28 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     ImGui::SetCursorPosX(searchbox_x - (ImGui::CalcTextSize(browser_text.c_str()).x + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().WindowPadding.x));
     ImHyperlink(selected_item.view_url, browser_text);
 
-    // One line below - the tagline
+    // One line below - the tagline (with [..] tooltip button if oversize)
     newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE);
     ImGui::SetCursorPos(newline_cursor);
-    ImGui::Text("%s", selected_item.tag_line.c_str()); // Also add tagline
+    const ImVec2 tagline_btnsize = ImGui::CalcTextSize("[...]") + ImGui::GetStyle().ItemSpacing * 2;
+    const ImVec2 tagline_size = ImGui::CalcTextSize(selected_item.tag_line.c_str());
+    const ImVec2 tagline_clipmin = ImGui::GetCursorScreenPos();
+    const ImVec2 tagline_clipmax((ImGui::GetWindowPos().x + searchbox_x) - (tagline_btnsize.x + ImGui::GetStyle().FramePadding.x), tagline_clipmin.y + ImGui::GetTextLineHeight());
+    ImGui::PushClipRect(tagline_clipmin, tagline_clipmax, /* intersect_with_current_cliprect:*/ false);
+    ImGui::Text("%s", selected_item.tag_line.c_str());
+    ImGui::PopClipRect();
+    if (tagline_size.x > tagline_clipmax.x - tagline_clipmin.x)
+    {
+        // tagline is oversize - draw [...] tooltip (same line, far right)
+        ImGui::SetCursorPos(ImVec2(searchbox_x - (tagline_btnsize.x + ImGui::GetStyle().FramePadding.x), newline_cursor.y));
+        ImGui::TextDisabled("[...]");
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("%s", selected_item.tag_line.c_str()); // no clipping this time
+            ImGui::EndTooltip();
+        }
+    }
 
     // One line below (bigger gap) - the version and num downloads
     newline_cursor += ImVec2(0.f, ImGui::GetTextLineHeight() + INFOBAR_SPACING_LEFTSIDE * 4);
