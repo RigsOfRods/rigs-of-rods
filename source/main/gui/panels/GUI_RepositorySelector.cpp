@@ -996,6 +996,15 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
                 }
             }
             ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), img_size * scale_ratio);
+            // Left-licking the image will close the gallery mode again
+            if (ImGui::IsItemHovered(0))
+            {
+                ImGui::SetMouseCursor(7);// Hand cursor
+                if (ImGui::IsMouseClicked(0)) // Left button
+                {
+                    m_gallery_mode_attachment_id = -1;
+                }
+            }
         }
         else
         {
