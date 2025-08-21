@@ -1501,7 +1501,7 @@ class RoR::GUI::BBCodeDrawingContext
         std::string text = textnode->getText();
         if (text != "")
         {
-            m_feeder.AddMultiline(ImColor(color), -1, text.c_str(), text.c_str() + text.length());
+            m_feeder.AddMultiline(ImColor(color), m_wrap_width, text.c_str(), text.c_str() + text.length());
         }
     }
 
@@ -1557,8 +1557,9 @@ class RoR::GUI::BBCodeDrawingContext
     }
 
 public:
-    BBCodeDrawingContext(ImTextFeeder& feeder) : m_feeder(feeder) {}
+    BBCodeDrawingContext(ImTextFeeder& feeder, float wrap_w) : m_feeder(feeder), m_wrap_width(wrap_w) {}
     ImTextFeeder& m_feeder;
+    float m_wrap_width;
     void DrawBBCodeChildrenRecursive(const BBNode& parent)
     {
         for (const auto node : parent.getChildren())
@@ -1595,7 +1596,7 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
 
     ImVec2 text_pos = ImGui::GetCursorScreenPos();
     ImTextFeeder feeder(ImGui::GetWindowDrawList(), text_pos);
-    BBCodeDrawingContext bb_ctx(feeder);
+    BBCodeDrawingContext bb_ctx(feeder, ImGui::GetWindowContentRegionWidth());
     bb_ctx.DrawBBCodeChildrenRecursive(*item.description);
     feeder.NextLine(); // Account correctly for last line height - there may be images on it.
 
@@ -1675,14 +1676,13 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
             img_scale = ATTACH_MAX_HEIGHT / tex->getHeight();
         }
         ImVec2 img_size(tex->getWidth() * img_scale, tex->getHeight() * img_scale);
-        const ImVec2 img_min = context->m_feeder.cursor;
-        const ImVec2 img_max = context->m_feeder.cursor + img_size;
-        // Draw directly via ImGui Drawlist
+        // Update feeder to account the image
+        ImVec2 img_min;
+        context->m_feeder.AddRectWrapped(img_size, ImGui::GetStyle().ItemSpacing, context->m_wrap_width, /* [out] */ img_min);
+        const ImVec2 img_max = img_min + img_size;
+        // Draw image directly via ImGui Drawlist
         context->m_feeder.drawlist->AddImage(
             reinterpret_cast<ImTextureID>(tex->getHandle()), img_min, img_max);
-        // Update feeder to account the image
-        context->m_feeder.cursor += ImVec2(img_size.x + ImGui::GetStyle().ItemSpacing.x, 0.f);
-        context->m_feeder.line_height = std::max(context->m_feeder.line_height, img_size.y + ImGui::GetStyle().ItemSpacing.y);
         // Handle mouse hover and click
         if (ImGui::GetMousePos().x > img_min.x && ImGui::GetMousePos().y > img_min.y
             && ImGui::GetMousePos().x < img_max.x && ImGui::GetMousePos().y < img_max.y)
@@ -1697,13 +1697,15 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
     else
     {
         // Attachment image is not downloaded yet - draw spinner
+        ImVec2 spinnerbox_size = (ATTACH_SPINNER_PADDING + ImVec2(ATTACH_SPINNER_RADIUS, ATTACH_SPINNER_RADIUS)) * 2.f;
+        // Update feeder to account the spinner
+        ImVec2 spinnerbox_min;
+        context->m_feeder.AddRectWrapped(spinnerbox_size, ImGui::GetStyle().ItemSpacing, context->m_wrap_width, /* [out] */ spinnerbox_min);
+        // Draw the spinner body
         ImVec2 backup_screenpos = ImGui::GetCursorScreenPos();
-        ImGui::SetCursorScreenPos(context->m_feeder.cursor + ATTACH_SPINNER_PADDING);
+        ImGui::SetCursorScreenPos(spinnerbox_min + ATTACH_SPINNER_PADDING);
         LoadingIndicatorCircle("spinner", ATTACH_SPINNER_RADIUS, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
         ImGui::SetCursorScreenPos(backup_screenpos);
-        // Update feeder to account the spinner
-        context->m_feeder.cursor += ImVec2(ATTACH_SPINNER_RADIUS*2.f + ATTACH_SPINNER_PADDING.x*2.f + ImGui::GetStyle().ItemSpacing.x, 0.f);
-        context->m_feeder.line_height = std::max(context->m_feeder.line_height, ATTACH_SPINNER_RADIUS*2.f + ATTACH_SPINNER_PADDING.y * 2.f + ImGui::GetStyle().ItemSpacing.y);
     }
 }
 

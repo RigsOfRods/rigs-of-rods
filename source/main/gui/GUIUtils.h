@@ -34,6 +34,8 @@ struct ImTextFeeder /// Helper for drawing multiline wrapped & colored text.
     void AddWrapped(ImU32 color, float wrap_width, const char* text, const char* text_end);
     /// Wraps substrings separated by blanks. `wrap_width=-1.f` disables wrapping.
     void AddMultiline(ImU32 color, float wrap_width, const char* text, const char* text_end);
+    /// Reserves space for i.e. an image. `wrap_width=-1.f` disables wrapping.
+    void AddRectWrapped(ImVec2 size, ImVec2 spacing, float wrap_width, ImVec2& out_rect_min);
     void NextLine();
 
     ImDrawList* drawlist = nullptr;

@@ -121,6 +121,25 @@ void RoR::ImTextFeeder::AddMultiline(ImU32 color, float wrap_width, const char* 
     }
 }
 
+void RoR::ImTextFeeder::AddRectWrapped(ImVec2 size, ImVec2 spacing, float wrap_width, ImVec2& out_rect_min)
+{
+    // Wrap if requested and if we're not on far left side
+    const float cur_width = this->cursor.x - this->origin.x;
+    if (wrap_width > 0.f && cur_width > 0.f && cur_width + size.x > wrap_width)
+    {
+        this->NextLine();
+    }
+
+    // Output the cursor for drawing
+    out_rect_min = this->cursor;
+
+    // Update cursor
+    this->cursor.x += size.x + spacing.x;
+    this->line_height = std::max(this->line_height, size.y + spacing.y);
+    this->size.x = std::max(this->size.x, this->cursor.x - this->origin.x);
+    this->size.y = std::max(this->size.y, (this->cursor.y + this->line_height) - this->origin.y);
+}
+
 void RoR::ImTextFeeder::NextLine()
 {
     this->size.y += this->line_height;
