@@ -128,6 +128,7 @@ public:
     void                                SetVisible(bool visible);
     bool                                IsVisible() const { return m_is_visible; }
     void                                Draw();
+    void                                DrawGalleryView();
     void                                DrawResourceView(float searchbox_x);
     void                                DrawResourceViewRightColumn();
     void                                OpenResource(int resource_id);
