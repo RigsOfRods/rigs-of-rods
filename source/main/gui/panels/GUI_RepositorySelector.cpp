@@ -583,7 +583,14 @@ void RepositorySelector::Draw()
 
         if (m_resourceview_item_arraypos != RESOURCEITEMARRAYPOS_INVALID)
         {
-            this->DrawResourceView(searchbox_x);
+            if (m_gallery_mode_attachment_id != -1)
+            {
+                this->DrawGalleryView();
+            }
+            else
+            {
+                this->DrawResourceView(searchbox_x);
+            }
         }
         else
         {
@@ -969,6 +976,41 @@ void RepositorySelector::Draw()
     }
 }
 
+void RepositorySelector::DrawGalleryView()
+{
+    // Gallery mode - just draw the pic and be done with it.
+    auto itor = m_repo_attachments.find(m_gallery_mode_attachment_id);
+    if (itor != m_repo_attachments.end())
+    {
+        Ogre::TexturePtr& tex = itor->second;
+        ImVec2 img_size(tex->getWidth(), tex->getHeight());
+        float scale_ratio = 1.f;
+        // Shrink to fit
+        if (img_size.x > ImGui::GetContentRegionAvail().x)
+        {
+            scale_ratio = ImGui::GetContentRegionAvail().x / img_size.x;
+            if ((img_size.y * scale_ratio) > ImGui::GetContentRegionAvail().y)
+            {
+                scale_ratio = ImGui::GetContentRegionAvail().y / img_size.y;
+            }
+        }
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), img_size * scale_ratio);
+        // Left-licking the image will close the gallery mode again
+        if (ImGui::IsItemHovered(0))
+        {
+            ImGui::SetMouseCursor(7);// Hand cursor
+            if (ImGui::IsMouseClicked(0)) // Left button
+            {
+                m_gallery_mode_attachment_id = -1;
+            }
+        }
+    }
+    else
+    {
+        m_gallery_mode_attachment_id = -1; // Image not found - close gallery mode.
+    }
+}
+
 void RepositorySelector::DrawResourceView(float searchbox_x)
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
@@ -976,41 +1018,6 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     Ogre::TexturePtr tex3 = FetchIcon("star.png");
     Ogre::TexturePtr tex4 = FetchIcon("arrow_left.png");
     ResourceItem& selected_item = m_data.items[m_resourceview_item_arraypos];
-
-    if (m_gallery_mode_attachment_id != -1)
-    {
-        // Gallery mode - just draw the pic and be done with it.
-        auto itor = m_repo_attachments.find(m_gallery_mode_attachment_id);
-        if (itor != m_repo_attachments.end())
-        {
-            Ogre::TexturePtr& tex = itor->second;
-            ImVec2 img_size(tex->getWidth(), tex->getHeight());
-            float scale_ratio = 1.f;
-            // Shrink to fit
-            if (img_size.x > ImGui::GetContentRegionAvail().x)
-            {
-                scale_ratio = ImGui::GetContentRegionAvail().x / img_size.x;
-                if ((img_size.y * scale_ratio) > ImGui::GetContentRegionAvail().y)
-                {
-                    scale_ratio = ImGui::GetContentRegionAvail().y / img_size.y;
-                }
-            }
-            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), img_size * scale_ratio);
-            // Left-licking the image will close the gallery mode again
-            if (ImGui::IsItemHovered(0))
-            {
-                ImGui::SetMouseCursor(7);// Hand cursor
-                if (ImGui::IsMouseClicked(0)) // Left button
-                {
-                    m_gallery_mode_attachment_id = -1;
-                }
-            }
-        }
-        else
-        {
-            m_gallery_mode_attachment_id = -1; // Image not found - close gallery mode.
-        }
-    }
 
     const float INFOBAR_HEIGHT = 100.f;
     const float INFOBAR_SPACING_LEFTSIDE = 2.f;
