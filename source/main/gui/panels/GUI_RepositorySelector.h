@@ -138,7 +138,7 @@ public:
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
-    void                                DrawResourceDescriptionBBCode(const ResourceItem& item);
+    void                                DrawResourceDescriptionBBCode(const ResourceItem& item, ImVec2 panel_screenpos, ImVec2 panel_size);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
     void                                DownloadAttachment(int attachment_id, std::string const& attachment_ext);
     void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);

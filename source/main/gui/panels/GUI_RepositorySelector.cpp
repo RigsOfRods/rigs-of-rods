@@ -1125,7 +1125,9 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     // Make child windows use padding - only works when border is visible, so set it to transparent
     // see https://github.com/ocornut/imgui/issues/462
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::BeginChild("resource-view-scrolling", ImVec2(left_pane_width, table_height), /*border:*/true);
+    const ImVec2 child_screenpos = ImGui::GetCursorScreenPos();
+    const ImVec2 child_size(left_pane_width, table_height);
+    ImGui::BeginChild("resource-view-scrolling", child_size, /*border:*/true);
     ImGui::PopStyleColor();
 
     if (!m_repofiles_msg.empty())
@@ -1143,7 +1145,7 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     else
     {
         // Files + description downloaded OK
-        this->DrawResourceDescriptionBBCode(selected_item);
+        this->DrawResourceDescriptionBBCode(selected_item, child_screenpos, child_size);
     }
 
     ImGui::EndChild();
@@ -1584,9 +1586,13 @@ class RoR::GUI::BBCodeDrawingContext
     }
 
 public:
-    BBCodeDrawingContext(ImTextFeeder& feeder, float wrap_w) : m_feeder(feeder), m_wrap_width(wrap_w) {}
+    BBCodeDrawingContext(ImTextFeeder& feeder, float wrap_w, ImVec2 panel_screenpos, ImVec2 panel_size)
+        : m_feeder(feeder), m_wrap_width(wrap_w), bb_panel_screenpos(panel_screenpos), bb_panel_size(panel_size)
+    {}
     ImTextFeeder& m_feeder;
     float m_wrap_width;
+    ImVec2 bb_panel_screenpos = ImVec2(0, 0);
+    ImVec2 bb_panel_size = ImVec2(0, 0);
     void DrawBBCodeChildrenRecursive(const BBNode& parent)
     {
         for (const auto node : parent.getChildren())
@@ -1613,7 +1619,7 @@ public:
 
 };
 
-void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
+void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item, ImVec2 panel_screenpos, ImVec2 panel_size)
 {
     // Decomposes BBCode into DearIMGUI function calls.
     // ------------------------------------------------
@@ -1623,7 +1629,7 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item)
 
     ImVec2 text_pos = ImGui::GetCursorScreenPos();
     ImTextFeeder feeder(ImGui::GetWindowDrawList(), text_pos);
-    BBCodeDrawingContext bb_ctx(feeder, ImGui::GetWindowContentRegionWidth());
+    BBCodeDrawingContext bb_ctx(feeder, ImGui::GetWindowContentRegionWidth(), panel_screenpos, panel_size);
     bb_ctx.DrawBBCodeChildrenRecursive(*item.description);
     feeder.NextLine(); // Account correctly for last line height - there may be images on it.
 
@@ -1712,7 +1718,10 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
             reinterpret_cast<ImTextureID>(tex->getHandle()), img_min, img_max);
         // Handle mouse hover and click
         if (ImGui::GetMousePos().x > img_min.x && ImGui::GetMousePos().y > img_min.y
-            && ImGui::GetMousePos().x < img_max.x && ImGui::GetMousePos().y < img_max.y)
+            && ImGui::GetMousePos().x < img_max.x && ImGui::GetMousePos().y < img_max.y
+            // remember the window is scrollable - only recognize hover in visible region!
+            && ImGui::GetMousePos().y > context->bb_panel_screenpos.y
+            && ImGui::GetMousePos().y < context->bb_panel_screenpos.y + context->bb_panel_size.y)
         {
             ImGui::SetMouseCursor(7);//Hand cursor
             if (ImGui::IsMouseClicked(0))
