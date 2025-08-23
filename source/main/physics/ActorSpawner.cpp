@@ -2508,6 +2508,14 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         }
     }
 
+    std::string shaderlang = "_glsl";
+    // Choose shader language based on renderer
+    if (Ogre::Root::getSingleton().getRenderSystem()->getName() == "Direct3D9 Rendering Subsystem"
+        || Ogre::Root::getSingleton().getRenderSystem()->getName() == "Direct3D11 Rendering Subsystem")
+    {
+        shaderlang = "_hlsl";
+    }
+
     std::string custom_name = this->ComposeName(def.name);
     Ogre::MaterialPtr material;
     if (TuneupUtil::isManagedMatAnyhowRemoved(m_actor->getWorkingTuneupDef(), def.name))
@@ -2549,10 +2557,10 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 }
                 else
                 {
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("Specular" + shaderlang)->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
                 }
             }
             else
@@ -2563,8 +2571,8 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 {
                     return;
                 }
-                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
-                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
             }
         }
         else
@@ -2593,9 +2601,9 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 }
                 else
                 {
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map") , def.name, 0, def.diffuse_map);
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
-                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")  , def.name, 1, def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Diffuse_Map") , def.name, 0, def.diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("Specular" + shaderlang)->getTextureUnitState("Specular_Map")  , def.name, 1, def.specular_map);
                 }
             }
             else
@@ -2641,9 +2649,9 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             }
             else
             {
-                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map") ,def.name, 0, def.diffuse_map);
-                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map"),def.name, 1, def.specular_map);
-                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")  ,def.name, 1, def.specular_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Diffuse_Map") ,def.name, 0, def.diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("BaseRender" + shaderlang)->getTextureUnitState("Specular_Map"),def.name, 1, def.specular_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique" + shaderlang)->getPass("Specular" + shaderlang)->getTextureUnitState("Specular_Map")  ,def.name, 1, def.specular_map);
             }
         }
         else
@@ -2673,7 +2681,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 }
                 else
                 {
-                    material->getTechnique("BaseTechnique")->getPass("Specular")->setCullingMode(Ogre::CULL_NONE);
+                    material->getTechnique("BaseTechnique" + shaderlang)->getPass("Specular" + shaderlang)->setCullingMode(Ogre::CULL_NONE);
                 }
             }
         }
