@@ -730,6 +730,12 @@ void TopMenubar::Draw(float dt)
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (ImGui::Button(_LC("TopMenubar", "Rendering diag")))
+            {
+                App::GetGuiManager()->RenderingDiag.SetVisible(true);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
             if (current_actor != nullptr)
             {
                 if (ImGui::Button(_LC("TopMenubar", "Node / Beam utility")))
