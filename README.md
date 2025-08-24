@@ -10,9 +10,7 @@
 
 ## Rigs of Rods - open-source, soft-body physics sandbox
 
-**Rigs of Rods (also known as RoR)** is an open-source physics sandbox simulation game that uses soft-body physics to simulate the motion and deformation of vehicles in real time. Originally started in 2005, it has grown into a flexible and powerful simulation sandbox that supports a wide range of vehicles, physical objects, and environments.
-
-Whether you're interested in building your own vehicles, experimenting with realistic physics, or exploring vast custom terrains, Rigs of Rods offers a deep and moddable exerpience for players and developers alike.
+**Rigs of Rods (also known as RoR)** is an open-source physics sandbox simulation game that can simulate the motion and deformation of vehicles in real time. Originally started in 2005, it has grown into a flexible and powerful simulation sandbox that supports a wide range of vehicles, physical objects, and environments.
 
 [Community Forums](https://forum.rigsofrods.org/) -
 [Documentation](https://docs.rigsofrods.org/) -
@@ -21,10 +19,10 @@ Whether you're interested in building your own vehicles, experimenting with real
 
 ## Features
 
-* **Soft-body physics:** Realistic crashes, terrain interaction, and vehicle/load dynamics across cars, trucks, boats, planes, trains, and more (with experimental tracked, 2-wheeled, and submarine support).
-* **Immersive gameplay:** Enter/exit vehicles, walk around, and spawn multiple vehicles per session.
-* **Community support:** Built-in browser for mods, plus vehicle part swapping and scripting with [AngelScript](https://www.angelcode.com/angelscript/).
-* **Multiplayer support:** Dedicated servers, LAN support, and in-game server browser.
+* **Vehicles of all kinds:** cars, trucks, trains, boats, airplanes, helicopters, and heavy machinery
+* **Immersive gameplay:** walk around, enter/exit vehicles, spawn multiple at once
+* **Community support:** built-in browser for mods, plus vehicle part swapping and scripting with [AngelScript](https://www.angelcode.com/angelscript/).
+* **Multiplayer support:** dedicated servers, in-game server browser
 
 ## Getting started
 
@@ -40,7 +38,7 @@ For detailed instructions on compiling from source, see the **[Guide to building
 
 ## Join the community
 
-Rigs of Rods is a community of creators, players, and developers who share a passion for soft-body physics simulation. Whether you’re here to play, build, or contribute, you are welcome to be a part of our community.
+Rigs of Rods is a community of creators, players, and developers who share a passion for physics simulation. Whether you’re here to play, build, or contribute, you are welcome to be a part of our community.
 
 * Join the discussion on the [community forums](https://forum.rigsofrods.org/).
 * Chat with other players and developers on the [official Discord server](https://discord.gg/rigsofrods).
@@ -51,7 +49,7 @@ Rigs of Rods is a community of creators, players, and developers who share a pas
 
 Rigs of Rods, by default, includes only a small selection of built-in content. Most vehicles, terrains, and other additions are provided as user-generated mods available through the **[official Rigs of Rods repository](https://forum.rigsofrods.org/resources/)**. These community-created assets are separate from the core project and are not covered under the project's license, as they are contributed and licensed by their individual creators. As such, they will never be included with the game by default.
 
-As of Rigs of Rods version 2022.04, resources can be installed from within the game itself. **[Read the Guide to Installing Mods](https://docs.rigsofrods.org/gameplay/installing-content/)**.
+As of version 2022.04, resources can be installed from within the game itself. **[Read the Guide to Installing Mods](https://docs.rigsofrods.org/gameplay/installing-content/)**.
 
 ### How to create your own mods
 
