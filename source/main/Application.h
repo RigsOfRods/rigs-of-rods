@@ -696,6 +696,7 @@ extern CVar* diag_hide_nodes;
 extern CVar* diag_terrn_log_roads;
 extern CVar* diag_actor_dump;
 extern CVar* diag_allow_window_resize;
+extern CVar* diag_use_mygui_logfile;
 
 // System
 extern CVar* sys_process_dir;

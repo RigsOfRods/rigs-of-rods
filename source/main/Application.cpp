@@ -157,6 +157,7 @@ CVar* diag_hide_nodes;
 CVar* diag_terrn_log_roads;
 CVar* diag_actor_dump;
 CVar* diag_allow_window_resize;
+CVar* diag_use_mygui_logfile;
 
 // System
 CVar* sys_process_dir;
