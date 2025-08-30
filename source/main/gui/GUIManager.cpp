@@ -63,13 +63,18 @@ UiPresetEntry RoR::UiPresets[] =
 
 GUIManager::GUIManager()
 {
-    std::string gui_logpath = PathCombine(App::sys_logs_dir->getStr(), "MyGUI.log");
+    // Logfile disabled by default - easily overbloats by errors, see https://github.com/RigsOfRods/rigs-of-rods/issues/3345
+    std::string mygui_logpath = "";
+    if (App::diag_use_mygui_logfile->getBool())
+    {
+        mygui_logpath = PathCombine(App::sys_logs_dir->getStr(), "MyGUI.log");
+    }
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         App::GetAppContext()->GetRenderWindow(), 
         App::GetGfxScene()->GetSceneManager(),
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
-        gui_logpath); // use cache resource group so preview images are working
+        mygui_logpath);
     auto mygui = new MyGUI::Gui();
 
     // empty init
