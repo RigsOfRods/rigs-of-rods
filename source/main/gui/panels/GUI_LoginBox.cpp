@@ -80,11 +80,10 @@ void GetUserProfileAvatarTask(int user_id, std::string avatar_url)
     // The avatar URL may not be of *.rigsofrods.org, as it may also be a gravatar.
     std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
     std::string filename = std::to_string(user_id) + ".png";
-    std::string file = PathCombine(App::sys_avatar_dir->getStr(), filename);
     long response_code = 0;
 
     CURL* curl = curl_easy_init();
-    Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_AVATAR, /*overwrite:*/true);
+    Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, RGN_AVATAR, /*overwrite:*/true);
 
     curl_easy_setopt(curl, CURLOPT_URL, avatar_url.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -106,7 +105,7 @@ void GetUserProfileAvatarTask(int user_id, std::string avatar_url)
 
     curl_easy_cleanup(curl);
     curl = nullptr;
-    App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_AVATAR_FINISHED, file));
+    App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_AVATAR_FINISHED, filename));
 }
 
 void UserAuthInvalidateTokenTask()
@@ -677,10 +676,21 @@ void LoginBox::ShowError(std::string const& msg)
     m_errors = msg;
 }
 
-void LoginBox::UpdateUserProfileAvatar(std::string file)
+void LoginBox::UpdateUserProfileAvatar(std::string filename)
 {
-    m_user_profile.avatar = FetchIcon(file.c_str());
-    m_user_profile.avatar->load();
+    try
+    {
+        m_user_profile.avatar = Ogre::static_pointer_cast<Ogre::Texture>(
+            Ogre::TextureManager::getSingleton().createOrRetrieve(filename, RGN_AVATAR).first);
+        if (m_user_profile.avatar)
+        {
+            m_user_profile.avatar->load();
+        }
+    }
+    catch (...)
+    {
+        HandleGenericException("User avatar", HANDLEGENERICEXCEPTION_CONSOLE);
+    }
 }
 
 void LoginBox::ConfirmTfa()

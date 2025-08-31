@@ -73,7 +73,7 @@ public:
     void                        FetchUserProfileAvatar();
     void                        UpdateUserProfile(UserProfile* data);
     void                        UpdateUserAuth(UserAuthToken* data);
-    void                        UpdateUserProfileAvatar(std::string file);
+    void                        UpdateUserProfileAvatar(std::string filename);
     void                        ValidateOrRefreshToken();
 
     UserProfile                 GetUserProfile() { return m_user_profile; }
