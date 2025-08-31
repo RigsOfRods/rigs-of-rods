@@ -233,6 +233,7 @@ void GameMainMenu::DrawProfileBox()
 
     const float window_height = 15.0f;
     const float margin = display_size.y / 15.0f;
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::SetNextWindowPos(ImVec2(margin, margin));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
@@ -260,10 +261,20 @@ void GameMainMenu::DrawProfileBox()
             }
 
             ImGui::SameLine();
+            ImVec2 username_cursor = ImGui::GetCursorPos();
             ImGui::Text("Hello, %s", user.username.c_str());
+            // Put the logout button under the username, aside of the avatar
+            ImGui::SetCursorPos(username_cursor + ImVec2(0, ImGui::GetTextLineHeightWithSpacing()));
             if (ImGui::Button("Log out", button_size)) {
                 App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_LOGOUT_REQUESTED));
             }
+        }
+        else if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::EXPIRED)
+        {
+            // On game startup the token gets verified, so display spinner.
+            LoadingIndicatorCircle("spinner", 15, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+            ImGui::SameLine();
+            ImGui::Text("Validating");
         }
         else
         {
