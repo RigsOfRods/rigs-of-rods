@@ -84,7 +84,7 @@ void GetUserProfileAvatarTask(int user_id, std::string avatar_url)
     long response_code = 0;
 
     CURL* curl = curl_easy_init();
-    Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_AVATAR);
+    Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_AVATAR, /*overwrite:*/true);
 
     curl_easy_setopt(curl, CURLOPT_URL, avatar_url.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
