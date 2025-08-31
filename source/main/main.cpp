@@ -711,43 +711,78 @@ int main(int argc, char *argv[])
                 case MSG_NET_USERAUTH_SUCCESS:
                 {
                     GUI::UserAuthToken* data = static_cast<GUI::UserAuthToken*>(m.payload);
-                    App::remote_user_auth_state->setVal((int)RoR::UserAuthState::AUTHENTICATED);
-                    App::GetGuiManager()->LoginBox.UpdateUserAuth(data);
-                    App::GetGuiManager()->LoginBox.SetVisible(false);
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_REQUESTED));
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                    try
+                    {
+                        App::remote_user_auth_state->setVal((int)RoR::UserAuthState::AUTHENTICATED);
+                        App::GetGuiManager()->LoginBox.UpdateUserAuth(data);
+                        App::GetGuiManager()->LoginBox.SetVisible(false);
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_REQUESTED));
+                        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete data;
                     break;
                 }
 
                 case MSG_NET_USERAUTH_FAILURE:
                 {
-                    App::remote_user_auth_state->setVal((int)RoR::UserAuthState::UNAUTHENTICATED);
-                    App::GetGuiManager()->LoginBox.ShowError(m.description);
+                    try
+                    {
+                        App::remote_user_auth_state->setVal((int)RoR::UserAuthState::UNAUTHENTICATED);
+                        App::GetGuiManager()->LoginBox.ShowError(m.description);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERAUTH_LOGOUT_REQUESTED:
                 {
-                    App::remote_login_token->setStr("");
-                    App::remote_refresh_token->setStr("");
-                    App::remote_user_auth_state->setVal((int)RoR::UserAuthState::UNAUTHENTICATED);
+                    try
+                    {
+                        App::remote_login_token->setStr("");
+                        App::remote_refresh_token->setStr("");
+                        App::remote_user_auth_state->setVal((int)RoR::UserAuthState::UNAUTHENTICATED);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERAUTH_RV_REQUESTED:
                 {
-                    App::remote_user_auth_state->setVal((int)RoR::UserAuthState::EXPIRED);
-                    App::GetGuiManager()->LoginBox.ValidateOrRefreshToken();
+                    try
+                    {
+                        App::remote_user_auth_state->setVal((int)RoR::UserAuthState::EXPIRED);
+                        App::GetGuiManager()->LoginBox.ValidateOrRefreshToken();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERAUTH_RV_SUCCESS:
                 {
                     GUI::UserAuthToken* data = static_cast<GUI::UserAuthToken*>(m.payload);
-                    App::remote_user_auth_state->setVal((int)RoR::UserAuthState::AUTHENTICATED);
-                    App::GetGuiManager()->LoginBox.UpdateUserAuth(data);
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_REQUESTED));
+                    try
+                    {
+                        App::remote_user_auth_state->setVal((int)RoR::UserAuthState::AUTHENTICATED);
+                        App::GetGuiManager()->LoginBox.UpdateUserAuth(data);
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_REQUESTED));
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete data;
                     break;
                 }
@@ -755,47 +790,97 @@ int main(int argc, char *argv[])
                 case MSG_NET_USERAUTH_TFA_REQUESTED:
                 {
                     std::vector<std::string>* tfa_providers_ptr = reinterpret_cast<std::vector<std::string>*>(m.payload);
-                    App::GetGuiManager()->LoginBox.NeedsTfa(*tfa_providers_ptr);
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.NeedsTfa(*tfa_providers_ptr);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete tfa_providers_ptr;
                     break;
                 }
 
                 case MSG_NET_USERAUTH_TFA_FAILURE:
                 {
-                    App::GetGuiManager()->LoginBox.ShowError(m.description);
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.ShowError(m.description);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERAUTH_TFA_TRIGGERED:
                 {
-                    App::GetGuiManager()->LoginBox.TfaTriggered();
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.TfaTriggered();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERPROFILE_REQUESTED:
                 {
-                    App::GetGuiManager()->LoginBox.FetchUserProfile();
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.FetchUserProfile();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERPROFILE_FINISHED:
                 {
                     GUI::UserProfile* data = static_cast<GUI::UserProfile*>(m.payload);
-                    App::GetGuiManager()->LoginBox.UpdateUserProfile(data);
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_AVATAR_REQUESTED));
+
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.UpdateUserProfile(data);
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_AVATAR_REQUESTED));
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete data;
                     break;
                 }
 
                 case MSG_NET_USERPROFILE_AVATAR_REQUESTED:
                 {
-                    App::GetGuiManager()->LoginBox.FetchUserProfileAvatar();
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.FetchUserProfileAvatar();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_NET_USERPROFILE_AVATAR_FINISHED:
                 {
-                    App::GetGuiManager()->LoginBox.UpdateUserProfileAvatar(m.description);
+                    try
+                    {
+                        App::GetGuiManager()->LoginBox.UpdateUserProfileAvatar(m.description);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
