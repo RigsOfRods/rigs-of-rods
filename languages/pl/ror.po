@@ -9,13 +9,14 @@
 # Michał Domaradzki <michu97736@wp.pl>, 2024.
 # 987 <antoniosawickips4@gmail.com>, 2024, 2025.
 # Jan Michalski <jmichalski030@gmail.com>, 2025.
+# Dawid <dawidgorski.m@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-01-13 00:00+0000\n"
-"Last-Translator: Jan Michalski <jmichalski030@gmail.com>\n"
+"PO-Revision-Date: 2025-09-03 09:02+0000\n"
+"Last-Translator: Dawid <dawidgorski.m@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
 "Language: pl\n"
@@ -25,7 +26,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
 "n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.13.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -224,18 +225,14 @@ msgid "None"
 msgstr "Brak"
 
 #: Application.cpp:484
-#, fuzzy
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "Wszystko"
 
 #: Application.cpp:485
-#, fuzzy
-#| msgid "Dynamically"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Dynamicznie"
+msgstr "Dynamiczny"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
@@ -260,9 +257,8 @@ msgid "Please clear the place first"
 msgstr "Proszę najpierw wyczyścić miejsce"
 
 #: GameContext.cpp:762
-#, fuzzy
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr "Domyślna skórka '{}' dla aktora '{}' nie znaleziona!"
+msgstr "Nie znaleziono domyślnej skórki '{}' dla aktora '{}'!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
@@ -444,25 +440,19 @@ msgid "Toggles the parking brake"
 msgstr "wł./wył. hamulec ręczny"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "wł./wył. system kontroli trakcji"
+msgstr "Przełącza system kontroli trakcji"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "wł./wył. ABS"
+msgstr "Przełącza ABS"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "wł./wył. światła ostrzegawcze"
+msgstr "Przełącza światła ostrzegawcze"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
@@ -477,7 +467,7 @@ msgstr "Uzyskuje całkowitą ilość węzłów ciężarówki"
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "Bierze całkowitą masę ciężarówki"
+msgstr "Uzyskuje całkowitą masę ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
@@ -497,14 +487,12 @@ msgstr "Zwraca true jeśli światło hamowania jest włączone"
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "Zwraca 'true' jeżeli niestandardowe światła z liczbą są włączone"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "włącz lub wyłącz tryb powtórek"
+msgstr "Włącza lub wyłącza niestandardowe światło"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
@@ -522,38 +510,34 @@ msgid "Gets the blinking type"
 msgstr "Uzyskuje typ migania"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr "[używa własnych cząsteczek]"
+msgstr "Uzyskuje tryb niestandardowych cząsteczek"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Zwraca 'true' jeżeli tylne światła są włączone"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Zwraca zmienną obrotu w którą zmierza pojazd"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "Zwraca 'true' jeżeli hak od tego pojazdu jest zablokowany"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Otrzymuje bieżącą prędkość koła pojazdu"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
-#, fuzzy
-#| msgid "remove current truck"
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr "usuń aktualny pojazd"
+msgstr "Otrzymuje bieżącą prędkość pojazdu"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
@@ -603,28 +587,24 @@ msgstr ""
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
-#, fuzzy
-#| msgid "Static friction coef"
 msgctxt "About"
 msgid "Static collision debug"
-msgstr "Współczynnik tarcia statycznego"
+msgstr "Debugowanie kolizji statycznej"
 
 #: gui/panels/GUI_ConsoleView.cpp:249
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "W obszarze:"
 
 #: gui/panels/GUI_ConsoleView.cpp:250
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Echo pliku logów"
 
 #: gui/panels/GUI_ConsoleView.cpp:251
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Opis: "
+msgstr "Skryptowanie"
 
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
@@ -632,16 +612,14 @@ msgid "Actors"
 msgstr "Aktorzy"
 
 #: gui/panels/GUI_ConsoleView.cpp:253
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Ładowanie terenu"
+msgstr "Teren"
 
 #: gui/panels/GUI_ConsoleView.cpp:256
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Poziom:"
 
 #: gui/panels/GUI_ConsoleView.cpp:257
 msgctxt "Console"
@@ -659,11 +637,9 @@ msgid "Errors"
 msgstr "Błędy"
 
 #: gui/panels/GUI_ConsoleView.cpp:260
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "przyłącz się do czatu"
+msgstr "Czat netowy"
 
 #: gui/panels/GUI_ConsoleView.cpp:261 gui/panels/GUI_ConsoleWindow.cpp:55
 msgctxt "Console"
@@ -676,26 +652,20 @@ msgid "Filter options"
 msgstr "Opcje filtrowania"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "AngelScript"
-msgstr "Opis: "
+msgstr "AngelScript"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Opis: "
+msgstr "Monitor skryptów"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Komenda 1"
+msgstr "Komenda"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
@@ -708,9 +678,10 @@ msgid "You are on foot."
 msgstr "Jesteś pieszo."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
+#, fuzzy
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
-msgstr ""
+msgstr "Ten pojazd nie ma flexbodiów lub propów."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
@@ -718,54 +689,36 @@ msgid "Select element"
 msgstr "Wybierz element"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
 msgstr "Ustawienia tarcia"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
-#, fuzzy
-#| msgid "Current active Ground: "
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
 msgstr "Aktualnie aktywna nawierzchnia: "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
-#, fuzzy
-#| msgid "selected Ground Type:"
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
 msgstr "wybrany rodzaj nawierzchni:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
 msgstr "Ustawienia stałego terenu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
-#, fuzzy
-#| msgid "Solid ground level:"
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
 msgstr "Poziom stałego terenu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid "Solid ground level"
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
 msgstr "Poziom stałego terenu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid ""
-#| "With this you can define how deep the solid ground is. If it is 0 then "
-#| "the surface will be solid. If it is 0.1 then you'll have 10 cm of fluid "
-#| "on top of solid ground. If it is 100 then the solid ground will be way "
-#| "deep (100m), with fluid on top."
 msgctxt "FrictionSettings"
 msgid ""
 "With this you can define how deep the solid ground is. If it is 0 then the "
@@ -779,26 +732,16 @@ msgstr ""
 "(100m), a powyżej będzie się znajdować ciecz."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
-#, fuzzy
-#| msgid "Strength:"
 msgctxt "FrictionSettings"
 msgid "Strength:"
 msgstr "Siła:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid "Strength"
 msgctxt "FrictionSettings"
 msgid "Strength"
 msgstr "Siła"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid ""
-#| "This parameter raises or diminishes surface friction in a generic way. It "
-#| "is here so as to be able to do quick calibrations of friction. Start with "
-#| "having this to 1.0 and after tuning the rest of the surface variables, "
-#| "come back and play with this."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter raises or diminishes surface friction in a generic way. It is "
@@ -812,28 +755,16 @@ msgstr ""
 "się z tym parametrem."
 
 #: gui/panels/GUI_FrictionSettings.cpp:69
-#, fuzzy
-#| msgid "Static friction coef:"
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
-msgstr "Współcz. t. statycznego:"
+msgstr "Współczynnik tarcia statycznego:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid "Static friction coef"
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
 msgstr "Współczynnik tarcia statycznego"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid ""
-#| "Static friction keeps you in the same place when you are stopped on a "
-#| "hill. In the real world this friction is always bigger than dynamic "
-#| "friction (sliding friction). Start with 0.5 and work from there. It is "
-#| "better to try to find some experimentally validated values for this and "
-#| "the rest of surface friction variables in the net, and then to fine tune "
-#| "via strength."
 msgctxt "FrictionSettings"
 msgid ""
 "Static friction keeps you in the same place when you are stopped on a hill. "
@@ -849,26 +780,16 @@ msgstr ""
 "tarcia nawierzchni w Internecie, a potem dostroić poprzez siłę."
 
 #: gui/panels/GUI_FrictionSettings.cpp:72
-#, fuzzy
-#| msgid "Adhesion velocity:"
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity:"
 msgstr "Prędkość adhezji:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
-#, fuzzy
-#| msgid "Adhesion velocity"
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity"
 msgstr "Prędkość adhezji"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
-#, fuzzy
-#| msgid ""
-#| "Below this value static friction laws apply, above it dynamic friction "
-#| "laws apply. Value should be small, in the range of 0.1-0.4 . This "
-#| "velocity threshold is also used by fluid dynamics so you should always "
-#| "define it. NEVER set it to 0."
 msgctxt "FrictionSettings"
 msgid ""
 "Below this value static friction laws apply, above it dynamic friction laws "
@@ -882,25 +803,16 @@ msgstr ""
 "zawsze należy go zdefiniować. NIGDY nie ustawiaj go na 0."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
-#, fuzzy
-#| msgid "Dynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
-msgstr "Współcz. t. kinetycznego:"
+msgstr "Współczynnik tarcia kinetycznego:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid "Dynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef"
 msgstr "Współczynnik tarcia kinetycznego"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid ""
-#| "Or sliding friction coef. It should be smaller than static friction coef. "
-#| "This parameter defines how much friction you'll have when sliding. Try to "
-#| "find some values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "Or sliding friction coef. It should be smaller than static friction coef. "
@@ -912,28 +824,16 @@ msgstr ""
 "w wypadku poślizgu. Spróbuj znaleźć wartości w Internecie."
 
 #: gui/panels/GUI_FrictionSettings.cpp:78
-#, fuzzy
-#| msgid "Hydrodynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
 msgstr "Wsp. t. hydrodynamicznego:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid "Hydrodynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
 msgstr "Współczynnik tarcia hydrodynamicznego"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid ""
-#| "This friction defines the added friction that you'll feel from a surface "
-#| "that has a little film of fluid on it. It is kind of redundant with all "
-#| "the fluid physics below, but it is here so as for experimentally "
-#| "validated values from the net to be usable. If you decide that you'll "
-#| "simulate the film of fluid with the more complex fluid physics below, "
-#| "then just set this to 0."
 msgctxt "FrictionSettings"
 msgid ""
 "This friction defines the added friction that you'll feel from a surface "
@@ -965,12 +865,6 @@ msgid "Stribeck velocity"
 msgstr "Stribeck velocity"
 
 #: gui/panels/GUI_FrictionSettings.cpp:82
-#, fuzzy
-#| msgid ""
-#| "You'll either find stribeck velocity in the net, or the inverse (1/"
-#| "stribeck velocity) of it described as 'stribeck coef'. It defines the "
-#| "shape of the dynamic friction curve. Lets leave it at that. Just find "
-#| "some nice values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "You'll either find stribeck velocity in the net, or the inverse (1/stribeck "
@@ -979,60 +873,40 @@ msgid ""
 "for it from the net."
 msgstr ""
 "Znajdziesz ten parametr (lub jego odwrotność [1/stribeck velocity] jako "
-"stribeck coef) w Internecie. Określa kształt krzywej tarcia kinetycznego "
-"(poprzestańmy na tym). Po prostu znajdź wartość tego parametru w Internecie."
+"stribeck coef) w Internecie. Określa kształt krzywej tarcia kinetycznego ("
+"poprzestańmy na tym). Po prostu znajdź wartość tego parametru w Internecie."
 
 #: gui/panels/GUI_FrictionSettings.cpp:84
-#, fuzzy
-#| msgid "alpha:"
 msgctxt "FrictionSettings"
 msgid "alpha:"
 msgstr "alfa:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Alpha"
 msgctxt "FrictionSettings"
 msgid "Alpha"
 msgstr "Alfa"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Its usual value is 2. But you can try others."
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
 msgstr "Zwykle używana wartość to 2. Możesz jednak próbować także innych."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
 msgstr "Ustawienia cieczy"
 
 #: gui/panels/GUI_FrictionSettings.cpp:89
-#, fuzzy
-#| msgid "Flow behavior index:"
 msgctxt "FrictionSettings"
 msgid "Flow behavior index:"
 msgstr "Indeks zachowania prądu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
-#, fuzzy
-#| msgid "Flow behavior index"
 msgctxt "FrictionSettings"
 msgid "Flow behavior index"
 msgstr "Indeks zachowania prądu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
-#, fuzzy
-#| msgid ""
-#| "If it is 1.0 then the fluid will behave like water. The lower you get "
-#| "from 1.0, the more like mud the fluid will behave, meaning that for small "
-#| "velocities the fluid will resist motion and for large velocities the "
-#| "fluid will not resist so much. The higher you get from 1.0 the more like "
-#| "sand the fluid will behave. The bigger the velocity, the bigger the "
-#| "resistance of the fluid (try to hit sand hard it'll feel like stone)."
 msgctxt "FrictionSettings"
 msgid ""
 "If it is 1.0 then the fluid will behave like water. The lower you get from "
@@ -1051,24 +925,16 @@ msgstr ""
 "jak kamień)."
 
 #: gui/panels/GUI_FrictionSettings.cpp:92
-#, fuzzy
-#| msgid "Flow consistency:"
 msgctxt "FrictionSettings"
 msgid "Flow consistency:"
 msgstr "Spójność przepływu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
-#, fuzzy
-#| msgid "Flow consistency"
 msgctxt "FrictionSettings"
 msgid "Flow consistency"
 msgstr "Spójność przepływu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
-#, fuzzy
-#| msgid ""
-#| "Think of it as default fluid resistance. Behavior index above changes it "
-#| "at real time. Useful values in practice are quite large."
 msgctxt "FrictionSettings"
 msgid ""
 "Think of it as default fluid resistance. Behavior index above changes it at "
@@ -1079,30 +945,16 @@ msgstr ""
 "całkiem duże."
 
 #: gui/panels/GUI_FrictionSettings.cpp:95
-#, fuzzy
-#| msgid "Fluid density:"
 msgctxt "FrictionSettings"
 msgid "Fluid density:"
 msgstr "Spoistość cieczy:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
-#, fuzzy
-#| msgid "Fluid density"
 msgctxt "FrictionSettings"
 msgid "Fluid density"
 msgstr "Spoistość cieczy"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
-#, fuzzy
-#| msgid ""
-#| "In mud (or sand) the resistance of the fluid described by the parameters "
-#| "above will stop you and so keep you from sinking. But for substances like "
-#| "water it isn't the drag that stops you from sinking. Its buoyancy. This "
-#| "parameter is here so as to keep you from sinking when you wish to "
-#| "simulate fluids with low drag (resistance). For fluids like mud or sand "
-#| "you can put it at 0, but it is best to keep it at some minimum value. For "
-#| "fluids with behavior index >=1 it will behave like you are in water. For "
-#| "fluids with behavior index <1 it'll behave like you are in mud."
 msgctxt "FrictionSettings"
 msgid ""
 "In mud (or sand) the resistance of the fluid described by the parameters "
@@ -1123,8 +975,6 @@ msgstr ""
 "mniejszych od 1 - jak błoto."
 
 #: gui/panels/GUI_FrictionSettings.cpp:98
-#, fuzzy
-#| msgid "Drag anisotropy:"
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy:"
 msgstr "Anizotropowość oporu ruchu:"
@@ -1230,8 +1080,6 @@ msgid "Whisper message not sent, unknown username: {}"
 msgstr "Wiadomość szeptem nie wysłana, nieznana nazwa: {}"
 
 #: gui/panels/GUI_GameChatBox.cpp:199
-#, fuzzy
-#| msgid "usage: /whisper username message"
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
 msgstr "użycie: /whisper użytkownik wiadomość"
@@ -1239,12 +1087,12 @@ msgstr "użycie: /whisper użytkownik wiadomość"
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Naciśnij nowy klawisz"
 
 #: gui/panels/GUI_GameControls.cpp:74
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "EXPL"
 
 #: gui/panels/GUI_GameControls.cpp:83
 msgctxt "GameControls"
@@ -1252,6 +1100,9 @@ msgid ""
 "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"Ze znacznikiem EXPL, tylko dokładnie te same combo klawiszy będą wywoływane."
+"\n"
+"Bez znacznika, wywoływane będą także częściowe dopasowania."
 
 #: gui/panels/GUI_GameControls.cpp:87
 msgctxt "GameControls"
@@ -1259,25 +1110,23 @@ msgid ""
 "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
 "but not COMMANDS_02 which has EXPL tag."
 msgstr ""
+"Przykład: Naciśnięcie CTRL+F1 wywoła COMMANDS_03 i COMMANDS_01\n"
+"ale nie COMMANDS_02 który ma znacznik EXPL."
 
 #: gui/panels/GUI_GameControls.cpp:108
-#, fuzzy
-#| msgid "Arcade Controls"
 msgctxt "GameControls"
 msgid "Game Controls"
-msgstr "Sterowanie zręcznościowe"
+msgstr "Sterowanie gry"
 
 #: gui/panels/GUI_GameControls.cpp:116
-#, fuzzy
-#| msgid "Save as PNG"
 msgctxt "GameControls"
 msgid "Save changes"
-msgstr "zapisz jako PNG"
+msgstr "Zapisz zmiany"
 
 #: gui/panels/GUI_GameControls.cpp:121
 msgctxt "GameControls"
 msgid "Reset changes"
-msgstr ""
+msgstr "Resetuj zmiany"
 
 #. Device type selector
 #. - General BeginCombo() API, you have full control over your selection data and display type.
@@ -1288,15 +1137,11 @@ msgstr "Typ wydarzenia"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
-#, fuzzy
-#| msgid "OK"
 msgctxt "GameSettings"
 msgid "OK"
-msgstr "OK"
+msgstr "Ok"
 
 #: gui/panels/GUI_GameControls.cpp:285
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "GameSettings"
 msgid "Cancel"
 msgstr "Anuluj"
@@ -1327,25 +1172,19 @@ msgid "Repository"
 msgstr "Repozytorium"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
-#, fuzzy
-#| msgid "Settings"
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Ustawienia"
 
 #: gui/panels/GUI_GameMainMenu.cpp:161 gui/panels/GUI_GameMainMenu.cpp:175
-#, fuzzy
-#| msgid "Controls"
 msgctxt "MainMenu"
 msgid "Controls"
 msgstr "Sterowanie"
 
 #: gui/panels/GUI_GameMainMenu.cpp:167
-#, fuzzy
-#| msgid "About"
 msgctxt "MainMenu"
 msgid "About"
-msgstr "Około"
+msgstr "O nas"
 
 #: gui/panels/GUI_GameMainMenu.cpp:181
 msgid "Return to menu"
@@ -1515,14 +1354,12 @@ msgstr "Długość powtórki"
 #: gui/panels/GUI_GameSettings.cpp:256
 msgctxt "GameSettings"
 msgid "Replay stepping"
-msgstr ""
+msgstr "Klatkowanie odtwarzania"
 
 #: gui/panels/GUI_GameSettings.cpp:259
-#, fuzzy
-#| msgid "[forwards commands]"
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
-msgstr "[przekazuje komendy]"
+msgstr "Realistyczne przekazywanie komend"
 
 #: gui/panels/GUI_GameSettings.cpp:261
 msgctxt "GameSettings"
@@ -1547,27 +1384,22 @@ msgstr "Discord Rich Presence"
 #: gui/panels/GUI_GameSettings.cpp:268
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
-msgstr ""
+msgstr "Potwierdza pokazanie. Interfejs dialogu dla szybkiego ładowania"
 
 #: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show controls in live repair box"
-msgstr ""
+msgstr "Pokaż sterowanie w oknie naprawiania"
 
 #: gui/panels/GUI_GameSettings.cpp:272
-#, fuzzy
-#| msgid "Vehicle destruction: "
 msgctxt "GameSettings"
 msgid "Show vehicle buttons menu"
-msgstr "Pojazd zniszczony: "
+msgstr "Pokaż menu przycisków pojazdu"
 
 #: gui/panels/GUI_GameSettings.cpp:274
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Enable particle gfx"
 msgctxt "GameSettings"
 msgid "Enable vehicle tuning"
-msgstr "Włącz efekty cząsteczkowe"
+msgstr "Włącz tuning pojazdu"
 
 #: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
@@ -1600,16 +1432,14 @@ msgid "Video settings"
 msgstr "Ustawienia grafiki"
 
 #: gui/panels/GUI_GameSettings.cpp:311
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Żadne źródła światła"
+msgstr "Źródła światła"
 
 #: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
-msgstr ""
+msgstr "Typ cienia (wymaga ponownego uruchomienia)"
 
 #: gui/panels/GUI_GameSettings.cpp:319
 msgctxt "GameSettings"
@@ -1624,7 +1454,7 @@ msgstr "Jakość cieni"
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "Efekty nieba"
 
 #: gui/panels/GUI_GameSettings.cpp:331
 msgctxt "GameSettings"
