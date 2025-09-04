@@ -12,13 +12,14 @@
 # freddii <fredfire11@gmail.com>, 2021.
 # Finn Giangiacomo <finn.giangiacomo@gmail.com>, 2021.
 # Daniel Götter <daniel.goetter@gmx.de>, 2021.
+# "Mirko P." <michoo@outlook.de>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2021-11-20 08:53+0000\n"
-"Last-Translator: Daniel Götter <daniel.goetter@gmx.de>\n"
+"PO-Revision-Date: 2025-09-05 00:01+0000\n"
+"Last-Translator: \"Mirko P.\" <michoo@outlook.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "de/>\n"
 "Language: de\n"
@@ -26,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.9.1\n"
+"X-Generator: Weblate 5.13.1-rc\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -60,72 +61,51 @@ msgstr ""
 "Fehlerhafter Ressourcenordner. Überprüfen Sie, ob es richtig installiert ist."
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr "Automatik"
+msgstr "Automatisches Schalten"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Manuelle Schaltung - Automatische Kupplung"
+msgstr "Manuelles Schalten mit automatischer Kupplung"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Vollmanuell: Sequenzielle Schaltung"
+msgstr "Vollständig manuell: sequentielles Schalten"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: stick shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Vollmanuell: Schalthebel"
+msgstr "Vollständig manuell: Schaltgetriebe"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Vollmanuell: Schaltung per Schalthebel (mit Gangstufen)"
+msgstr "Vollständig manuell: Schaltgetriebe mit Gängen"
 
 #: Application.cpp:400
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Keine (am schnellsten)"
 
 #: Application.cpp:401
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Lichtquellen"
+msgstr "Keine Lichtquellen"
 
 #: Application.cpp:402
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Alle Fahrzeuge, nur Hauptlichter"
+msgstr "Nur aktuelles Fahrzeug, Hauptscheinwerfer"
 
 #: Application.cpp:403
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr "Alle Fahrzeuge, nur Hauptlichter"
+msgstr "Alle Fahrzeuge, Hauptscheinwerfer"
 
 #: Application.cpp:404
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr "Alle Fahrzeuge, alle Lichter"
@@ -133,76 +113,59 @@ msgstr "Alle Fahrzeuge, alle Lichter"
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Deaktiviert"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "Sandstorm (am schnellsten)"
+msgstr "Sandsturm (am schnellsten)"
 
 #: Application.cpp:424
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
 msgstr "Caelum (am besten aussehend, langsamer)"
 
 #: Application.cpp:425
-#, fuzzy
-#| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Vollständig (sieht am besten aus, langsamer)"
+msgstr "SkyX (am besten aussehend, langsamer)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Keine"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr "Bilinear"
 
 #: Application.cpp:436
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr "Trilinear"
 
 #: Application.cpp:437
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Anisotropy"
+msgstr "Anisotrop"
 
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Keine"
 
 #: Application.cpp:447
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:448
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
@@ -210,45 +173,34 @@ msgstr "50%"
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Vollständig"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Keine"
 
 #: Application.cpp:459
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr "Einfach (am schnellsten)"
+msgstr "Grundlegend (am schnellsten)"
 
 #: Application.cpp:460
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reflections"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
 msgstr "Reflexion"
 
 #: Application.cpp:461
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr "Reflexion + Refraktion (geschwindigkeitsoptimiert)"
+msgstr "Reflexion + Brechung (geschwindigkeitsoptimiert)"
 
 #: Application.cpp:462
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr "Reflexion + Refraktion (qualitätsoptimiert)"
+msgstr "Reflexion + Brechung (qualitätsoptimiert)"
 
 #: Application.cpp:463
-#, fuzzy
-#| msgid "Hydrax"
 msgctxt "GfxWaterMode"
 msgid "HydraX"
 msgstr "Hydrax"
@@ -256,47 +208,42 @@ msgstr "Hydrax"
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Keine"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statisch"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Präsentieren"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Keine"
 
 #: Application.cpp:484
-#, fuzzy
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "Alles"
 
 #: Application.cpp:485
-#, fuzzy
-#| msgctxt "TextureToolWindow"
-#| msgid "Dynamic only"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Nur dynamisch"
+msgstr "Dynamisch"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Hart"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Weich"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -312,7 +259,7 @@ msgstr "Bitte die Fläche erst räumen"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Standard-Skin „{}“ für Akteur „{}“ nicht gefunden!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
@@ -400,7 +347,7 @@ msgstr "Automatische Verfolgung deaktiviert"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Zum Bestätigen gedrückt halten"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -459,63 +406,49 @@ msgid "Memory (Ogre): "
 msgstr "Speicher (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "das Fahrzeug beschleunigen"
+msgstr "Wiegt den Lkw"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "eine Ladung am LKW anhängen"
+msgstr "Ruft den Namen des Lastwagens ab"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Ruft den Namen der Lkw-Datei ab"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Ruft den Namen des beladenen Abschnitts für einen Lkw ab"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "eine Ladung am LKW anhängen"
+msgstr "Ermittelt den Typ des Lastwagens"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "das Fahrzeug beschleunigen"
+msgstr "Setzt den Lkw zurück"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "Parkbremse ein/-ausschalten"
+msgstr "Schaltet die Feststellbremse um"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "Traktionskontrolle ein-/ausschalten"
+msgstr "Schaltet die Traktionskontrolle um"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "Antiblockiersystem ein-/ausschalten"
+msgstr "Schaltet die Antiblockierbremsen ein/aus"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 #, fuzzy
@@ -535,7 +468,7 @@ msgstr "[nutzt benutzerdefinierte Partikel]"
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Ermittelt die Gesamtzahl der Knoten des Lkw"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 #, fuzzy
@@ -547,7 +480,7 @@ msgstr "eine Ladung am LKW anhängen"
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Ermittelt die Gesamtanzahl der Knotenpunkte der Räder des Lastwagens"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
 #, fuzzy
@@ -559,12 +492,14 @@ msgstr "eine Ladung am LKW anhängen"
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Gibt richtig wider, wenn die Bremsleuchte aktiviert ist"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
 msgstr ""
+"Gibt richtig wider, wenn das benutzerdefinierte Licht mit der Nummer "
+"aktiviert ist"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
 #, fuzzy
@@ -576,17 +511,17 @@ msgstr "Wiedergabemodus aktivieren/deaktivieren"
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Ruft den Modus des Lichtsignal ab"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Ruft den Modus des Lichtsignals ab"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Ruft den blinkenden Typ ab"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
 #, fuzzy
@@ -599,22 +534,23 @@ msgstr "[nutzt benutzerdefinierte Partikel]"
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Gibt genau zurück, wenn die Rückfahrscheinwerfer aktiviert sind"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Gibt den Winkel zurück, in den der Lkw fährt"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
 msgstr ""
+"Gibt genau zurück, wenn eine Anhängerkupplung dieses LKWs verriegelt ist"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Erfasst die aktuelle Radgeschwindigkeit des Fahrzeugs"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
 #, fuzzy
@@ -627,7 +563,7 @@ msgstr "Aktuelles Vehikel entfernen"
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "Ermittelt die G-Kräfte, denen dieser Lkw derzeit ausgesetzt ist"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
 #, fuzzy
@@ -777,22 +713,22 @@ msgstr "Befehl"
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "Flexbody/Prop-Debugging"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "Sie sind zu Fuß unterwegs."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
-msgstr ""
+msgstr "Dieses Fahrzeug hat keine Flexbodies oder Requisiten."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "Element auswählen"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 msgctxt "FrictionSettings"
@@ -1207,12 +1143,12 @@ msgstr "Benutzung: /whisper Nutzername Nachricht"
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Drücken Sie eine neue Taste"
 
 #: gui/panels/GUI_GameControls.cpp:74
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "EXPL"
 
 #: gui/panels/GUI_GameControls.cpp:83
 msgctxt "GameControls"
@@ -1220,6 +1156,9 @@ msgid ""
 "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"Mit dem EXPL-Tag werden nur exakt übereinstimmende Tastenkombinationen "
+"ausgelöst.\n"
+"Ohne dieses Tag werden auch teilweise Übereinstimmungen ausgelöst."
 
 #: gui/panels/GUI_GameControls.cpp:87
 msgctxt "GameControls"
@@ -1227,6 +1166,9 @@ msgid ""
 "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
 "but not COMMANDS_02 which has EXPL tag."
 msgstr ""
+"Beispiel: Durch Drücken von STRG+F1 werden COMMANDS_03 und COMMANDS_01 "
+"ausgelöst,\n"
+"jedoch nicht COMMANDS_02, die das EXPL-Tag enthält."
 
 #: gui/panels/GUI_GameControls.cpp:108
 msgctxt "GameControls"
@@ -1254,7 +1196,7 @@ msgstr "Suche zurücksetzen"
 #: gui/panels/GUI_GameControls.cpp:235
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "Veranstaltungstyp"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
@@ -1276,7 +1218,7 @@ msgstr "Abbrechen"
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
@@ -1520,7 +1462,7 @@ msgstr "Zeige Bestätigung. UI Dialog für Schnellladen"
 #: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show controls in live repair box"
-msgstr ""
+msgstr "Steuerelemente in Live-Reparaturfeld anzeigen"
 
 #: gui/panels/GUI_GameSettings.cpp:272
 #, fuzzy
@@ -1591,7 +1533,7 @@ msgstr "Schatten Qualität"
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "Sky gfx"
 
 #: gui/panels/GUI_GameSettings.cpp:331
 msgctxt "GameSettings"
@@ -1667,7 +1609,7 @@ msgstr "Wellen auf dem Wasser"
 #: gui/panels/GUI_GameSettings.cpp:373
 msgctxt "GameSettings"
 msgid "Use alternate vehicle materials"
-msgstr ""
+msgstr "Verwenden Sie alternative Fahrzeugmaterialien"
 
 #: gui/panels/GUI_GameSettings.cpp:378
 msgctxt "GameSettings"
@@ -2268,7 +2210,7 @@ msgstr "Multiplayer Kollisionen"
 #: gui/panels/GUI_MultiplayerSelector.cpp:196
 msgctxt "MultiplayerSelector"
 msgid "Include remote actors when cycling via hotkeys"
-msgstr ""
+msgstr "Fernbedienbare Akteure beim Durchlaufen über Hotkeys einbeziehen"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:203
 msgctxt "MultiplayerSelector"
@@ -2334,7 +2276,7 @@ msgstr "Host/Port"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:415
 msgid "HTTP code: {}"
-msgstr ""
+msgstr "HTTP code: {}"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:425
 msgctxt "MultiplayerSelector"
@@ -2457,7 +2399,7 @@ msgstr "Konnte Verbindung nicht herstellen"
 #: gui/panels/GUI_RepositorySelector.cpp:217
 msgctxt "RepositorySelector"
 msgid "Received malformed data. Please try again."
-msgstr ""
+msgstr "Fehlerhafte Daten empfangen. Bitte versuchen Sie es erneut."
 
 #: gui/panels/GUI_RepositorySelector.cpp:400
 #, fuzzy
@@ -2469,32 +2411,32 @@ msgstr "Rigs of Rods Version: %s"
 #: gui/panels/GUI_RepositorySelector.cpp:490
 msgctxt "RepositorySelector"
 msgid "Sort"
-msgstr ""
+msgstr "Sortieren"
 
 #: gui/panels/GUI_RepositorySelector.cpp:492
 #: gui/panels/GUI_RepositorySelector.cpp:799
 #: gui/panels/GUI_RepositorySelector.cpp:921
 msgctxt "RepositorySelector"
 msgid "Last Update"
-msgstr ""
+msgstr "Letzte Aktualisierung"
 
 #: gui/panels/GUI_RepositorySelector.cpp:497
 msgctxt "RepositorySelector"
 msgid "Date Added"
-msgstr ""
+msgstr "Datum hinzugefügt"
 
 #: gui/panels/GUI_RepositorySelector.cpp:502
 #: gui/panels/GUI_RepositorySelector.cpp:795
 msgctxt "RepositorySelector"
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 #: gui/panels/GUI_RepositorySelector.cpp:507
 #: gui/panels/GUI_RepositorySelector.cpp:801
 #: gui/panels/GUI_RepositorySelector.cpp:927
 msgctxt "RepositorySelector"
 msgid "Downloads"
-msgstr ""
+msgstr "Downloads"
 
 #: gui/panels/GUI_RepositorySelector.cpp:512
 #: gui/panels/GUI_RepositorySelector.cpp:803
@@ -2514,47 +2456,47 @@ msgstr "Anzahl der Dreiecke: "
 #: gui/panels/GUI_RepositorySelector.cpp:529
 msgctxt "RepositorySelector"
 msgid "View"
-msgstr ""
+msgstr "Ansicht"
 
 #: gui/panels/GUI_RepositorySelector.cpp:531
 msgctxt "RepositorySelector"
 msgid "List"
-msgstr ""
+msgstr "Liste"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
 msgid "Compact"
-msgstr ""
+msgstr "Kompakt"
 
 #: gui/panels/GUI_RepositorySelector.cpp:539
 msgctxt "RepositorySelector"
 msgid "Basic"
-msgstr ""
+msgstr "Grundlegend"
 
 #: gui/panels/GUI_RepositorySelector.cpp:551
 msgctxt "RepositorySelector"
 msgid "Search Title, Author"
-msgstr ""
+msgstr "Titel, Autor suchen"
 
 #: gui/panels/GUI_RepositorySelector.cpp:571
 msgctxt "RepositorySelector"
 msgid "Details:"
-msgstr ""
+msgstr "Details:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:574
 msgctxt "RepositorySelector"
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:580
 msgctxt "RepositorySelector"
 msgid "Resource ID:"
-msgstr ""
+msgstr "Ressourcen-ID:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:586
 msgctxt "RepositorySelector"
 msgid "Category:"
-msgstr ""
+msgstr "Kategorie:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:600
 #, fuzzy
@@ -2567,7 +2509,7 @@ msgstr "Beschreibung"
 #: gui/panels/GUI_RepositorySelector.cpp:606
 msgctxt "RepositorySelector"
 msgid "Downloads:"
-msgstr ""
+msgstr "Downloads:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:612
 #, fuzzy
@@ -2593,12 +2535,12 @@ msgstr "Anzahl der Dreiecke: "
 #: gui/panels/GUI_RepositorySelector.cpp:630
 msgctxt "RepositorySelector"
 msgid "Date Added:"
-msgstr ""
+msgstr "Hinzugefügt am:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:637
 msgctxt "RepositorySelector"
 msgid "Last Update:"
-msgstr ""
+msgstr "Letzte Aktualisierung:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:644
 #, fuzzy
@@ -2619,7 +2561,7 @@ msgstr "Autoren"
 #: gui/panels/GUI_RepositorySelector.cpp:656
 msgctxt "RepositorySelector"
 msgid "View URL:"
-msgstr ""
+msgstr "URL anzeigen:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:663
 #, fuzzy
@@ -2648,18 +2590,18 @@ msgstr "Update Cache"
 #: gui/panels/GUI_RepositorySelector.cpp:745
 msgctxt "RepositorySelector"
 msgid "Reinstall"
-msgstr ""
+msgstr "Neu installieren"
 
 #: gui/panels/GUI_RepositorySelector.cpp:749
 msgctxt "RepositorySelector"
 msgid "Install"
-msgstr ""
+msgstr "Installieren"
 
 #: gui/panels/GUI_RepositorySelector.cpp:759
 #: gui/panels/GUI_RepositorySelector.cpp:769
 msgctxt "RepositorySelector"
 msgid "Remove"
-msgstr ""
+msgstr "Entfernen"
 
 #: gui/panels/GUI_RepositorySelector.cpp:797
 #: gui/panels/GUI_RepositorySelector.cpp:1026
@@ -2697,27 +2639,28 @@ msgstr "Szene geladen"
 #: gui/panels/GUI_RepositorySelector.cpp:1033
 msgctxt "RepositorySelector"
 msgid "times"
-msgstr ""
+msgstr "Zeiten"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1177
 msgctxt "RepositorySelector"
 msgid "Sorry, the repository isn't available. Try again later."
 msgstr ""
+"Leider ist das Repository nicht verfügbar. Versuchen Sie es später erneut."
 
 #: gui/panels/GUI_RepositorySelector.cpp:1193
 msgctxt "RepositorySelector"
 msgid "No files available :("
-msgstr ""
+msgstr "Keine Dateien verfügbar :("
 
 #: gui/panels/GUI_RepositorySelector.cpp:1235
 msgid "HTTP response code: {}"
-msgstr ""
+msgstr "HTTP-Antwortcode: {}"
 
 #. Header
 #: gui/panels/GUI_ScriptMonitor.cpp:41
 msgctxt "ScriptMonitor"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:43
 #, fuzzy
@@ -2730,12 +2673,12 @@ msgstr "Dateiname: "
 #: gui/panels/GUI_ScriptMonitor.cpp:45
 msgctxt "ScriptMonitor"
 msgid "Options"
-msgstr ""
+msgstr "Optionen"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:47
 msgctxt "ScriptMonitor"
 msgid "Active"
-msgstr ""
+msgstr "Aktiv"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:66
 #, fuzzy
@@ -2756,22 +2699,22 @@ msgstr "Karte"
 #: gui/panels/GUI_ScriptMonitor.cpp:75
 msgctxt "ScriptMonitor"
 msgid "Reload"
-msgstr ""
+msgstr "Neu laden"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:84
 msgctxt "ScriptMonitor"
 msgid "Stop"
-msgstr ""
+msgstr "Stop"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:91
 msgctxt "ScriptMonitor"
 msgid "Autoload"
-msgstr ""
+msgstr "Automatisches Laden"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:127
 msgctxt "ScriptMonitor"
 msgid "Recent"
-msgstr ""
+msgstr "Kürzlich"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:139
 #, fuzzy
@@ -2783,7 +2726,7 @@ msgstr "Ladeprogramm"
 #: gui/panels/GUI_ScriptMonitor.cpp:147 gui/panels/GUI_ScriptMonitor.cpp:150
 msgctxt "ScriptMonitor"
 msgid "Remove"
-msgstr ""
+msgstr "Entfernen"
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 msgctxt "SimActorStats"
@@ -3170,12 +3113,12 @@ msgstr "Tageszeit:"
 #: gui/panels/GUI_TopMenubar.cpp:606
 msgctxt "TopMenubar"
 msgid "Cycle"
-msgstr ""
+msgstr "Zyklus"
 
 #: gui/panels/GUI_TopMenubar.cpp:609 gui/panels/GUI_TopMenubar.cpp:1106
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "Geschwindigkeit"
 
 #: gui/panels/GUI_TopMenubar.cpp:618
 msgctxt "TopMenubar"
@@ -3243,7 +3186,7 @@ msgstr "Node / Beam Werkzeug"
 #: gui/panels/GUI_TopMenubar.cpp:687
 msgctxt "TopMenubar"
 msgid "FlexBody debug"
-msgstr ""
+msgstr "FlexBody-Debugging"
 
 #: gui/panels/GUI_TopMenubar.cpp:695
 msgctxt "TopMenubar"
@@ -3319,17 +3262,17 @@ msgstr "Wiedergabemodus"
 #: gui/panels/GUI_TopMenubar.cpp:764
 msgctxt "TopMenubar"
 msgid "1 = Solid"
-msgstr ""
+msgstr "1 = Vollständig"
 
 #: gui/panels/GUI_TopMenubar.cpp:765
 msgctxt "TopMenubar"
 msgid "2 = Wireframe"
-msgstr ""
+msgstr "2 = Drahtgittermodell"
 
 #: gui/panels/GUI_TopMenubar.cpp:766
 msgctxt "TopMenubar"
 msgid "3 = Points"
-msgstr ""
+msgstr "3 = Punkte"
 
 #: gui/panels/GUI_TopMenubar.cpp:774
 msgctxt "TopMenubar"
@@ -3465,22 +3408,22 @@ msgstr "Entferne alle Vehicle"
 #: gui/panels/GUI_TopMenubar.cpp:886
 msgctxt "TopMenubar"
 msgid "Distance"
-msgstr ""
+msgstr "Entfernung"
 
 #: gui/panels/GUI_TopMenubar.cpp:890
 msgctxt "TopMenubar"
 msgid "Following distance in meters"
-msgstr ""
+msgstr "Sicherheitsabstand in Metern"
 
 #: gui/panels/GUI_TopMenubar.cpp:931
 msgctxt "TopMenubar"
 msgid "Positioning scheme"
-msgstr ""
+msgstr "Positionierungsschema"
 
 #: gui/panels/GUI_TopMenubar.cpp:933
 msgctxt "TopMenubar"
 msgid "Behind: Set vehicle behind vehicle, in line"
-msgstr ""
+msgstr "Hinter: Fahrzeug hinter Fahrzeug aufstellen, in einer Reihe"
 
 #: gui/panels/GUI_TopMenubar.cpp:934
 msgctxt "TopMenubar"
@@ -3488,16 +3431,18 @@ msgid ""
 "Parallel: Set vehicles in parallel, useful for certain scenarios like drag "
 "races"
 msgstr ""
+"Parallel: Fahrzeuge parallel aufstellen, nützlich für bestimmte Szenarien "
+"wie Dragster-Rennen"
 
 #: gui/panels/GUI_TopMenubar.cpp:953
 msgctxt "TopMenubar"
 msgid "Repeat times"
-msgstr ""
+msgstr "Wiederholungszeiten"
 
 #: gui/panels/GUI_TopMenubar.cpp:957
 msgctxt "TopMenubar"
 msgid "How many times to loop the path"
-msgstr ""
+msgstr "Wie oft soll der Pfad durchlaufen werden"
 
 #: gui/panels/GUI_TopMenubar.cpp:974
 #, fuzzy
@@ -3517,31 +3462,33 @@ msgstr "Terrain-Editor Modus aktiviert"
 msgctxt "TopMenubar"
 msgid "Normal: Modify speed according to turns, other vehicles and character"
 msgstr ""
+"Normal: Geschwindigkeit entsprechend Kurven, anderen Fahrzeugen und "
+"Charakter anpassen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1086
 msgctxt "TopMenubar"
 msgid "Race: Always keep defined speed"
-msgstr ""
+msgstr "Rennen: Immer die festgelegte Geschwindigkeit einhalten"
 
 #: gui/panels/GUI_TopMenubar.cpp:1087
 msgctxt "TopMenubar"
 msgid "Drag Race: Two vehicles performing a drag race"
-msgstr ""
+msgstr "Drag Race: Zwei Fahrzeuge, die ein Drag Race durchführen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1088
 msgctxt "TopMenubar"
 msgid "Crash: Two vehicles driving in opposite direction"
-msgstr ""
+msgstr "Unfall: Zwei Fahrzeuge fahren in entgegengesetzte Richtung"
 
 #: gui/panels/GUI_TopMenubar.cpp:1089
 msgctxt "TopMenubar"
 msgid "Chase: Follow character and player vehicle"
-msgstr ""
+msgstr "Verfolgung: Folge dem Charakter und dem Fahrzeug des Spielers"
 
 #: gui/panels/GUI_TopMenubar.cpp:1110
 msgctxt "TopMenubar"
 msgid "Speed in km/h for land vehicles or knots/s for boats"
-msgstr ""
+msgstr "Geschwindigkeit in km/h für Landfahrzeuge oder Knoten/s für Boote"
 
 #: gui/panels/GUI_TopMenubar.cpp:1117
 #, fuzzy
@@ -3554,12 +3501,12 @@ msgstr "Höhe: "
 #: gui/panels/GUI_TopMenubar.cpp:1121
 msgctxt "TopMenubar"
 msgid "Airplane maximum altitude in feet"
-msgstr ""
+msgstr "Maximale Flughöhe in Fuß"
 
 #: gui/panels/GUI_TopMenubar.cpp:1138 gui/panels/GUI_TopMenubar.cpp:1156
 msgctxt "TopMenubar"
 msgid "Land vehicles, boats and airplanes"
-msgstr ""
+msgstr "Landfahrzeuge, Boote und Flugzeuge"
 
 #: gui/panels/GUI_TopMenubar.cpp:1175
 #, fuzzy
@@ -3573,21 +3520,23 @@ msgstr "Starte..."
 msgctxt "TopMenubar"
 msgid "Select a preset, record or open survey map ({}) to set waypoints."
 msgstr ""
+"Wählen Sie eine Voreinstellung aus, zeichnen Sie auf oder öffnen Sie eine "
+"Umfragekarte ({}), um Wegpunkte festzulegen."
 
 #: gui/panels/GUI_TopMenubar.cpp:1216
 msgctxt "TopMenubar"
 msgid "Stop"
-msgstr ""
+msgstr "Stop"
 
 #: gui/panels/GUI_TopMenubar.cpp:1264
 msgctxt "TopMenubar"
 msgid "Presets"
-msgstr ""
+msgstr "Voreinstellungen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1325
 msgctxt "TopMenubar"
 msgid "No presets found for this terrain :("
-msgstr ""
+msgstr "Für dieses Gelände wurden keine Voreinstellungen gefunden :("
 
 #: gui/panels/GUI_TopMenubar.cpp:1326
 #, fuzzy
@@ -3600,22 +3549,22 @@ msgstr "Voreingestellte Karte"
 #: gui/panels/GUI_TopMenubar.cpp:1347
 msgctxt "TopMenubar"
 msgid "Waypoints"
-msgstr ""
+msgstr "Wegpunkte"
 
 #: gui/panels/GUI_TopMenubar.cpp:1351
 msgctxt "TopMenubar"
 msgid "No waypoints defined."
-msgstr ""
+msgstr "Es sind keine Wegpunkte definiert."
 
 #: gui/panels/GUI_TopMenubar.cpp:1355
 msgctxt "TopMenubar"
 msgid "Export"
-msgstr ""
+msgstr "Export"
 
 #: gui/panels/GUI_TopMenubar.cpp:1382
 msgctxt "TopMenubar"
 msgid "{} waypoints exported to RoR.log"
-msgstr ""
+msgstr "{} Wegpunkte exportiert nach RoR.log"
 
 #: gui/panels/GUI_TopMenubar.cpp:1413
 #, fuzzy
@@ -3628,17 +3577,17 @@ msgstr "Höchstgeschwindigkeit: "
 #: gui/panels/GUI_TopMenubar.cpp:1417
 msgctxt "TopMenubar"
 msgid "Set waypoint speed in km/h for land vehicles"
-msgstr ""
+msgstr "Wegpunktgeschwindigkeit in km/h für Landfahrzeuge einstellen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1419
 msgctxt "TopMenubar"
 msgid "Value -1: Ignore, vehicle will use default speed"
-msgstr ""
+msgstr "Wert -1: Ignorieren, Fahrzeug fährt mit Standardgeschwindigkeit"
 
 #: gui/panels/GUI_TopMenubar.cpp:1420
 msgctxt "TopMenubar"
 msgid "Value >= 5: Override default speed"
-msgstr ""
+msgstr "Wert >= 5: Standardgeschwindigkeit überschreiben"
 
 #: gui/panels/GUI_TopMenubar.cpp:1443
 #, fuzzy
@@ -3651,7 +3600,7 @@ msgstr "Hauptmenü"
 #: gui/panels/GUI_TopMenubar.cpp:1449
 msgctxt "Tuning"
 msgid "You are on foot."
-msgstr ""
+msgstr "Sie sind zu Fuß unterwegs."
 
 #: gui/panels/GUI_TopMenubar.cpp:1450
 #, fuzzy
@@ -3665,17 +3614,17 @@ msgstr "Schick alle Vehicle zum Schlafen"
 #: gui/panels/GUI_TopMenubar.cpp:1459
 msgctxt "Tuning"
 msgid "Saved tuneups ({})"
-msgstr ""
+msgstr "Gespeicherte Optimierungen ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1485
 msgctxt "Tuning"
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1505
 msgctxt "Tuning"
 msgid "Working tuneup"
-msgstr ""
+msgstr "Arbeitsoptimierung"
 
 #: gui/panels/GUI_TopMenubar.cpp:1508
 #, fuzzy
@@ -3696,7 +3645,7 @@ msgstr "Speicherstände"
 #: gui/panels/GUI_TopMenubar.cpp:1521
 msgctxt "Tuning"
 msgid "Overwrite"
-msgstr ""
+msgstr "Überschreiben"
 
 #: gui/panels/GUI_TopMenubar.cpp:1526 gui/panels/GUI_TopMenubar.cpp:1532
 #, fuzzy
@@ -3718,22 +3667,22 @@ msgstr "Speichern als PNG"
 #: gui/panels/GUI_TopMenubar.cpp:2365
 msgctxt "Tuning"
 msgid "Reset"
-msgstr ""
+msgstr "Zurücksetzen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1572
 msgctxt "TopMenubar"
 msgid "Addon parts ({})"
-msgstr ""
+msgstr "Zusatzteile ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1594
 msgctxt "Tuning"
 msgid "Reload"
-msgstr ""
+msgstr "Neu laden"
 
 #: gui/panels/GUI_TopMenubar.cpp:1617
 msgctxt "Tuning"
 msgid "Browse all parts"
-msgstr ""
+msgstr "Alle Teile durchsuchen"
 
 #: gui/panels/GUI_TopMenubar.cpp:1627
 #, fuzzy
@@ -3797,12 +3746,12 @@ msgstr "Spielverhalten"
 #: gui/panels/GUI_TopMenubar.cpp:2034
 msgctxt "TopMenubar"
 msgid "Live repair mode, hit '{}' to stop"
-msgstr ""
+msgstr "Live-Reparaturmodus, zum Beenden ‚{}‘ drücken"
 
 #: gui/panels/GUI_TopMenubar.cpp:2043
 msgctxt "TopMenubar"
 msgid "Quick repair ('{}' for Live repair)"
-msgstr ""
+msgstr "Schnellreparatur („{}“ für Live-Reparatur)"
 
 #: gui/panels/GUI_TopMenubar.cpp:2071
 msgctxt "DirectionArrow"
@@ -3812,7 +3761,7 @@ msgstr "Meter"
 #: gui/panels/GUI_TopMenubar.cpp:2090
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to save and exit"
-msgstr ""
+msgstr "Geländebearbeitungsmodus, zum Speichern und Beenden {} drücken"
 
 #: gui/panels/GUI_TopMenubar.cpp:2139
 msgctxt "TopMenubar"
@@ -3838,17 +3787,17 @@ msgstr "Bewegung"
 #: gui/panels/GUI_TopMenubar.cpp:2183
 msgctxt "LiveRepair"
 msgid "Forward"
-msgstr ""
+msgstr "Weiterleiten"
 
 #: gui/panels/GUI_TopMenubar.cpp:2184
 msgctxt "LiveRepair"
 msgid "Backward"
-msgstr ""
+msgstr "Rückwärts"
 
 #: gui/panels/GUI_TopMenubar.cpp:2186
 msgctxt "LiveRepair"
 msgid "Left"
-msgstr ""
+msgstr "Links"
 
 #: gui/panels/GUI_TopMenubar.cpp:2187
 #, fuzzy
@@ -3861,12 +3810,12 @@ msgstr "Höhe"
 #: gui/panels/GUI_TopMenubar.cpp:2189
 msgctxt "LiveRepair"
 msgid "Up"
-msgstr ""
+msgstr "Hoch"
 
 #: gui/panels/GUI_TopMenubar.cpp:2190
 msgctxt "LiveRepair"
 msgid "Down"
-msgstr ""
+msgstr "Runter"
 
 #: gui/panels/GUI_TopMenubar.cpp:2193
 #, fuzzy
@@ -3892,23 +3841,23 @@ msgstr "Nach rechts lenken"
 #: gui/panels/GUI_TopMenubar.cpp:2201
 msgctxt "LiveRepair"
 msgid "Modifiers"
-msgstr ""
+msgstr "Modifikatoren"
 
 #: gui/panels/GUI_TopMenubar.cpp:2207
 msgctxt "LiveRepair"
 msgid "Slow step"
-msgstr ""
+msgstr "Langsamer Schritt"
 
 #. Left alt
 #: gui/panels/GUI_TopMenubar.cpp:2208
 msgctxt "LiveRepair"
 msgid "Fast step"
-msgstr ""
+msgstr "Schneller Schritt"
 
 #: gui/panels/GUI_TopMenubar.cpp:2209
 msgctxt "LiveRepair"
 msgid "10x step"
-msgstr ""
+msgstr "10-facher Schritt"
 
 #: gui/panels/GUI_TopMenubar.cpp:2213
 #, fuzzy
@@ -3927,12 +3876,12 @@ msgstr "Tempomat an-/abschalten"
 #: gui/panels/GUI_TopMenubar.cpp:2309
 msgctxt "Tuning"
 msgid "Protected"
-msgstr ""
+msgstr "Geschützt"
 
 #: gui/panels/GUI_VehicleButtons.cpp:64
 msgctxt "VehicleButtons"
 msgid "Hover the mouse on the left to see controls"
-msgstr ""
+msgstr "Bewegen Sie die Maus nach links, um die Steuerelemente anzuzeigen"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:82
@@ -4042,6 +3991,8 @@ msgstr "Terrain-Editor Modus aktiviert"
 #: main.cpp:924
 msgid "Press {} or middle mouse click to select an object"
 msgstr ""
+"Drücken Sie {} oder klicken Sie mit der mittleren Maustaste, um ein Objekt "
+"auszuwählen"
 
 #: main.cpp:936
 msgid "Left terrain editing mode"
@@ -4286,11 +4237,11 @@ msgstr "Physik gestartet"
 
 #: physics/ActorSpawner.cpp:134
 msgid "Could not load addon part '{}' (file '{}')"
-msgstr ""
+msgstr "Der Addon-Teil „{}“ (Datei „{}“) konnte nicht geladen werden"
 
 #: physics/ActorSpawner.cpp:139
 msgid "Requested addon part '{}' is not installed"
-msgstr ""
+msgstr "Das angeforderte Add-on-Teil „{}“ ist nicht installiert"
 
 #: physics/Differentials.cpp:52 physics/Differentials.cpp:60
 msgid "invalid"
@@ -4427,55 +4378,63 @@ msgstr "Lade Zips in der Gruppe "
 #: resources/CacheSystem.cpp:1251
 msgid "Failed to load asset pack '{}' (requested by '{}'): {}"
 msgstr ""
+"Das Asset-Paket „{}“ (angefordert von „{}“) konnte nicht geladen werden: {}"
 
 #: resources/CacheSystem.cpp:1257
 msgid "Asset pack '{}' (requested by '{}') not found"
-msgstr ""
+msgstr "Asset-Paket „{}“ (angefordert von „{}“) nicht gefunden"
 
 #: resources/CacheSystem.cpp:1576
 msgctxt "CacheSystem"
 msgid "Cannot create project '{}' - no source mod specified!"
 msgstr ""
+"Das Projekt „{}“ kann nicht erstellt werden – keine Quellmodifikation "
+"angegeben!"
 
 #: resources/CacheSystem.cpp:1588
 msgctxt "CacheSystem"
 msgid "Project directory '{}' already exists!"
-msgstr ""
+msgstr "Das Projektverzeichnis ‚{}‘ existiert bereits!"
 
 #: resources/CacheSystem.cpp:1595
 msgctxt "CacheSystem"
 msgid "Project directory '{}' could not be created!"
-msgstr ""
+msgstr "Das Projektverzeichnis ‚{}‘ konnte nicht erstellt werden!"
 
 #: resources/CacheSystem.cpp:1708
 msgctxt "CacheSystem"
 msgid "Could not copy file '{}' to project '{}', message: {}."
 msgstr ""
+"Die Datei „{}“ konnte nicht in das Projekt „{}“ kopiert werden, Meldung: {}."
 
 #: resources/CacheSystem.cpp:1740
 msgctxt "CacheSystem"
 msgid "Unexpected error creating project '{}', message: {}"
-msgstr ""
+msgstr "Unerwarteter Fehler beim Erstellen des Projekts „{}“, Meldung: {}"
 
 #: resources/CacheSystem.cpp:1832
 msgctxt "CacheSystem"
 msgid "Error loading tuneup: file '{}', not found in mod cache"
-msgstr ""
+msgstr "Fehler beim Laden von Tuneup: Datei ‚{}‘ nicht im Mod-Cache gefunden"
 
 #: resources/CacheSystem.cpp:1889
 msgctxt "CacheSystem"
 msgid "Problem deleting project '{}' - could not delete file '{}'"
 msgstr ""
+"Problem beim Löschen des Projekts ‚{}‘ – Datei ‚{}‘ konnte nicht gelöscht "
+"werden"
 
 #: resources/CacheSystem.cpp:1899
 msgctxt "CacheSystem"
 msgid "Problem deleting project '{}' - could not delete directory '{}'"
 msgstr ""
+"Problem beim Löschen des Projekts ‚{}‘ – Verzeichnis ‚{}‘ konnte nicht "
+"gelöscht werden"
 
 #: resources/CacheSystem.cpp:1912
 msgctxt "CacheSystem"
 msgid "Unexpected error deleting project '{}'"
-msgstr ""
+msgstr "Unerwarteter Fehler beim Löschen des Projekts '{}'"
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
@@ -4629,12 +4588,12 @@ msgstr "Karte"
 #: resources/CacheSystem.h:415
 msgctxt "ModCategory"
 msgid "Projects"
-msgstr ""
+msgstr "Projekte"
 
 #: resources/CacheSystem.h:416
 msgctxt "ModCategory"
 msgid "Tuneups"
-msgstr ""
+msgstr "Tuning"
 
 #. do not use category numbers above 9000!
 #: resources/CacheSystem.h:419
@@ -4666,6 +4625,8 @@ msgstr "nutze online Programmierschnittstelle..."
 #: scripting/GameScript.cpp:911
 msgid "Cannot use Online API in this build (CURL not available)"
 msgstr ""
+"Die Online-API kann in dieser Version nicht verwendet werden (CURL nicht "
+"verfügbar)"
 
 #: system/AppCommandLine.cpp:165
 msgid "Command Line Arguments"
@@ -4849,10 +4810,12 @@ msgid ""
 "Failed to load script. See 'Angelscript.log' or use console command `log` "
 "and retry."
 msgstr ""
+"Das Skript konnte nicht geladen werden. Siehe „Angelscript.log” oder "
+"verwende den Konsolenbefehl „log” und versuche es erneut."
 
 #: system/ConsoleCmd.cpp:424
 msgid "Script '{}' running with ID '{}'"
-msgstr ""
+msgstr "Skript „{}“ wird mit der ID „{}“ ausgeführt"
 
 #: system/ConsoleCmd.cpp:442
 msgid "Print cvars with one of <expr> in name"
@@ -5030,7 +4993,7 @@ msgstr "Konfigurierungsdatei konnte nicht geschrieben werden"
 
 #: terrain/TerrainObjectManager.cpp:583
 msgid "Could not load mesh '{}' (used by object '{}')"
-msgstr ""
+msgstr "Das Netz „{}“ (verwendet vom Objekt „{}“) konnte nicht geladen werden"
 
 #: utils/ErrorUtils.cpp:45
 msgid ""
@@ -7240,12 +7203,12 @@ msgstr "Fahrzeug neu laden"
 #: utils/InputEngine.cpp:386
 msgctxt "InputEvent"
 msgid "insert road point"
-msgstr ""
+msgstr "Straßenpunkt einfügen"
 
 #: utils/InputEngine.cpp:387
 msgctxt "InputEvent"
 msgid "go to road point"
-msgstr ""
+msgstr "zum Straßenpunkt gehen"
 
 #: utils/InputEngine.cpp:388
 #, fuzzy
@@ -7257,46 +7220,46 @@ msgstr "Fahrzeug zur Anfangsposition zurücksetzen"
 #: utils/InputEngine.cpp:389
 msgctxt "InputEvent"
 msgid "delete road point"
-msgstr ""
+msgstr "Straßenpunkt löschen"
 
 #: utils/InputEngine.cpp:390
 msgctxt "InputEvent"
 msgid "regenerate road mesh"
-msgstr ""
+msgstr "Straßennetz regenerieren"
 
 #: utils/InputEngine.cpp:1742
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(Bitte eine Taste drücken)"
 
 #: utils/InputEngine.cpp:2198
 msgctxt "ModifierKey"
 msgid "Left Alt"
-msgstr ""
+msgstr "Linke Alt"
 
 #: utils/InputEngine.cpp:2199
 msgctxt "ModifierKey"
 msgid "Left Shift"
-msgstr ""
+msgstr "Links Shift"
 
 #: utils/InputEngine.cpp:2200
 msgctxt "ModifierKey"
 msgid "Left Ctrl"
-msgstr ""
+msgstr "Links Ctrl"
 
 #: utils/InputEngine.cpp:2202
 msgctxt "ModifierKey"
 msgid "Right Alt"
-msgstr ""
+msgstr "Alt rechts"
 
 #: utils/InputEngine.cpp:2203
 msgctxt "ModifierKey"
 msgid "Right Shift"
-msgstr ""
+msgstr "Rechts Shift"
 
 #: utils/InputEngine.cpp:2204
 msgctxt "ModifierKey"
 msgid "Right Ctrl"
-msgstr ""
+msgstr "Rechts Ctrl"
 
 #~ msgctxt "GameSettings"
 #~ msgid "Classic material shaders (experimental)"
