@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-06-03 22:36+0000\n"
+"PO-Revision-Date: 2025-09-05 22:01+0000\n"
 "Last-Translator: Егор Печенька <jaz644088@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || ("
 "n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13.1-rc\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -100,12 +100,12 @@ msgstr "Только у текущего транспортного средст
 #: Application.cpp:403
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr "Все транспортные средства, основные фары"
+msgstr "Весь транспорт, основные фары"
 
 #: Application.cpp:404
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr "Все транспортные средства, все фары"
+msgstr "Весь транспорт, все фары"
 
 #: Application.cpp:413
 msgctxt "GfxShadowType"
@@ -2745,7 +2745,7 @@ msgstr "Симуляция"
 #: gui/panels/GUI_TopMenubar.cpp:139
 msgctxt "TopMenubar"
 msgid "Vehicles"
-msgstr "Транспортные средства"
+msgstr "Транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:140
 msgctxt "TopMenubar"
@@ -2983,9 +2983,7 @@ msgstr "Варианты управления транспортного сре�
 #: gui/panels/GUI_TopMenubar.cpp:631
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
-msgstr ""
-"Учёт отдачи на рулевую систему при повороте с клавиатуры (если опция "
-"включена - руль будет вращаться сложнее при высокой скорости)"
+msgstr "Имитация обратной связи на поворот с клавиатуры"
 
 #: gui/panels/GUI_TopMenubar.cpp:636
 msgctxt "TopMenubar"
@@ -4198,7 +4196,7 @@ msgstr "Грузоподъемник"
 #: resources/CacheSystem.h:391
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr "Вымышленные транспортные средства"
+msgstr "Вымышленный транспорт"
 
 #: resources/CacheSystem.h:392
 msgctxt "ModCategory"
