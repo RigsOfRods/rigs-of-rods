@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-09-05 22:01+0000\n"
+"PO-Revision-Date: 2025-09-08 03:02+0000\n"
 "Last-Translator: Егор Печенька <jaz644088@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || ("
 "n%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 5.13.1-rc\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -1023,7 +1023,7 @@ msgstr "Время сборки"
 #: gui/panels/GUI_GameAbout.cpp:63
 msgctxt "About"
 msgid "Authors"
-msgstr "Авторы игры"
+msgstr "Авторы"
 
 #: gui/panels/GUI_GameAbout.cpp:68
 msgctxt "About"
@@ -3610,17 +3610,17 @@ msgstr "Быстрее"
 #: gui/panels/GUI_TopMenubar.cpp:2209
 msgctxt "LiveRepair"
 msgid "10x step"
-msgstr "В 10 раз быстрее"
+msgstr "10х быстрее"
 
 #: gui/panels/GUI_TopMenubar.cpp:2213
 msgctxt "LiveRepair"
 msgid "Reset mode"
-msgstr "Режим сброса"
+msgstr "Режим починки"
 
 #: gui/panels/GUI_TopMenubar.cpp:2216
 msgctxt "LiveRepair"
 msgid "Switch reset mode"
-msgstr "Переключить режим сброса"
+msgstr "Переключить режим починки"
 
 #: gui/panels/GUI_TopMenubar.cpp:2309
 msgctxt "Tuning"
@@ -3642,7 +3642,7 @@ msgstr "Управление"
 #: gui/panels/GUI_VehicleButtons.cpp:129
 msgctxt "VehicleButtons"
 msgid "Custom Lights"
-msgstr "Пользовательские огни"
+msgstr "Пользовательский свет"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:135
@@ -3686,7 +3686,7 @@ msgstr "Режим экрана изменен на оконный"
 #: main.cpp:460
 msgctxt "Network"
 msgid "Network disconnected"
-msgstr "Сеть разъединена"
+msgstr "Отключено от сети"
 
 #: main.cpp:468
 msgid "Network fatal error: "
