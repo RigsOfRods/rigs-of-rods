@@ -26,6 +26,7 @@
 #include "Application.h"
 #include "ScriptEngine.h"
 #include "ScriptUtils.h"
+#include <Ogre.h>
 
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
@@ -1028,9 +1029,10 @@ void registerOgreVector3(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("vector3", "bool directionEquals(const vector3 &in, radian &in) const", asMETHOD(Vector3,directionEquals), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-
+#ifndef OGRE_FAST_MATH
     r = engine->RegisterObjectMethod("vector3", "bool isNaN() const", asMETHOD(Vector3,isNaN), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
+#endif
 }
 
 
@@ -1142,9 +1144,10 @@ void registerOgreVector2(AngelScript::asIScriptEngine* engine)
 
     r = engine->RegisterObjectMethod("vector2", "bool positionEquals(const vector2 &in, float) const", asMETHOD(Vector2,positionEquals), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-
+#ifndef OGRE_FAST_MATH
     r = engine->RegisterObjectMethod("vector2", "bool isNaN() const", asMETHOD(Vector2,isNaN), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
+#endif
 }
 
 void registerOgreRadian(AngelScript::asIScriptEngine* engine)
@@ -1383,9 +1386,10 @@ void registerOgreQuaternion(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("quaternion", "bool equals(const quaternion &in, const radian &in) const", asMETHOD(Quaternion,equals), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
+#ifndef OGRE_FAST_MATH
     r = engine->RegisterObjectMethod("quaternion", "bool isNaN() const", asMETHOD(Quaternion,isNaN), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-
+#endif
     // Register some static methods
     r = engine->RegisterGlobalFunction("quaternion Slerp(float, const quaternion &in, const quaternion &in, bool &in)", asFUNCTIONPR(Quaternion::Slerp,(Real fT, const Quaternion&, const Quaternion&, bool), Quaternion), asCALL_CDECL);
     ROR_ASSERT( r >= 0 );

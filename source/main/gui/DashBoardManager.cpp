@@ -863,7 +863,7 @@ bool DashBoard::parseLink(std::string& linkArgs, int& linkID, char& condition, f
 void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
 {
     std::string name = w->getName();
-    std::string debug = w->getUserString("debug");
+    std::string debug = std::string(w->getUserString("debug"));
 
     // make it unclickable
     w->setUserString("interactive", "0");
@@ -923,7 +923,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
     std::string formatNumStr = "format";
     std::string directionNumStr = "direction";
 
-    std::string anim = w->getUserString(animNumStr);
+    std::string anim = std::string(w->getUserString(animNumStr));
     std::string linkArgs;
     if (anim != "")
     {
@@ -1036,11 +1036,11 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                     ctrl.graphicalAnimation.condition = condition;
                     ctrl.graphicalAnimation.conditionArgument = conditionArgument;
 
-                    String texture = w->getUserString(textureNumStr);
+                    String texture = std::string(w->getUserString(textureNumStr));
                     if (!texture.empty())
                         strncpy(ctrl.graphicalAnimation.texture, texture.c_str(), sizeof ctrl.graphicalAnimation.texture);
 
-                    String format = w->getUserString(formatNumStr);
+                    String format = std::string(w->getUserString(formatNumStr));
                     if (!format.empty())
                         strncpy(ctrl.graphicalAnimation.format, format.c_str(), sizeof ctrl.graphicalAnimation.format);
 
@@ -1139,12 +1139,12 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                         ctrl.geometricAnimationCount++;
 
                         // parse more attributes
-                        geometricAnim.wmin = StringConverter::parseReal(w->getUserString(minNumStr));
-                        geometricAnim.wmax = StringConverter::parseReal(w->getUserString(maxNumStr));
-                        geometricAnim.vmin = StringConverter::parseReal(w->getUserString(vminNumStr));
-                        geometricAnim.vmax = StringConverter::parseReal(w->getUserString(vmaxNumStr));
+                        geometricAnim.wmin = StringConverter::parseReal(std::string(w->getUserString(minNumStr)));
+                        geometricAnim.wmax = StringConverter::parseReal(std::string(w->getUserString(maxNumStr)));
+                        geometricAnim.vmin = StringConverter::parseReal(std::string(w->getUserString(vminNumStr)));
+                        geometricAnim.vmax = StringConverter::parseReal(std::string(w->getUserString(vmaxNumStr)));
 
-                        String direction = w->getUserString(directionNumStr);
+                        std::string direction = std::string(w->getUserString(directionNumStr));
                         if (direction == "right")
                             geometricAnim.direction = DIRECTION_RIGHT;
                         else if (direction == "left")

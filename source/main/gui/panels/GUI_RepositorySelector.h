@@ -39,6 +39,15 @@
 #endif //USE_CURL
 
 namespace RoR {
+
+    struct RepoImageDownloadRequest
+    {
+        // Only one should be set!
+        int thumb_resourceitem_idx = -1; //!< fetch thumbnail
+        int attachment_id = -1; //!< download attachment
+        std::string attachment_ext;
+    };
+
 namespace GUI {
 
 struct ResourceCategories
@@ -93,28 +102,11 @@ struct ResourcesCollection
 
 typedef std::map<int, Ogre::TexturePtr> RepoAttachmentsMap; //!< Maps attachment ID to Ogre::TexturePtr
 
-struct RepoWorkQueueTicket
-{
-    // Only one should be set!
-    int thumb_resourceitem_idx = -1; //!< fetch thumbnail
-    int attachment_id = -1; //!< download attachment
-    std::string attachment_ext;
-};
-
-// `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile.
-inline std::ostream& operator<<(std::ostream& os, RepoWorkQueueTicket& val)
-{
-    return os;
-}
-
 class BBCodeDrawingContext;
 
-class RepositorySelector:
-    public Ogre::WorkQueue::RequestHandler, // Processes tasks on background thread
-    public Ogre::WorkQueue::ResponseHandler // Processes task results on rendering thread
+class RepositorySelector
 {
 public:
-    const Ogre::uint16                  WORKQUEUE_ROR_REPO_THUMBNAIL = 1; // Work queue request type, named by OGRE convention.
     const float                         ATTACH_MAX_WIDTH = 160.f;
     const float                         ATTACH_MAX_HEIGHT = 90.f;
     const float                         ATTACH_SPINNER_RADIUS = 20.f;
@@ -139,14 +131,12 @@ public:
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
+    bool                                DownloadImage(RepoImageDownloadRequest* request); //!< To be run on background via Ogre WorkQueue
+    void                                LoadDownloadedImage(RepoImageDownloadRequest* request); //!< To be run on main thread
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item, ImVec2 panel_screenpos, ImVec2 panel_size);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
     void                                DownloadAttachment(int attachment_id, std::string const& attachment_ext);
     void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);
-
-    /// Ogre::WorkQueue API
-    virtual Ogre::WorkQueue::Response*  handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ) override; //!< Processes tasks on background thread
-    virtual void                        handleResponse(const Ogre::WorkQueue::Response *req, const Ogre::WorkQueue *srcQ) override; //!< Processes task results on main thread
 
 private:
     bool                                m_is_visible = false;

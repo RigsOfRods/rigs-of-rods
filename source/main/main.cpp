@@ -56,7 +56,11 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "Utils.h"
+
+#include <Ogre.h>
+#include <OGRE/Bites/OgreSGTechniqueResolverListener.h>
 #include <Overlay/OgreOverlaySystem.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <ctime>
 #include <iomanip>
 #include <string>
@@ -198,6 +202,22 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        //Note: for DirectX this needs to happen early
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            ErrorUtils::ShowError(_L("Startup error"), _L("Failed to setup RTShader system"));
+            return -1;
+        }
+
+        auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADER);
+        mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
+        mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
+        App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
+        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
+        Ogre::MaterialManager::getSingleton().setActiveScheme(Ogre::MSN_SHADERGEN);
+        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
 
         App::CreateGuiManager(); // Needs scene manager
 
@@ -894,6 +914,21 @@ int main(int argc, char *argv[])
                         HandleMsgQueueException(m.type);
                     }
                     delete request;
+                    break;
+                }
+
+                case MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS:
+                {
+                    RepoImageDownloadRequest* rq = static_cast<RepoImageDownloadRequest*>(m.payload);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.LoadDownloadedImage(rq);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete rq;
                     break;
                 }
 

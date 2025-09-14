@@ -18,7 +18,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 
 #include "Actor.h"
 #include "CameraManager.h"
@@ -34,22 +34,19 @@
 using namespace Ogre;
 using namespace RoR;
 
-ShadowManager::ShadowManager()
+RTSSManager::RTSSManager()
 {
 }
 
-ShadowManager::~ShadowManager()
+RTSSManager::~RTSSManager()
 {
 }
 
-void ShadowManager::SetupPSSM()
+void RTSSManager::SetupRTSS()
 {
-    //TODO: reimplement shadow quality
-    if(App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
+    // RTSS PSSM3
+    if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
     {
-        //TODO: Make Per-pixel lighting a separate setting
-        RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
-        // Per-pixel lighting is enabled by default, proceed to PSSM3
         App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
         App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350);
         App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
@@ -59,7 +56,7 @@ void ShadowManager::SetupPSSM()
         App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
 
 
-        auto* pssmSetup = new PSSMShadowCameraSetup();
+        pssmSetup = new PSSMShadowCameraSetup();
         pssmSetup->calculateSplitPoints(3, 1, 500, 1);
         pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
         pssmSetup->setOptimalAdjustFactor(0, 2);
@@ -70,8 +67,13 @@ void ShadowManager::SetupPSSM()
         auto* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
 
         App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(ShadowCameraSetupPtr(pssmSetup));
-        auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
-        subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
+        auto subRenderState = mShaderGenerator->createSubRenderState(RTShader::SRS_INTEGRATED_PSSM3);
         schemRenderState->addTemplateSubRenderState(subRenderState);
     }
+}
+
+void RTSSManager::EnableRTSS(const MaterialPtr& mat)
+{
+    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    mShaderGenerator->createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 }

@@ -32,21 +32,22 @@
 #include "Application.h"
 #include "Application.h"
 
-#include "OgreTerrainPSSMMaterialGenerator.h"
-
 namespace RoR {
 
 /// @addtogroup Gfx
 /// @{
 
-class ShadowManager
+class RTSSManager
 {
 public:
 
-    ShadowManager();
-    ~ShadowManager();
+    RTSSManager();
+    ~RTSSManager();
 
-    void SetupPSSM();
+    void SetupRTSS();
+
+    void EnableRTSS(const Ogre::MaterialPtr& mat);
+    Ogre::PSSMShadowCameraSetup* pssmSetup;
 };
 
 /// @} // addtogroup Gfx

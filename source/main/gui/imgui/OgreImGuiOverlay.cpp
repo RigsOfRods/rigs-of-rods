@@ -268,7 +268,7 @@ void ImGuiOverlay::ImGUIRenderable::initialise(void)
     mRenderOp.indexData->indexStart = 0;
     mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
     mRenderOp.useIndexes = true;
-    mRenderOp.useGlobalInstancingVertexBufferIsAvailable = false;
+    //REMOVED from OGRE14 mRenderOp.useGlobalInstancingVertexBufferIsAvailable = false;
 
     VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
 

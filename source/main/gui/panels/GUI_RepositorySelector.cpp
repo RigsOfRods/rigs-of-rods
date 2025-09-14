@@ -383,11 +383,6 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
 
 RepositorySelector::RepositorySelector()
 {
-    Ogre::WorkQueue* wq = Ogre::Root::getSingleton().getWorkQueue();
-    m_ogre_workqueue_channel = wq->getChannel("RoR/RepoThumbnails");
-    wq->addRequestHandler(m_ogre_workqueue_channel, this);
-    wq->addResponseHandler(m_ogre_workqueue_channel, this);
-
     m_fallback_thumbnail = FetchIcon("ror.png");
 }
 
@@ -1448,10 +1443,14 @@ void RepositorySelector::DownloadAttachment(int attachment_id, std::string const
     else
     {
         // Request the async download
-        RepoWorkQueueTicket ticket;
-        ticket.attachment_id = attachment_id;
-        ticket.attachment_ext = attachment_ext;
-        Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
+        RepoImageDownloadRequest* request = new RepoImageDownloadRequest();
+        request->attachment_id = attachment_id;
+        request->attachment_ext = attachment_ext;
+        Ogre::Root::getSingleton().getWorkQueue()->addTask(
+            [this, request]()
+            {
+                this->DownloadImage(request);
+            });
     }
 }
 
@@ -1648,7 +1647,8 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item,
 
 // -------------------------------------------------------
 // Async thumbnail/attachment download via Ogre::WorkQueue
-// see https://wiki.ogre3d.org/How+to+use+the+WorkQueue
+// NOTE: The API changed in OGRE 14.0
+// see https://github.com/OGRECave/ogre/blob/master/Docs/14-Notes.md#task-based-workqueue
 
 void RepositorySelector::DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor)
 {
@@ -1672,9 +1672,13 @@ void RepositorySelector::DrawThumbnail(ResourceItemArrayPos_t resource_arraypos,
                 && !m_data.items[resource_arraypos].thumbnail_dl_queued)
             {
                 // Image is in visible screen area and not yet downloading.
-                RepoWorkQueueTicket ticket;
-                ticket.thumb_resourceitem_idx = resource_arraypos;
-                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
+                RepoImageDownloadRequest* request = new RepoImageDownloadRequest();
+                request->thumb_resourceitem_idx = resource_arraypos;
+                Ogre::Root::getSingleton().getWorkQueue()->addTask(
+                    [this, request]()
+                    {
+                        this->DownloadImage(request);
+                    });
                 m_data.items[resource_arraypos].thumbnail_dl_queued = true;
             }
         }
@@ -1752,40 +1756,39 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
     }
 }
 
-Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ)
+bool RepositorySelector::DownloadImage(RepoImageDownloadRequest* request)
 {
     // This runs on background worker thread in Ogre::WorkQueue's thread pool.
     // Purpose: to fetch one thumbnail image using CURL.
     // -----------------------------------------------------------------------
 
-    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
     std::string filename, filepath, rg_name, url;
-    if (ticket.thumb_resourceitem_idx != -1)
+    if (request->thumb_resourceitem_idx != -1)
     {
-        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filename = std::to_string(m_data.items[request->thumb_resourceitem_idx].resource_id) + ".png";
         filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
         rg_name = RGN_THUMBNAILS;
-        url = m_data.items[ticket.thumb_resourceitem_idx].icon_url;
+        url = m_data.items[request->thumb_resourceitem_idx].icon_url;
 
     }
-    else if (ticket.attachment_id != -1)
+    else if (request->attachment_id != -1)
     {
-        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
+        filename = fmt::format("{}.{}", request->attachment_id, request->attachment_ext);
         filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
         rg_name = RGN_REPO_ATTACHMENTS;
-        url = "https://forum.rigsofrods.org/attachments/" + std::to_string(ticket.attachment_id);
+        url = "https://forum.rigsofrods.org/attachments/" + std::to_string(request->attachment_id);
     }
     else
     {
         // Invalid request, return empty response.
         LOG("[RoR|RepoUI] Invalid (empty) download request - ignoring it");
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+        return /*success:*/false;
     }
     long response_code = 0;
 
     if (FileExists(filepath))
     {
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+        return /*success:*/false;
     }
     else
     {
@@ -1813,11 +1816,12 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
                     << " Error: '" << curl_easy_strerror(curl_result) << "',"
                     << " HTTP status code: " << response_code;
 
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+                return /*success:*/false;
             }
             else
             {
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(ticket));
+                App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS, request));
+                return /*success:*/true;
             }
         }
         catch (Ogre::Exception& oex)
@@ -1827,28 +1831,27 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
                 fmt::format("Repository UI: cannot download image '{}' - {}",
                     url, oex.getDescription()));
 
-            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+            return /*success:*/false;
         }
     }
 }
 
-void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, const Ogre::WorkQueue *srcQ)
+void RepositorySelector::LoadDownloadedImage(RepoImageDownloadRequest* request)
 {
     // This runs on main thread.
     // It's safe to load the texture and modify GUI data.
     // --------------------------------------------------
 
-    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
     std::string filename, filepath, rg_name;
-    if (ticket.thumb_resourceitem_idx != -1)
+    if (request->thumb_resourceitem_idx != -1)
     {
-        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filename = std::to_string(m_data.items[request->thumb_resourceitem_idx].resource_id) + ".png";
         filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
         rg_name = RGN_THUMBNAILS;
     }
-    else if (ticket.attachment_id != -1)
+    else if (request->attachment_id != -1)
     {
-        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
+        filename = fmt::format("{}.{}", request->attachment_id, request->attachment_ext);
         filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
         rg_name = RGN_REPO_ATTACHMENTS;
     }
@@ -1871,15 +1874,15 @@ void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, co
             tex = m_fallback_thumbnail;
         }
 
-        if (ticket.thumb_resourceitem_idx != -1)
+        if (request->thumb_resourceitem_idx != -1)
         {
             // Thumbnail for resource item
-            m_data.items[ticket.thumb_resourceitem_idx].preview_tex = tex;
+            m_data.items[request->thumb_resourceitem_idx].preview_tex = tex;
         }
-        else if (ticket.attachment_id != -1)
+        else if (request->attachment_id != -1)
         {
             // Attachment image to display in description
-            m_repo_attachments[ticket.attachment_id] = tex;
+            m_repo_attachments[request->attachment_id] = tex;
         }
     }
 }
