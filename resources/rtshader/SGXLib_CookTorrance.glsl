@@ -1,4 +1,12 @@
-#define PI 3.14159265359
+// This file is part of the OGRE project.
+// code adapted from Google Filament
+// SPDX-License-Identifier: Apache-2.0
+
+#include "RTSLib_Lighting.glsl"
+
+#ifdef HAVE_AREA_LIGHTS
+#include "RTSLib_LTC.glsl"
+#endif
 
 #ifdef OGRE_GLSLES
     // min roughness such that (MIN_PERCEPTUAL_ROUGHNESS^4) > 0 in fp16 (i.e. 2^(-14/4), rounded up)
@@ -10,6 +18,24 @@
 #define MEDIUMP_FLT_MAX    65504.0
 #define saturateMediump(x) min(x, MEDIUMP_FLT_MAX)
 
+#define MIN_N_DOT_V 1e-4
+
+struct PixelParams
+{
+    vec3 baseColor;
+    vec3 diffuseColor;
+    float perceptualRoughness;
+    float roughness;
+    vec3  f0;
+    vec3  dfg;
+    vec3  energyCompensation;
+};
+
+float clampNoV(float NoV) {
+    // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
+    return max(NoV, MIN_N_DOT_V);
+}
+
 // Computes x^5 using only multiply operations.
 float pow5(float x) {
     float x2 = x * x;
@@ -18,7 +44,7 @@ float pow5(float x) {
 
 // https://google.github.io/filament/Filament.md.html#materialsystem/diffusebrdf
 float Fd_Lambert() {
-    return 1.0 / PI;
+    return 1.0 / M_PI;
 }
 
 // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/fresnel(specularf)
@@ -77,23 +103,11 @@ float D_GGX(float roughness, float NoH, const vec3 h, const vec3 n) {
 
     float a = NoH * roughness;
     float k = roughness / (oneMinusNoHSquared + a * a);
-    float d = k * k * (1.0 / PI);
+    float d = k * k * (1.0 / M_PI);
     return saturateMediump(d);
 }
 
-float getDistanceAttenuation(const vec3 params, float distance)
-{
-    return 1.0 / (params.x + params.y * distance + params.z * distance * distance);
-}
-
-float getAngleAttenuation(const vec3 params, const vec3 lightDir, const vec3 toLight)
-{
-    float rho		= dot(-lightDir, toLight);
-    float fSpotE	= saturate((rho - params.y) / (params.x - params.y));
-    return pow(fSpotE, params.z);
-}
-
-void evaluateLight(
+vec3 evaluateLight(
                 in vec3 vNormal,
                 in vec3 viewPos,
                 in vec4 lightPos,
@@ -101,10 +115,7 @@ void evaluateLight(
                 in vec4 pointParams,
                 in vec4 vLightDirView,
                 in vec4 spotParams,
-                in vec3 diffuseColor,
-                in vec3 f0,
-                in float roughness,
-                inout vec3 vOutColour)
+                in PixelParams pixel)
 {
     vec3 vLightView = lightPos.xyz;
     float fLightD = 0.0;
@@ -115,7 +126,7 @@ void evaluateLight(
         fLightD     = length(vLightView);
 
         if(fLightD > pointParams.x)
-            return;
+            return vec3_splat(0.0);
     }
 
 	vLightView		   = normalize(vLightView);
@@ -124,29 +135,27 @@ void evaluateLight(
 	float NoL		 = saturate(dot(vNormalView, vLightView));
 
     if(NoL <= 0.0)
-        return; // not lit by this light
+        return vec3_splat(0.0); // not lit by this light
 
     // https://google.github.io/filament/Filament.md.html#toc5.6.2
-    float f90 = saturate(dot(f0, vec3_splat(50.0 * 0.33)));
+    float f90 = saturate(dot(pixel.f0, vec3_splat(50.0 * 0.33)));
 
 	vec3 vView       = -normalize(viewPos);
 
     // https://google.github.io/filament/Filament.md.html#materialsystem/standardmodelsummary
     vec3 h    = normalize(vView + vLightView);
     float NoH = saturate(dot(vNormalView, h));
-    float NoV = abs(dot(vNormalView, vView)) + 1e-5;
+    float NoV = clampNoV(abs(dot(vNormalView, vView)));
 
-    float V = V_SmithGGXCorrelated(roughness, NoV, NoL);
-    vec3 F  = F_Schlick(f0, f90, NoH);
-    float D = D_GGX(roughness, NoH, h, vNormalView);
+    float V = V_SmithGGXCorrelated(pixel.roughness, NoV, NoL);
+    vec3 F  = F_Schlick(pixel.f0, f90, NoH);
+    float D = D_GGX(pixel.roughness, NoH, h, vNormalView);
 
     vec3 Fr = (D * V) * F;
-    vec3 Fd = diffuseColor * Fd_Lambert();
+    vec3 Fd = pixel.diffuseColor * Fd_Lambert();
 
     // https://google.github.io/filament/Filament.md.html#materialsystem/improvingthebrdfs/energylossinspecularreflectance
-    vec3 energyCompensation = vec3_splat(1.0) + f0; // TODO: dfg.y
-
-    vec3 color = NoL * lightColor * (Fr * energyCompensation + Fd);
+    vec3 color = NoL * lightColor * (Fr * pixel.energyCompensation + Fd);
 
     color *= getDistanceAttenuation(pointParams.yzw, fLightD);
 
@@ -155,13 +164,36 @@ void evaluateLight(
         color *= getAngleAttenuation(spotParams.xyz, vLightDirView.xyz, vLightView);
     }
 
-    vOutColour += color;
+    return color;
+}
+
+void PBR_MakeParams(in vec3 baseColor, in vec2 mrParam, inout PixelParams pixel)
+{
+    baseColor = pow(baseColor, vec3_splat(2.2));
+    pixel.baseColor = baseColor;
+
+    float perceptualRoughness = mrParam.x;
+    // Clamp the roughness to a minimum value to avoid divisions by 0 during lighting
+    pixel.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
+    // Remaps the roughness to a perceptually linear roughness (roughness^2)
+    pixel.roughness = perceptualRoughnessToRoughness(pixel.perceptualRoughness);
+
+    float metallic = saturate(mrParam.y);
+    pixel.f0 = computeF0(baseColor, metallic, 0.04);
+    pixel.diffuseColor = computeDiffuseColor(baseColor, metallic);
+
+    pixel.dfg = vec3_splat(0.5); // use full f0 for energy compensation
+    pixel.energyCompensation = vec3_splat(0.0); // will be set later
 }
 
 #if LIGHT_COUNT > 0
 void PBR_Lights(
-#ifdef HAVE_SHADOW_FACTOR
-                in float shadowFactor,
+#ifdef SHADOWLIGHT_COUNT
+                in float shadowFactor[SHADOWLIGHT_COUNT],
+#endif
+#ifdef HAVE_AREA_LIGHTS
+                in sampler2D ltcLUT1,
+                in sampler2D ltcLUT2,
 #endif
                 in vec3 vNormal,
                 in vec3 viewPos,
@@ -171,40 +203,40 @@ void PBR_Lights(
                 in vec4 pointParams[LIGHT_COUNT],
                 in vec4 vLightDirView[LIGHT_COUNT],
                 in vec4 spotParams[LIGHT_COUNT],
-                in vec3 baseColor,
-                in vec2 mrParam,
+                in PixelParams pixel,
                 inout vec3 vOutColour)
 {
-#ifdef DEBUG_PSSM
-	baseColor += pssm_lod_info;
-#endif
+    vOutColour = pow(vOutColour, vec3_splat(2.2)); // gamma to linear
 
-    // gamma to linear
-    baseColor = pow(baseColor, vec3_splat(2.2));
-
-    float perceptualRoughness = mrParam.x;
-    float metallic = saturate(mrParam.y);
-
-    // Clamp the roughness to a minimum value to avoid divisions by 0 during lighting
-    perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
-    // Remaps the roughness to a perceptually linear roughness (roughness^2)
-    float roughness = perceptualRoughnessToRoughness(perceptualRoughness);
-
-    vec3 f0 = computeF0(baseColor, metallic, 0.04);
-    vec3 diffuseColor = computeDiffuseColor(baseColor, metallic);
+    // Energy compensation for multiple scattering in a microfacet model
+    // See "Multiple-Scattering Microfacet BSDFs with the Smith Model"
+    pixel.energyCompensation = 1.0 + pixel.f0 * (1.0 / pixel.dfg.y - 1.0);
 
     for(int i = 0; i < LIGHT_COUNT; i++)
     {
-        evaluateLight(vNormal, viewPos, lightPos[i], lightColor[i].xyz, pointParams[i], vLightDirView[i], spotParams[i],
-                      diffuseColor, f0, roughness, vOutColour);
-
-#ifdef HAVE_SHADOW_FACTOR
-        if(i == 0) // directional lights always come first
-            vOutColour *= shadowFactor;
+#ifdef HAVE_AREA_LIGHTS
+        if(spotParams[i].w == 2.0)
+        {
+            // rect area light
+            vec3 dcol = pixel.diffuseColor;
+            vec3 scol = pixel.f0;
+            evaluateRectLight(ltcLUT1, ltcLUT2, pixel.roughness, normalize(vNormal), viewPos,
+                              lightPos[i].xyz, spotParams[i].xyz, pointParams[i].xyz, scol, dcol);
+            vOutColour += lightColor[i].xyz * (scol + dcol) * 4.0;
+            continue;
+        }
 #endif
+        vec3 lightVal = evaluateLight(vNormal, viewPos, lightPos[i], lightColor[i].xyz, pointParams[i], vLightDirView[i], spotParams[i],
+                        pixel);
+
+#ifdef SHADOWLIGHT_COUNT
+        if(i < SHADOWLIGHT_COUNT)
+            lightVal *= shadowFactor[i];
+#endif
+        vOutColour += lightVal;
     }
 
-    vOutColour += baseColor * pow(ambient.rgb, vec3_splat(2.2));
+    vOutColour += pixel.baseColor * pow(ambient.rgb, vec3_splat(2.2));
 
     // linear to gamma
     vOutColour = pow(vOutColour, vec3_splat(1.0/2.2));

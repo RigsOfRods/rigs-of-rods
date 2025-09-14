@@ -37,7 +37,7 @@ set(SOURCE_FILES
         gfx/IGfxWater.h
         gfx/MovableText.{h,cpp}
         gfx/Renderdash.{h,cpp}
-        gfx/ShadowManager.{h,cpp}
+        gfx/RTSSManager.{h,cpp}
         gfx/SimBuffers.{h,cpp}
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
@@ -197,7 +197,6 @@ set(SOURCE_FILES
         system/Console.{h,cpp}
         system/ConsoleCmd.{h,cpp}
         system/CVar.{h,cpp}
-        terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
         terrain/ProceduralManager.{h,cpp}
         terrain/ProceduralRoad.{h,cpp}
         terrain/SurveyMapEntity.h
@@ -477,14 +476,8 @@ extract_pot("${SOURCE_FILES}")
 # -----------------------
 if (NOT WIN32)
     set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
+    set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 endif ()
-
-if (WIN32)
-    set(CFG_COMMENT_RENDERSYSTEM_GL "# ")
-endif ()
-
-set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
-set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
 if (DEFINED OGRE_PLUGIN_DIR AND NOT WIN32)
     set(PLUGINS_FOLDER "${OGRE_PLUGIN_DIR}")

@@ -77,6 +77,7 @@
 #include <OgreSceneManager.h>
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
+#include <OgreParticleSystemRenderer.h>
 #include <OgreEntity.h>
 #include <climits>
 #include <fmt/format.h>
@@ -7346,7 +7347,7 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
     params["templateName"] = template_name;
 
     Ogre::MovableObject* obj = App::GetGfxScene()->GetSceneManager()->createMovableObject(
-       name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
+       name, Ogre::MOT_PARTICLE_SYSTEM, &params);
     Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
 

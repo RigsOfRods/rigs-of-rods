@@ -110,6 +110,7 @@ enum MsgType
     MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
+    MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
     MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
     MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)
@@ -785,7 +786,6 @@ extern CVar* gfx_surveymap_icons;
 extern CVar* gfx_declutter_map;
 extern CVar* gfx_envmap_enabled;
 extern CVar* gfx_envmap_rate;
-extern CVar* gfx_shadow_quality;
 extern CVar* gfx_skidmarks_mode;
 extern CVar* gfx_sight_range;
 extern CVar* gfx_camera_height;

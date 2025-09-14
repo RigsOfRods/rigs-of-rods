@@ -7,9 +7,8 @@ class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
     default_options = {
-        "ogre3d*:nodeless_positioning": "True",
         "ogre3d*:resourcemanager_strict": "off"
-    }    
+    }
 
     def layout(self):
         self.folders.generators = os.path.join(self.folders.build, "generators")
@@ -18,21 +17,21 @@ class RoR(ConanFile):
         self.requires("angelscript/2.35.1")
         self.requires("discord-rpc/3.4.0@anotherfoxguy/stable")
         self.requires("libcurl/8.2.1")
-        self.requires("fmt/10.1.1")
-        self.requires("mygui/3.4.0@anotherfoxguy/stable")
-        self.requires("ogre3d-caelum/0.6.4@anotherfoxguy/stable")
-        self.requires("ogre3d-pagedgeometry/1.3.0@anotherfoxguy/stable")
-        self.requires("ogre3d/13.6.5@anotherfoxguy/stable", force=True)
+        self.requires("fmt/12.0.0")
+        self.requires("mygui/3.4.3@anotherfoxguy/stable")
+        self.requires("ogre3d-caelum/2025.10@anotherfoxguy/stable")
+        self.requires("ogre3d-pagedgeometry/2025.10@anotherfoxguy/stable")
+        self.requires("ogre3d/14.4.1@anotherfoxguy/stable", force=True)
         self.requires("ois/1.4.1@rigsofrods/custom")
         self.requires("openal-soft/1.22.2")
         self.requires("openssl/3.1.2", force=True)
-        self.requires("rapidjson/cci.20211112", force=True)
+        self.requires("rapidjson/cci.20230929", force=True)
         self.requires("socketw/3.11.0@anotherfoxguy/stable")
 
         self.requires("jasper/4.2.4", override=True)
-        self.requires("libpng/1.6.39", override=True)
+        self.requires("libpng/1.6.40", override=True)
         self.requires("libwebp/1.3.2", override=True)
-        self.requires("zlib/1.2.13", override=True)
+        self.requires("zlib/1.3", override=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
