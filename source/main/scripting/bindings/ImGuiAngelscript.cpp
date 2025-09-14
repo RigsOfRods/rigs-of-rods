@@ -580,7 +580,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("vector2 GetItemRectMin()", asFUNCTIONPR([]() {  auto v = ImGui::GetItemRectMin(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("vector2 GetItemRectMax()", asFUNCTIONPR([]() {  auto v = ImGui::GetItemRectMax(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("vector2 GetItemRectSize()", asFUNCTIONPR([]() {  auto v = ImGui::GetItemRectSize(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void SetItemAllowOverlap()", asFUNCTIONPR([]() {  ImGui::SetItemAllowOverlap();  }, (), void), asCALL_CDECL);
+    //REMOVED FROM DearIMGUI  engine->RegisterGlobalFunction("void SetItemAllowOverlap()", asFUNCTIONPR([]() {  ImGui::SetItemAllowOverlap();  }, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool IsWindowFocused(int = 0)", asFUNCTIONPR([](int a) {  return ImGui::IsWindowFocused(); }, (int), bool), asCALL_CDECL); // TODO: update imgui -- flags omitted
     engine->RegisterGlobalFunction("bool IsWindowHovered(int = 0)", asFUNCTIONPR([](int a) {  return ImGui::IsWindowHovered(); }, (int), bool), asCALL_CDECL); // TODO: update imgui -- flags omitted
     engine->RegisterGlobalFunction("bool IsRectVisible(const vector2&)", asFUNCTIONPR([](const Vector2& a) {  return ImGui::IsRectVisible(ImVec2(a.x, a.y)); }, (const Vector2&), bool), asCALL_CDECL);
@@ -596,10 +596,10 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
         return ImGui::BeginChildFrame(a, ImVec2(b.x,b.y), (ImGuiWindowFlags)c);  }, (unsigned, const Vector2&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndChildFrame()", asFUNCTIONPR([]() {  ImGui::EndChildFrame();  }, (), void), asCALL_CDECL);
 
-    engine->RegisterGlobalFunction("int GetKeyIndex(int)", asFUNCTIONPR([](int a) {  return ImGui::GetKeyIndex((ImGuiKey)a);  }, (int), int), asCALL_CDECL);
-    engine->RegisterGlobalFunction("bool IsKeyDown(int)", asFUNCTIONPR([](int a) {  return ImGui::IsKeyDown(a);  }, (int), bool), asCALL_CDECL);
-    engine->RegisterGlobalFunction("bool IsKeyPressed(int, bool = true)", asFUNCTIONPR([](int a, bool b) {  return ImGui::IsKeyPressed(a, b);  }, (int,bool), bool), asCALL_CDECL);
-    engine->RegisterGlobalFunction("bool IsKeyReleased(int)", asFUNCTIONPR([](int a) {  return ImGui::IsKeyReleased(a);  }, (int), bool), asCALL_CDECL);
+    //OBSOLETE IN DearIMGUI  engine->RegisterGlobalFunction("int GetKeyIndex(int)", asFUNCTIONPR([](int a) {  return ImGui::GetKeyIndex((ImGuiKey)a);  }, (int), int), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool IsKeyDown(int)", asFUNCTIONPR([](int a) {  return ImGui::IsKeyDown((ImGuiKey)a);  }, (int), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool IsKeyPressed(int, bool = true)", asFUNCTIONPR([](int a, bool b) {  return ImGui::IsKeyPressed((ImGuiKey)a, b);  }, (int,bool), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool IsKeyReleased(int)", asFUNCTIONPR([](int a) {  return ImGui::IsKeyReleased((ImGuiKey)a);  }, (int), bool), asCALL_CDECL);
     /*engine->RegisterGlobalFunction("int GetKeyPressedAmount(int, float, float)", asFUNCTIONPR([](int a, float b, float c) {  return ImGui::GetKeyPressedAmount(a, b, c);  }, (int,float,float), int), asCALL_CDECL);*/  // FIXME update imgui
     engine->RegisterGlobalFunction("bool IsMouseDown(int)", asFUNCTIONPR([](int a) {  return ImGui::IsMouseDown(a);  }, (int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool IsMouseClicked(int, bool = false)", asFUNCTIONPR([](int a, bool b) {  return ImGui::IsMouseClicked(a, b); }, (int,bool), bool), asCALL_CDECL);
@@ -614,8 +614,8 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("void ResetMouseDragDelta(int = 0)", asFUNCTIONPR([](int a) {  ImGui::ResetMouseDragDelta(a); }, (int), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("int GetMouseCursor()", asFUNCTIONPR([]() {  return ImGui::GetMouseCursor();  }, (), int), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetMouseCursor(int)", asFUNCTIONPR([](ImGuiMouseCursor a) {  ImGui::SetMouseCursor(a);  }, (int), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void CaptureKeyboardFromApp(bool = true)", asFUNCTIONPR([](bool a) {  ImGui::CaptureKeyboardFromApp(a);  }, (bool), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void CaptureMouseFromApp(bool = true)", asFUNCTIONPR([](bool a) {  ImGui::CaptureMouseFromApp(a);  }, (bool), void), asCALL_CDECL);
+    //REMOVED FROM DearIMGUI  engine->RegisterGlobalFunction("void CaptureKeyboardFromApp(bool = true)", asFUNCTIONPR([](bool a) {  ImGui::CaptureKeyboardFromApp(a);  }, (bool), void), asCALL_CDECL);
+    //REMOVED FROM DearIMGUI  engine->RegisterGlobalFunction("void CaptureMouseFromApp(bool = true)", asFUNCTIONPR([](bool a) {  ImGui::CaptureMouseFromApp(a);  }, (bool), void), asCALL_CDECL);
 
 
     engine->RegisterGlobalFunction("string GetClipboardText()", asFUNCTIONPR([]() { return string(ImGui::GetClipboardText());  }, (), string), asCALL_CDECL);

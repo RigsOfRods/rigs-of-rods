@@ -83,8 +83,8 @@ struct OTCDocument
     bool         norm_map_enabled;
     bool         spec_map_enabled;
     bool         parallax_enabled;
-    bool         global_colormap_enabled;
-    bool         recv_dyn_shadows_depth;
+    bool         global_colormap_enabled; // UNUSED in OGRE14
+    bool         recv_dyn_shadows_depth; // UNUSED in OGRE14
     bool         blendmap_dbg_enabled;
     bool         disable_cache;
     bool         is_flat;

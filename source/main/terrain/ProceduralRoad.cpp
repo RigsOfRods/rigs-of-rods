@@ -27,7 +27,7 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "Terrain.h"
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 
 #include <Ogre.h>
 
@@ -68,11 +68,13 @@ void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
     addQuad(pts[3], pts[2], pts[1], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
 
     createMesh();
+    createMaterial();
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
     snode = groupingSceneNode->createChildSceneNode();
     snode->attachObject(ec);
+    ec->setMaterial(mat);
 
     if (collision)
     {
@@ -592,7 +594,6 @@ void ProceduralRoad::createMesh()
     msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     mainsub = msh->createSubMesh();
-    mainsub->setMaterialName("road2");
 
     /// Define the vertices
     size_t vbufCount = (2 * 3 + 2) * vertexcount;
@@ -681,3 +682,15 @@ void ProceduralRoad::createMesh()
     free(vertices);
 };
 
+void ProceduralRoad::createMaterial()
+{
+    if (!msh)
+    {
+        return;
+    }
+
+    // TODO: allow modders to specify custom material
+    MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName("road2");
+    mat = orig_mat->clone(fmt::format("RoadSystem-Material-{}", mid));
+    App::GetGameContext()->GetTerrain()->getRTSSManager()->EnableRTSS(mat);
+}

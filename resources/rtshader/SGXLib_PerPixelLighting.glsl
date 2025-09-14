@@ -35,202 +35,138 @@ THE SOFTWARE.
 // See http://msdn.microsoft.com/en-us/library/bb147178.aspx
 //-----------------------------------------------------------------------------
 
-#define M_PI 3.141592654
+#include "RTSLib_Lighting.glsl"
+#ifdef HAVE_AREA_LIGHTS
+#include "RTSLib_LTC.glsl"
+#endif
 
 #ifdef OGRE_HLSL
 void SGX_Flip_Backface_Normal(in float triArea, in float targetFlipped, inout vec3 normal)
 {
 #if OGRE_HLSL == 3
 	triArea *= -1.0;
-#endif
 	triArea *= targetFlipped;
+#endif
 	if(triArea < 0.0)
 		normal *= -1.0;
 }
 #else
 void SGX_Flip_Backface_Normal(in bool frontFacing, in float targetFlipped, inout vec3 normal)
 {
-#ifdef VULKAN
-	targetFlipped *= -1.0;
-#endif
-	if(targetFlipped < 0.0)
-		frontFacing = !frontFacing;
 	if(!frontFacing)
 		normal *= -1.0;
 }
 #endif
 
-//-----------------------------------------------------------------------------
-void SGX_Light_Directional_Diffuse(
-				   in vec3 vNormal,
-				   in vec3 vLightDirView,
-				   in vec3 vDiffuseColour, 
-				   inout vec3 vOut)
+void evaluateLight(
+				in vec3 vNormal,
+				in vec3 vViewPos,
+				in vec4 vLightPos,
+				in vec4 vAttParams,
+				in vec4 vLightDirView,
+				in vec4 spotParams,
+				in vec4 vDiffuseColour,
+				inout vec3 vOutDiffuse
+#if defined(TVC_DIFFUSE) || defined(TVC_SPECULAR)
+				, in vec4 vInVertexColour
+#endif
+#ifdef USE_SPECULAR
+				, in vec4 vSpecularColour,
+				in float fSpecularPower,
+				inout vec3 vOutSpecular
+#endif
+#ifdef SHADOWLIGHT_COUNT
+				, in float shadowFactor
+#endif
+#ifdef HAVE_AREA_LIGHTS
+				, in sampler2D ltcLUT1,
+				in sampler2D ltcLUT2
+#endif
+				)
 {
-	vec3 vNormalView = normalize(vNormal);
-	float nDotL = dot(vNormalView, -vLightDirView);
-	
-	vOut += vDiffuseColour * clamp(nDotL, 0.0, 1.0);
-	vOut = clamp(vOut, 0.0, 1.0);
-}
 
-//-----------------------------------------------------------------------------
-void SGX_Light_Directional_DiffuseSpecular(
-					in vec3 vNormal,
-					in vec3 vViewPos,
-					in vec3 vLightDirView,
-					in vec3 vDiffuseColour, 
-					in vec3 vSpecularColour, 
-					in float fSpecularPower,
-					inout vec3 vOutDiffuse,
-					inout vec3 vOutSpecular)
-{
-	vec3 vNormalView = normalize(vNormal);		
-	float nDotL		   = dot(vNormalView, -vLightDirView);
+    vec3 vLightView = vLightPos.xyz;
+    float fLightD = 0.0;
+
+#ifdef TVC_DIFFUSE
+	vDiffuseColour *= vInVertexColour;
+#endif
+
+#ifdef HAVE_AREA_LIGHTS
+	if(spotParams.w == 2.0)
+	{
+		// rect area light
+		vec3 dcol = vDiffuseColour.rgb;
+#ifdef USE_SPECULAR
+#ifdef TVC_SPECULAR
+		vSpecularColour *= vInVertexColour;
+#endif
+		vec3 scol = vSpecularColour.rgb;
+#else
+		vec3 scol = vec3_splat(0.0);
+		float fSpecularPower = 0.0;
+#endif
+		float roughness = saturate(1.0 - fSpecularPower/128.0); // convert specular to roughness
+		roughness *= roughness; // perceptual to physical roughness
+		evaluateRectLight(ltcLUT1, ltcLUT2, roughness, normalize(vNormal), vViewPos, vLightPos.xyz, spotParams.xyz, vAttParams.xyz, scol, dcol);
+
+#ifdef SHADOWLIGHT_COUNT
+		dcol *= shadowFactor;
+		scol *= shadowFactor;
+#endif
+
+		// linear to gamma
+		dcol = pow(dcol, vec3_splat(1.0/2.2));
+		vOutDiffuse.rgb = saturate(vOutDiffuse.rgb + dcol);
+#ifdef USE_SPECULAR
+		scol = pow(scol, vec3_splat(1.0/2.2));
+		vOutSpecular.rgb = saturate(vOutSpecular.rgb + scol);
+#endif
+		return;
+	}
+#endif
+
+    if (vLightPos.w != 0.0)
+    {
+        vLightView -= vViewPos; // to light
+        fLightD     = length(vLightView);
+
+        if(fLightD > vAttParams.x)
+            return;
+    }
+
+	vLightView		   = normalize(vLightView);
+	vec3 vNormalView = normalize(vNormal);
+	float nDotL		   = saturate(dot(vNormalView, vLightView));
+	
+	if (nDotL <= 0.0)
+		return;
+
+	float fAtten	   = getDistanceAttenuation(vAttParams.yzw, fLightD);
+
+#ifdef SHADOWLIGHT_COUNT
+	fAtten *= shadowFactor;
+#endif
+
+    if(spotParams.w != 0.0)
+    {
+        fAtten *= getAngleAttenuation(spotParams.xyz, vLightDirView.xyz, vLightView);
+    }
+
+	vOutDiffuse  += vDiffuseColour.rgb * nDotL * fAtten;
+	vOutDiffuse = saturate(vOutDiffuse);
+
+#ifdef USE_SPECULAR
 	vec3 vView       = -normalize(vViewPos);
-	vec3 vHalfWay    = normalize(vView + -vLightDirView);
-	float nDotH        = dot(vNormalView, vHalfWay);
-	
-	if (nDotL > 0.0)
-	{
-		vOutDiffuse  += vDiffuseColour * nDotL;		
-#ifdef NORMALISED
-		vSpecularColour *= (fSpecularPower + 8.0)/(8.0 * M_PI);
+	vec3 vHalfWay    = normalize(vView + vLightView);
+	float nDotH        = saturate(dot(vNormalView, vHalfWay));
+#ifdef TVC_SPECULAR
+	vSpecularColour *= vInVertexColour;
 #endif
-		vOutSpecular += vSpecularColour * pow(clamp(nDotH, 0.0, 1.0), fSpecularPower);
-        vOutDiffuse = clamp(vOutDiffuse, 0.0, 1.0);
-	    vOutSpecular = clamp(vOutSpecular, 0.0, 1.0);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void SGX_Light_Point_Diffuse(
-				    in vec3 vNormal,
-				    in vec3 vViewPos,
-				    in vec3 vLightPos,
-				    in vec4 vAttParams,
-				    in vec3 vDiffuseColour, 
-				    inout vec3 vOut)
-{
-	vec3 vLightView    = vLightPos - vViewPos;
-	float fLightD      = length(vLightView);
-	vec3 vNormalView = normalize(vNormal);
-	float nDotL        = dot(vNormalView, normalize(vLightView));
-	
-	if (nDotL > 0.0 && fLightD <= vAttParams.x)
-	{
-		float fAtten	   = 1.0 / (vAttParams.y + vAttParams.z*fLightD + vAttParams.w*fLightD*fLightD);
-			
-		vOut += vDiffuseColour * nDotL * fAtten;
-        vOut = clamp(vOut, 0.0, 1.0);
-	}
-}
-
-
-
-//-----------------------------------------------------------------------------
-void SGX_Light_Point_DiffuseSpecular(
-				    in vec3 vNormal,
-				    in vec3 vViewPos,
-				    in vec3 vLightPos,
-				    in vec4 vAttParams,
-				    in vec3 vDiffuseColour, 
-				    in vec3 vSpecularColour, 
-					in float fSpecularPower,
-					inout vec3 vOutDiffuse,
-					inout vec3 vOutSpecular)
-{
-	vec3 vLightView    = vLightPos - vViewPos;
-	float fLightD      = length(vLightView);
-	vLightView		   = normalize(vLightView);	
-	vec3 vNormalView = normalize(vNormal);
-	float nDotL        = dot(vNormalView, vLightView);	
-		
-	if (nDotL > 0.0 && fLightD <= vAttParams.x)
-	{					
-		vec3 vView       = -normalize(vViewPos);
-		vec3 vHalfWay    = normalize(vView + vLightView);		
-		float nDotH        = dot(vNormalView, vHalfWay);
-		float fAtten	   = 1.0 / (vAttParams.y + vAttParams.z*fLightD + vAttParams.w*fLightD*fLightD);					
-		
-		vOutDiffuse  += vDiffuseColour * nDotL * fAtten;
 #ifdef NORMALISED
-		vSpecularColour *= (fSpecularPower + 8.0)/(8.0 * M_PI);
+	vSpecularColour *= (fSpecularPower + 8.0)/(8.0 * M_PI);
 #endif
-		vOutSpecular += vSpecularColour * pow(clamp(nDotH, 0.0, 1.0), fSpecularPower) * fAtten;
-
-        vOutDiffuse = clamp(vOutDiffuse, 0.0, 1.0);
-        vOutSpecular = clamp(vOutSpecular, 0.0, 1.0);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void SGX_Light_Spot_Diffuse(
-				    in vec3 vNormal,
-				    in vec3 vViewPos,
-				    in vec3 vLightPos,
-				    in vec3 vLightDirView,
-				    in vec4 vAttParams,
-				    in vec3 vSpotParams,
-				    in vec3 vDiffuseColour, 
-				    inout vec3 vOut)
-{
-	vec3 vLightView    = vLightPos - vViewPos;
-	float fLightD      = length(vLightView);
-	vLightView		   = normalize(vLightView);
-	vec3 vNormalView = normalize(vNormal);
-	float nDotL        = dot(vNormalView, vLightView);
-	
-	if (nDotL > 0.0 && fLightD <= vAttParams.x)
-	{
-		float fAtten	= 1.0 / (vAttParams.y + vAttParams.z*fLightD + vAttParams.w*fLightD*fLightD);
-		float rho		= dot(-vLightDirView, vLightView);
-		float fSpotE	= clamp((rho - vSpotParams.y) / (vSpotParams.x - vSpotParams.y), 0.0, 1.0);
-		float fSpotT	= pow(fSpotE, vSpotParams.z);	
-						
-		vOut += vDiffuseColour * nDotL * fAtten * fSpotT;
-        vOut = clamp(vOut, 0.0, 1.0);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void SGX_Light_Spot_DiffuseSpecular(
-				    in vec3 vNormal,
-				    in vec3 vViewPos,
-				    in vec3 vLightPos,
-				    in vec3 vLightDirView,
-				    in vec4 vAttParams,
-				    in vec3 vSpotParams,
-				    in vec3 vDiffuseColour, 
-				    in vec3 vSpecularColour, 
-					in float fSpecularPower,
-					inout vec3 vOutDiffuse,
-					inout vec3 vOutSpecular)
-{
-	vec3 vLightView    = vLightPos - vViewPos;
-	float fLightD      = length(vLightView);
-	vLightView		   = normalize(vLightView);
-	vec3 vNormalView = normalize(vNormal);
-	float nDotL        = dot(vNormalView, vLightView);
-	
-	
-	if (nDotL > 0.0 && fLightD <= vAttParams.x)
-	{
-		vec3 vView       = -normalize(vViewPos);
-		vec3 vHalfWay    = normalize(vView + vLightView);				
-		float nDotH        = dot(vNormalView, vHalfWay);
-		float fAtten	= 1.0 / (vAttParams.y + vAttParams.z*fLightD + vAttParams.w*fLightD*fLightD);
-		float rho		= dot(-vLightDirView, vLightView);
-		float fSpotE	= clamp((rho - vSpotParams.y) / (vSpotParams.x - vSpotParams.y), 0.0, 1.0);
-		float fSpotT	= pow(fSpotE, vSpotParams.z);	
-						
-		vOutDiffuse  += vDiffuseColour * nDotL * fAtten * fSpotT;
-#ifdef NORMALISED
-		vSpecularColour *= (fSpecularPower + 8.0)/(8.0 * M_PI);
+	vOutSpecular += vSpecularColour.rgb * pow(nDotH, fSpecularPower) * fAtten;
+	vOutSpecular = saturate(vOutSpecular);
 #endif
-		vOutSpecular += vSpecularColour * pow(clamp(nDotH, 0.0, 1.0), fSpecularPower) * fAtten * fSpotT;
-        vOutDiffuse = clamp(vOutDiffuse, 0.0, 1.0);
-        vOutSpecular = clamp(vOutSpecular, 0.0, 1.0);
-	}
 }
-

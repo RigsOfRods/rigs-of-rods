@@ -1,3 +1,55 @@
+material Core/StatsBlockBorder
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture New_Ogre_Border.png
+			}
+		}
+	}
+}
+material Core/StatsBlockCenter
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture New_Ogre_Border_Center.png
+			}
+		}
+	}
+}
+
+material Core/StatsBreak
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture New_Ogre_Border_Break.png
+			}
+		}
+	}
+}
 
 material Core/ProfilerCurrent
 {

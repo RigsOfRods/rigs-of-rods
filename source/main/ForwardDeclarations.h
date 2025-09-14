@@ -167,7 +167,7 @@ namespace RoR
     class  RigLoadingProfiler;
     class  Screwprop;
     class  ScriptEngine;
-    class  ShadowManager;
+    class  RTSSManager;
     class  Skidmark;
     class  SkidmarkConfig;
     struct SkinDocument;
