@@ -174,7 +174,7 @@ public:
         const NodeNum_t y_node, 
         Ogre::Vector3 offset,
         Ogre::Vector3 rotation, 
-        std::vector<unsigned int> & node_indices,
+        std::vector<NodeNum_t> & node_indices,
         std::vector<ForvertTempData>& forvert_data,
         const std::string& mesh_name,
         const std::string& resource_group_name);
