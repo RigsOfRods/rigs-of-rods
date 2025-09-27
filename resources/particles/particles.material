@@ -9,6 +9,7 @@ material tracks/DustMat
 			scene_blend alpha_blend
 			alpha_rejection greater 2
 			depth_write off
+            diffuse vertexcolour
 
 			texture_unit
 			{
@@ -30,6 +31,7 @@ material tracks/SplashMat
 			scene_blend alpha_blend
 			alpha_rejection greater 2
 			depth_write off
+            diffuse vertexcolour
 
 			texture_unit
 			{
@@ -51,6 +53,7 @@ material tracks/RippleMat
 			scene_blend alpha_blend
 			alpha_rejection greater 2
 			depth_write off
+            diffuse vertexcolour
 
 			texture_unit
 			{
@@ -91,6 +94,7 @@ material tracks/SmokeMat
 			scene_blend alpha_blend
 			alpha_rejection greater 2
 			depth_write off
+            diffuse vertexcolour
 
 			texture_unit
 			{
@@ -161,7 +165,7 @@ material Particles/lensflare
 
 			texture_unit
 			{
-				texture flare.png
+				texture lensflare.png
 			}
 		}
 	}
