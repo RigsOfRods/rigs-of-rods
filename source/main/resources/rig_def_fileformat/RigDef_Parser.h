@@ -131,6 +131,7 @@ private:
     void ParseCommandsUnified();
     void ParseContacter();
     void ParseCruiseControl();
+    void ParseCustomDashboardValues();
     void ParseDescription();
     void ParseEngine();
     void ParseEngoption();
@@ -230,6 +231,7 @@ private:
     BitMask_t          GetArgShock2Options(int index);
     BitMask_t          GetArgShock3Options(int index);
     BitMask_t          GetArgNodeOptions  (int index);
+    int                GetArgDashboardValueDataType(int index);
     EngineType         GetArgEngineType   (int index);
     ManagedMaterialType GetArgManagedMatType(int index);
     RoR::VideoCamRole  GetArgVideoCamRole (int index);
