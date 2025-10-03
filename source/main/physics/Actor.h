@@ -23,6 +23,8 @@
 
 #include "Application.h"
 #include "CmdKeyInertia.h"
+#include "DashBoardManager.h"
+#include "DashBoardManager.h"
 #include "Differentials.h"
 #include "Engine.h"
 #include "GfxActor.h"
@@ -453,7 +455,7 @@ public:
     std::map<int,int> ar_net_stream_results;
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time = 0;
-    DashBoardManager* ar_dashboard = nullptr;
+    DashBoardManagerPtr ar_dashboard;
     float             ar_collision_range = DEFAULT_COLLISION_RANGE;             //!< Physics attr
     float             ar_top_speed = 0.f;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
