@@ -102,7 +102,6 @@ void Actor::dispose()
     // delete all classes we might have constructed
     if (ar_dashboard != nullptr)
     {
-        delete ar_dashboard;
         ar_dashboard = nullptr;
     }
 
