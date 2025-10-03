@@ -199,6 +199,11 @@ public:
     /// @{
     // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'      
 
+
+	/**
+	* Retrieve dashboard manager.
+	*/
+	DashboardManagerClassPtr @getDashboardManager();
 	
 	/**
 	 * Retrieve the waypoint AI object.
@@ -206,11 +211,11 @@ public:
 	VehicleAiClass @getVehicleAI();
     
 
-    /**
-    * Retrieve engine/transmission simulator.
-    */
-    EngineClassPtr @getEngine();
-	
+	/**
+	* Retrieve engine/transmission simulator.
+	*/
+	EngineClassPtr @getEngine();
+
     //! @}
 	
     /// @name Vehicle lights

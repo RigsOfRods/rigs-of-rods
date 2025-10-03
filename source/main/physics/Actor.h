@@ -226,6 +226,7 @@ public:
 
     /// @name Subsystems
     /// @{
+    DashBoardManagerPtr getDashboardManager() { return ar_dashboard; }
     VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
     Ogre::MaterialPtr        getManagedMaterialInstance(const std::string& orig_name);
     std::vector<std::string> getManagedMaterialNames();

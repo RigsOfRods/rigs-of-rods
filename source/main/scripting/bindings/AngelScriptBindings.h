@@ -85,6 +85,9 @@ void RegisterCacheSystem(AngelScript::asIScriptEngine* engine);
 /// Register class Engine and related enums, defined in EngineAngelscript.cpp
 void RegisterEngine(AngelScript::asIScriptEngine* engine);
 
+// Register class DashBoardManager. Defined in DashBoardManagerAngelscript.cpp
+void RegisterDashBoardManager(AngelScript::asIScriptEngine* engine);
+
 
 /// @}   //addtogroup Scripting
 

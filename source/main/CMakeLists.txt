@@ -239,6 +239,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/ActorAngelscript.cpp
             scripting/bindings/CacheSystemAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp
+            scripting/bindings/DashBoardManagerAngelscript.cpp
             scripting/bindings/EngineAngelscript.cpp
             scripting/bindings/GameScriptAngelscript.cpp
             scripting/bindings/GenericFileFormatAngelscript.cpp
