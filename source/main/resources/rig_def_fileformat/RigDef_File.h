@@ -656,6 +656,12 @@ struct CruiseControl
     int autobrake = 0;
 };
 
+struct CustomDashboardValue
+{
+    Ogre::String name;
+    int data_type;
+};
+
 struct DefaultMinimass
 {
     float min_mass_Kg = DEFAULT_MINIMASS; //!< minimum node mass in Kg
@@ -1383,6 +1389,7 @@ struct Document
         std::vector<Command2>              commands2; // 'commands' are auto-imported as 'commands2' (only 1 extra argument)
         std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
+        std::vector<CustomDashboardValue>  customdashboardvalues;
         std::vector<DefaultSkin>           default_skin;
         std::vector<Ogre::String>          description;
         std::vector<Engine>                engine;

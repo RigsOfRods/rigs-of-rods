@@ -138,6 +138,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("comment")                                    \
     E_KEYWORD_BLOCK("contacters")                                 \
     E_KEYWORD_INLINE("cruisecontrol")                             \
+    E_KEYWORD_BLOCK("customdashboardvalues")                      \
     E_KEYWORD_INLINE("default_skin")                              \
     E_KEYWORD_BLOCK("description")                                \
     E_KEYWORD_INLINE("detacher_group")                            \
