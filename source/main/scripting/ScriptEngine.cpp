@@ -174,6 +174,7 @@ void ScriptEngine::init()
     RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
     RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
+    RegisterDashBoardManager(engine); // DashBoardManagerClass, DashboardDataTypes
     RegisterActor(engine);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass
