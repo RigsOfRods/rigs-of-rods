@@ -352,7 +352,7 @@ namespace RoR {
         // linking attributes
         typedef struct layoutLink_t
         {
-            int linkIDNoAnimations; // DD_*
+            int linkIDForVisibility;
 
             char name[255]; // widget name
 

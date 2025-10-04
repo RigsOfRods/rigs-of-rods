@@ -501,7 +501,7 @@ void DashBoard::updateFeatures()
     // this hides / shows parts of the gui depending on the vehicle features
     for (int i = 0; i < free_controls; i++)
     {
-        bool enabled = manager->getEnabled(controls[i].linkIDNoAnimations);
+        bool enabled = manager->getEnabled(controls[i].linkIDForVisibility);
 
         controls[i].widget->setVisible(enabled);
     }
@@ -818,6 +818,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
     std::string linkArgs;
     if (anim != "")
     {
+        bool linkIDForVisibilitySet = false;
         while (anim != "")
         {
             linkArgs = w->getUserString(linkNumStr);
@@ -911,6 +912,13 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 bool linkParsed = parseLink(linkArgs, linkID, condition, conditionArgument, filename, name);
                 if (!linkParsed)
                     return;
+
+                // The first animation will determine the visibility of the widget.
+                if (!linkIDForVisibilitySet)
+                {
+                    ctrl.linkIDForVisibility = linkID;
+                    linkIDForVisibilitySet = true;
+                }
 
                 if (graphicalAnimation)
                 {
@@ -1126,7 +1134,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             if (!linkParsed)
                 return;
 
-            ctrl.linkIDNoAnimations = linkID;
+            ctrl.linkIDForVisibility = linkID;
             ctrl.widget = w;
             ctrl.initialSize = w->getSize();
             ctrl.initialPosition = w->getPosition();
