@@ -235,6 +235,7 @@ CVar* gfx_sky_time_cycle;
 CVar* gfx_sky_time_speed;
 CVar* gfx_texture_filter;
 CVar* gfx_vegetation_mode;
+CVar* gfx_trees_paged;
 CVar* gfx_water_mode;
 CVar* gfx_anisotropy;
 CVar* gfx_water_waves;
