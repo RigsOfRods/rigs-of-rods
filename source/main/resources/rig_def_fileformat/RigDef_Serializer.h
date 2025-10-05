@@ -138,6 +138,7 @@ private:
     void ProcessExtCamera(Document::Module* module);
     void ProcessSoundsources(Document::Module* module);
     void ProcessSoundsources2(Document::Module* module);
+    void ProcessCustomDashboardValues(Document::Module* module);
 
     // Aerial
     void ProcessWings(Document::Module* module);
