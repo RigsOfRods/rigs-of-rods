@@ -240,8 +240,9 @@ std::string DashBoardManager::determineLayoutFromDashboardMod(CacheEntryPtr& ent
         return "";
     }
 
-    // Boat dashboards are separate from trucks and have no tags to evaluate.
-    if (m_actor->ar_driveable == BOAT)
+    // Boat and aircraft dashboards are separate from trucks and have no tags to evaluate.
+    if (m_actor->ar_driveable == BOAT ||
+        m_actor->ar_driveable == AIRPLANE)
     {
         return filelist->begin()->filename;
     }
