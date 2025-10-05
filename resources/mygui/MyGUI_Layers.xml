@@ -25,6 +25,60 @@
 		<Property key="TextureName" value="RTTTexture1"/>
 	</Layer>
 
+	<Layer type="RTTLayer" name="RTTLayer2">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture2"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer3">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture3"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer4">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture4"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer5">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture5"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer6">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture6"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer7">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture7"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer8">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture8"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer9">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture9"/>
+	</Layer>
+
+	<Layer type="RTTLayer" name="RTTLayer10">
+		<Property key="Pick" value="false"/>
+		<Property key="TextureSize" value="1024 1024"/>
+		<Property key="TextureName" value="RTTTexture10"/>
+	</Layer>
+
 	<Layer type="OverlappedLayer" name="Popup">
 		<Property key="Pick" value="true"/>
 	</Layer>

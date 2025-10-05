@@ -384,7 +384,8 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
 
     if (BITMASK_IS_1(flags, LOADDASHBOARD_RTT_TEXTURE))
     {
-        DashBoard* d = new DashBoard(this, layoutfname, /* textureLayer: */true);
+        DashBoard* d = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
+        loadedRTTDashboards++;
         d->setVisible(true);
         m_dashboards.push_back(d);
         if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
@@ -395,7 +396,7 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
 
     if (BITMASK_IS_1(flags, LOADDASHBOARD_SCREEN_HUD))
     {
-        DashBoard* d = new DashBoard(this, layoutfname, /* textureLayer: */false);
+        DashBoard* d = new DashBoard(this, layoutfname, NO_RTT_DASHBOARD);
         d->setVisible(true);
         m_dashboards.push_back(d);
         if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
@@ -471,16 +472,23 @@ void DashBoardManager::windowResized()
 
 // DASHBOARD class below
 
-DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer)
+DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, int _textureLayerNum)
     : manager(manager)
     , filename(filename)
     , free_controls(0)
     , visible(false)
     , mainWidget(nullptr)
-    , textureLayer(_textureLayer)
+    , textureLayerNum(_textureLayerNum)
 {
     // use 'this' class pointer to make layout unique
     prefix = MyGUI::utility::toString(this, "_");
+
+    if (getIsTextureLayer())
+    {
+        rttLayer = fmt::format("RTTLayer{}", textureLayerNum);
+        rttTexture = fmt::format("RTTTexture{}", textureLayerNum);
+    }
+
     memset(&controls, 0, sizeof(controls));
     loadLayoutInternal();
     // hide first
@@ -676,10 +684,10 @@ void DashBoard::windowResized()
     if (!mainWidget)
         return;
     mainWidget->setPosition(0, 0);
-    if (textureLayer)
+    if (getIsTextureLayer())
     {
         // texture layers are independent from the screen size, but rather from the layer texture size
-        TexturePtr tex = TextureManager::getSingleton().getByName("RTTTexture1");
+        TexturePtr tex = TextureManager::getSingleton().getByName(rttTexture);
         if (tex)
             mainWidget->setSize(tex->getWidth(), tex->getHeight());
     }
@@ -1168,8 +1176,8 @@ void DashBoard::loadLayoutInternal()
     }
 
     // if this thing should be rendered to texture, relocate the main window to the RTT layer
-    if (textureLayer && mainWidget)
-        mainWidget->detachFromWidget("RTTLayer1");
+    if (getIsTextureLayer() && mainWidget)
+        mainWidget->detachFromWidget(rttLayer);
 }
 
 void DashBoard::setVisible(bool v, bool smooth)

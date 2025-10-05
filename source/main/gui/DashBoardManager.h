@@ -45,6 +45,7 @@ namespace RoR {
 #define DD_MAX_GEOMETRIC_ANIMATIONS 10
 
 #define MAX_CONTROLS      1024
+#define NO_RTT_DASHBOARD 0
 
     struct dataContainer_t
     {
@@ -264,18 +265,19 @@ namespace RoR {
         bool m_rtt_loaded = false;
         ActorPtr m_actor;
         int registeredCustomValues = 0;
+        int loadedRTTDashboards = 0;
     };
 
     class DashBoard
     {
     public:
-        DashBoard(DashBoardManager* manager, Ogre::String filename, bool textureLayer);
+        DashBoard(DashBoardManager* manager, Ogre::String filename, int textureLayerNum);
         ~DashBoard();
 
         void setVisible(bool visible, bool smooth = true);
         bool getVisible() { return visible; };
 
-        bool getIsTextureLayer() { return textureLayer; }
+        bool getIsTextureLayer() { return textureLayerNum > 0; }
 
         void update(float dt);
         void updateFeatures();
@@ -289,8 +291,11 @@ namespace RoR {
         Ogre::String filename;
         MyGUI::VectorWidgetPtr widgets;
         MyGUI::WindowPtr mainWidget;
-        bool visible, textureLayer;
+        bool visible;
         std::string prefix;
+        int textureLayerNum;
+        std::string rttLayer;
+        std::string rttTexture;
 
         enum
         {
