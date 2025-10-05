@@ -152,6 +152,7 @@ void Serializer::SerializeModule(std::shared_ptr<RigDef::Document::Module> m)
     ProcessExtCamera(source_module);
     ProcessSoundsources(source_module);
     ProcessSoundsources2(source_module);
+    ProcessCustomDashboardValues(source_module);
 
     // Aerial
     ProcessWings(source_module);
@@ -413,6 +414,43 @@ void Serializer::ProcessSoundsources2(Document::Module* module)
             << ", " << setw(2) << def.mode
             << ", " << def.sound_script_name
             << endl;
+    }
+    m_stream << endl; // Empty line
+}
+
+void Serializer::ProcessCustomDashboardValues(Document::Module* module)
+{
+    if (module->customdashboardvalues.empty())
+    {
+        return;
+    }
+
+    m_stream << "customdashboardvalues" << endl;
+    auto end_itor = module->customdashboardvalues.end();
+    for (auto itor = module->customdashboardvalues.begin(); itor != end_itor; ++itor)
+    {
+        this->ExportDocComment(module, Keyword::CUSTOMDASHBOARDVALUES, std::distance(module->customdashboardvalues.begin(), itor));
+
+        CustomDashboardValue& dash_val = *itor;
+
+        m_stream << dash_val.name << " ";
+        switch (dash_val.data_type)
+        {
+        case DC_BOOL:
+            m_stream << "bool";
+            break;
+        case DC_FLOAT:
+            m_stream << "float";
+            break;
+        case DC_INT:
+            m_stream << "int";
+            break;
+        case DC_CHAR:
+            m_stream << "string";
+            break;
+        }
+
+        m_stream << endl;
     }
     m_stream << endl; // Empty line
 }
