@@ -776,6 +776,7 @@ extern CVar* gfx_sky_time_cycle;
 extern CVar* gfx_sky_time_speed;
 extern CVar* gfx_texture_filter;
 extern CVar* gfx_vegetation_mode;
+extern CVar* gfx_trees_paged; //!< (bool) Render trees like regular entities, not via paged-geometry (still needs ROR_USE_PAGED though!)
 extern CVar* gfx_water_mode;
 extern CVar* gfx_anisotropy;
 extern CVar* gfx_water_waves;

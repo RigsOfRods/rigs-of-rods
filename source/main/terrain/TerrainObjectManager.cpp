@@ -300,38 +300,51 @@ void TerrainObjectManager::ProcessTree(
     densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
     //densityMap->setMapBounds(TRect(0, 0, mapsizex, mapsizez));
 
-    PagedGeometry* geom = new PagedGeometry();
-    geom->setTempDir(App::sys_cache_dir->getStr() + PATH_SLASH);
-    geom->setCamera(App::GetCameraManager()->GetCamera());
-    geom->setPageSize(50);
-    geom->setInfinite();
+    PagedGeometry* geom = nullptr;
+    TreeLoader2D* treeLoader = nullptr;
     Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, mapsizex, mapsizez);
-    geom->setBounds(bounds);
+    StaticGeometry* staGeom = nullptr;
 
-    //Set up LODs
-    //trees->addDetailLevel<EntityPage>(50);
-    float min = minDist * terrainManager->getPagedDetailFactor();
-    if (min < 10)
-        min = 10;
-    geom->addDetailLevel<BatchPage>(min, min / 2);
-    float max = maxDist * terrainManager->getPagedDetailFactor();
-    if (max < 10)
-        max = 10;
-
-    // Check if farther details level is greater than closer
-    if (max / 10 > min / 2)
+    if (App::gfx_trees_paged->getBool())
     {
-        geom->addDetailLevel<ImpostorPage>(max, max / 10);
+        geom = new PagedGeometry();
+        geom->setTempDir(App::sys_cache_dir->getStr() + PATH_SLASH);
+        geom->setCamera(App::GetCameraManager()->GetCamera());
+        geom->setPageSize(50);
+        geom->setInfinite();
+        geom->setBounds(bounds);
+
+        //Set up LODs
+        //trees->addDetailLevel<EntityPage>(50);
+        float min = minDist * terrainManager->getPagedDetailFactor();
+        if (min < 10)
+            min = 10;
+        geom->addDetailLevel<BatchPage>(min, min / 2);
+        float max = maxDist * terrainManager->getPagedDetailFactor();
+        if (max < 10)
+            max = 10;
+
+        // Check if farther details level is greater than closer
+        if (max / 10 > min / 2)
+        {
+            geom->addDetailLevel<ImpostorPage>(max, max / 10);
+        }
+
+        treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
+        treeLoader->setMinimumScale(scalefrom);
+        treeLoader->setMaximumScale(scaleto);
+        geom->setPageLoader(treeLoader);
+        treeLoader->setHeightFunction(&getTerrainHeight);
+        if (String(ColorMap) != "none")
+        {
+            treeLoader->setColorMap(ColorMap);
+        }
     }
-
-    TreeLoader2D *treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
-    treeLoader->setMinimumScale(scalefrom);
-    treeLoader->setMaximumScale(scaleto);
-    geom->setPageLoader(treeLoader);
-    treeLoader->setHeightFunction(&getTerrainHeight);
-    if (String(ColorMap) != "none")
+    else
     {
-        treeLoader->setColorMap(ColorMap);
+        ROR_ASSERT(m_tobj_grouping_node); // We are loading TOBJ or one was loaded before.
+        std::string name = fmt::format("{}/trees {}", m_tobj_grouping_node->getName(), treemesh);
+        staGeom = App::GetGfxScene()->GetSceneManager()->createStaticGeometry(name);
     }
 
     Entity* curTree = App::GetGfxScene()->GetSceneManager()->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
@@ -350,7 +363,16 @@ void TerrainObjectManager::ProcessTree(
                 float yaw = Math::RangeRandom(yawfrom, yawto);
                 float scale = Math::RangeRandom(scalefrom, scaleto);
                 Vector3 pos = Vector3(nx, 0, nz);
-                treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                if (App::gfx_trees_paged->getBool())
+                {
+                    treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                }
+                else
+                {
+                    pos.y = terrainManager->getHeightAt(pos.x, pos.z);
+                    staGeom->addEntity(curTree, pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                }
+
                 if (strlen(treeCollmesh))
                 {
                     pos.y = terrainManager->getHeightAt(pos.x, pos.z);
@@ -384,7 +406,16 @@ void TerrainObjectManager::ProcessTree(
                     float yaw = Math::RangeRandom(yawfrom, yawto);
                     float scale = Math::RangeRandom(scalefrom, scaleto);
                     Vector3 pos = Vector3(nx, 0, nz);
-                    treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                    if (App::gfx_trees_paged->getBool())
+                    {
+                        treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                    }
+                    else
+                    {
+                        pos.y = terrainManager->getHeightAt(pos.x, pos.z);
+                        staGeom->addEntity(curTree, pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                    }
+
                     if (strlen(treeCollmesh))
                     {
                         pos.y = terrainManager->getHeightAt(pos.x, pos.z);
@@ -394,7 +425,16 @@ void TerrainObjectManager::ProcessTree(
             }
         }
     }
-    m_paged_geometry.push_back(geom);
+
+    if (App::gfx_trees_paged->getBool())
+    {
+        m_paged_geometry.push_back(geom);
+    }
+    else
+    {
+        staGeom->build();
+        m_static_geometry.push_back(staGeom);
+    }
 #endif //USE_PAGED
 }
 

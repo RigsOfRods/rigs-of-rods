@@ -148,6 +148,7 @@ protected:
 
 #ifdef USE_PAGED
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
+    std::vector<Ogre::StaticGeometry*> m_static_geometry;
 #endif //USE_PAGED
 };
 
