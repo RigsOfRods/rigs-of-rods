@@ -421,6 +421,7 @@ void GameSettings::DrawGraphicsSettings()
 
     DrawGCombo(App::gfx_vegetation_mode, _LC("GameSettings", "Vegetation density"),
         m_combo_items_vegetation.c_str());
+    DrawGCheckbox(App::gfx_trees_paged, _LC("GameSettings", "Trees use paged geometry (faster but no dynamic lighting)"));
 
     DrawGCombo(App::gfx_water_mode, _LC("GameSettings", "Water gfx"),
         m_combo_items_water_mode.c_str());

@@ -175,6 +175,7 @@ void Console::cVarSetupBuiltins()
     App::gfx_sky_mode            = this->cVarCreate("gfx_sky_mode",            "Sky effects",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)GfxSkyMode::CAELUM*/);
     App::gfx_texture_filter      = this->cVarCreate("gfx_texture_filter",      "Texture Filtering",          CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxTexFilter::ANISOTROPIC*/);
     App::gfx_vegetation_mode     = this->cVarCreate("gfx_vegetation_mode",     "Vegetation",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxVegetation::FULL*/);
+    App::gfx_trees_paged         = this->cVarCreate("gfx_trees_paged",         "Trees use paged geometry",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_sky_time_cycle      = this->cVarCreate("gfx_sky_time_cycle",      "",                                          CVAR_TYPE_BOOL,    "false");
     App::gfx_sky_time_speed      = this->cVarCreate("gfx_sky_time_speed",      "",                                          CVAR_TYPE_INT,     "300");
     App::gfx_water_mode          = this->cVarCreate("gfx_water_mode",          "Water effects",              CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxWaterMode::FULL_FAST*/);
