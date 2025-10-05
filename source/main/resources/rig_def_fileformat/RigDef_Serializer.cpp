@@ -540,10 +540,10 @@ void Serializer::ProcessGuiSettings(Document::Module* module)
     {
         return;
     }
-    m_stream << "guisettings";
+    m_stream << "guisettings" << endl;
     for (GuiSettings& gs: module->guisettings)
     {
-        m_stream << m_dataline_indentstr << gs.key << "=" << gs.value
+        m_stream << m_dataline_indentstr << gs.key << " " << gs.value
             << endl;
     }
     m_stream << endl; // Empty line
