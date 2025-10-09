@@ -56,7 +56,7 @@ void RTSSManager::SetupRTSS()
         App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
 
 
-        auto* pssmSetup = new PSSMShadowCameraSetup();
+        pssmSetup = new PSSMShadowCameraSetup();
         pssmSetup->calculateSplitPoints(3, 1, 500, 1);
         pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
         pssmSetup->setOptimalAdjustFactor(0, 2);
