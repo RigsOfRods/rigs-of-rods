@@ -7,7 +7,6 @@ class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
     default_options = {
-        "ogre3d*:nodeless_positioning": "True",
         "ogre3d*:resourcemanager_strict": "off"
     }
 
