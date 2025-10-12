@@ -2028,6 +2028,7 @@ void RoR::GfxActor::UpdateExhausts()
         exhaust.smoker->getEmitter(0)->setEnabled(active);
         if (active) // `setTimeToLive()` assert()s that argument is not negative.
         {
+            exhaust.smoker->getEmitter(0)->setDirection(dir);
             exhaust.smoker->getEmitter(0)->setColour(Ogre::ColourValue(0.0, 0.0, 0.0, 0.02 + m_simbuf.simbuf_engine_smoke * 0.06));
             exhaust.smoker->getEmitter(0)->setTimeToLive((0.02 + m_simbuf.simbuf_engine_smoke * 0.06) / 0.04);
             exhaust.smoker->getEmitter(0)->setParticleVelocity(1.0 + m_simbuf.simbuf_engine_smoke * 2.0, 2.0 + m_simbuf.simbuf_engine_smoke * 3.0);
