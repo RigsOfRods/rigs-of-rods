@@ -44,6 +44,24 @@ Buoyance::~Buoyance()
 {
 }
 
+BuoyCachedNodeID_t Buoyance::cacheBuoycabNode(node_t* n)
+{
+    auto itor = std::find_if(buoy_cached_nodes.begin(), buoy_cached_nodes.end(),
+        [n](BuoyCachedNode& bcn)
+        {
+            return bcn.nodenum == n->pos;
+        });
+
+    if (itor == buoy_cached_nodes.end())
+    {
+        BuoyCachedNodeID_t retval = static_cast<BuoyCachedNodeID_t>(buoy_cached_nodes.size());
+        buoy_cached_nodes.emplace_back(n->pos);
+        return retval;
+    }
+
+    return static_cast<BuoyCachedNodeID_t>(std::distance(buoy_cached_nodes.begin(), itor));
+}
+
 //compute tetrahedron volume
 inline float Buoyance::computeVolume(Vector3 o, Vector3 a, Vector3 b, Vector3 c)
 {
@@ -177,7 +195,7 @@ Vector3 Buoyance::computePressureForce(Vector3 a, Vector3 b, Vector3 c, Vector3 
     }
 }
 
-void Buoyance::computeNodeForce(node_t* a, node_t* b, node_t* c, bool doUpdate, int type)
+void Buoyance::computeNodeForce(BuoyCachedNode* a, BuoyCachedNode* b, BuoyCachedNode* c, bool doUpdate, int type)
 {
     if (a->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a->AbsPosition) &&
         b->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b->AbsPosition) &&
