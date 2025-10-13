@@ -45,7 +45,11 @@ namespace RoR {
         // Only one should be set!
         int thumb_resourceitem_idx = -1; //!< fetch thumbnail
         int attachment_id = -1; //!< download attachment
+        // attachment extras
         std::string attachment_ext;
+        // thumb extras
+        int thumb_resource_id = 0;
+        std::string thumb_url;
     };
 
 namespace GUI {
@@ -131,7 +135,7 @@ public:
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
-    bool                                DownloadImage(RepoImageDownloadRequest* request); //!< To be run on background via Ogre WorkQueue
+    static void                         DownloadImage(RepoImageDownloadRequest* request); //!< To be run on background via Ogre WorkQueue
     void                                LoadDownloadedImage(RepoImageDownloadRequest* request); //!< To be run on main thread
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item, ImVec2 panel_screenpos, ImVec2 panel_size);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
@@ -156,9 +160,6 @@ private:
     Ogre::uint16                        m_ogre_workqueue_channel = 0;
     Ogre::TexturePtr                    m_fallback_thumbnail;
     RepoAttachmentsMap                  m_repo_attachments; //!< Fully loaded images in memory.
-#ifdef USE_CURL
-    CURL                                *curl_th = curl_easy_init(); // One connection for fetching thumbnails using connection reuse
-#endif
 
     // status or error messages
     std::string                         m_repofiles_msg;

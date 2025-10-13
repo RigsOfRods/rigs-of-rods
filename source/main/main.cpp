@@ -919,6 +919,7 @@ int main(int argc, char *argv[])
                 }
 
                 case MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS:
+                case MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE: // If failed there is no file on disk so placeholder will be set instead.
                 {
                     RepoImageDownloadRequest* rq = static_cast<RepoImageDownloadRequest*>(m.payload);
                     try
