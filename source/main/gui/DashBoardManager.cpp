@@ -1016,7 +1016,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 ctrl.initialPosition = w->getPosition();
                 ctrl.lastState = false;
                 if (!name.empty())
-                    strncpy(ctrl.name, name.c_str(), 255);
+                    strncpy(ctrl.name, name.c_str(), sizeof ctrl.name);
 
                 bool linkParsed = parseLink(linkArgs, linkID, condition, conditionArgument, filename, name);
                 if (!linkParsed)
@@ -1038,11 +1038,11 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
 
                     String texture = w->getUserString(textureNumStr);
                     if (!texture.empty())
-                        strncpy(ctrl.graphicalAnimation.texture, texture.c_str(), 255);
+                        strncpy(ctrl.graphicalAnimation.texture, texture.c_str(), sizeof ctrl.graphicalAnimation.texture);
 
                     String format = w->getUserString(formatNumStr);
                     if (!format.empty())
-                        strncpy(ctrl.graphicalAnimation.format, format.c_str(), 255);
+                        strncpy(ctrl.graphicalAnimation.format, format.c_str(), sizeof ctrl.graphicalAnimation.format);
 
                     if (animType == ANIM_SERIES)
                     {
