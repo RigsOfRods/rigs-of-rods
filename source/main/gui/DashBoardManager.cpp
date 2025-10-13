@@ -154,7 +154,28 @@ DashBoardManager::~DashBoardManager(void)
 int DashBoardManager::registerCustomValue(Ogre::String& name, int dataType)
 {
     int newKey = -1;
-    if (registeredCustomValues < DD_MAX_CUSTOM_VALUES && dataType != DC_INVALID && getLinkIDForName(name) == -1)
+    bool valid = true;
+
+    if (registeredCustomValues >= DD_MAX_CUSTOM_VALUES)
+    {
+        valid = false;
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: Cannot register dashboard custom value \"{}\", maximum reached ({} custom values).", m_actor->ar_design_name, name, DD_MAX_CUSTOM_VALUES));
+    }
+    if (getLinkIDForName(name) != -1)
+    {
+        valid = false;
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: Cannot register dashboard custom value \"{}\", name conflicts with existing one. Ignoring it.", m_actor->ar_design_name, name));
+    }
+    if (dataType == DC_INVALID || dataType >= DC_MAX || dataType <= DC_MIN)
+    {
+        valid = false;
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: Cannot register dashboard custom value \"{}\", invalid data type.", m_actor->ar_design_name, name));
+    }
+
+    if (valid)
     {
         newKey = DD_CUSTOMVALUE_START + registeredCustomValues;
         INITDATA(newKey, dataType, name.c_str());
