@@ -394,15 +394,6 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr &
 
     // Tuneup details
     out_entry->tuneup_associated_filename = j_entry["tuneup_associated_filename"].GetString();
-
-    // Dashboard details
-    for (rapidjson::Value& j_custominput : j_entry["dashboard_custom_inputs"].GetArray())
-    {
-        DashboardCustomInput custom_input;
-        custom_input.name = j_custominput["name"].GetString();
-        custom_input.dataType = j_custominput["data_type"].GetInt();
-        out_entry->custom_dashboard_inputs.push_back(custom_input);
-    }
 }
 
 CacheValidity CacheSystem::LoadCacheFileJson()
@@ -687,17 +678,6 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
 
     // Tuneup details
     j_entry.AddMember("tuneup_associated_filename", rapidjson::StringRef(entry->tuneup_associated_filename.c_str()), j_doc.GetAllocator());
-
-    // Dashboard details
-    rapidjson::Value j_custominputs(rapidjson::kArrayType);
-    for (DashboardCustomInput& custom_input : entry->custom_dashboard_inputs)
-    {
-        rapidjson::Value j_custominput(rapidjson::kObjectType);
-        j_custominput.AddMember("name",         rapidjson::StringRef(custom_input.name.c_str()), j_doc.GetAllocator());
-        j_custominput.AddMember("data_type",    custom_input.dataType,                           j_doc.GetAllocator());
-        j_custominputs.PushBack(j_custominput, j_doc.GetAllocator());
-    }
-    j_entry.AddMember("dashboard_custom_inputs", j_custominputs, j_doc.GetAllocator());
 
     // Add entry to list
     j_entries.PushBack(j_entry, j_doc.GetAllocator());
@@ -1323,7 +1303,7 @@ void CacheSystem::FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStream
 void CacheSystem::FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
 {
     GenericDocumentPtr doc = new GenericDocument();
-    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
+    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS;
     doc->loadFromDataStream(ds, options);
 
     GenericDocContextPtr ctx = new GenericDocContext(doc);
@@ -1350,28 +1330,6 @@ void CacheSystem::FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStream
             if (n > 3) { author.name = ctx->getTokString(3); }
             if (n > 4) { author.email = ctx->getTokString(4); }
             entry->authors.push_back(author);
-        }
-        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_custom_input" && ctx->countLineArgs() > 2)
-        {
-            bool valid_custom_input = true;
-            DashboardCustomInput custom_input;
-            custom_input.name = ctx->getTokString(1);
-            std::string data_type_str = ctx->getTokString(2);
-            if (data_type_str == "bool") { custom_input.dataType = DC_BOOL; }
-            else if (data_type_str == "float") { custom_input.dataType = DC_FLOAT; }
-            else if (data_type_str == "int") { custom_input.dataType = DC_INT; }
-            else if (data_type_str == "string") { custom_input.dataType = DC_CHAR; }
-            else
-            {
-                valid_custom_input = false;
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                    fmt::format("Dashboard Custom Input: Invalid data type \"{}\" for \"{}\"", data_type_str, custom_input.name));
-            }
-
-            if (valid_custom_input)
-            {
-                entry->custom_dashboard_inputs.push_back(custom_input);
-            }
         }
 
         ctx->seekNextLine();
