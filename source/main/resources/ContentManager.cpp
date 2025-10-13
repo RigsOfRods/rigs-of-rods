@@ -390,7 +390,6 @@ void ContentManager::LoadGameplayResources()
     {
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
         this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
         this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);

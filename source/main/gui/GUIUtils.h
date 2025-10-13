@@ -76,6 +76,7 @@ void DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf);
 bool DrawGCombo(CVar* cvar, const char* label, const char* values);
 
 Ogre::TexturePtr FetchIcon(const char* name);
+Ogre::TexturePtr FetchFlag(const char* name);
 
 // Fullscreen drawing helpers
 ImDrawList* GetImDummyFullscreenWindow(const std::string& name = "RoR_TransparentFullscreenWindow");
