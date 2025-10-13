@@ -57,11 +57,15 @@ struct dataContainer_t
 
 enum
 {
+    DC_MIN, // Used for validation
+
     DC_BOOL,
     DC_INT,
     DC_FLOAT,
     DC_CHAR,
-    DC_INVALID
+    DC_INVALID,
+
+    DC_MAX // Used for validation
 };
 
 typedef struct dashData_t
