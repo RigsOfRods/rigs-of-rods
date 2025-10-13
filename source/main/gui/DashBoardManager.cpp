@@ -418,32 +418,36 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
         return;
     }
 
-    DashBoard* new_dash = nullptr;
-
     if (BITMASK_IS_1(flags, LOADDASHBOARD_RTT_TEXTURE))
     {
-        new_dash = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
+        DashBoard* d = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
         loadedRTTDashboards++;
+        d->setVisible(true);
+        if (scriptfilename != "")
+        {
+            d->loadScript(scriptfilename, m_actor);
+        }
+        m_dashboards.push_back(d);
+
+        if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
+        {
+            m_rtt_loaded = true;
+        }
     }
 
     if (BITMASK_IS_1(flags, LOADDASHBOARD_SCREEN_HUD))
     {
-        new_dash = new DashBoard(this, layoutfname, NO_RTT_DASHBOARD);
-    }
-
-    if (new_dash != nullptr)
-    {
-        new_dash->setVisible(true);
-        
+        DashBoard* d = new DashBoard(this, layoutfname, NO_RTT_DASHBOARD);
+        d->setVisible(true);
         if (scriptfilename != "")
         {
-            new_dash->loadScript(scriptfilename, m_actor);
+            d->loadScript(scriptfilename, m_actor);
         }
+        m_dashboards.push_back(d);
 
-        m_dashboards.push_back(new_dash);
         if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
         {
-            m_rtt_loaded = true;
+            m_hud_loaded = true;
         }
     }
 }
