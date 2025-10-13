@@ -30,6 +30,7 @@
 #include "CacheSystem.h"
 #include "Console.h"
 #include "GenericFileFormat.h"
+#include "ScriptEngine.h"
 #include "Utils.h"
 
 using namespace Ogre;
@@ -39,8 +40,7 @@ using namespace RoR;
 
 DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(actor)
 {
-
-// init data
+    // init data
     INITDATA(DD_ENGINE_RPM              , DC_FLOAT, "rpm");
     INITDATA(DD_ENGINE_SPEEDO_KPH       , DC_FLOAT, "speedo_kph");
     INITDATA(DD_ENGINE_SPEEDO_MPH       , DC_FLOAT, "speedo_mph");
@@ -371,7 +371,7 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
     if (BITMASK_IS_0(flags, LOADDASHBOARD_SCREEN_HUD | LOADDASHBOARD_RTT_TEXTURE))
         return; // Nothing to do.
 
-    std::string basename, ext, layoutfname;
+    std::string basename, ext, layoutfname, scriptfilename = "";
     Ogre::StringUtil::splitBaseFilename(filename, basename, ext);
     if (ext == "dashboard")
     {
@@ -384,12 +384,26 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
         }
         App::GetCacheSystem()->LoadResource(entry);
         layoutfname = this->determineLayoutFromDashboardMod(entry, basename);
+
+        // Load custom inputs
+        for (DashboardCustomInput& custom_input : entry->custom_dashboard_inputs)
+        {
+            this->registerCustomValue(custom_input.name, custom_input.dataType);
+        }
+
         // load dash fonts
         Ogre::FileInfoListPtr filelist
             = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}*.resource", basename));
         for (Ogre::FileInfo& fileinfo : *filelist)
         {
             MyGUI::ResourceManager::getInstance().load(fileinfo.filename);
+        }
+
+        Ogre::FileInfoListPtr scriptFile
+            = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}.as", basename));
+        if (scriptFile->size() > 0)
+        {
+            scriptfilename = scriptFile->front().filename;
         }
     }
     else
@@ -404,26 +418,32 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
         return;
     }
 
+    DashBoard* new_dash = nullptr;
+
     if (BITMASK_IS_1(flags, LOADDASHBOARD_RTT_TEXTURE))
     {
-        DashBoard* d = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
+        new_dash = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
         loadedRTTDashboards++;
-        d->setVisible(true);
-        m_dashboards.push_back(d);
-        if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
-        {
-            m_rtt_loaded = true;
-        }
     }
 
     if (BITMASK_IS_1(flags, LOADDASHBOARD_SCREEN_HUD))
     {
-        DashBoard* d = new DashBoard(this, layoutfname, NO_RTT_DASHBOARD);
-        d->setVisible(true);
-        m_dashboards.push_back(d);
+        new_dash = new DashBoard(this, layoutfname, NO_RTT_DASHBOARD);
+    }
+
+    if (new_dash != nullptr)
+    {
+        new_dash->setVisible(true);
+        
+        if (scriptfilename != "")
+        {
+            new_dash->loadScript(scriptfilename, m_actor);
+        }
+
+        m_dashboards.push_back(new_dash);
         if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
         {
-            m_hud_loaded = true;
+            m_rtt_loaded = true;
         }
     }
 }
@@ -520,10 +540,23 @@ DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, int _text
 
 DashBoard::~DashBoard()
 {
+    // Unload dashboard script
+    if (scriptUnitID != SCRIPTUNITID_INVALID)
+    {
+        App::GetScriptEngine()->unloadScript(scriptUnitID);
+    }
     // Clear the GUI widgets
     MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
     // Force unloading the '.layout' file from memory
     MyGUI::ResourceManager::getInstance().removeByName(filename);
+}
+
+void DashBoard::loadScript(std::string scriptFilename, ActorPtr associatedActor)
+{
+    if (scriptUnitID != SCRIPTUNITID_INVALID)
+        return;
+
+    scriptUnitID = App::GetScriptEngine()->loadScript(scriptFilename, ScriptCategory::ACTOR, associatedActor);
 }
 
 void DashBoard::updateFeatures()

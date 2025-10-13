@@ -94,6 +94,9 @@ public:
     TuneupDefPtr addonpart_data_only;   //!< Cached addonpart data (dummy tuneup), only used for evaluating conflicts, see `AddonPartUtility::RecordAddonpartConflicts()`
     Terrn2DocumentPtr terrn2_def;       //!< Cached terrain definition document.
 
+    // following all DASHBOARD detail information:
+    std::vector<DashboardCustomInput> custom_dashboard_inputs;
+
     // following all ADDONPART detail information:
     std::set<std::string> addonpart_guids; //!< GUIDs of all vehicles this addonpart is used with.
     std::set<std::string> addonpart_filenames; //!< File names of all vehicles this addonpart is used with. If empty, any filename goes.
