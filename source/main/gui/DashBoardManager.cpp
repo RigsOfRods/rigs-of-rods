@@ -1083,7 +1083,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                         // Must be done on string-level because -0.001 with format "%1.0f" would still produce "-0"
                         if (std::strlen(ctrl.graphicalAnimation.format))
                         {
-                            std::snprintf(ctrl.graphicalAnimation.format_neg_zero, 255, ctrl.graphicalAnimation.format, -0.f);
+                            std::snprintf(ctrl.graphicalAnimation.format_neg_zero, sizeof ctrl.graphicalAnimation.format_neg_zero, ctrl.graphicalAnimation.format, -0.f);
                         }
                     }
                     else if (animType == ANIM_TEXTSTRING)
