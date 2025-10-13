@@ -662,13 +662,6 @@ struct UniqueCommandKeyPair
     CommandkeyID_t uckp_key2 = COMMANDKEYID_INVALID;
 };
 
-// Dashboard custom input entry (for .dashboard mods)
-struct DashboardCustomInput
-{
-    std::string name;
-    int dataType;
-};
-
 /// @}
 
 // --------------------------------
