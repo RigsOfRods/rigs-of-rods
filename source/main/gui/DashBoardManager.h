@@ -73,14 +73,14 @@ typedef struct dashData_t
     char type; // DC_*
     dataContainer_t data;
     bool enabled;
-    const char* name; // char string of name
+    std::string name; // char string of name
 
     dashData_t() : type(DC_INVALID), name("")
     {
         enabled = false;
     }
 
-    dashData_t(char type, const char* name) : type(type), name(name)
+    dashData_t(char type, std::string name) : type(type), name(name)
     {
         enabled = true;
     }
@@ -225,7 +225,7 @@ public:
     DashBoardManager(ActorPtr actor);
     virtual ~DashBoardManager() override;
 
-    int registerCustomValue(Ogre::String& name, int dataType);
+    int registerCustomValue(Ogre::String name, int dataType);
 
     // Getter / Setter
     bool _getBool(size_t key) { return key < DD_MAX ? data[key].data.value_bool : false; };
@@ -262,6 +262,7 @@ public:
 protected:
     std::string determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename);
     std::string determineTruckLayoutFromDashboardMod(Ogre::FileInfoListPtr& filelist);
+    void loadDashboardModDetails(CacheEntryPtr& entry);
     bool visible = false;
     dashData_t data[DD_MAX];
     std::vector<DashBoard*> m_dashboards;

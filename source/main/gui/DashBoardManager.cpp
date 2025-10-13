@@ -151,7 +151,7 @@ DashBoardManager::~DashBoardManager(void)
     }
 }
 
-int DashBoardManager::registerCustomValue(Ogre::String& name, int dataType)
+int DashBoardManager::registerCustomValue(Ogre::String name, int dataType)
 {
     int newKey = -1;
     bool valid = true;
@@ -178,7 +178,7 @@ int DashBoardManager::registerCustomValue(Ogre::String& name, int dataType)
     if (valid)
     {
         newKey = DD_CUSTOMVALUE_START + registeredCustomValues;
-        INITDATA(newKey, dataType, name.c_str());
+        INITDATA(newKey, dataType, name);
         registeredCustomValues++;
     }
 
@@ -187,10 +187,9 @@ int DashBoardManager::registerCustomValue(Ogre::String& name, int dataType)
 
 int DashBoardManager::getLinkIDForName(Ogre::String& str)
 {
-    const char* s = str.c_str();
     for (int i = 0; i < DD_MAX; i++)
     {
-        if (!strcmp(data[i].name, s))
+        if (data[i].name == str)
             return i;
     }
     return -1;
@@ -363,6 +362,52 @@ std::string DashBoardManager::determineTruckLayoutFromDashboardMod(Ogre::FileInf
     return filelist->begin()->filename; // If all else failed, just pick random.
 }
 
+void DashBoardManager::loadDashboardModDetails(CacheEntryPtr& entry)
+{
+    try
+    {
+        DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(entry->fname, entry->resource_group);
+        GenericDocumentPtr dash_doc = new GenericDocument();
+        BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
+        dash_doc->loadFromDataStream(ds, options);
+
+        GenericDocContextPtr ctx = new GenericDocContext(dash_doc);
+        while (!ctx->endOfFile())
+        {
+            if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_custom_input" && ctx->countLineArgs() > 2)
+            {
+                bool valid_custom_input = true;
+                std::string custom_input_name = ctx->getTokString(1);
+                int custom_input_data_type;
+
+                std::string data_type_str = ctx->getTokString(2);
+                if      (data_type_str == "bool")   { custom_input_data_type = DC_BOOL;     }
+                else if (data_type_str == "float")  { custom_input_data_type = DC_FLOAT;    }
+                else if (data_type_str == "int")    { custom_input_data_type = DC_INT;      }
+                else if (data_type_str == "string") { custom_input_data_type = DC_CHAR;     }
+                else
+                {
+                    valid_custom_input = false;
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                        fmt::format("Dashboard Custom Input: Invalid data type \"{}\" for \"{}\"", data_type_str, custom_input_name));
+                }
+
+                if (valid_custom_input)
+                {
+                    this->registerCustomValue(custom_input_name, custom_input_data_type);
+                }
+            }
+
+            ctx->seekNextLine();
+        }
+    }
+    catch (Ogre::Exception& e)
+    {
+        RoR::LogFormat("[RoR|DashBoardManager] Error processing file '%s', message :%s",
+            entry->fname.c_str(), e.getFullDescription().c_str());
+    }
+}
+
 void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flags)
 {
     // filename may be either '.layout' file (classic approach) or a new '.dashboard' mod.
@@ -385,11 +430,7 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
         App::GetCacheSystem()->LoadResource(entry);
         layoutfname = this->determineLayoutFromDashboardMod(entry, basename);
 
-        // Load custom inputs
-        for (DashboardCustomInput& custom_input : entry->custom_dashboard_inputs)
-        {
-            this->registerCustomValue(custom_input.name, custom_input.dataType);
-        }
+        loadDashboardModDetails(entry);
 
         // load dash fonts
         Ogre::FileInfoListPtr filelist
@@ -399,6 +440,7 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
             MyGUI::ResourceManager::getInstance().load(fileinfo.filename);
         }
 
+        // Load dashboard script
         Ogre::FileInfoListPtr scriptFile
             = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}.as", basename));
         if (scriptFile->size() > 0)
