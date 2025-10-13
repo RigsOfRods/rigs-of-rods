@@ -611,6 +611,15 @@ void ActorSpawner::FinalizeRig()
 
     this->UpdateCollcabContacterNodes();
 
+    //cache buoyancy nodes
+    for (int i = 0; i < m_actor->ar_num_buoycabs; i++)
+    {
+        int tmpv = m_actor->ar_buoycabs[i] * 3;
+        m_actor->ar_cabs_buoy_cache_ids[tmpv] = m_actor->m_buoyance->cacheBuoycabNode(&m_actor->ar_nodes[m_actor->ar_cabs[tmpv]]);
+        m_actor->ar_cabs_buoy_cache_ids[tmpv+1] = m_actor->m_buoyance->cacheBuoycabNode(&m_actor->ar_nodes[m_actor->ar_cabs[tmpv + 1]]);
+        m_actor->ar_cabs_buoy_cache_ids[tmpv+2] = m_actor->m_buoyance->cacheBuoycabNode(&m_actor->ar_nodes[m_actor->ar_cabs[tmpv + 2]]);
+    }
+
     m_flex_factory.SaveFlexbodiesToCache();
 
     m_actor->GetGfxActor()->SortFlexbodies();

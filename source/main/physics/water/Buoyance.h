@@ -27,6 +27,18 @@ namespace RoR {
 /// @addtogroup Physics
 /// @{
 
+struct BuoyCachedNode
+{
+    BuoyCachedNode(NodeNum_t _nodenum): nodenum(_nodenum) {}
+
+    // node_t fields
+    Ogre::Vector3 AbsPosition = Ogre::Vector3::ZERO;
+    Ogre::Vector3 Velocity = Ogre::Vector3::ZERO;
+    Ogre::Vector3 Forces = Ogre::Vector3::ZERO;
+    // additional fields
+    NodeNum_t nodenum = NODENUM_INVALID;
+};
+
 class Buoyance
 {
 public:
@@ -34,11 +46,17 @@ public:
     Buoyance(DustPool* splash, DustPool* ripple);
     ~Buoyance();
 
-    void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
+    void computeNodeForce(BuoyCachedNode *a, BuoyCachedNode *b, BuoyCachedNode *c, bool doUpdate, int type);
 
     enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
 
     bool sink;
+
+    /// try adding the node to internal list (each node is only listed once).
+    /// @return new or existing cached node ID.
+    BuoyCachedNodeID_t cacheBuoycabNode(node_t* n);
+
+    std::vector<BuoyCachedNode> buoy_cached_nodes;
 
 private:
 
@@ -53,6 +71,8 @@ private:
     
     DustPool *splashp, *ripplep;
     bool update;
+
+    
 };
 
 /// @} // addtogroup Physics

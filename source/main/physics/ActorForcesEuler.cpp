@@ -150,13 +150,34 @@ void Actor::CalcFuseDrag()
 
 void Actor::CalcBuoyance(bool doUpdate)
 {
-    if (ar_num_buoycabs && App::GetGameContext()->GetTerrain()->getWater())
+    IWater* iwater = App::GetGameContext()->GetTerrain()->getWater();
+    if (!iwater || !ar_num_buoycabs)
     {
-        for (int i = 0; i < ar_num_buoycabs; i++)
-        {
-            int tmpv = ar_buoycabs[i] * 3;
-            m_buoyance->computeNodeForce(&ar_nodes[ar_cabs[tmpv]], &ar_nodes[ar_cabs[tmpv + 1]], &ar_nodes[ar_cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
-        }
+        return;
+    }
+
+    // Refresh cached cab nodes
+    for (BuoyCachedNode& bcn: m_buoyance->buoy_cached_nodes)
+    {
+        bcn.AbsPosition = ar_nodes[bcn.nodenum].AbsPosition;
+        bcn.Velocity = ar_nodes[bcn.nodenum].Velocity;
+        bcn.Forces = Ogre::Vector3::ZERO;
+    }
+
+    // Update node forces.
+    for (int i = 0; i < ar_num_buoycabs; i++)
+    {
+        int tmpv = ar_buoycabs[i] * 3;
+        BuoyCachedNode& bcn_a = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv]];
+        BuoyCachedNode& bcn_b = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv+1]];
+        BuoyCachedNode& bcn_c = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv+2]];
+        m_buoyance->computeNodeForce(&bcn_a, &bcn_b, &bcn_c, doUpdate == 1, ar_buoycab_types[i]);
+    }
+
+    // Apply forces to nodes.
+    for (const BuoyCachedNode& bcn: m_buoyance->buoy_cached_nodes)
+    {
+        ar_nodes[bcn.nodenum].Forces += bcn.Forces;
     }
 }
 

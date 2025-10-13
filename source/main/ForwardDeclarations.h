@@ -93,6 +93,9 @@ namespace RoR
     typedef int FreeBeamGfxID_t; //!< Index into `GfxScene::m_gfx_freebeams`, use `RoR::FREEBEAMGFXID_INVALID` as empty value
     static const FreeBeamGfxID_t FREEBEAMGFXID_INVALID = -1;
 
+    typedef int BuoyCachedNodeID_t; //<! Offset to `Buoyance::buoy_cached_nodes`, use BUOYCACHEDNODEID_INVALID as empty value.
+    static const BuoyCachedNodeID_t BUOYCACHEDNODEID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;
