@@ -2144,8 +2144,17 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 #endif // USE_SOCKETW
 
     // Display actor list
-    Ogre::TexturePtr tex1 = FetchIcon("control_pause.png");
-    Ogre::TexturePtr tex2 = FetchIcon("control_play.png");
+    Ogre::TexturePtr tex1;
+    Ogre::TexturePtr tex2;
+    try
+    {
+        tex1 = Ogre::TextureManager::getSingleton().load(
+            "control_pause.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
+        tex2 = Ogre::TextureManager::getSingleton().load(
+            "control_play.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
+    }
+    catch (...) {} // Logged by OGRE
+
     int i = 0;
     for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {

@@ -369,16 +369,25 @@ bool RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
     return false;
 }
 
-Ogre::TexturePtr RoR::FetchIcon(const char* name)
+Ogre::TexturePtr FetchTexInternal(const char* name, const char* rgn)
 {
     try
     {
-        return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+        return Ogre::TextureManager::getSingleton().load(name, rgn);
     }
     catch (...) {}
 
     return Ogre::TexturePtr(); // null
+}
+
+Ogre::TexturePtr RoR::FetchIcon(const char* name)
+{
+    return FetchTexInternal(name, "IconsRG");
+}
+
+Ogre::TexturePtr RoR::FetchFlag(const char* name)
+{
+    return FetchTexInternal(name, "FlagsRG");
 }
 
 ImDrawList* RoR::GetImDummyFullscreenWindow(const std::string& name /* = "RoR_TransparentFullscreenWindow"*/)
