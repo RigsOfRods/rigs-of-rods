@@ -40,6 +40,16 @@ struct BuoyCachedNode
     NodeNum_t nodenum = NODENUM_INVALID;
 };
 
+struct BuoyDebugSubCab //!< Submerged cab triangle
+{
+    BuoyDebugSubCab(Vec3 _a, Vec3 _b, Vec3 _c, Vec3 _norm, Vec3 _drag, float _volume) :
+        a(_a), b(_b), c(_c), normal(_norm), drag(_drag), volume(_volume) {}
+    Vec3 a, b, c; // absolute positions
+    Vec3 normal;
+    Vec3 drag;
+    float volume;
+};
+
 class Buoyance
 {
 public:
@@ -58,6 +68,8 @@ public:
     BuoyCachedNodeID_t cacheBuoycabNode(node_t* n);
 
     std::vector<BuoyCachedNode> buoy_cached_nodes;
+    bool buoy_debug_view = false;
+    std::vector<BuoyDebugSubCab> buoy_debug_subcabs;
 
 private:
 

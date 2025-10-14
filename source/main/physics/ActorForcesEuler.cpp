@@ -164,6 +164,11 @@ void Actor::CalcBuoyance(bool doUpdate)
         bcn.Forces = Ogre::Vector3::ZERO;
     }
 
+    if (doUpdate)
+    {
+        m_buoyance->buoy_debug_subcabs.clear();
+    }
+
     // Update node forces.
     for (int i = 0; i < ar_num_buoycabs; i++)
     {

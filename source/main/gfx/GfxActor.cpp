@@ -24,6 +24,7 @@
 #include "ApproxMath.h"
 #include "AirBrake.h"
 #include "Actor.h"
+#include "Buoyance.h"
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "DustPool.h" // General particle gfx
@@ -722,6 +723,11 @@ const float NODE_IMMOVABLE_RADIUS    (2.8f);
 
 void RoR::GfxActor::UpdateDebugView()
 {
+    if (m_actor->m_buoyance)
+    {
+        m_actor->m_buoyance->buoy_debug_view = m_debug_view == DebugViewType::DEBUGVIEW_BUOYANCY;
+    }
+
     if (m_debug_view == DebugViewType::DEBUGVIEW_NONE && !m_actor->ar_physics_paused)
     {
         return; // Nothing to do
@@ -1560,6 +1566,61 @@ void RoR::GfxActor::UpdateDebugView()
                         drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
                     }
                     node_ids.push_back(id);
+                }
+            }
+        }
+    } else if (m_debug_view == DebugViewType::DEBUGVIEW_BUOYANCY)
+    {
+        if (m_actor->m_buoyance)
+        {
+            // Draw submerged triangles (constructed dynamically)
+            for (BuoyDebugSubCab& subcab: m_actor->m_buoyance->buoy_debug_subcabs)
+            {
+                ImU32 fill_color = Ogre::ColourValue(0.4f, 0.4f, 0.9f, 0.27f).getAsABGR();
+                ImU32 beam_color = Ogre::ColourValue(0.2f, 0.3f, 0.8f, 0.53f).getAsABGR();
+
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(subcab.a);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(subcab.b);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(subcab.c);
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                {
+                    ImVec2 pos1_xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2_xy(pos2_xyz.x, pos2_xyz.y);
+                    ImVec2 pos3_xy(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddTriangleFilled(pos1_xy, pos2_xy, pos3_xy, fill_color);
+                    drawlist->AddTriangle(pos1_xy, pos2_xy, pos3_xy, beam_color, BEAM_THICKNESS);
+                }
+            }
+
+            // Draw buoyant hull triangles (defined statically)
+            for (int i = 0; i < m_actor->ar_num_buoycabs; i++)
+            {
+                const ImU32 beam_color = Ogre::ColourValue(0.5f, 0.1f, 0.1f, 0.53f).getAsABGR();
+                int tmpv = m_actor->ar_buoycabs[i] * 3;
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].AbsPosition);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(m_actor->ar_nodes[m_actor->ar_cabs[tmpv + 1]].AbsPosition);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(m_actor->ar_nodes[m_actor->ar_cabs[tmpv + 2]].AbsPosition);
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                {
+                    ImVec2 pos1_xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2_xy(pos2_xyz.x, pos2_xyz.y);
+                    ImVec2 pos3_xy(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddTriangle(pos1_xy, pos2_xy, pos3_xy, beam_color, BEAM_THICKNESS);
+                }
+            }
+
+            for (BuoyCachedNode& bcn: m_actor->m_buoyance->buoy_cached_nodes)
+            {
+                Ogre::Vector3 pos_xyz = world2screen.Convert(bcn.AbsPosition);
+                if (pos_xyz.z < 0.f)
+                {
+                    ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
+                    ImU32 col = 0x88aaaaaa;
+                    drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, col);
+                    // Node info
+                    Str<25> id_buf;
+                    id_buf << bcn.nodenum;
+                    drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
                 }
             }
         }
