@@ -502,7 +502,7 @@ void Water::SetWaterBottomHeight(float value)
     m_bottom_height = value;
 }
 
-float Water::CalcWavesHeight(Vector3 pos)
+float Water::CalcWavesHeight(Vector3 pos, float timeshift_sec)
 {
     // no waves?
     if (!RoR::App::gfx_water_waves->getBool() || RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
@@ -515,6 +515,8 @@ float Water::CalcWavesHeight(Vector3 pos)
     if (pos.y > m_water_height + m_max_ampl)
         return m_water_height;
 
+    const float time_sec = m_sim_time_counter + timeshift_sec;
+
     float waveheight = GetWaveHeight(pos);
     // we will store the result in this variable, init it with the default height
     float result = m_water_height;
@@ -526,7 +528,7 @@ float Water::CalcWavesHeight(Vector3 pos)
         float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
-        result += amp * sin(Math::TWO_PI * ((m_sim_time_counter * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
+        result += amp * sin(Math::TWO_PI * ((time_sec * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
     }
     // return the summed up waves
     return result;
@@ -549,7 +551,7 @@ bool Water::IsUnderWater(Vector3 pos)
     return pos.y < waterheight;
 }
 
-Vector3 Water::CalcWavesVelocity(Vector3 pos)
+Vector3 Water::CalcWavesVelocity(Vector3 pos, float timeshift_sec)
 {
     if (!RoR::App::gfx_water_waves->getBool() || RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
         return Vector3::ZERO;
@@ -561,7 +563,7 @@ Vector3 Water::CalcWavesVelocity(Vector3 pos)
 
     Vector3 result(Vector3::ZERO);
 
-    const float time_sec = (float)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
+    const float time_sec = m_sim_time_counter + timeshift_sec;
 
     for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {

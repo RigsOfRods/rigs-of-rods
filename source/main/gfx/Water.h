@@ -49,8 +49,8 @@ public:
     void           SetStaticWaterHeight(float value) override;
     void           SetWaterBottomHeight(float value) override;
     void           SetWavesHeight(float value) override;
-    float          CalcWavesHeight(Ogre::Vector3 pos) override;
-    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
+    float          CalcWavesHeight(Ogre::Vector3 pos, float timeshift_sec = 0.f) override;
+    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos, float timeshift_sec = 0.f) override;
     void           SetWaterVisible(bool value) override;
     bool           IsUnderWater(Ogre::Vector3 pos) override;
     void           SetReflectionPlaneHeight(float centerheight) override;

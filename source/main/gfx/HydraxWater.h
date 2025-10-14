@@ -41,8 +41,8 @@ public:
     // Interface IWater
     float          GetStaticWaterHeight() override;
     void           SetStaticWaterHeight(float value) override;
-    float          CalcWavesHeight(Ogre::Vector3 pos) override;
-    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
+    float          CalcWavesHeight(Ogre::Vector3 pos, float timeshift = 0.f) override;
+    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos, float timeshift = 0.f) override;
     void           SetWaterVisible(bool value) override;
     void           WaterSetSunPosition(Ogre::Vector3) override;
     bool           IsUnderWater(Ogre::Vector3 pos) override;

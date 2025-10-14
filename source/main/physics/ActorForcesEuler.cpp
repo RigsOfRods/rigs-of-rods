@@ -148,6 +148,9 @@ void Actor::CalcFuseDrag()
     }
 }
 
+const int BUOYANCY_SAMPLING_INTERVAL = 10; // steps (200x per sec)
+const int BUOYANCY_VISUAL_UPDATE_INTERVAL = 40; // steps (50x per sec)
+
 void Actor::CalcBuoyance(bool doUpdate)
 {
     IWater* iwater = App::GetGameContext()->GetTerrain()->getWater();
@@ -156,34 +159,73 @@ void Actor::CalcBuoyance(bool doUpdate)
         return;
     }
 
-    // Refresh cached cab nodes
-    for (BuoyCachedNode& bcn: m_buoyance->buoy_cached_nodes)
+    if (m_buoyance->buoy_total_steps % BUOYANCY_SAMPLING_INTERVAL == 0)
     {
-        bcn.AbsPosition = ar_nodes[bcn.nodenum].AbsPosition;
-        bcn.Velocity = ar_nodes[bcn.nodenum].Velocity;
-        bcn.Forces = Ogre::Vector3::ZERO;
+        // ~~~ Create 2 snapshots of node forces: current and projected ~~~ //
+        const float timeshift_sec = PHYSICS_DT * BUOYANCY_SAMPLING_INTERVAL;
+        doUpdate = m_buoyance->buoy_total_steps % BUOYANCY_VISUAL_UPDATE_INTERVAL;
+        if (doUpdate)
+        {
+            m_buoyance->buoy_debug_subcabs.clear();
+        }
+
+        for (size_t i = 0; i < m_buoyance->buoy_cached_nodes.size(); ++i)
+        {
+            // Refresh cached node from current simulation state
+            NodeNum_t nodenum = m_buoyance->buoy_cached_nodes[i].nodenum;
+            m_buoyance->buoy_cached_nodes[i].AbsPosition = ar_nodes[nodenum].AbsPosition;
+            m_buoyance->buoy_cached_nodes[i].Velocity    = ar_nodes[nodenum].Velocity;
+            m_buoyance->buoy_cached_nodes[i].Forces      = Ogre::Vector3::ZERO;
+
+            // Projected node: advance position by N steps
+            m_buoyance->buoy_projected_nodes[i].AbsPosition = ar_nodes[nodenum].AbsPosition + ar_nodes[nodenum].Velocity * timeshift_sec;
+            m_buoyance->buoy_projected_nodes[i].Velocity = ar_nodes[nodenum].Velocity;
+            m_buoyance->buoy_projected_nodes[i].Forces   = Ogre::Vector3::ZERO;
+        }
+
+        // Update node forces.
+        for (int i = 0; i < ar_num_buoycabs; i++)
+        {
+            int tmpv = ar_buoycabs[i] * 3;
+
+            BuoyCachedNode& bcn_a = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv]];
+            BuoyCachedNode& bcn_b = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv+1]];
+            BuoyCachedNode& bcn_c = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv+2]];
+            m_buoyance->update = doUpdate;
+            m_buoyance->computeNodeForce(&bcn_a, &bcn_b, &bcn_c, ar_buoycab_types[i], /* timeshift: */ 0.f);
+
+            BuoyCachedNode& bpn_a = m_buoyance->buoy_projected_nodes[ar_cabs_buoy_cache_ids[tmpv]];
+            BuoyCachedNode& bpn_b = m_buoyance->buoy_projected_nodes[ar_cabs_buoy_cache_ids[tmpv+1]];
+            BuoyCachedNode& bpn_c = m_buoyance->buoy_projected_nodes[ar_cabs_buoy_cache_ids[tmpv+2]];
+            m_buoyance->update = false;
+            m_buoyance->computeNodeForce(&bpn_a, &bpn_b, &bpn_c, ar_buoycab_types[i], timeshift_sec);
+        }
+
+        // Apply forces to nodes.
+        for (const BuoyCachedNode& bcn: m_buoyance->buoy_cached_nodes)
+        {
+            ar_nodes[bcn.nodenum].Forces += bcn.Forces;
+        }
+
+        m_buoyance->buoy_last_sample_steps = m_buoyance->buoy_total_steps;
+    }
+    else
+    {
+        // ~~~ Interpolate between cached_nodes and projected_nodes
+        const float interp_ratio = static_cast<double>(m_buoyance->buoy_total_steps - m_buoyance->buoy_last_sample_steps) / BUOYANCY_SAMPLING_INTERVAL;
+
+        // Apply forces to nodes.
+        for (size_t i = 0; i < m_buoyance->buoy_cached_nodes.size(); ++i)
+        {
+            const NodeNum_t nodenum = m_buoyance->buoy_cached_nodes[i].nodenum;
+            const Ogre::Vector3& force_a = m_buoyance->buoy_cached_nodes[i].Forces;
+            const Ogre::Vector3& force_b = m_buoyance->buoy_projected_nodes[i].Forces;
+            Ogre::Vector3 interp_force = force_a * (1.0f - interp_ratio) + force_b * interp_ratio;
+            ar_nodes[nodenum].Forces += interp_force;
+        }
     }
 
-    if (doUpdate)
-    {
-        m_buoyance->buoy_debug_subcabs.clear();
-    }
-
-    // Update node forces.
-    for (int i = 0; i < ar_num_buoycabs; i++)
-    {
-        int tmpv = ar_buoycabs[i] * 3;
-        BuoyCachedNode& bcn_a = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv]];
-        BuoyCachedNode& bcn_b = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv+1]];
-        BuoyCachedNode& bcn_c = m_buoyance->buoy_cached_nodes[ar_cabs_buoy_cache_ids[tmpv+2]];
-        m_buoyance->computeNodeForce(&bcn_a, &bcn_b, &bcn_c, doUpdate == 1, ar_buoycab_types[i]);
-    }
-
-    // Apply forces to nodes.
-    for (const BuoyCachedNode& bcn: m_buoyance->buoy_cached_nodes)
-    {
-        ar_nodes[bcn.nodenum].Forces += bcn.Forces;
-    }
+    m_buoyance->buoy_total_steps++;
 }
 
 void Actor::CalcDifferentials()

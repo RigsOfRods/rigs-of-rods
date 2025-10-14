@@ -34,9 +34,7 @@ using namespace RoR;
 
 Buoyance::Buoyance(DustPool* splash, DustPool* ripple) :
     splashp(splash),
-    ripplep(ripple),
-    sink(0),
-    update(false)
+    ripplep(ripple)
 {
 }
 
@@ -199,14 +197,12 @@ Vec3 Buoyance::computePressureForce(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int type)
     }
 }
 
-void Buoyance::computeNodeForce(BuoyCachedNode* a, BuoyCachedNode* b, BuoyCachedNode* c, bool doUpdate, int type)
+void Buoyance::computeNodeForce(BuoyCachedNode* a, BuoyCachedNode* b, BuoyCachedNode* c, int type, float timeshift)
 {
     if (a->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a->AbsPosition) &&
         b->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b->AbsPosition) &&
         c->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(c->AbsPosition))
         return;
-
-    update = doUpdate;
 
     //compute center
     Vec3 m = (a->AbsPosition + b->AbsPosition + c->AbsPosition) / 3.0;
