@@ -109,6 +109,7 @@ enum class DebugViewType
     DEBUGVIEW_ROTATORS,
     DEBUGVIEW_SLIDENODES,
     DEBUGVIEW_SUBMESH,
+    DEBUGVIEW_BUOYANCY,
 };
 
 enum ShifterPropAnim //!< `PropAnim::animOpt3` values for PROP_ANIM_FLAG_SHIFTER

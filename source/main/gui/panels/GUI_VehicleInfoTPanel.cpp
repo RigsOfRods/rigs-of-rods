@@ -602,6 +602,10 @@ void VehicleInfoTPanel::DrawVehicleDiagUI(RoR::GfxActor* actorx)
     {
         ImGui::RadioButton(_LC("TopMenubar", "Submesh details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SUBMESH));
     }
+    if (current_actor->ar_num_buoycabs > 0)
+    {
+        ImGui::RadioButton(_LC("TopMenubar", "Buoyancy details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_BUOYANCY));
+    }
 
     if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
     {

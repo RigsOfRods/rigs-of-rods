@@ -137,6 +137,10 @@ Vec3 Buoyance::computePressureForceSub(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int typ
     //okay
     if (sink)
         return drg;
+    if (update && buoy_debug_view)
+    {
+        buoy_debug_subcabs.emplace_back(a, b, c, normal, drg, vol);
+    }
     return vol * normal + drg;
 }
 
@@ -206,16 +210,6 @@ void Buoyance::computeNodeForce(BuoyCachedNode* a, BuoyCachedNode* b, BuoyCached
 
     //compute center
     Vec3 m = (a->AbsPosition + b->AbsPosition + c->AbsPosition) / 3.0;
-
-#if 0
-    //compute projected points
-	Vec3 tmp = b->Position - a->Position;
-	Vec3 mab = (tmp.dotProduct(m-a->Position) / tmp.squaredLength()) * tmp;
-	tmp = c->Position - b->Position;
-	Vec3 mbc = (tmp.dotProduct(m-b->Position) / tmp.squaredLength()) * tmp;
-	tmp = a->Position - c->Position;
-	Vec3 mca = (tmp.dotProduct(m-c->Position) / tmp.squaredLength()) * tmp;
-#endif
 
     //suboptimal
     Vec3 mab = (a->AbsPosition + b->AbsPosition) / 2.0;
