@@ -459,6 +459,7 @@ public:
     ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
+    std::unique_ptr<Buoyance> m_buoyance;
 
     // Player camera 'cameras & cinecam'
     // * 'cinecam#' creates dedicated node to dictate camera position + 6 attachment beams.
@@ -624,7 +625,6 @@ private:
     float             m_odometer_total = 0.f;        //!< GUI state
     float             m_odometer_user = 0.f;         //!< GUI state
     int               m_num_command_beams = 0;     //!< TODO: Remove! Spawner context only; likely unused feature
-    std::unique_ptr<Buoyance> m_buoyance;              //!< Physics
     CacheEntryPtr     m_used_actor_entry;
     CacheEntryPtr     m_used_skin_entry;               //!< Graphics
     TuneupDefPtr      m_working_tuneup_def;            //!< Each actor gets unique instance, even if loaded from .tuneup file in modcache.

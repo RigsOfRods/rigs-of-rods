@@ -44,8 +44,8 @@ public:
     virtual void           SetStaticWaterHeight(float value) = 0;
     virtual void           SetWaterBottomHeight(float) {};
     virtual void           SetWavesHeight(float) {};
-    virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
-    virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
+    virtual float          CalcWavesHeight(Ogre::Vector3 pos, float timeshift_sec = 0.f) = 0;
+    virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos, float timeshift_sec = 0.f) = 0;
     virtual void           SetWaterVisible(bool value) = 0;
     virtual void           WaterSetSunPosition(Ogre::Vector3) {}
     virtual bool           IsUnderWater(Ogre::Vector3 pos) = 0;

@@ -28,6 +28,7 @@
 #include "Actor.h"
 #include "Application.h"
 #include "ApproxMath.h"
+#include "Buoyance.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "ChatSystem.h"
@@ -320,6 +321,19 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     else if (App::sim_replay_enabled->getBool())
     {
         actor->m_replay_handler = new Replay(actor, App::sim_replay_length->getInt());
+    }
+
+    //cache buoyancy nodes (must be done when position is final)
+    if (actor->m_buoyance)
+    {
+        for (int i = 0; i < actor->ar_num_buoycabs; i++)
+        {
+            int tmpv = actor->ar_buoycabs[i] * 3;
+            actor->ar_cabs_buoy_cache_ids[tmpv] = actor->m_buoyance->cacheBuoycabNode(&actor->ar_nodes[actor->ar_cabs[tmpv]]);
+            actor->ar_cabs_buoy_cache_ids[tmpv+1] = actor->m_buoyance->cacheBuoycabNode(&actor->ar_nodes[actor->ar_cabs[tmpv + 1]]);
+            actor->ar_cabs_buoy_cache_ids[tmpv+2] = actor->m_buoyance->cacheBuoycabNode(&actor->ar_nodes[actor->ar_cabs[tmpv + 2]]);
+        }
+        actor->m_buoyance->buoy_projected_nodes = actor->m_buoyance->buoy_cached_nodes;
     }
 
     // Launch scripts (FIXME: ignores sectionconfig)

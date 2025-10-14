@@ -57,19 +57,24 @@ public:
     Buoyance(DustPool* splash, DustPool* ripple);
     ~Buoyance();
 
-    void computeNodeForce(BuoyCachedNode *a, BuoyCachedNode *b, BuoyCachedNode *c, bool doUpdate, int type);
+    void computeNodeForce(BuoyCachedNode *a, BuoyCachedNode *b, BuoyCachedNode *c, int type, float timeshift);
 
     enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
 
-    bool sink;
+    bool sink = false;
+    bool update = false; // Update particles and debugview, if enabled.
 
     /// try adding the node to internal list (each node is only listed once).
     /// @return new or existing cached node ID.
     BuoyCachedNodeID_t cacheBuoycabNode(node_t* n);
 
     std::vector<BuoyCachedNode> buoy_cached_nodes;
+    std::vector<BuoyCachedNode> buoy_projected_nodes;
+    
     bool buoy_debug_view = false;
     std::vector<BuoyDebugSubCab> buoy_debug_subcabs;
+    long long buoy_total_steps = 0;
+    long long buoy_last_sample_steps = 0;
 
 private:
 
@@ -83,9 +88,6 @@ private:
     Vec3 computePressureForce(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int type);
     
     DustPool *splashp, *ripplep;
-    bool update;
-
-    
 };
 
 /// @} // addtogroup Physics
