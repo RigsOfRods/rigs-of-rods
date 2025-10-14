@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Application.h"
+#include "Vec3.h"
 
 namespace RoR {
 
@@ -32,9 +33,9 @@ struct BuoyCachedNode
     BuoyCachedNode(NodeNum_t _nodenum): nodenum(_nodenum) {}
 
     // node_t fields
-    Ogre::Vector3 AbsPosition = Ogre::Vector3::ZERO;
-    Ogre::Vector3 Velocity = Ogre::Vector3::ZERO;
-    Ogre::Vector3 Forces = Ogre::Vector3::ZERO;
+    Vec3 AbsPosition;
+    Vec3 Velocity;
+    Vec3 Forces;
     // additional fields
     NodeNum_t nodenum = NODENUM_INVALID;
 };
@@ -61,13 +62,13 @@ public:
 private:
 
     //compute tetrahedron volume
-    inline float computeVolume(Ogre::Vector3 o, Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c);
+    inline float computeVolume(Vec3 o, Vec3 a, Vec3 b, Vec3 c);
 
     //compute pressure and drag force on a submerged triangle
-    Ogre::Vector3 computePressureForceSub(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
+    Vec3 computePressureForceSub(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int type);
     
     //compute pressure and drag forces on a random triangle
-    Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
+    Vec3 computePressureForce(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int type);
     
     DustPool *splashp, *ripplep;
     bool update;
@@ -77,5 +78,5 @@ private:
 
 /// @} // addtogroup Physics
 
-} // namespace RoRs
+} // namespace RoR
 

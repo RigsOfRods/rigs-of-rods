@@ -220,6 +220,7 @@ set(SOURCE_FILES
         utils/PlatformUtils.{h,cpp}
         utils/SHA1.{h,cpp}
         utils/Utils.{h,cpp}
+        utils/Vec3.h
         utils/WriteTextToTexture.{h,cpp}
         utils/memory/RefCountingObject.h
         utils/memory/RefCountingObjectPtr.h

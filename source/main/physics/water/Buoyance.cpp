@@ -63,30 +63,30 @@ BuoyCachedNodeID_t Buoyance::cacheBuoycabNode(node_t* n)
 }
 
 //compute tetrahedron volume
-inline float Buoyance::computeVolume(Vector3 o, Vector3 a, Vector3 b, Vector3 c)
+inline float Buoyance::computeVolume(Vec3 o, Vec3 a, Vec3 b, Vec3 c)
 {
     return ((a - o).dotProduct((b - o).crossProduct(c - o))) / 6.0;
 }
 
 //compute pressure and drag force on a submerged triangle
-Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vector3 vel, int type)
+Vec3 Buoyance::computePressureForceSub(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int type)
 {
     //compute normal vector
-    Vector3 normal = (b - a).crossProduct(c - a);
+    Vec3 normal = (b - a).crossProduct(c - a);
     float surf = normal.length();
     if (surf < 0.00001)
-        return Vector3::ZERO;
+        return Vec3();
     normal = normal / surf; //normalize
     surf = surf / 2.0; //surface
     float vol = 0.0;
     if (type != BUOY_DRAGONLY)
     {
         //compute pression prism points
-        Vector3 ap = a + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a) - a.y) * 9810 * normal;
-        Vector3 bp = b + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b) - b.y) * 9810 * normal;
-        Vector3 cp = c + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(c) - c.y) * 9810 * normal;
+        Vec3 ap = a + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a) - a.y) * 9810 * normal;
+        Vec3 bp = b + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b) - b.y) * 9810 * normal;
+        Vec3 cp = c + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(c) - c.y) * 9810 * normal;
         //find centroid
-        Vector3 ctd = (a + b + c + ap + bp + cp) / 6.0;
+        Vec3 ctd = (a + b + c + ap + bp + cp) / 6.0;
         //compute volume
         vol += computeVolume(ctd, a, b, c);
         vol += computeVolume(ctd, a, ap, bp);
@@ -97,13 +97,13 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
         vol += computeVolume(ctd, c, ap, a);
         vol += computeVolume(ctd, ap, cp, bp);
     };
-    Vector3 drg = Vector3::ZERO;
+    Vec3 drg;
     if (type != BUOY_DRAGLESS)
     {
         //now, the drag
         //take in account the wave speed
         //compute center
-        Vector3 tc = (a + b + c) / 3.0;
+        Vec3 tc = (a + b + c) / 3.0;
         vel = vel - App::GetGameContext()->GetTerrain()->getWater()->CalcWavesVelocity(tc);
         float vell = vel.length();
         if (vell > 0.01)
@@ -118,7 +118,7 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
                 float fxl = vell * cosaoa * surf;
                 if (fxl > 1.5) //if enough pushing drag
                 {
-                    Vector3 fxdir = fxl * normal;
+                    Vec3 fxdir = fxl * normal;
                     if (fxdir.y < 0)
                         fxdir.y = -fxdir.y;
 
@@ -141,12 +141,12 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
 }
 
 //compute pressure and drag forces on a random triangle
-Vector3 Buoyance::computePressureForce(Vector3 a, Vector3 b, Vector3 c, Vector3 vel, int type)
+Vec3 Buoyance::computePressureForce(Vec3 a, Vec3 b, Vec3 c, Vec3 vel, int type)
 {
     float wha = App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight((a + b + c) / 3.0);
     //check if fully emerged
     if (a.y > wha && b.y > wha && c.y > wha)
-        return Vector3::ZERO;
+        return Vec3();
     //check if semi emerged
     if (a.y > wha || b.y > wha || c.y > wha)
     {
@@ -167,26 +167,26 @@ Vector3 Buoyance::computePressureForce(Vector3 a, Vector3 b, Vector3 c, Vector3 
         //two dips
         if (a.y > wha && b.y < wha && c.y < wha)
         {
-            Vector3 tb = a + (wha - a.y) / (b.y - a.y) * (b - a);
-            Vector3 tc = a + (wha - a.y) / (c.y - a.y) * (c - a);
-            Vector3 f = computePressureForceSub(tb, b, tc, vel, type);
+            Vec3 tb = a + (wha - a.y) / (b.y - a.y) * (b - a);
+            Vec3 tc = a + (wha - a.y) / (c.y - a.y) * (c - a);
+            Vec3 f = computePressureForceSub(tb, b, tc, vel, type);
             return f + computePressureForceSub(tc, b, c, vel, type);
         }
         if (b.y > wha && c.y < wha && a.y < wha)
         {
-            Vector3 tc = b + (wha - b.y) / (c.y - b.y) * (c - b);
-            Vector3 ta = b + (wha - b.y) / (a.y - b.y) * (a - b);
-            Vector3 f = computePressureForceSub(tc, c, ta, vel, type);
+            Vec3 tc = b + (wha - b.y) / (c.y - b.y) * (c - b);
+            Vec3 ta = b + (wha - b.y) / (a.y - b.y) * (a - b);
+            Vec3 f = computePressureForceSub(tc, c, ta, vel, type);
             return f + computePressureForceSub(ta, c, a, vel, type);
         }
         if (c.y > wha && a.y < wha && b.y < wha)
         {
-            Vector3 ta = c + (wha - c.y) / (a.y - c.y) * (a - c);
-            Vector3 tb = c + (wha - c.y) / (b.y - c.y) * (b - c);
-            Vector3 f = computePressureForceSub(ta, a, tb, vel, type);
+            Vec3 ta = c + (wha - c.y) / (a.y - c.y) * (a - c);
+            Vec3 tb = c + (wha - c.y) / (b.y - c.y) * (b - c);
+            Vec3 f = computePressureForceSub(ta, a, tb, vel, type);
             return f + computePressureForceSub(tb, a, b, vel, type);
         }
-        return Vector3::ZERO;
+        return Vec3();
     }
     else
     {
@@ -205,23 +205,23 @@ void Buoyance::computeNodeForce(BuoyCachedNode* a, BuoyCachedNode* b, BuoyCached
     update = doUpdate;
 
     //compute center
-    Vector3 m = (a->AbsPosition + b->AbsPosition + c->AbsPosition) / 3.0;
+    Vec3 m = (a->AbsPosition + b->AbsPosition + c->AbsPosition) / 3.0;
 
 #if 0
     //compute projected points
-	Vector3 tmp = b->Position - a->Position;
-	Vector3 mab = (tmp.dotProduct(m-a->Position) / tmp.squaredLength()) * tmp;
+	Vec3 tmp = b->Position - a->Position;
+	Vec3 mab = (tmp.dotProduct(m-a->Position) / tmp.squaredLength()) * tmp;
 	tmp = c->Position - b->Position;
-	Vector3 mbc = (tmp.dotProduct(m-b->Position) / tmp.squaredLength()) * tmp;
+	Vec3 mbc = (tmp.dotProduct(m-b->Position) / tmp.squaredLength()) * tmp;
 	tmp = a->Position - c->Position;
-	Vector3 mca = (tmp.dotProduct(m-c->Position) / tmp.squaredLength()) * tmp;
+	Vec3 mca = (tmp.dotProduct(m-c->Position) / tmp.squaredLength()) * tmp;
 #endif
 
     //suboptimal
-    Vector3 mab = (a->AbsPosition + b->AbsPosition) / 2.0;
-    Vector3 mbc = (b->AbsPosition + c->AbsPosition) / 2.0;
-    Vector3 mca = (c->AbsPosition + a->AbsPosition) / 2.0;
-    Vector3 vel = (a->Velocity + b->Velocity + c->Velocity) / 3.0;
+    Vec3 mab = (a->AbsPosition + b->AbsPosition) / 2.0;
+    Vec3 mbc = (b->AbsPosition + c->AbsPosition) / 2.0;
+    Vec3 mca = (c->AbsPosition + a->AbsPosition) / 2.0;
+    Vec3 vel = (a->Velocity + b->Velocity + c->Velocity) / 3.0;
 
     //apply forces
     a->Forces += computePressureForce(a->AbsPosition, mab, m, vel, type) + computePressureForce(a->AbsPosition, m, mca, vel, type);
