@@ -25,7 +25,7 @@
 
 #include "AeroEngine.h"
 #include "Application.h"
-#include "IWater.h"
+#include "IGfxWater.h"
 #include "ScrewProp.h"
 #include "Sound.h"
 

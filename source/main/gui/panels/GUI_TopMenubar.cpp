@@ -45,7 +45,7 @@
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
-#include "Water.h"
+#include "GfxWater.h"
 #include "ScriptEngine.h"
 #include "Console.h"
 #include "ContentManager.h"

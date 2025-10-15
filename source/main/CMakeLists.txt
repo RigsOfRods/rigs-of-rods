@@ -36,7 +36,7 @@ set(SOURCE_FILES
         gfx/GfxData.{h,cpp}
         gfx/GfxScene.{h,cpp}
         gfx/HydraxWater.{h,cpp}
-        gfx/IWater.h
+        gfx/IGfxWater.h
         gfx/MovableText.{h,cpp}
         gfx/Renderdash.{h,cpp}
         gfx/ShadowManager.{h,cpp}
@@ -45,7 +45,7 @@ set(SOURCE_FILES
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
         gfx/SurveyMapTextureCreator.{h,cpp}
-        gfx/Water.{h,cpp}
+        gfx/GfxWater.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
         gfx/hydrax/CfgFileManager.{h,cpp}
@@ -177,6 +177,7 @@ set(SOURCE_FILES
         physics/flex/Locator_t.h
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
+        physics/water/Wavefield.{h,cpp}
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
         resources/addonpart_fileformat/AddonPartFileFormat.{h,cpp}

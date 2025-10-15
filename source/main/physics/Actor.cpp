@@ -67,7 +67,7 @@
 #include "TurboProp.h"
 #include "Utils.h"
 #include "VehicleAI.h"
-#include "Water.h"
+#include "GfxWater.h"
 #include <fmt/format.h>
 #include "half/half.hpp"
 

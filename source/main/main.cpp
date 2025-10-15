@@ -2008,6 +2008,10 @@ int main(int argc, char *argv[])
             // Advance simulation
             if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
+                if (App::GetGameContext()->GetTerrain()->getWater())
+                {
+                    App::GetGameContext()->GetTerrain()->getWater()->FrameStepWaveField(dt_sim);
+                }
                 App::GetGameContext()->UpdateActors(); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
             }
 

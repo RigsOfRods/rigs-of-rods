@@ -141,7 +141,7 @@ namespace RoR
     struct GuiManagerImpl;
     class  HydraxWater;
     class  InputEngine;
-    class  IWater;
+    class  IGfxWater;
     class  Landusemap;
     class  LanguageEngine;
     class  LocalStorage;

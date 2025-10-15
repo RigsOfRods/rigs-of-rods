@@ -41,7 +41,7 @@
 #include "TerrainObjectManager.h"
 #include "Terrn2FileFormat.h"
 #include "Utils.h"
-#include "Water.h"
+#include "GfxWater.h"
 
 #include <Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrainGroup.h>
@@ -108,7 +108,7 @@ void RoR::Terrain::dispose()
 
     if (m_hydrax_water != nullptr)
     {
-        m_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
+        m_gfx_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
     }
 
     if (m_object_manager != nullptr)
@@ -133,6 +133,11 @@ void RoR::Terrain::dispose()
     {
         delete(m_collisions);
         m_collisions = nullptr;
+    }
+
+    if (m_wavefield)
+    {
+        m_wavefield.reset();
     }
 
     if (App::GetScriptEngine()->getTerrainScriptUnit() != SCRIPTUNITID_INVALID)
@@ -394,6 +399,9 @@ void RoR::Terrain::initWater()
         return;
     }
 
+    m_wavefield = std::unique_ptr<Wavefield>(new Wavefield(this->getMaxTerrainSize()));
+    m_wavefield->SetStaticWaterHeight(m_def->water_height);
+
     if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
@@ -407,7 +415,7 @@ void RoR::Terrain::initWater()
             m_hydrax_water = new HydraxWater(m_def->water_height);
         }
 
-        m_water = std::unique_ptr<IWater>(m_hydrax_water);
+        m_gfx_water = std::unique_ptr<IGfxWater>(m_hydrax_water);
 
         //Apply depth technique to the terrain
         TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
@@ -420,9 +428,8 @@ void RoR::Terrain::initWater()
     }
     else
     {
-        m_water = std::unique_ptr<IWater>(new Water(this->getMaxTerrainSize()));
-        m_water->SetStaticWaterHeight(m_def->water_height);
-        m_water->SetWaterBottomHeight(m_def->water_bottom_height);
+        m_gfx_water = std::unique_ptr<IGfxWater>(new GfxWater(this->getMaxTerrainSize(), m_def->water_height));
+        m_gfx_water->SetWaterBottomHeight(m_def->water_bottom_height);
     }
 }
 

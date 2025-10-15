@@ -62,7 +62,7 @@
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "VehicleAI.h"
-#include "Water.h"
+#include "GfxWater.h"
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -216,9 +216,8 @@ void GameScript::setWaterHeight(float value)
 
     if (App::GetGameContext()->GetTerrain()->getWater())
     {
-        IWater* water = App::GetGameContext()->GetTerrain()->getWater();
+        auto water = App::GetGameContext()->GetTerrain()->getWater();
         water->SetStaticWaterHeight(value);
-        water->UpdateWater();
     }
 }
 

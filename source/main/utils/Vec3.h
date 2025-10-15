@@ -50,6 +50,7 @@ namespace RoR {
         float dotProduct(const Vec3& b) const { return x * b.x + y * b.y + z * b.z; }
         Vec3 crossProduct(const Vec3& b) const { return Vec3(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x); }
         float length() const { return sqrtf(x * x + y * y + z * z); }
+        float squaredLength() const { return x * x + y * y + z * z; }
     };
 
     inline Vec3 operator*(float f, const Vec3& v) { return Vec3(v.x * f, v.y * f, v.z * f); }

@@ -150,18 +150,19 @@ void GfxScene::UpdateScene(float dt)
     App::GetGameContext()->GetTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
 
     // Terrain - water
-    IWater* water = App::GetGameContext()->GetTerrain()->getWater();
+    auto water = App::GetGameContext()->GetTerrain()->getWater();
+    auto gfx_water = App::GetGameContext()->GetTerrain()->getGfxWater();
     if (water)
     {
         if (player_gfx_actor != nullptr)
         {
-            water->SetReflectionPlaneHeight(water->CalcWavesHeight(player_gfx_actor->GetSimDataBuffer().simbuf_pos));
+            gfx_water->SetReflectionPlaneHeight(water->CalcWavesHeight(player_gfx_actor->GetSimDataBuffer().simbuf_pos));
         }
         else
         {
-            water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
+            gfx_water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
         }
-        water->FrameStepWater(dt);
+        gfx_water->FrameStepWater(dt);
     }
 
     // Terrain - sky

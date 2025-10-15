@@ -2,9 +2,10 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2017-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
+
     Rigs of Rods is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 3, as
     published by the Free Software Foundation.
@@ -20,10 +21,7 @@
 
 #pragma once
 
-#include "Hydrax.h"
-#include "IGfxWater.h"
-#include "ProjectedGrid.h"
-
+#include "ForwardDeclarations.h"
 #include <Ogre.h>
 
 namespace RoR {
@@ -31,29 +29,29 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class HydraxWater : public IGfxWater
+class IGfxWater
 {
 public:
+    IGfxWater()
+    {
+    }
 
-    HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
-    ~HydraxWater();
+    virtual ~IGfxWater()
+    {
+    }
 
-    void SetWaterVisible(bool value) override;
-    void WaterSetSunPosition(Ogre::Vector3) override;
-    void FrameStepWater(float dt) override;
-    void UpdateWater() override;
+    virtual void           SetWaterBottomHeight(float) {};
+    virtual void           SetWaterVisible(bool value) = 0;
+    virtual void           WaterSetSunPosition(Ogre::Vector3) {}
+    virtual void           FrameStepWater(float dt) = 0;
+    virtual void           SetReflectionPlaneHeight(float) {}
+    virtual void           UpdateReflectionPlane(float) {}
+    virtual void           WaterPrepareShutdown() {}
+    virtual void           UpdateWater() = 0;
 
-    Hydrax::Hydrax* GetHydrax() { return mHydrax; }
-
-protected:
-
-    void InitHydrax();
-    Hydrax::Hydrax* mHydrax;
-    float waveHeight;
-    float waterHeight;
-    Hydrax::Noise::Perlin* waternoise;
-    Hydrax::Module::ProjectedGrid* mModule;
-    Ogre::String CurrentConfigFile;
+    // Only used by class Water for SurveyMap texture creation
+    virtual void           SetForcedCameraTransform(Ogre::Radian /*fovy*/, Ogre::Vector3 /*pos*/, Ogre::Quaternion /*rot*/) {};
+    virtual void           ClearForcedCameraTransform() {};
 };
 
 /// @} // addtogroup Gfx

@@ -28,6 +28,7 @@
 #include "SimConstants.h"
 #include "SurveyMapEntity.h"
 #include "TerrainEditor.h"
+#include "Wavefield.h"
 
 #include <OgreVector3.h>
 #include <string>
@@ -83,14 +84,15 @@ public:
     ShadowManager*          getShadowManager()            { return m_shadow_manager; }
     TerrainEditor*          GetTerrainEditor()            { return &m_terrain_editor; }
     Collisions*             GetCollisions()               { return m_collisions; }
-    IWater*                 getWater()                    { return m_water.get(); }
+    Wavefield*              getWater()                    { return m_wavefield.get(); }
+    IGfxWater*              getGfxWater()                 { return m_gfx_water.get(); }
     /// @}
 
     /// @name Visuals
     /// @{
     Ogre::Light*            getMainLight()                { return m_main_light; }
     int                     getFarClip() const            { return m_sight_range; }
-    float                   getPagedDetailFactor() const { return m_paged_detail_factor; }
+    float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
     /// @}
 
     /// @name Simulation
@@ -132,7 +134,8 @@ private:
 
     TerrainObjectManager*   m_object_manager = nullptr;
     TerrainGeometryManager* m_geometry_manager = nullptr;
-    std::unique_ptr<IWater> m_water;
+    std::unique_ptr<IGfxWater> m_gfx_water;
+    std::unique_ptr<Wavefield> m_wavefield;
     TerrainEditor           m_terrain_editor;
     Collisions*             m_collisions = nullptr;
     ShadowManager*          m_shadow_manager = nullptr;

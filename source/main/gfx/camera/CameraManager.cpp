@@ -37,7 +37,7 @@
 #include "Terrain.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
-#include "Water.h"
+#include "GfxWater.h"
 
 using namespace Ogre;
 using namespace RoR;
