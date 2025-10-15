@@ -27,7 +27,7 @@
 #include "GfxScene.h"
 #include "DustPool.h"
 #include "Terrain.h"
-#include "Water.h"
+#include "GfxWater.h"
 
 using namespace Ogre;
 using namespace RoR;

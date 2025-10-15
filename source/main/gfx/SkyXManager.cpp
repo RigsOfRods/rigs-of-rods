@@ -105,7 +105,7 @@ bool SkyXManager::UpdateSkyLight()
 	mLight1->setDirection(lightDir);
     if (App::GetGameContext()->GetTerrain()->getWater())
     {
-        App::GetGameContext()->GetTerrain()->getWater()->WaterSetSunPosition(sunPos*0.1);
+        App::GetGameContext()->GetTerrain()->getGfxWater()->WaterSetSunPosition(sunPos*0.1);
     }
 
 	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459

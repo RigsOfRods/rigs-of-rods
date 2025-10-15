@@ -33,7 +33,7 @@
 #include "Network.h"
 #include "Terrain.h"
 #include "Utils.h"
-#include "Water.h"
+#include "GfxWater.h"
 
 using namespace Ogre;
 using namespace RoR;

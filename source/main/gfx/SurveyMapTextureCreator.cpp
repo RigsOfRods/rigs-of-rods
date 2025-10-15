@@ -24,7 +24,7 @@
 #include "Application.h"
 #include "GameContext.h"
 #include "GfxScene.h"
-#include "IWater.h"
+#include "IGfxWater.h"
 #include "Terrain.h"
 
 using namespace Ogre;
@@ -97,10 +97,9 @@ void SurveyMapTextureCreator::update(Vector2 center, Vector2 size)
 
 void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt)
 {
-    auto water = App::GetGameContext()->GetTerrain()->getWater();
+    auto water = App::GetGameContext()->GetTerrain()->getGfxWater();
     if (water)
     {
-        water->SetStaticWaterHeight(water->GetStaticWaterHeight());
         water->SetForcedCameraTransform(mCamera->getFOVy(),
             mCamera->getPosition(), mCamera->getOrientation()); // FIXME: Legacy OGRE API! Use camera node instead!
         water->UpdateWater();
@@ -110,7 +109,7 @@ void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt
 
 void SurveyMapTextureCreator::postRenderTargetUpdate(const RenderTargetEvent &evt)
 {
-    auto water = App::GetGameContext()->GetTerrain()->getWater();
+    auto water = App::GetGameContext()->GetTerrain()->getGfxWater();
     if (water)
     {
         water->UpdateWater();

@@ -88,13 +88,6 @@ void HydraxWater::InitHydrax()
     mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
 }
 
-bool HydraxWater::IsUnderWater(Ogre::Vector3 pos)
-{
-    if (pos.y < CalcWavesHeight(Ogre::Vector3(pos.x, pos.y, pos.z)))
-        return true;
-    return false;
-}
-
 void HydraxWater::UpdateWater()
 {
 #ifdef USE_CAELUM
@@ -109,38 +102,10 @@ void HydraxWater::UpdateWater()
 #endif // USE_CAELUM
 }
 
-float HydraxWater::GetStaticWaterHeight()
-{
-    return waterHeight;
-}
-
-void HydraxWater::SetStaticWaterHeight(float value)
-{
-    waterHeight = value;
-}
-
 void HydraxWater::SetWaterVisible(bool value)
 {
     if (mHydrax)
         mHydrax->setVisible(value);
-}
-
-float HydraxWater::CalcWavesHeight(Vector3 pos, float)
-{
-    if (!RoR::App::gfx_water_waves->getBool())
-    {
-        return waterHeight;
-    }
-    waveHeight = mHydrax->getHeigth(pos);
-    return waveHeight;
-}
-
-Vector3 HydraxWater::CalcWavesVelocity(Vector3 pos, float)
-{
-    if (!RoR::App::gfx_water_waves->getBool())
-        return Vector3(0, 0, 0);
-
-    return Vector3(0, 0, 0); //TODO
 }
 
 void HydraxWater::WaterSetSunPosition(Ogre::Vector3 pos)
@@ -151,6 +116,11 @@ void HydraxWater::WaterSetSunPosition(Ogre::Vector3 pos)
 
 void HydraxWater::FrameStepWater(float dt)
 {
+    const float curWaterHeight = App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
+    if (waterHeight != curWaterHeight)
+    {
+        waterHeight = curWaterHeight;
+    }
     if (mHydrax)
     {
         mHydrax->update(dt);

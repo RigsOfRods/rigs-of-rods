@@ -38,7 +38,7 @@
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
-#include "Water.h"
+#include "GfxWater.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -153,7 +153,7 @@ const int BUOYANCY_VISUAL_UPDATE_INTERVAL = 40; // steps (50x per sec)
 
 void Actor::CalcBuoyance(bool doUpdate)
 {
-    IWater* iwater = App::GetGameContext()->GetTerrain()->getWater();
+    auto iwater = App::GetGameContext()->GetTerrain()->getWater();
     if (!iwater || !ar_num_buoycabs)
     {
         return;

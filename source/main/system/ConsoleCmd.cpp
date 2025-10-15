@@ -28,7 +28,7 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
-#include "IWater.h"
+#include "IGfxWater.h"
 #include "Language.h"
 #include "Network.h"
 #include "OverlayWrapper.h"
@@ -109,10 +109,9 @@ public:
             reply_type = Console::CONSOLE_SYSTEM_REPLY;
             if (args.size() > 1)
             {
-                IWater* water = App::GetGameContext()->GetTerrain()->getWater();
+                auto water = App::GetGameContext()->GetTerrain()->getWater();
                 float height = (args[1] == "default") ? App::GetGameContext()->GetTerrain()->getWaterHeight() : PARSEREAL(args[1]);
                 water->SetStaticWaterHeight(height);
-                water->UpdateWater();
             }
             reply << _L ("Water level set to: ") << App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
         }
