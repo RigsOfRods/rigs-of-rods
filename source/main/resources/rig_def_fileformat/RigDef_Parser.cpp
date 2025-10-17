@@ -263,7 +263,7 @@ void Parser::ProcessCurrentLine()
         case Keyword::COMMANDS2:            this->ParseCommandsUnified();         return;
         case Keyword::COLLISIONBOXES:       this->ParseCollisionBox();            return;
         case Keyword::CONTACTERS:           this->ParseContacter();               return;
-        case Keyword::CUSTOMDASHBOARDVALUES:this->ParseCustomDashboardValues();   return;
+        case Keyword::CUSTOMDASHBOARDINPUTS:this->ParseCustomDashboardInputs();   return;
         case Keyword::DESCRIPTION:          this->ParseDescription();             return;
         case Keyword::ENGINE:               this->ParseEngine();                  return;
         case Keyword::ENGOPTION:            this->ParseEngoption();               return;
@@ -1501,13 +1501,13 @@ void Parser::ParseContacter()
     this->FlushPendingDocComment(m_current_module->contacters.size(), RigDef::Keyword::CONTACTERS);
 }
 
-void Parser::ParseCustomDashboardValues()
+void Parser::ParseCustomDashboardInputs()
 {
     if (!this->CheckNumArguments(2)) { return; }
 
-    CustomDashboardValue dashVal;
+    CustomDashboardInput dashVal;
     dashVal.name = this->GetArgStr(0);
-    dashVal.data_type = this->GetArgDashboardValueDataType(1);
+    dashVal.data_type = this->GetArgDashboardInputDataType(1);
     if (dashVal.data_type == -1)
     {
         this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
@@ -1515,8 +1515,8 @@ void Parser::ParseCustomDashboardValues()
         return;
     }
 
-    m_current_module->customdashboardvalues.push_back(dashVal);
-    this->FlushPendingDocComment(m_current_module->customdashboardvalues.size(), RigDef::Keyword::CUSTOMDASHBOARDVALUES);
+    m_current_module->customdashboardinputs.push_back(dashVal);
+    this->FlushPendingDocComment(m_current_module->customdashboardinputs.size(), RigDef::Keyword::CUSTOMDASHBOARDINPUTS);
 }
 
 void Parser::ParseCommandsUnified()
@@ -3509,7 +3509,7 @@ SpecialProp Parser::IdentifySpecialProp(const std::string& str)
     return SpecialProp::NONE;
 }
 
-int Parser::GetArgDashboardValueDataType(int index)
+int Parser::GetArgDashboardInputDataType(int index)
 {
     std::string str = this->GetArgStr(index);
     if (str == "bool")    return DC_BOOL;
@@ -3518,7 +3518,7 @@ int Parser::GetArgDashboardValueDataType(int index)
     if (str == "string")  return DC_CHAR;
 
     this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-        fmt::format("Not a valid dashboard value data type: '{}'", str));
+        fmt::format("Not a valid dashboard input data type: '{}'", str));
     return DC_INVALID;
 }
 

@@ -41,7 +41,7 @@ namespace RoR {
 #define DD_MAX_SCREWPROP  6
 #define DD_MAX_AEROENGINE 6
 #define DD_MAX_WING       6
-#define DD_MAX_CUSTOM_VALUES 512
+#define DD_MAX_CUSTOM_INPUTS 512
 #define DD_MAX_GEOMETRIC_ANIMATIONS 10
 
 #define MAX_CONTROLS      1024
@@ -205,8 +205,8 @@ enum DashData
     DD_SIGNAL_TURNRIGHT, //!< Right blinker is lit.
     DD_SIGNAL_WARNING,   //!< The warning-blink indicator is lit.
 
-    DD_CUSTOMVALUE_START,
-    DD_CUSTOMVALUE_END = DD_CUSTOMVALUE_START + DD_MAX_CUSTOM_VALUES,
+    DD_CUSTOMINPUT_START,
+    DD_CUSTOMINPUT_END = DD_CUSTOMINPUT_START + DD_MAX_CUSTOM_INPUTS,
 
     DD_MAX
 };
@@ -225,7 +225,7 @@ public:
     DashBoardManager(ActorPtr actor);
     virtual ~DashBoardManager() override;
 
-    int registerCustomValue(Ogre::String name, int dataType);
+    int registerCustomInput(Ogre::String name, int dataType);
 
     // Getter / Setter
     bool _getBool(size_t key) { return key < DD_MAX ? data[key].data.value_bool : false; };
@@ -269,7 +269,7 @@ protected:
     bool m_hud_loaded = false;
     bool m_rtt_loaded = false;
     ActorPtr m_actor;
-    int registeredCustomValues = 0;
+    int registeredCustomInputs = 0;
     int loadedRTTDashboards = 0;
 };
 
