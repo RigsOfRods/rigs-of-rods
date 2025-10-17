@@ -10,8 +10,7 @@ namespace Script2Game {
       */
 
       /**
-       * @brief Binding of RoR::DashBoardManager. Allows you to set custom inputs for dashboards
-       *        and modify them in your scripts.
+       * @brief Binding of RoR::DashBoardManager. Allows you to modify custom dashboard inputs in AngelScript.
        */
     class DashBoardManagerClass
     {
@@ -20,63 +19,64 @@ namespace Script2Game {
         /// @{
 
         /**
-         * Gets a boolean value from the dashboard.
+         * Gets the boolean value of the given dashboard link ID.
          */
         bool getBool(int key);
 
         /**
-         * Gets a number value from the dashboard.
+         * Gets the numeric value of the given dashboard link ID.
          */
         float getNumeric(int key);
 
         /**
-         * Gets a string value from the dashboard.
+         * Gets the string value of the given dashboard link ID.
          */
         string getString(int key);
 
         /**
-         * @return Whether the dashboard value is enabled or not.
+         * @return Whether the dashboard input is enabled or not.
          */
         bool getEnabled(int key);
 
         /**
-         * Sets a boolean value to the dashboard.
+         * Sets a boolean value to the given dashboard link ID.
          */
         void setBool(int key, bool value);
 
         /**
-         * Sets an integer value to the dashboard.
+         * Sets an integer value to the given dashboard link ID.
          */
         void setInt(int key, int value);
 
         /**
-         * Sets a floating point value to the dashboard.
+         * Sets a floating point to the given dashboard link ID.
          */
         void setFloat(int key, float value);
 
         /**
-         * Sets a string value to the dashboard.
+         * Sets a string value to the given dashboard link ID.
          */
         void setString(int key, const string& value);
 
         /**
-         * Enables or disables the given dashboard value.
+         * Enables or disables the given dashboard input.
          * Call updateFeatures() afterwards to make your changes effective.
          */
         void setEnabled(int key, bool value);
 
         /**
-         * @return The data type of the given dashboard value.
+         * @return The data type of the given dashboard input.
          */
         DashboardDataTypes getDataType(int key);
 
         /**
-         * @return The key associated with a value name.
+         * @return The link ID associated to the dashboard input name.
          */
         int getLinkIDForName(string& key);
 
         /**
-         * Updates the visibility of all the dashboard controls linked to the manager.
+         * Updates the visibility of all the dashboard controls linked to the manager, according to
+         * the enabled/disabled status of their dashboard input link.
          */
         void updateFeatures();
 
