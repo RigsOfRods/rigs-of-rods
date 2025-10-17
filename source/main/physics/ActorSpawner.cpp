@@ -6924,12 +6924,12 @@ void ActorSpawner::FinalizeGfxSetup()
         m_actor->m_gfx_actor->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
     }
 
-    // Load custom values for dashboards
+    // Load custom inputs for dashboards
     for (auto& module : m_selected_modules)
     {
-        for (auto& dashVal : module->customdashboardvalues)
+        for (auto& dashVal : module->customdashboardinputs)
         {
-            m_actor->ar_dashboard->registerCustomValue(dashVal.name, dashVal.data_type);
+            m_actor->ar_dashboard->registerCustomInput(dashVal.name, dashVal.data_type);
         }
     }
 

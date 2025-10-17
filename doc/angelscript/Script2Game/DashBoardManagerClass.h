@@ -10,7 +10,7 @@ namespace Script2Game {
       */
 
       /**
-       * @brief Binding of RoR::DashBoardManager. Allows you to set custom values for dashboards
+       * @brief Binding of RoR::DashBoardManager. Allows you to set custom inputs for dashboards
        *        and modify them in your scripts.
        */
     class DashBoardManagerClass
