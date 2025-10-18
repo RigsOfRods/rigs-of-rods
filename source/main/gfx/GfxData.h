@@ -111,6 +111,12 @@ enum class DebugViewType
     DEBUGVIEW_SUBMESH,
     DEBUGVIEW_BUOYANCY,
 };
+constexpr DebugViewType DEBUGVIEWTYPE_FIRST = DebugViewType::DEBUGVIEW_SKELETON;
+constexpr DebugViewType DEBUGVIEWTYPE_LAST = DebugViewType::DEBUGVIEW_BUOYANCY;
+inline DebugViewType NextDebugViewType(DebugViewType dv)
+{
+    return (dv == DEBUGVIEWTYPE_LAST) ? DEBUGVIEWTYPE_FIRST : static_cast<DebugViewType>(static_cast<int>(dv) + 1);
+}
 
 enum ShifterPropAnim //!< `PropAnim::animOpt3` values for PROP_ANIM_FLAG_SHIFTER
 {
