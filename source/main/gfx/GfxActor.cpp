@@ -1635,13 +1635,25 @@ void RoR::GfxActor::ToggleDebugView()
         m_debug_view = DebugViewType::DEBUGVIEW_NONE;
 }
 
-void RoR::GfxActor::SetDebugView(DebugViewType dv)
+bool RoR::GfxActor::IsDebugViewApplicable(DebugViewType dv)
 {
-    if (dv == DebugViewType::DEBUGVIEW_WHEELS     && m_actor->ar_num_wheels   == 0 ||
+    if (dv < DEBUGVIEWTYPE_FIRST ||
+        dv > DEBUGVIEWTYPE_LAST ||
+        dv == DebugViewType::DEBUGVIEW_WHEELS     && m_actor->ar_num_wheels   == 0 ||
         dv == DebugViewType::DEBUGVIEW_SHOCKS     && m_actor->ar_num_shocks   == 0 ||
         dv == DebugViewType::DEBUGVIEW_ROTATORS   && m_actor->ar_num_rotators == 0 ||
         dv == DebugViewType::DEBUGVIEW_SLIDENODES && m_actor->hasSlidenodes() == 0 ||
-        dv == DebugViewType::DEBUGVIEW_SUBMESH    && m_actor->ar_num_cabs     == 0)
+        dv == DebugViewType::DEBUGVIEW_SUBMESH    && m_actor->ar_num_cabs     == 0 ||
+        dv == DebugViewType::DEBUGVIEW_BUOYANCY   && m_actor->ar_buoycabs     == 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+void RoR::GfxActor::SetDebugView(DebugViewType dv)
+{
+    if (!this->IsDebugViewApplicable(dv))
     {
         dv = DebugViewType::DEBUGVIEW_NONE;
     }
@@ -1655,54 +1667,11 @@ void RoR::GfxActor::SetDebugView(DebugViewType dv)
 
 void RoR::GfxActor::CycleDebugViews()
 {
-    switch (m_debug_view)
+    do
     {
-    case DebugViewType::DEBUGVIEW_NONE:     SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
-    case DebugViewType::DEBUGVIEW_SKELETON: SetDebugView(DebugViewType::DEBUGVIEW_NODES);    break;
-    case DebugViewType::DEBUGVIEW_NODES:    SetDebugView(DebugViewType::DEBUGVIEW_BEAMS);    break;
-    case DebugViewType::DEBUGVIEW_BEAMS:
-    {
-        if      (m_actor->ar_num_wheels)    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
-        else if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
-        else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
-        else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
-        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
-        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
-        break;
+        m_debug_view = NextDebugViewType(m_debug_view);
     }
-    case DebugViewType::DEBUGVIEW_WHEELS:
-    {
-             if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
-        else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
-        else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
-        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
-        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
-        break;
-    }
-    case DebugViewType::DEBUGVIEW_SHOCKS:
-    {
-             if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
-        else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
-        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
-        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
-        break;
-    }
-    case DebugViewType::DEBUGVIEW_ROTATORS:
-    {
-             if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
-        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
-        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
-        break;
-    }
-    case DebugViewType::DEBUGVIEW_SLIDENODES:
-    {
-             if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
-        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
-        break;
-    }
-    case DebugViewType::DEBUGVIEW_SUBMESH:  SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
-    default:;
-    }
+    while (!this->IsDebugViewApplicable(m_debug_view));
 }
 
 void RoR::GfxActor::UpdateRods()
