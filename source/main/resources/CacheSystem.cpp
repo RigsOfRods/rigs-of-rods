@@ -1303,7 +1303,7 @@ void CacheSystem::FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStream
 void CacheSystem::FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
 {
     GenericDocumentPtr doc = new GenericDocument();
-    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS;
+    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
     doc->loadFromDataStream(ds, options);
 
     GenericDocContextPtr ctx = new GenericDocContext(doc);
