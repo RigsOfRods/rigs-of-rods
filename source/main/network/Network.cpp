@@ -37,12 +37,29 @@
 
 #include <Ogre.h>
 #include <SocketW.h>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
 
 #include <algorithm>
 #include <chrono>
 #include <cstring>
 
+#ifdef USE_URL
+#   include <curl/curl.h>
+#   include <curl/easy.h>
+#endif
+
 using namespace RoR;
+
+#if defined(USE_CURL)
+
+static size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
+{
+    data->append((char*)ptr, size * nmemb);
+    return size * nmemb;
+}
+
+#endif
 
 static Ogre::ColourValue MP_COLORS[] = // Classic RoR multiplayer colors
 {
@@ -394,11 +411,12 @@ void Network::CouldNotConnect(std::string const & msg, bool close_socket /*= tru
 bool Network::StartConnecting()
 {
     // Shadow vars for threaded access
-    m_username = App::mp_player_name->getStr();
-    m_token    = App::mp_player_token->getStr();
-    m_net_host = App::mp_server_host->getStr();
-    m_net_port = App::mp_server_port->getInt();
-    m_password = App::mp_server_password->getStr();
+    m_username  = App::mp_player_name->getStr();
+    m_token     = App::mp_player_token->getStr();
+    m_net_host  = App::mp_server_host->getStr();
+    m_net_port  = App::mp_server_port->getInt();
+    m_authtoken = App::remote_login_token->getStr();
+    m_password  = App::mp_server_password->getStr();
 
     try
     {
@@ -426,6 +444,73 @@ void Network::StopConnecting()
 
 bool Network::ConnectThread()
 {
+#if defined(USE_CURL)
+    if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::AUTHENTICATED)
+    {
+        RoR::LogFormat("[RoR|Networking] Requesting session authorization data from the API ...");
+
+        CURL* curl = curl_easy_init();
+
+        PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Requesting session authorization data..."));
+
+        // To get a good understanding of how this works, you can take a look at ...
+        // https://minecraft.wiki/w/Mojang_API#Verify_login_session_on_client
+        // It's a bit silly, but fool proof nonetheless.
+
+        // We hit the authorization server with a few claims to identify who we are ...
+        // This includes the authorization token itself, the client unique identifier,
+        // the server host and port that we're going to connect to, and the player
+        // unique identifier.
+
+        rapidjson::Document j_request_body;
+        j_request_body.SetObject();
+        j_request_body.AddMember("host", rapidjson::StringRef(m_net_host.c_str()), j_request_body.GetAllocator());
+        j_request_body.AddMember("port", m_net_port, j_request_body.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        j_request_body.Accept(writer);
+
+        std::string request_body = buffer.GetString();
+        std::string auth_header  = std::string("Authorization: Bearer ") + m_authtoken;
+        std::string user_agent   = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+        std::string url          = App::remote_query_url->getStr() + "/auth/sessions/join";
+        std::string response_payload;
+        long response_code = 0;
+
+        struct curl_slist* slist;
+        slist = NULL;
+        slist = curl_slist_append(slist, auth_header.c_str());
+
+        curl_easy_setopt(curl, CURLOPT_URL,             url.c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS,      request_body.c_str());
+        curl_easy_setopt(curl, CURLOPT_IPRESOLVE,       CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+        curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS,     CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER,      slist);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,   CurlWriteFunc);
+        curl_easy_setopt(curl, CURLOPT_POST,            1);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA,       &response_payload);
+
+        CURLcode curl_result = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+        if (curl_result != CURLE_OK || response_code != 200)
+        {
+            RoR::LogFormat("[RoR|Networking] Failed to request session authorization (Error : %s), HTTP status code: %d",
+                curl_easy_strerror(curl_result), response_code);
+            PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Failed to request session authorization data..."));
+        }
+
+        curl_easy_cleanup(curl);
+        curl = nullptr;
+        slist = NULL;
+
+        // We should only get back a single plaintext string ...
+        m_sessiontoken = response_payload;
+    }
+#endif
+
     RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", m_net_host.c_str(), m_net_port);
 
     SWBaseSocket::SWBaseError error;
@@ -498,6 +583,7 @@ bool Network::ConnectThread()
     strncpy(c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN).c_str(), RORNET_MAX_USERNAME_LEN);
     strncpy(c.serverpassword, Sha1Hash(m_password).c_str(), size_t(40));
     strncpy(c.usertoken, Sha1Hash(m_token).c_str(), size_t(40));
+    strncpy(c.sessiontoken, m_sessiontoken.c_str(), size_t(300));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
     std::string language = App::app_language->getStr().substr(0, 2);

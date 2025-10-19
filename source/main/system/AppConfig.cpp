@@ -441,6 +441,7 @@ void Console::saveConfig()
     
     WriteVarsHelper(f, "Application",   "app_");
     WriteVarsHelper(f, "Multiplayer",   "mp_");
+    WriteVarsHelper(f, "Remote Query",  "remote_");
     WriteVarsHelper(f, "Simulation",    "sim_");
     WriteVarsHelper(f, "Input/Output",  "io_");
     WriteVarsHelper(f, "Graphics",      "gfx_");

@@ -167,11 +167,14 @@ private:
     std::vector<BitMask_t> m_users_peeropts;  //!< See `RoRnet::PeerOptions`.
     std::vector<RoRnet::UserInfo> m_disconnected_users;
 
-    std::string      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
-    std::string          m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
-    std::string          m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
-    std::string          m_token;    // Shadows GVar 'mp_player_token' for multithreaded access.
-    int                  m_net_port; // Shadows GVar 'mp_server_port' for multithreaded access.
+    std::string          m_username;        // Shadows cVar 'mp_player_name' for multithreaded access.
+    std::string          m_net_host;        // Shadows cVar 'mp_server_host' for multithreaded access.
+    std::string          m_password;        // Shadows cVar 'mp_server_password' for multithreaded access.
+    std::string          m_token;           // Shadows cVar 'mp_player_token' for multithreaded access.
+    std::string          m_authtoken;       // Shadows cVar 'remote_login_token' for multithreaded access.
+    std::string          m_sessiontoken; 
+    int                  m_net_port;        // Shadows cVar 'mp_server_port' for multithreaded access.
+    int                  m_net_uuid;        // Shadows cVar `mp_server_uuid` for multithreaded access.
     int                  m_uid;
     int                  m_authlevel;
 
