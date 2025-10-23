@@ -134,8 +134,13 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "float getSpeed()", asMETHOD(Actor,getSpeed), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getGForces()", asMETHOD(Actor,getGForces), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getTotalMass(bool)", asMETHOD(Actor,getTotalMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getLoadedMass()", asMETHOD(Actor, getLoadedMass), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getNodeCount()", asMETHOD(Actor,getNodeCount), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", asMETHOD(Actor,getNodePosition), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", asMETHOD(Actor, getNodePosition), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getNodeInitialMass(int)", asMETHOD(Actor, getNodeInitialMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getNodeMass(int)", asMETHOD(Actor, getNodeMass), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodeVelocity(int)", asMETHOD(Actor, getNodeVelocity), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodeForces(int)", asMETHOD(Actor, getNodeForces), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isNodeWheelRim(int)", asMETHOD(Actor,isNodeWheelRim), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isNodeWheelTire(int)", asMETHOD(Actor,isNodeWheelTire), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getWheelNodeCount()", asMETHOD(Actor,getWheelNodeCount), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -151,8 +156,11 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     // - physics editing (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setMass(float)", asMETHOD(Actor,setMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setLoadedMass(float)", asMETHOD(Actor,setLoadedMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setNodeMass(int, float)", asMETHOD(Actor,setNodeMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setSimAttribute(ActorSimAttr, float)", asMETHOD(Actor, setSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSimAttribute(ActorSimAttr)", asMETHOD(Actor, getSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void recalculateNodeMasses()", asMETHOD(Actor,recalculateNodeMasses), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - user interaction (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);

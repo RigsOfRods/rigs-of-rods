@@ -846,6 +846,11 @@ float Actor::getTotalMass(bool withLocked)
     return mass;
 }
 
+float Actor::getLoadedMass()
+{
+    return ar_load_mass;
+}
+
 void Actor::DetermineLinkedActors()
 {
     // BEWARE: `ar_linked_actors` includes both direct and indirect links!
@@ -4492,6 +4497,14 @@ void Actor::setLoadedMass(float m)
     ar_load_mass = m;
 }
 
+void Actor::setNodeMass(int nodeNumber, float m)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        ar_nodes_override_loadweights[nodeNumber] = m;
+    }
+}
+
 bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
@@ -4612,6 +4625,54 @@ Vector3 Actor::getNodePosition(int nodeNumber)
     if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
     {
         return ar_nodes[nodeNumber].AbsPosition;
+    }
+    else
+    {
+        return Ogre::Vector3::ZERO;
+    }
+}
+
+float Actor::getNodeInitialMass(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_initial_node_masses[nodeNumber];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+float Actor::getNodeMass(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_nodes[nodeNumber].mass;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+Vector3 Actor::getNodeVelocity(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_nodes[nodeNumber].Velocity;
+    }
+    else
+    {
+        return Ogre::Vector3::ZERO;
+    }
+}
+
+Vector3 Actor::getNodeForces(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_nodes[nodeNumber].Forces;
     }
     else
     {
