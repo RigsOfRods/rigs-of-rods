@@ -87,9 +87,14 @@ public:
     Ogre::Quaternion  getOrientation();
     float             getSpeed() { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
-    float             getTotalMass(bool withLocked=true);
+    float             getTotalMass(bool withLocked = true);
+    float             getLoadedMass();
     int               getNodeCount() { return ar_num_nodes; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
+    float             getNodeInitialMass(int nodeNumber);
+    float             getNodeMass(int nodeNumber);
+    Ogre::Vector3     getNodeVelocity(int nodeNumber);
+    Ogre::Vector3     getNodeForces(int nodeNumber);
     bool              isNodeWheelRim(int nodeNumber);      //!< Is node marked as wheel rim? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
     bool              isNodeWheelTire(int nodeNumber);     //!< Is node marked as wheel tire? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
     int               getWheelNodeCount() const;
@@ -129,14 +134,15 @@ public:
     void              scaleTruck(float value);
     void              setMass(float m);
     void              setLoadedMass(float m);
+    void              setNodeMass(int nodeNumber, float m);
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
     float             getSimAttribute(ActorSimAttr attr);
+    void              recalculateNodeMasses();
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
     void              updateInitPosition();
     void              propagateNodeBeamChangesToDef(); //!< Back-propagates changes done by N/B-utils UI to the def-document.
-    void              recalculateNodeMasses();
     /// @}
 
     /// @name User interaction
