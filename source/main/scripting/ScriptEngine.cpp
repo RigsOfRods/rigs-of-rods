@@ -178,6 +178,7 @@ void ScriptEngine::init()
     RegisterTurbojetClass(engine); // TurbojetClass
     RegisterTurbopropClass(engine); // TurbopropClass
     RegisterAircraftEngineClass(engine); // AircraftEngineClass, AircraftEngineTypes
+    RegisterAutopilotClass(engine); // AutopilotClass, APHeadingMode, APAltitudeMode
     RegisterActor(engine);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass
