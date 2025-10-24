@@ -209,7 +209,7 @@ void Actor::dispose()
     for (int i = 0; i < ar_num_aeroengines; i++)
     {
         if (ar_aeroengines[i])
-            delete ar_aeroengines[i];
+            ar_aeroengines[i] = nullptr;
     }
 
     // delete screwprops
@@ -2393,7 +2393,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
         if (hydrobeam.hb_anim_flags & ANIM_FLAG_AETORQUE)
             if (ar_aeroengines[aenum]->getType() == AeroEngineType::AE_XPROP)
             {
-                Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
+                Turboprop* tp = (Turboprop*)ar_aeroengines[aenum].GetRef();
                 cstate = (100.0 * tp->indicated_torque / tp->max_torque) / 120.0f;
                 div++;
             }
@@ -2401,7 +2401,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
         if (hydrobeam.hb_anim_flags & ANIM_FLAG_AEPITCH)
             if (ar_aeroengines[aenum]->getType() == AeroEngineType::AE_XPROP)
             {
-                Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
+                Turboprop* tp = (Turboprop*)ar_aeroengines[aenum].GetRef();
                 cstate = tp->pitch / 120.0f;
                 div++;
             }
@@ -4591,6 +4591,37 @@ bool Actor::getCustomParticleMode()
 Ogre::Real Actor::getMinimalCameraRadius()
 {
     return m_min_camera_radius;
+}
+
+AeroEnginePtr Actor::getAircraftEngine(int index)
+{
+    return (index >= 0 && index < ar_num_aeroengines) ? ar_aeroengines[index] : nullptr;
+}
+
+AeroEnginePtr Actor::getTurbojet(int index)
+{
+    if (index >= 0 && index < ar_num_aeroengines &&
+        ar_aeroengines[index]->getType() == AeroEngineType::AE_TURBOJET)
+    {
+        return ar_aeroengines[index];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+AeroEnginePtr Actor::getTurboprop(int index)
+{
+    if (index >= 0 && index < ar_num_aeroengines &&
+        ar_aeroengines[index]->getType() == AeroEngineType::AE_XPROP)
+    {
+        return ar_aeroengines[index];
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 Replay* Actor::getReplay()

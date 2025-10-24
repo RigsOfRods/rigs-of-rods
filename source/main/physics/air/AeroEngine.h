@@ -21,6 +21,8 @@
 #pragma once
 
 #include "Application.h"
+#include "RefCountingObject.h"
+#include "RefCountingObjectPtr.h"
 #include "SimData.h"
 
 #include <Ogre.h>
@@ -33,10 +35,10 @@ namespace RoR {
 /// @addtogroup Aerial
 /// @{
 
-class AeroEngine
+class AeroEngine : public RefCountingObject<AeroEngine>
 {
 public:
-    virtual ~AeroEngine() {}
+    virtual ~AeroEngine() override {};
 
     virtual void updateForces(float dt, int doUpdate) =0;
 

@@ -245,7 +245,7 @@ enum class ActorState
     DISPOSED          //!< removed from simulation, still in memory to satisfy pointers.
 };
 
-enum class AeroEngineType
+enum class AeroEngineType : int
 {
     AE_UNKNOWN,
     AE_XPROP,

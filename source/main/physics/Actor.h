@@ -22,8 +22,8 @@
 #pragma once
 
 #include "Application.h"
+#include "AeroEngine.h"
 #include "CmdKeyInertia.h"
-#include "DashBoardManager.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "Engine.h"
@@ -234,6 +234,10 @@ public:
     /// @{
     DashBoardManagerPtr getDashboardManager() { return ar_dashboard; }
     VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
+    int getAircraftEngineCount() { return ar_num_aeroengines; };
+    AeroEnginePtr getAircraftEngine(int index);
+    AeroEnginePtr getTurbojet(int index);
+    AeroEnginePtr getTurboprop(int index);
     Ogre::MaterialPtr        getManagedMaterialInstance(const std::string& orig_name);
     std::vector<std::string> getManagedMaterialNames();
     // not exported to scripting:
@@ -366,7 +370,7 @@ public:
     int               ar_num_wheels = 0;
     soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK] = {};
     int               ar_num_soundsources = 0;
-    AeroEngine*       ar_aeroengines[MAX_AEROENGINES] = {};
+    AeroEnginePtr     ar_aeroengines[MAX_AEROENGINES] = {};
     int               ar_num_aeroengines = 0;
     Screwprop*        ar_screwprops[MAX_SCREWPROPS] = {};
     int               ar_num_screwprops = 0;

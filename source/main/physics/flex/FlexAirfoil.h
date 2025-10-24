@@ -128,7 +128,7 @@ private:
     bool idLeft;
 
     Airfoil* airfoil;
-    AeroEngine** aeroengines;
+    AeroEnginePtr* aeroengines;
     int free_wash;
     int washpropnum[MAX_AEROENGINES];
     float washpropratio[MAX_AEROENGINES];
