@@ -175,6 +175,9 @@ void ScriptEngine::init()
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
     RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
     RegisterDashBoardManager(engine); // DashBoardManagerClass, DashboardDataTypes
+    RegisterTurbojetClass(engine); // TurbojetClass
+    RegisterTurbopropClass(engine); // TurbopropClass
+    RegisterAircraftEngineClass(engine); // AircraftEngineClass, AircraftEngineTypes
     RegisterActor(engine);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass

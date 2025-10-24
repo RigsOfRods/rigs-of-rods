@@ -60,7 +60,7 @@ public:
         bool ispiston,
         float fpitch
     );
-    ~Turboprop();
+    virtual ~Turboprop() override;
 
     void updateForces(float dt, int doUpdate);
 
@@ -90,6 +90,7 @@ public:
     NodeNum_t GetBackNode()   const override { return nodeback; };
     bool getWarmup() { return warmup; };
     float getRadius() { return radius; };
+    float getMaxPower() const { return fullpower; };
 
     // Visuals
     void updateVisuals(RoR::GfxActor* gfx_actor) override;

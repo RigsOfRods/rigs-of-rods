@@ -65,7 +65,7 @@ class Turbojet: public AeroEngine
 public:
 
     Turbojet(ActorPtr actor, NodeNum_t tnodefront, NodeNum_t tnodeback, NodeNum_t tnoderef, RigDef::Turbojet & def);
-    ~Turbojet();
+    virtual ~Turbojet() override;
 
     void flipStart();
     void reset();
@@ -82,6 +82,7 @@ public:
     void setIgnition(bool val) { m_ignition = val; };
     bool getWarmup() { return m_warmup; };
     bool isFailed() { return m_is_failed; };
+    float getMaxDryThrust() { return m_max_dry_thrust; };
     float getAfterburner() { return (float)m_afterburner_active; };
     float getAfterburnThrust() const { return m_afterburn_thrust; }
     float getExhaustVelocity() const { return m_exhaust_velocity; }

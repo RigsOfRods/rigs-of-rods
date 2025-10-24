@@ -1835,7 +1835,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_aeroengines.resize(m_actor->ar_num_aeroengines);
     for (int i = 0; i < m_actor->ar_num_aeroengines; ++i)
     {
-        AeroEngine* src = m_actor->ar_aeroengines[i];
+        AeroEngine* src = m_actor->ar_aeroengines[i].GetRef();
         AeroEngineSB& dst = m_simbuf.simbuf_aeroengines[i];
 
         dst.simbuf_ae_type       = src->getType();

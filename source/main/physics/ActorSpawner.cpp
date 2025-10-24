@@ -668,7 +668,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     back  = GetNodeIndexOrThrow(def.back_node);
     ref   = GetNodeIndexOrThrow(def.side_node);
 
-    Turbojet *tj = new Turbojet(m_actor, front, back, ref, def);
+    Turbojet* tj = new Turbojet(m_actor, front, back, ref, def);
 
     // Visuals
     std::string nozzle_name = this->ComposeName("nozzle @ turbojet", m_actor->ar_num_aeroengines);
@@ -690,7 +690,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         tj->tjet_visual.SetVisible(true);
     }
 
-    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines]=tj;
+    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines] = tj;
     m_actor->ar_driveable=AIRPLANE;
     if (m_actor->ar_autopilot == nullptr && m_actor->ar_state != ActorState::NETWORKED_OK)
     {
@@ -790,7 +790,7 @@ void ActorSpawner::BuildAeroEngine(
 {
     int aeroengine_index = m_actor->ar_num_aeroengines;
 
-    Turboprop *turbo_prop = new Turboprop(
+    Turboprop* turbo_prop = new Turboprop(
         m_actor,
         this->ComposeName("turboprop", aeroengine_index).c_str(),
         ref_node_index,
@@ -6540,14 +6540,14 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_start" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_lopower" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_hipower" + index_str, turbojet_node);
-            if (((Turbojet*)(vehicle->ar_aeroengines[i]))->tjet_afterburnable)
+            if (((Turbojet*)(vehicle->ar_aeroengines[i].GetRef()))->tjet_afterburnable)
             {
                 AddSoundSourceInstance(vehicle, "tracks/default_turbojet_afterburner" + index_str, turbojet_node);
             }
         }
         else if (vehicle->ar_aeroengines[i]->getType() == AeroEngineType::AE_XPROP)
         {
-            if (((Turboprop*)vehicle->ar_aeroengines[i])->is_piston)
+            if (((Turboprop*)vehicle->ar_aeroengines[i].GetRef())->is_piston)
             {
                 AddSoundSourceInstance(vehicle, "tracks/default_pistonprop_start" + index_str, turbojet_node);
                 AddSoundSourceInstance(vehicle, "tracks/default_pistonprop_lopower" + index_str, turbojet_node);

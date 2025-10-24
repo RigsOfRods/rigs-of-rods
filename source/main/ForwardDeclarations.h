@@ -229,6 +229,7 @@ namespace RoR
     typedef std::shared_ptr<Terrn2Document> Terrn2DocumentPtr;
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
+    typedef RefCountingObjectPtr<AeroEngine> AeroEnginePtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
     typedef RefCountingObjectPtr<DashBoardManager> DashBoardManagerPtr;
     typedef RefCountingObjectPtr<Engine> EnginePtr;
