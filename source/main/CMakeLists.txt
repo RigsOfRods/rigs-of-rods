@@ -237,7 +237,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/ScriptUtils.h
             scripting/bindings/AngelScriptBindings.h
             scripting/bindings/ActorAngelscript.cpp
-            scripting/bindings/AircraftEngineClassAngelscript.cpp
+            scripting/bindings/AircraftEngineAngelscript.cpp
             scripting/bindings/AutopilotAngelscript.cpp
             scripting/bindings/CacheSystemAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp
@@ -254,8 +254,8 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/ScriptEventsAngelscript.cpp
             scripting/bindings/SoundScriptAngelscript.cpp
             scripting/bindings/TerrainAngelscript.cpp
-            scripting/bindings/TurbojetClassAngelscript.cpp
-            scripting/bindings/TurbopropClassAngelscript.cpp
+            scripting/bindings/TurbojetAngelscript.cpp
+            scripting/bindings/TurbopropAngelscript.cpp
             scripting/bindings/VehicleAiAngelscript.cpp
             )
 endif ()
