@@ -125,7 +125,6 @@ void Actor::dispose()
 
     if (ar_autopilot != nullptr)
     {
-        delete ar_autopilot;
         ar_autopilot = nullptr;
     }
 

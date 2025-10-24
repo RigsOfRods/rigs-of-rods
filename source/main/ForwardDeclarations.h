@@ -230,6 +230,7 @@ namespace RoR
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<AeroEngine> AeroEnginePtr;
+    typedef RefCountingObjectPtr<Autopilot> AutopilotPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
     typedef RefCountingObjectPtr<DashBoardManager> DashBoardManagerPtr;
     typedef RefCountingObjectPtr<Engine> EnginePtr;

@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "Application.h"
 #include "AeroEngine.h"
+#include "Application.h"
+#include "AutoPilot.h"
 #include "CmdKeyInertia.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
@@ -238,6 +239,7 @@ public:
     AeroEnginePtr getAircraftEngine(int index);
     AeroEnginePtr getTurbojet(int index);
     AeroEnginePtr getTurboprop(int index);
+    AutopilotPtr getAutopilot() { return ar_autopilot; };
     Ogre::MaterialPtr        getManagedMaterialInstance(const std::string& orig_name);
     std::vector<std::string> getManagedMaterialNames();
     // not exported to scripting:
@@ -417,7 +419,7 @@ public:
     EnginePtr         ar_engine;
     NodeNum_t         ar_cinecam_node[MAX_CAMERAS] = {NODENUM_INVALID}; //!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams = 0;             //!< Sim attr;
-    Autopilot*        ar_autopilot = nullptr;
+    AutopilotPtr      ar_autopilot;
     float             ar_brake_force = 0.f;              //!< Physics attr; filled at spawn
     
     Ogre::Vector3     ar_origin = Ogre::Vector3::ZERO;                   //!< Physics state; base position for softbody nodes

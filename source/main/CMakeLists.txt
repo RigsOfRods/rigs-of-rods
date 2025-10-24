@@ -238,6 +238,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/AngelScriptBindings.h
             scripting/bindings/ActorAngelscript.cpp
             scripting/bindings/AircraftEngineClassAngelscript.cpp
+            scripting/bindings/AutopilotAngelscript.cpp
             scripting/bindings/CacheSystemAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp
             scripting/bindings/DashBoardManagerAngelscript.cpp

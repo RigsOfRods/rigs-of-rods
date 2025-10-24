@@ -14,7 +14,7 @@ void RoR::RegisterAircraftEngineClass(asIScriptEngine* engine)
     AeroEngine::RegisterRefCountingObject(engine, "AircraftEngineClass");
     AeroEnginePtr::RegisterRefCountingObjectPtr(engine, "AircraftEngineClassPtr", "AircraftEngineClass");
 
-    // enum DashboardDataTypes
+    // enum AircraftDataTypes
     result = engine->RegisterEnum("AircraftEngineTypes"); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("AircraftEngineTypes", "AE_UNKNOWN", (int)AeroEngineType::AE_UNKNOWN); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("AircraftEngineTypes", "AE_TURBOJET", (int)AeroEngineType::AE_TURBOJET); ROR_ASSERT(result >= 0);

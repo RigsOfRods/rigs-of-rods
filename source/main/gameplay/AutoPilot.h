@@ -21,6 +21,8 @@
 #pragma once
 
 #include "Application.h"
+#include "RefCountingObject.h"
+#include "RefCountingObjectPtr.h"
 #include "TerrainObjectManager.h"
 
 namespace RoR {
@@ -31,10 +33,9 @@ namespace RoR {
 /// @addtogroup Aerial
 /// @{
 
-class Autopilot
+class Autopilot : public RefCountingObject<Autopilot>
 {
 public:
-
     enum
     {
         HEADING_NONE,
@@ -78,6 +79,7 @@ public:
     float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
     bool IsIlsAvailable() { return m_horizontal_locator_available && m_vertical_locator_available; }
     int GetHeadingMode() const { return mode_heading; }
+    int GetHeadingValue() const { return heading; }
     int GetAltMode() const { return mode_alt; }
     int GetAltValue() const { return alt; }
     bool GetIasMode() const { return mode_ias; }
