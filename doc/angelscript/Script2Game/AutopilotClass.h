@@ -24,12 +24,14 @@ public:
     /**
      * @brief Sets or toggles the heading modes.
      * @param headingMode The heading mode. If the autopilot is in the same mode as `headingMode`, it toggles it. Otherwise, it sets the new mode.
+     * @return The new heading mode.
      */
     APHeadingMode toggleHeading(APHeadingMode headingMode);
 
     /**
      * @brief Sets or toggles the altitude modes.
      * @param altitudeMode The altitude mode. If the autopilot is in the same mode as `altitudeMode`, it toggles it. Otherwise, it sets the new mode.
+     * @returns The new altitude mode.
      */
     APAltitudeMode toggleAltitude(APAltitudeMode altitudeMode);
 
@@ -99,7 +101,7 @@ public:
     /**
      * @return The current altitude mode.
      */
-    APHeadingMode getAltitudeMode();
+    APAltitudeMode getAltitudeMode();
 
     /**
      * @return The current altitude value (in feet).
