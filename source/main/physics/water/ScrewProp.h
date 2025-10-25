@@ -21,6 +21,8 @@
 #pragma once
 
 #include "Application.h"
+#include "RefCountingObject.h"
+#include "RefCountingObjectPtr.h"
 #include "SimData.h"
 
 namespace RoR {
@@ -31,7 +33,7 @@ namespace RoR {
 /// @addtogroup Marine
 /// @{
 
-class Screwprop
+class Screwprop : public RefCountingObject<Screwprop>
 {
 public:
 
@@ -42,6 +44,8 @@ public:
     void setRudder(float val);
     float getThrottle();
     float getRudder();
+    float getMaxPower() { return fullpower; }
+    bool getReverse() { return reverse; }
     void reset();
     void toggleReverse();
 

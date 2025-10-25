@@ -100,6 +100,9 @@ void RegisterTurbojetClass(AngelScript::asIScriptEngine* engine);
 // Register class AutopilotClass. Defined in AutopilotClassAngelscript.cpp
 void RegisterAutopilotClass(AngelScript::asIScriptEngine* engine);
 
+// Register class ScrewpropClass. Defined in ScrewpropClassAngelscript.cpp
+void RegisterScrewpropClass(AngelScript::asIScriptEngine* engine);
+
 
 /// @}   //addtogroup Scripting
 
