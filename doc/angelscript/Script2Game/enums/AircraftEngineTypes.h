@@ -16,7 +16,7 @@ namespace Script2Game {
 /**
  * Binding of RoR::AeroEngineType
  */
-enum AeroEngineType
+enum AircraftEngineTypes
 {
 	AE_UNKNOWN,		//!< Unknown engine type
 	AE_TURBOJET,    //!< Turbojet engine
