@@ -89,19 +89,19 @@ void RegisterEngine(AngelScript::asIScriptEngine* engine);
 void RegisterDashBoardManager(AngelScript::asIScriptEngine* engine);
 
 // Register class AircraftEngineClass. Defined in AircraftEngineClassAngelscript.cpp
-void RegisterAircraftEngineClass(AngelScript::asIScriptEngine* engine);
+void RegisterAircraftEngine(AngelScript::asIScriptEngine* engine);
 
 // Register class TurbopropClass. Defined in TurbopropClassAngelscript.cpp
-void RegisterTurbopropClass(AngelScript::asIScriptEngine* engine);
+void RegisterTurboprop(AngelScript::asIScriptEngine* engine);
 
 // Register class TurbojetClass. Defined in TurbojetClassAngelscript.cpp
-void RegisterTurbojetClass(AngelScript::asIScriptEngine* engine);
+void RegisterTurbojet(AngelScript::asIScriptEngine* engine);
 
 // Register class AutopilotClass. Defined in AutopilotClassAngelscript.cpp
-void RegisterAutopilotClass(AngelScript::asIScriptEngine* engine);
+void RegisterAutopilot(AngelScript::asIScriptEngine* engine);
 
 // Register class ScrewpropClass. Defined in ScrewpropClassAngelscript.cpp
-void RegisterScrewpropClass(AngelScript::asIScriptEngine* engine);
+void RegisterScrewprop(AngelScript::asIScriptEngine* engine);
 
 
 /// @}   //addtogroup Scripting

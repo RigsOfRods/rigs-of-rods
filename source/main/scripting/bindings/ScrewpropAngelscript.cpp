@@ -7,7 +7,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterScrewpropClass(asIScriptEngine* engine)
+void RoR::RegisterScrewprop(asIScriptEngine* engine)
 {
     int result = 0;
 
