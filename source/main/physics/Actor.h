@@ -107,6 +107,8 @@ public:
     float             getShockVelocity(int shock_number);
     int               getShockNode1(int shock_number);
     int               getShockNode2(int shock_number);
+    float             getAirbrakeIntensity() { return ar_airbrake_intensity; }
+    int               getAircraftFlaps() { return ar_aerial_flap; }
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords (pivot point is node 0).
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords (pivot point is node 0).
@@ -140,6 +142,8 @@ public:
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
     float             getSimAttribute(ActorSimAttr attr);
     void              recalculateNodeMasses();
+    void              setAirbrakeIntensity(float intensity);
+    void              setAircraftFlaps(int flapsLevel);
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -286,7 +290,6 @@ public:
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
-    void              setAirbrakeIntensity(float intensity);
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
