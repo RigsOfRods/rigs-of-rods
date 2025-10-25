@@ -1,89 +1,84 @@
-
 namespace Script2Game {
 
-    /** \addtogroup ScriptSideAPIs
-     *  @{
+/** \addtogroup ScriptSideAPIs
+ *  @{
+ */
+
+/** \addtogroup Script2Game
+ *  @{
+ */
+
+/**
+ * @brief Binding of RoR::DashBoardManager. Allows you to modify custom dashboard inputs in AngelScript.
+ */
+class DashBoardManagerClass
+{
+    // PLEASE maintain the same order as in 'bindings/DashBoardManagerAngelscript.cpp' and 'gui/DashBoardManager.h'
+public:
+    /**
+     * Gets the boolean value of the given dashboard link ID.
      */
+    bool getBool(int key);
 
-     /** \addtogroup Script2Game
-      *  @{
-      */
+    /**
+     * Gets the numeric value of the given dashboard link ID.
+     */
+    float getNumeric(int key);
 
-      /**
-       * @brief Binding of RoR::DashBoardManager. Allows you to modify custom dashboard inputs in AngelScript.
-       */
-    class DashBoardManagerClass
-    {
-    public:
-        /// @name General
-        /// @{
+    /**
+     * Gets the string value of the given dashboard link ID.
+     */
+    string getString(int key);
 
-        /**
-         * Gets the boolean value of the given dashboard link ID.
-         */
-        bool getBool(int key);
+    /**
+     * @return Whether the dashboard input is enabled or not.
+     */
+    bool getEnabled(int key);
 
-        /**
-         * Gets the numeric value of the given dashboard link ID.
-         */
-        float getNumeric(int key);
+    /**
+     * Sets a boolean value to the given dashboard link ID.
+     */
+    void setBool(int key, bool value);
 
-        /**
-         * Gets the string value of the given dashboard link ID.
-         */
-        string getString(int key);
+    /**
+     * Sets an integer value to the given dashboard link ID.
+     */
+    void setInt(int key, int value);
 
-        /**
-         * @return Whether the dashboard input is enabled or not.
-         */
-        bool getEnabled(int key);
+    /**
+     * Sets a floating point value to the given dashboard link ID.
+     */
+    void setFloat(int key, float value);
 
-        /**
-         * Sets a boolean value to the given dashboard link ID.
-         */
-        void setBool(int key, bool value);
+    /**
+     * Sets a string value to the given dashboard link ID.
+     */
+    void setString(int key, const string& value);
 
-        /**
-         * Sets an integer value to the given dashboard link ID.
-         */
-        void setInt(int key, int value);
+    /**
+     * Enables or disables the given dashboard input.
+     * Call updateFeatures() afterwards to make your changes effective.
+     */
+    void setEnabled(int key, bool value);
 
-        /**
-         * Sets a floating point to the given dashboard link ID.
-         */
-        void setFloat(int key, float value);
+    /**
+     * @return The data type of the given dashboard input.
+     */
+    DashboardDataTypes getDataType(int key);
 
-        /**
-         * Sets a string value to the given dashboard link ID.
-         */
-        void setString(int key, const string& value);
+    /**
+     * @return The link ID associated to the dashboard input name.
+     */
+    int getLinkIDForName(string& key);
 
-        /**
-         * Enables or disables the given dashboard input.
-         * Call updateFeatures() afterwards to make your changes effective.
-         */
-        void setEnabled(int key, bool value);
+    /**
+     * Updates the visibility of all the dashboard controls linked to the manager, according to
+     * the enabled/disabled status of their dashboard input link.
+     */
+    void updateFeatures(); 
+};
 
-        /**
-         * @return The data type of the given dashboard input.
-         */
-        DashboardDataTypes getDataType(int key);
-
-        /**
-         * @return The link ID associated to the dashboard input name.
-         */
-        int getLinkIDForName(string& key);
-
-        /**
-         * Updates the visibility of all the dashboard controls linked to the manager, according to
-         * the enabled/disabled status of their dashboard input link.
-         */
-        void updateFeatures();
-
-        /// @}    
-    };
-
-    /// @}    //addtogroup Script2Game
-    /// @}    //addtogroup ScriptSideAPIs
+/// @}    //addtogroup Script2Game
+/// @}    //addtogroup ScriptSideAPIs
 
 } //namespace Script2Game
