@@ -152,6 +152,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "float getShockVelocity(int)", AngelScript::asMETHOD(Actor,getShockVelocity), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getShockNode1(int)", AngelScript::asMETHOD(Actor, getShockNode1), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getShockNode2(int)", AngelScript::asMETHOD(Actor, getShockNode2), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getAirbrakeIntensity()", asMETHOD(Actor,getAirbrakeIntensity), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getAircraftFlaps()", asMETHOD(Actor,getAircraftFlaps), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - physics editing (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -161,6 +163,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void setSimAttribute(ActorSimAttr, float)", asMETHOD(Actor, setSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSimAttribute(ActorSimAttr)", asMETHOD(Actor, getSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void recalculateNodeMasses()", asMETHOD(Actor,recalculateNodeMasses), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setAirbrakeIntensity(float)", asMETHOD(Actor,setAirbrakeIntensity), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setAircraftFlaps(int)", asMETHOD(Actor,setAircraftFlaps), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - user interaction (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);

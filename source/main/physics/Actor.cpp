@@ -2966,11 +2966,26 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
 
 void Actor::setAirbrakeIntensity(float intensity)
 {
+    if (intensity > 5)
+        intensity = 5;
+    else if (intensity < 0)
+        intensity = 0;
+
     ar_airbrake_intensity = intensity;
     for (Airbrake* ab: ar_airbrakes)
     {
         ab->updatePosition((float)ar_airbrake_intensity / 5.0);
     }
+}
+
+void Actor::setAircraftFlaps(int flapsLevel)
+{
+    if (flapsLevel > 5)
+        flapsLevel = 5;
+    else if (flapsLevel < 0)
+        flapsLevel = 0;
+
+    ar_aerial_flap = flapsLevel;
 }
 
 // call this once per frame in order to update the skidmarks
