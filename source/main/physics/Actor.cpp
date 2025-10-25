@@ -208,15 +208,16 @@ void Actor::dispose()
     for (int i = 0; i < ar_num_aeroengines; i++)
     {
         if (ar_aeroengines[i])
+        {
             ar_aeroengines[i] = nullptr;
+        }
     }
 
     // delete screwprops
     for (int i = 0; i < ar_num_screwprops; i++)
     {
         if (ar_screwprops[i])
-        {
-            delete ar_screwprops[i];
+        {;
             ar_screwprops[i] = nullptr;
         }
     }
@@ -4621,6 +4622,11 @@ AeroEnginePtr Actor::getTurboprop(int index)
     {
         return nullptr;
     }
+}
+
+ScrewpropPtr Actor::getScrewprop(int index)
+{
+    return (index >= 0 && index < ar_num_screwprops) ? ar_screwprops[index] : nullptr;
 }
 
 Replay* Actor::getReplay()

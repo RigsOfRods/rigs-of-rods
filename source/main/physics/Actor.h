@@ -34,6 +34,7 @@
 #include "RoRnet.h"
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
+#include "ScrewProp.h"
 #include "SimData.h"
 #include "SoundScriptManager.h"
 #include "TyrePressure.h"
@@ -233,19 +234,21 @@ public:
 
     /// @name Subsystems
     /// @{
-    DashBoardManagerPtr getDashboardManager() { return ar_dashboard; }
-    VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
-    int getAircraftEngineCount() { return ar_num_aeroengines; };
-    AeroEnginePtr getAircraftEngine(int index);
-    AeroEnginePtr getTurbojet(int index);
-    AeroEnginePtr getTurboprop(int index);
-    AutopilotPtr getAutopilot() { return ar_autopilot; };
-    Ogre::MaterialPtr        getManagedMaterialInstance(const std::string& orig_name);
-    std::vector<std::string> getManagedMaterialNames();
+    DashBoardManagerPtr         getDashboardManager() { return ar_dashboard; }
+    VehicleAIPtr                getVehicleAI() { return ar_vehicle_ai; }
+    int                         getAircraftEngineCount() { return ar_num_aeroengines; };
+    AeroEnginePtr               getAircraftEngine(int index);
+    AeroEnginePtr               getTurbojet(int index);
+    AeroEnginePtr               getTurboprop(int index);
+    AutopilotPtr                getAutopilot() { return ar_autopilot; };
+    int                         getScrewpropCount() { return ar_num_screwprops; };
+    ScrewpropPtr                getScrewprop(int index);
+    Ogre::MaterialPtr           getManagedMaterialInstance(const std::string& orig_name);
+    std::vector<std::string>    getManagedMaterialNames();
     // not exported to scripting:
-    Replay*           getReplay();
-    TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
-    EnginePtr      getEngine() { return ar_engine; }
+    Replay*                     getReplay();
+    TyrePressure&               getTyrePressure() { return m_tyre_pressure; }
+    EnginePtr                   getEngine() { return ar_engine; }
     //! @}
 
     /// @name Organizational
@@ -374,7 +377,7 @@ public:
     int               ar_num_soundsources = 0;
     AeroEnginePtr     ar_aeroengines[MAX_AEROENGINES] = {};
     int               ar_num_aeroengines = 0;
-    Screwprop*        ar_screwprops[MAX_SCREWPROPS] = {};
+    ScrewpropPtr      ar_screwprops[MAX_SCREWPROPS] = {};
     int               ar_num_screwprops = 0;
     int               ar_cabs[MAX_CABS * 3] = {};
     BuoyCachedNodeID_t ar_cabs_buoy_cache_ids[MAX_CABS] = {};
