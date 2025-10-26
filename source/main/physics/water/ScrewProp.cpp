@@ -46,6 +46,11 @@ Screwprop::Screwprop(ActorPtr a, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_
     reset();
 }
 
+Screwprop::~Screwprop()
+{
+
+}
+
 void Screwprop::updateForces(int update)
 {
     if (!App::GetGameContext()->GetTerrain()->getWater())
