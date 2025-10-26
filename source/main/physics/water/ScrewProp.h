@@ -38,6 +38,7 @@ class Screwprop : public RefCountingObject<Screwprop>
 public:
 
     Screwprop( ActorPtr actor, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_t nodeup, float power);
+    virtual ~Screwprop() override;
 
     void updateForces(int update);
     void setThrottle(float val);
