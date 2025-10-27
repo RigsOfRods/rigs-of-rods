@@ -21,7 +21,7 @@ enum APHeadingModes
 	HEADING_NONE,		//!< Disables all the heading modes.
 	HEADING_FIXED,		//!< The autopilot flies a heading set by `AutopilotClass.adjustHeading(int addedHeading)`
 	HEADING_NAV,		//!< The autopilot flies an instrument landing system (ILS) approach if available. If no ILS is available, the autopilot is disconnected.
-	HEADING_WLV			//!< The autopilot keeps the aircraft in level flight.
+	HEADING_WLV			//!< The autopilot keeps the wings level.
 };
 
 } // namespace Script2Game

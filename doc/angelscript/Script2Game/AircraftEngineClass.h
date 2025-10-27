@@ -14,7 +14,7 @@ namespace Script2Game {
  */
 class AircraftEngineClass
 {
-    // PLEASE maintain the same order as in 'bindings/AircraftEngineClassAngelscript.cpp' and 'physics/air/AutoPilot.h'
+    // PLEASE maintain the same order as in 'bindings/AircraftEngineClassAngelscript.cpp' and 'physics/air/AeroEngine.h'
 public:
     /**
      * @brief Sets the throttle.
@@ -68,19 +68,19 @@ public:
     bool getIgnition();
 
     /**
-     * @returns The node number in the N/B for the front of the engine, or 65535 (invalid node) if no node is set.
+     * @returns The node number for the front of the engine, or 65535 (invalid node) if no node is set.
      */
     int getFrontNode();
 
     /**
-     * @returns The node number in the N/B for the back of the engine, or 65535 (invalid node) if no node is set.
+     * @returns The node number for the back of the engine, or 65535 (invalid node) if no node is set.
      */
     int getBackNode();
 
     /**
      * @returns Whether the engine is warming up.
      */
-    bool isFailed();
+    bool getWarmup();
 };
 
 /// @}    //addtogroup Script2Game

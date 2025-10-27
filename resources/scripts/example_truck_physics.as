@@ -27,7 +27,6 @@ string Vec3ToString(vector3 vec)
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(500, 400));
-    bool windowDummy = true;
     if (ImGui::Begin("Truck physics", closeBtnHandler.windowOpen, 0))
     {
         closeBtnHandler.draw();

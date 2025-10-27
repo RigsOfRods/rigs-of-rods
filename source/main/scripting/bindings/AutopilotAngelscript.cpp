@@ -42,7 +42,7 @@ void RoR::RegisterAutopilot(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("AutopilotClass", "bool isILSAvailable()", asMETHOD(Autopilot, IsIlsAvailable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "APHeadingMode getHeadingMode()", asMETHOD(Autopilot, GetHeadingMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "int getHeadingValue()", asMETHOD(Autopilot, GetHeadingValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("AutopilotClass", "APHeadingMode getAltitudeMode()", asMETHOD(Autopilot, GetAltMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("AutopilotClass", "APAltitudeMode getAltitudeMode()", asMETHOD(Autopilot, GetAltMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "int getAltitudeValue()", asMETHOD(Autopilot, GetAltValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "bool getIASMode()", asMETHOD(Autopilot, GetIasMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "int getIASValue()", asMETHOD(Autopilot, GetIasValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);

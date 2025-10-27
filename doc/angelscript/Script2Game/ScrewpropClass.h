@@ -24,8 +24,7 @@ public:
 
     /**
      * @brief Sets the rudder deflection.
-     * @param rudderDeflection The rudder deflection, expressed as a factor of the deflection angle.
-     * @note As an example, -0.25 means 90° rudder to the right, 0.25 means 90° rudder to the left.
+     * @param rudderDeflection The rudder deflection, from -1 (full right deflection) to 1 (full left deflection).
      */
     void setRudder(float rudderDeflection);
 
@@ -55,17 +54,17 @@ public:
     void toggleReverse();
 
     /**
-     * @returns The reference node number in the N/B.
+     * @returns The reference node number.
      */
     int getRefNode();
 
     /**
-     * @returns The node number in the N/B for the back of the screwprop.
+     * @returns The node number for the back of the screwprop.
      */
     int getBackNode();
 
     /**
-     * @returns The node number in the N/B for the top of the screwprop.
+     * @returns The node number for the top of the screwprop.
      */
     int getUpNode();
 };
