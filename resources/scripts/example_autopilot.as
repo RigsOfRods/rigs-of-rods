@@ -10,7 +10,6 @@ imgui_utils::CloseWindowPrompt closeBtnHandler;
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(600, 500));
-    bool windowDummy = true;
     if (ImGui::Begin("Autopilot", closeBtnHandler.windowOpen, 0))
     {
         closeBtnHandler.draw();

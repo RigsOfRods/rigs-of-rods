@@ -34,7 +34,6 @@ void ShowEngineType(AircraftEngineClass@ engine)
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(440, 520));
-    bool windowDummy = true;
     if (ImGui::Begin("Aircraft engines", closeBtnHandler.windowOpen, 0))
     {
         closeBtnHandler.draw();

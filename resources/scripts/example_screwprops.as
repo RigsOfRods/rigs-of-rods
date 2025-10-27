@@ -26,7 +26,6 @@ string RudderDeflection(float rudderDefl)
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(440, 520));
-    bool windowDummy = true;
     if (ImGui::Begin("Screwprops", closeBtnHandler.windowOpen, 0))
     {
         closeBtnHandler.draw();
