@@ -1929,6 +1929,11 @@ int main(int argc, char *argv[])
                                             App::GetGameContext()->UpdateBoatInputEvents(dt);
                                         }
                                     }
+                                    App::GetGameContext()->GetPlayerActor()->UpdatePropAnimInputEvents();
+                                    for (ActorPtr linked_actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
+                                    {
+                                        linked_actor->UpdatePropAnimInputEvents();
+                                    }
                                 }
                             }
                             else // free cam mode

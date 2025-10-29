@@ -1963,11 +1963,5 @@ void GameContext::UpdateTruckInputEvents(float dt)
     {
         m_player_actor->getTyrePressure().UpdateInputEvents(dt);
     }
-
-    m_player_actor->UpdatePropAnimInputEvents();
-    for (ActorPtr linked_actor : m_player_actor->ar_linked_actors)
-    {
-        linked_actor->UpdatePropAnimInputEvents();
-    }
 }
 
