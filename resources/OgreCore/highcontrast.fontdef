@@ -1,4 +1,4 @@
-highcontrast_black
+font highcontrast_black
 {
 
 	type	image
@@ -102,7 +102,7 @@ highcontrast_black
 
 }
 
-highcontrast_red
+font highcontrast_red
 {
 
 	type	image
@@ -206,7 +206,7 @@ highcontrast_red
 
 }
 
-highcontrast_green
+font highcontrast_green
 {
 
 	type	image
@@ -310,7 +310,7 @@ highcontrast_green
 
 }
 
-highcontrast_blue
+font highcontrast_blue
 {
 
 	type	image

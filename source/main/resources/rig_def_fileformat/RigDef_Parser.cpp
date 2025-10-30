@@ -31,6 +31,7 @@
 #include "SimConstants.h"
 #include "CacheSystem.h"
 #include "Console.h"
+#include "GfxData.h"
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
 #include "Utils.h"
@@ -169,6 +170,9 @@ void Parser::ProcessCurrentLine()
             return;
         case Keyword::SECTION:
             this->ParseDirectiveSection();
+            return;
+        case Keyword::SET_ATTENUATION_DEFAULTS:
+            this->ParseDirectiveSetAttenuationDefaults();
             return;
         case Keyword::SET_BEAM_DEFAULTS:
             this->ParseDirectiveSetBeamDefaults();
@@ -576,6 +580,24 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions()
 
     // Legacy behavior.
     m_current_managed_material_options.double_sided = (this->GetArgChar(1) != '0');
+}
+
+void Parser::ParseDirectiveSetAttenuationDefaults()
+{
+    // Get values from the text file
+    float range = this->GetArgFloat(1);
+    float constant      = (m_num_args > 2) ? this->GetArgFloat(2) : -1;
+    float linear        = (m_num_args > 3) ? this->GetArgFloat(3) : -1;
+    float quadratic     = (m_num_args > 4) ? this->GetArgFloat(4) : -1;
+
+    // Create a 'preset' object as a clone of previous preset object.
+    m_user_attenuation_defaults = std::shared_ptr<AttenuationDefaults>(new AttenuationDefaults(*m_user_attenuation_defaults));
+
+    // Update the preset values. If -1 then reset to builtin constant.
+    m_user_attenuation_defaults->range     = (range     < 0) ? ATTENUATION_DEFAULT_RANGE_METERS     : range;
+    m_user_attenuation_defaults->constant  = (constant  < 0) ? ATTENUATION_DEFAULT_CONSTANT_FACTOR  : constant; 
+    m_user_attenuation_defaults->linear    = (linear    < 0) ? ATTENUATION_DEFAULT_LINEAR_FACTOR    : linear;   
+    m_user_attenuation_defaults->quadratic = (quadratic < 0) ? ATTENUATION_DEFAULT_QUADRATIC_FACTOR : quadratic;
 }
 
 void Parser::ParseDirectiveSetBeamDefaultsScale()
@@ -1068,11 +1090,11 @@ void Parser::ParseFlaresUnified()
 
 void Parser::ParseFlares3()
 {
-    const bool is_flares2 = (m_current_block == Keyword::FLARES2);
-    if (! this->CheckNumArguments(is_flares2 ? 6 : 5)) { return; }
+    if (! this->CheckNumArguments(6)) { return; }
 
     Flare3 flare3;
     flare3.inertia_defaults = m_user_default_inertia;
+    flare3.attenuation_defaults = m_user_attenuation_defaults;
 
     flare3.reference_node = this->GetArgNodeRef(0);
     flare3.node_axis_x    = this->GetArgNodeRef(1);
@@ -2904,6 +2926,8 @@ void Parser::Prepare()
     m_user_beam_defaults->deformation_threshold = BEAM_DEFORM;
     m_user_beam_defaults->breaking_threshold    = BEAM_BREAK;
     m_user_beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
+
+    m_user_attenuation_defaults = std::shared_ptr<AttenuationDefaults>(new AttenuationDefaults);
 
     m_root_module = m_definition->root_module;
     m_current_module = m_definition->root_module;

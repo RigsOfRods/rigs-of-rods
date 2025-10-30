@@ -34,7 +34,7 @@
 #include "HydraxWater.h"
 #include "Language.h"
 #include "ScriptEngine.h"
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
@@ -55,7 +55,7 @@ RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2DocumentPtr def)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
-    , m_shadow_manager(0)
+    , m_rtss_manager(0)
     , m_sky_manager(0)
     , SkyX_manager(0)
     , m_sight_range(1000)
@@ -123,10 +123,10 @@ void RoR::Terrain::dispose()
         m_geometry_manager = nullptr;
     }
 
-    if (m_shadow_manager != nullptr)
+    if (m_rtss_manager != nullptr)
     {
-        delete(m_shadow_manager);
-        m_shadow_manager = nullptr;
+        delete(m_rtss_manager);
+        m_rtss_manager = nullptr;
     }
 
     if (m_collisions != nullptr)
@@ -154,14 +154,14 @@ bool RoR::Terrain::initialize()
 
     this->setGravity(this->m_def->gravity);
 
-    loading_window->SetProgress(10, _L("Initializing Object Subsystem"));
-    this->initObjects(); // *.odef files
-
-    loading_window->SetProgress(14, _L("Initializing Shadow Subsystem"));
-    this->initShadows();
+    loading_window->SetProgress(15, _L("Initializing RTSS Subsystem"));
+    this->initRTSS();
 
     loading_window->SetProgress(17, _L("Initializing Geometry Subsystem"));
     this->m_geometry_manager = new TerrainGeometryManager(this);
+
+    loading_window->SetProgress(19, _L("Initializing Object Subsystem"));
+    this->initObjects(); // *.odef files
 
     loading_window->SetProgress(23, _L("Initializing Camera Subsystem"));
     this->initCamera();
@@ -323,13 +323,17 @@ void RoR::Terrain::initLight()
         m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
         //directional light for shadow
         m_main_light->setType(Light::LT_DIRECTIONAL);
-        m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
         m_main_light->setDiffuseColour(m_def->ambient_color);
         m_main_light->setSpecularColour(m_def->ambient_color);
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
+
+        // attach to scene node (can be retrieved by Ogre::Light::getParentSceneNode())
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(m_main_light);
+        snode->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
     }
 }
 
@@ -405,15 +409,13 @@ void RoR::Terrain::initWater()
     if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
-        if (!m_def->hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->hydrax_conf_file))
-        {
-            m_hydrax_water = new HydraxWater(m_def->water_height, m_def->hydrax_conf_file);
-        }
-        else
+        std::string conf_file = m_def->hydrax_conf_file;
+        if (m_def->hydrax_conf_file == "" || !ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->hydrax_conf_file))
         {
             // no config provided, fall back to the default one
-            m_hydrax_water = new HydraxWater(m_def->water_height);
+            conf_file = HYDRAX_DEFAULT_CONFIG_FILE;
         }
+        m_hydrax_water = new HydraxWater(m_wavefield.get(), m_def->water_height, conf_file);
 
         m_gfx_water = std::unique_ptr<IGfxWater>(m_hydrax_water);
 
@@ -433,10 +435,10 @@ void RoR::Terrain::initWater()
     }
 }
 
-void RoR::Terrain::initShadows()
+void RoR::Terrain::initRTSS()
 {
-    m_shadow_manager = new ShadowManager();
-    m_shadow_manager->loadConfiguration();
+    m_rtss_manager = new RTSSManager();
+    m_rtss_manager->SetupRTSS();
 }
 
 void RoR::Terrain::loadTerrainObjects()

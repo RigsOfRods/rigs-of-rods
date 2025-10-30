@@ -28,7 +28,7 @@
 
 #include <OgreString.h>
 #include <OgreEntity.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <OgreMesh.h>
 #include <OgreSubMesh.h>
 #include <OgreHardwareBuffer.h>

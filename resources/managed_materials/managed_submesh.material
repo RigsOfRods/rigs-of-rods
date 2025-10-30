@@ -30,7 +30,7 @@ material RoR/Submesh/Body :  RoR/Managed_Mats/Base
             shading gouraud
             texture_unit diffuse
             {
-                texture_alias diffuse
+                texture diffuse
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op alpha_blend
@@ -50,7 +50,7 @@ material RoR/Submesh/Body :  RoR/Managed_Mats/Base
 			alpha_rejection greater 1
 			texture_unit emissive
 			{
-				texture_alias emissive
+				texture emissive
 			}
 		}
 
@@ -67,7 +67,7 @@ material RoR/Submesh/Body :  RoR/Managed_Mats/Base
  
 			texture_unit Diffuse_Map
 			{
-				texture_alias Lighting
+				texture Lighting
 			}
 		}
 		pass Reflections
@@ -87,7 +87,7 @@ material RoR/Submesh/Body :  RoR/Managed_Mats/Base
 			transparent_sorting on
 			texture_unit diffuse
 			{
-				texture_alias reflective
+				texture reflective
 				// use alpha from this texture
 				alpha_op_ex source1 src_texture src_texture
 				// and colour from last pass
@@ -136,7 +136,7 @@ material RoR/Submesh/Body/Alpha :  RoR/Managed_Mats/Base
             shading gouraud
             texture_unit diffuse
             {
-                texture_alias diffuse
+                texture diffuse
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op alpha_blend
@@ -156,7 +156,7 @@ material RoR/Submesh/Body/Alpha :  RoR/Managed_Mats/Base
 			alpha_rejection greater 1
 			texture_unit emissive
 			{
-				texture_alias emissive
+				texture emissive
 			}
 		}
 
@@ -173,7 +173,7 @@ material RoR/Submesh/Body/Alpha :  RoR/Managed_Mats/Base
  
 			texture_unit Diffuse_Map
 			{
-				texture_alias Lighting
+				texture Lighting
 			}
 		}
 		pass Metallic
@@ -191,7 +191,7 @@ material RoR/Submesh/Body/Alpha :  RoR/Managed_Mats/Base
 			cull_hardware clockwise
 			texture_unit diffuse
 			{
-				texture_alias reflective
+				texture reflective
 				// use alpha from this texture
 				alpha_op_ex source1 src_texture src_texture
 				// and colour from last pass
@@ -242,7 +242,7 @@ material RoR/Submesh/Wheels:  RoR/Managed_Mats/Base
             shading gouraud
             texture_unit diffuse
             {
-                texture_alias diffuse
+                texture diffuse
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op alpha_blend
@@ -267,7 +267,7 @@ material RoR/Submesh/Wheels:  RoR/Managed_Mats/Base
  
 			texture_unit Diffuse_Map
 			{
-				texture_alias Lighting
+				texture Lighting
 			}
 		}
 		pass Reflections
@@ -287,7 +287,7 @@ material RoR/Submesh/Wheels:  RoR/Managed_Mats/Base
 			transparent_sorting on
 			texture_unit diffuse
 			{
-				texture_alias reflective
+				texture reflective
 				// use alpha from this texture
 				alpha_op_ex source1 src_texture src_texture
 				// and colour from last pass
@@ -347,7 +347,7 @@ material RoR/Submesh/Wheels/Alpha :  RoR/Managed_Mats/Base
             shading gouraud
             texture_unit diffuse
             {
-                texture_alias diffuse
+                texture diffuse
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op alpha_blend
@@ -372,7 +372,7 @@ material RoR/Submesh/Wheels/Alpha :  RoR/Managed_Mats/Base
  
 			texture_unit Diffuse_Map
 			{
-				texture_alias Lighting
+				texture Lighting
 			}
 		}
 		pass Metallic
@@ -390,7 +390,7 @@ material RoR/Submesh/Wheels/Alpha :  RoR/Managed_Mats/Base
 			cull_hardware clockwise
 			texture_unit diffuse
 			{
-				texture_alias reflective
+				texture reflective
 				// use alpha from this texture
 				alpha_op_ex source1 src_texture src_texture
 				// and colour from last pass

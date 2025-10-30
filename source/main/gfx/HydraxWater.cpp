@@ -36,8 +36,8 @@ using namespace Ogre;
 using namespace RoR;
 
 // HydraxWater
-HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
-    waternoise(0)
+HydraxWater::HydraxWater(Hydrax::Noise::Noise* noise, float water_height, Ogre::String conf_file):
+    waternoise(noise)
     , mHydrax(0)
     , waterHeight(water_height)
     , waveHeight(water_height)
@@ -58,7 +58,6 @@ void HydraxWater::InitHydrax()
 {
     mHydrax = new Hydrax::Hydrax(App::GetGfxScene()->GetSceneManager(), App::GetCameraManager()->GetCamera(), RoR::App::GetAppContext()->GetViewport());
 
-    waternoise = new Hydrax::Noise::Perlin();
     mModule = new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer
         mHydrax,
         // Noise module
