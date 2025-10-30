@@ -409,15 +409,13 @@ void RoR::Terrain::initWater()
     if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
-        if (!m_def->hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->hydrax_conf_file))
-        {
-            m_hydrax_water = new HydraxWater(m_def->water_height, m_def->hydrax_conf_file);
-        }
-        else
+        std::string conf_file = m_def->hydrax_conf_file;
+        if (m_def->hydrax_conf_file == "" || !ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->hydrax_conf_file))
         {
             // no config provided, fall back to the default one
-            m_hydrax_water = new HydraxWater(m_def->water_height);
+            conf_file = HYDRAX_DEFAULT_CONFIG_FILE;
         }
+        m_hydrax_water = new HydraxWater(m_wavefield.get(), m_def->water_height, conf_file);
 
         m_gfx_water = std::unique_ptr<IGfxWater>(m_hydrax_water);
 
