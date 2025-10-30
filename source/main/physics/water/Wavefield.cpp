@@ -33,6 +33,7 @@
 using namespace RoR;
 
 Wavefield::Wavefield(Vec3 terrn_size) :
+    Hydrax::Noise::Noise("RoR_Wavefield", false),
     m_map_size(terrn_size)
 {
     if (m_map_size.x < 1500 && m_map_size.z < 1500)
@@ -179,4 +180,9 @@ float Wavefield::GetWaveHeight(Vec3 pos)
     return waveheight;
 }
 
+// Implementation of Hydrax::Noise interface
+float Wavefield::getValue(const float& x, const float& z)
+{
+    return this->CalcWavesHeight(Vec3(x, 0, z)) - m_water_height;
+}
 
