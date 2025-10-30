@@ -31,11 +31,13 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
+static const std::string HYDRAX_DEFAULT_CONFIG_FILE = "HydraxDefault.hdx";
+
 class HydraxWater : public IGfxWater
 {
 public:
 
-    HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
+    HydraxWater(Hydrax::Noise::Noise* noise, float waterHeight, Ogre::String configFile);
     ~HydraxWater();
 
     void SetWaterVisible(bool value) override;
@@ -51,7 +53,7 @@ protected:
     Hydrax::Hydrax* mHydrax;
     float waveHeight;
     float waterHeight;
-    Hydrax::Noise::Perlin* waternoise;
+    Hydrax::Noise::Noise* waternoise;
     Hydrax::Module::ProjectedGrid* mModule;
     Ogre::String CurrentConfigFile;
 };
