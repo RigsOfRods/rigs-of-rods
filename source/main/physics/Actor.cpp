@@ -710,6 +710,16 @@ void Actor::recalculateNodeMasses()
         debugLogNodeMass(this);
     }
 
+    // Recalculate loaded nodes
+    ar_masscount = 0;
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        if (!ar_nodes[i].nd_tyre_node && ar_nodes[i].nd_loaded_mass)
+        {
+            ar_masscount++;
+        }
+    }
+
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -844,11 +854,6 @@ float Actor::getTotalMass(bool withLocked)
     }
 
     return mass;
-}
-
-float Actor::getLoadedMass()
-{
-    return ar_load_mass;
 }
 
 void Actor::DetermineLinkedActors()
@@ -4520,6 +4525,15 @@ void Actor::setNodeMass(int nodeNumber, float m)
     }
 }
 
+void Actor::setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        ar_nodes[nodeNumber].nd_loaded_mass = loaded;
+        ar_nodes[nodeNumber].nd_override_mass = overrideMass;
+    }
+}
+
 bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
@@ -4728,6 +4742,20 @@ Vector3 Actor::getNodeForces(int nodeNumber)
     else
     {
         return Ogre::Vector3::ZERO;
+    }
+}
+
+void Actor::getNodeMassOptions(int nodeNumber, bool& loaded, bool& overrideMass)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        loaded = ar_nodes[nodeNumber].nd_loaded_mass;
+        overrideMass = ar_nodes[nodeNumber].nd_override_mass;
+    }
+    else
+    {
+        loaded = false;
+        overrideMass = false;
     }
 }
 

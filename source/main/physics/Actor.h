@@ -90,13 +90,17 @@ public:
     float             getSpeed() { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
     float             getTotalMass(bool withLocked = true);
-    float             getLoadedMass();
+    float             getDryMass() { return ar_dry_mass; }
+    float             getLoadedMass() { return ar_load_mass; }
+    float             getInitialDryMass() { return ar_original_dry_mass; }
+    float             getInitialLoadedMass() { return ar_original_load_mass; }
     int               getNodeCount() { return ar_num_nodes; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     float             getNodeInitialMass(int nodeNumber);
     float             getNodeMass(int nodeNumber);
     Ogre::Vector3     getNodeVelocity(int nodeNumber);
     Ogre::Vector3     getNodeForces(int nodeNumber);
+    void              getNodeMassOptions(int nodeNumber, bool& loaded, bool& overrideMass);
     bool              isNodeWheelRim(int nodeNumber);      //!< Is node marked as wheel rim? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
     bool              isNodeWheelTire(int nodeNumber);     //!< Is node marked as wheel tire? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
     int               getWheelNodeCount() const;
@@ -139,6 +143,7 @@ public:
     void              setMass(float m);
     void              setLoadedMass(float m);
     void              setNodeMass(int nodeNumber, float m);
+    void              setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass);
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
     float             getSimAttribute(ActorSimAttr attr);
     void              recalculateNodeMasses();
