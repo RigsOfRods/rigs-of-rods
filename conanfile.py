@@ -20,7 +20,7 @@ class RoR(ConanFile):
         self.requires("ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable")
         self.requires("ogre3d/1.11.6.1@anotherfoxguy/stable", force=True)
         self.requires("ois/1.4.1@rigsofrods/custom")
-        self.requires("openal-soft/1.22.2")
+        self.requires("openal-soft/1.23.1")
         self.requires("openssl/3.1.2", force=True)
         self.requires("rapidjson/cci.20211112", force=True)
         self.requires("socketw/3.11.0@anotherfoxguy/stable")
