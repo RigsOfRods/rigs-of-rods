@@ -65,9 +65,24 @@ public:
     float getTotalMass(bool withLocked);
 
     /**
-     * @brief Gets the load mass of the truck.
+     * @return The current dry mass of the truck, in kilograms.
+     */
+    float getDryMass();
+
+    /**
+     * @return The current load mass of the truck, in kilograms.
      */
     float getLoadedMass();
+
+    /**
+     * @return The initial dry mass of the truck, in kilograms
+     */
+    float getInitialDryMass();
+
+    /**
+     * @return The initial load mass of the truck, in kilograms
+     */
+    float getInitialLoadedMass();
 
     /**
      * Gets the total amount of nodes of the truck.
@@ -87,12 +102,12 @@ public:
      * @return The node's initial mass, in kilograms
      */	
     float getNodeInitialMass(int nodeNumber);
-    
+
     /**
      * Returns the current mass of the node
      * @param nodeNumber The number of the node (counts from 0, see `getNodeCount()`)
      * @return The node's current mass, in kilograms
-     */	
+     */
     float getNodeMass(int nodeNumber);
 
     /**
@@ -108,6 +123,15 @@ public:
      * @return The node's current force vector.
      */
     vector3 getNodeForces(int nodeNumber);
+
+    /**
+     * Returns the mass options of the node.
+     * @param nodeNumber The number of the node (counts from 0, see `getNodeCount()`)
+     * @param loaded Reference parameter. Indicates whether the node bears a part of the cargo load.
+     * @param overrideMass Reference parameter. Indicates whether the node mass can be overriden.
+     * @return The node's mass options (using the reference parameters).
+     */
+    void getNodeMassOptions(int nodeNumber, bool& loaded, bool& overrideMass);
 
     /**
      * Is node marked as wheel rim? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
@@ -162,7 +186,7 @@ public:
     void scaleTruck(float ratio);
     
     /**
-     * Sets the mass of the truck.
+     * Sets the dry mass of the truck.
      * @note Use `recalculateNodeMasses()` to make your changes effective.
      */
     void setMass(float m);
@@ -175,11 +199,20 @@ public:
 
     /**
      * @brief Overrides the node's mass.
-     * @note If the node bears a part of the load mass (is marked with the `l` option), this function has no effect.
+     * @note If the node bears a part of the load mass (is marked with the `l` option) and its mass can't be overriden, this function has no effect.
      * @note Use `recalculateNodeMasses()` to make your changes effective.
      * @warning This function might break the N/B if you set the wrong mass. Always set masses adequate to the truck you're working on!
      */
     void setNodeMass(int nodeNumber, float mass);
+
+    /**
+     * Sets the mass options of the node.
+     * @param nodeNumber The number of the node (counts from 0, see `getNodeCount()`)
+     * @param loaded Allows the node to bear a part of the cargo load.
+     * @param overrideMass Allows the node mass to be overriden.
+     * @note Use `recalculateNodeMasses()` to make your changes effective.
+     */
+    void setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass);
 
     /**
      * Allows advanced users to set physics settings directly, including some not accessible from rig-def file format.
