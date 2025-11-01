@@ -714,7 +714,7 @@ void Actor::recalculateNodeMasses()
     ar_masscount = 0;
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (!ar_nodes[i].nd_tyre_node && ar_nodes[i].nd_loaded_mass)
+        if (!ar_nodes[i].nd_tyre_node && ar_nodes[i].nd_loaded_mass && !ar_nodes[i].nd_override_mass)
         {
             ar_masscount++;
         }
