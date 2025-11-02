@@ -20,7 +20,8 @@
 ## Features
 
 * **Vehicles of all kinds:** cars, trucks, trains, boats, airplanes, helicopters, and heavy machinery
-* **Immersive gameplay:** walk around, enter/exit vehicles, spawn multiple at once
+* **Intuitive  gameplay:** walk around, enter/exit vehicles, spawn multiple at once
+* **Flexible playstyles:** arcade-style keyboard driving to full gamepad, wheel, and pedal setups
 * **Community support:** built-in browser for mods, plus vehicle part swapping and scripting with [AngelScript](https://www.angelcode.com/angelscript/).
 * **Multiplayer support:** dedicated servers, in-game server browser
 
@@ -28,13 +29,13 @@
 
 ### Get the game
 
-Ready to drive? Grab the latest version from the **[Rigs of Rods website](https://www.rigsofrods.org/download)** and you'll be up and driving in no time.
+Ready to drive? Grab the latest version from the **[Rigs of Rods website](https://www.rigsofrods.org/download)**.
 
 ### Build from source
 
 Read the official guide for compilation instructions on every supported platform.
 
-For detailed instructions on compiling from source, see the **[Guide to building Rigs of Rods](#)** for Windows and Linux.
+For detailed instructions on compiling from source, see the **[Guide to building Rigs of Rods](https://github.com/RigsOfRods/rigs-of-rods/wiki)** for Windows and Linux.
 
 ## Join the community
 
