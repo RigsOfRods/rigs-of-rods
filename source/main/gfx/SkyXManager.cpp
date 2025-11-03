@@ -91,22 +91,19 @@ bool SkyXManager::UpdateSkyLight()
 	// Calculate current color gradients point
 	float point = (-lightDir.y + 1.0f) / 2.0f;
 
-    if (App::GetGameContext()->GetTerrain()->getHydraxManager ()) 
-    {
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
-    }
-		
+	IGfxWater* iwater = App::GetGameContext()->GetTerrain()->getGfxWater();
+	if (iwater)
+	{
+		Ogre::Vector3 waterCol = mWaterGradient.getColor(point);
+		iwater->SetWaterColor(Ogre::ColourValue(waterCol.x, waterCol.y, waterCol.z));
+        iwater->SetWaterSunPosition(sunPos*0.1);
+	}		
 
 	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
 	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
 
 	mLight0->getParentSceneNode()->setPosition(sunPos*0.02);
 	mLight1->getParentSceneNode()->setDirection(lightDir);
-    if (App::GetGameContext()->GetTerrain()->getWater())
-    {
-        App::GetGameContext()->GetTerrain()->getGfxWater()->WaterSetSunPosition(sunPos*0.1);
-    }
 
 	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459
 /*	Ogre::Vector3 sunCol = mSunGradient.getColor(point);

@@ -361,12 +361,12 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
 bool RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
 {
     int selection = cvar->getInt();
-    if (ImGui::Combo(label, &selection, values))
+    const bool changed = ImGui::Combo(label, &selection, values);
+    if (changed)
     {
         cvar->setVal(selection);
-        return true;
     }
-    return false;
+    return changed;
 }
 
 Ogre::TexturePtr FetchTexInternal(const char* name, const char* rgn)

@@ -36,7 +36,7 @@ using namespace Ogre;
 using namespace RoR;
 
 // HydraxWater
-HydraxWater::HydraxWater(Hydrax::Noise::Noise* noise, float water_height, Ogre::String conf_file):
+HydraxWater::HydraxWater(Hydrax::Noise::Noise* noise, float water_height, Ogre::TerrainGroup* terrain_grp, Ogre::String conf_file):
     waternoise(noise)
     , mHydrax(0)
     , waterHeight(water_height)
@@ -46,6 +46,15 @@ HydraxWater::HydraxWater(Hydrax::Noise::Noise* noise, float water_height, Ogre::
     App::GetCameraManager()->GetCamera()->setNearClipDistance(0.1f);
 
     InitHydrax();
+
+    //Apply depth technique to the terrain
+    TerrainGroup::TerrainIterator ti = terrain_grp->getTerrainIterator();
+    while (ti.hasMoreElements())
+    {
+        Ogre::Terrain* t = ti.getNext()->instance;
+        MaterialPtr ptr = t->getMaterial();
+        mHydrax->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+    }
 }
 
 HydraxWater::~HydraxWater()
@@ -73,14 +82,14 @@ void HydraxWater::InitHydrax()
 
     mHydrax->loadCfg(CurrentConfigFile);
 
-    // Choose shader language based on renderer (HLSL=0, CG=1, GLSL=2)
+    // Choose shader language based on renderer
     if (Root::getSingleton().getRenderSystem()->getName() == "Direct3D9 Rendering Subsystem" || Root::getSingleton().getRenderSystem()->getName() == "Direct3D11 Rendering Subsystem")
     {
-        mHydrax->setShaderMode(static_cast<Hydrax::MaterialManager::ShaderMode>(0));
+        mHydrax->setShaderMode(Hydrax::MaterialManager::SM_HLSL);
     }
     else
     {
-        mHydrax->setShaderMode(static_cast<Hydrax::MaterialManager::ShaderMode>(2));
+        mHydrax->setShaderMode(Hydrax::MaterialManager::SM_GLSL);
     }
 
     mHydrax->create();
@@ -107,7 +116,7 @@ void HydraxWater::SetWaterVisible(bool value)
         mHydrax->setVisible(value);
 }
 
-void HydraxWater::WaterSetSunPosition(Ogre::Vector3 pos)
+void HydraxWater::SetWaterSunPosition(Ogre::Vector3 pos)
 {
     if (mHydrax)
         mHydrax->setSunPosition(pos);
@@ -127,3 +136,8 @@ void HydraxWater::FrameStepWater(float dt)
     this->UpdateWater();
 }
 
+void HydraxWater::SetWaterColor(Ogre::ColourValue color)
+{
+    if (mHydrax)
+        mHydrax->setWaterColor(Ogre::Vector3(color.r, color.g, color.b));
+}

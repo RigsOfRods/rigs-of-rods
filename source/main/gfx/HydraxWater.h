@@ -25,6 +25,7 @@
 #include "ProjectedGrid.h"
 
 #include <Ogre.h>
+#include <OgreTerrainGroup.h>
 
 namespace RoR {
 
@@ -38,15 +39,14 @@ class HydraxWater : public IGfxWater
 {
 public:
 
-    HydraxWater(Hydrax::Noise::Noise* noise, float waterHeight, Ogre::String configFile);
+    HydraxWater(Hydrax::Noise::Noise* noise, float waterHeight, Ogre::TerrainGroup* terrain_grp, Ogre::String configFile);
     ~HydraxWater();
 
+    void SetWaterSunPosition(Ogre::Vector3 pos) override;
     void SetWaterVisible(bool value) override;
-    void WaterSetSunPosition(Ogre::Vector3) override;
     void FrameStepWater(float dt) override;
     void UpdateWater() override;
-
-    Hydrax::Hydrax* GetHydrax() { return mHydrax; }
+    void SetWaterColor(Ogre::ColourValue color) override;
 
 protected:
 

@@ -394,12 +394,10 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX); // Can be toggled anytime via TopMenubar
 
         m_base_resource_loaded = true;
     }
-
-    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
-        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
 
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
         this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
