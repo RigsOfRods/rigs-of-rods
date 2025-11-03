@@ -661,19 +661,47 @@ void TopMenubar::Draw(float dt)
 #endif // USE_CAELUM
 
             // WATER SETTINGS
-            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
+            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
+                && App::GetGameContext()->GetTerrain()->GetDef()->has_water)
             {
-                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
+                ImGui::Separator();
+                ImGui::PushID("water");
+                ImGui::TextDisabled("%s", _LC("TopMenubar", "Water:"));
+
+                if (water_mode_combostring == "")
                 {
-                    ImGui::PushID("waves");
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
-                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
-                    {
-                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
-                    }
-                    ImGui::PopID();
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::NONE));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::BASIC));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::REFLECT));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_FAST));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_HQ));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::HYDRAX));
+                    ImTerminateComboboxString(water_mode_combostring);
                 }
-            }    
+    
+                if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
+                }
+
+                if (DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves")))
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
+                }
+
+                Wavefield* iwater = App::GetGameContext()->GetTerrain()->getWater();
+
+                if (iwater 
+                    && RoR::App::gfx_water_waves->getBool())
+                {
+                    float water_waves_height = iwater->GetWavesHeight();
+                    if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
+                    {
+                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);
+                    }
+                }
+                ImGui::PopID(); // "water"
+            }
             
             // VEHICLE CONTROL SETTINGS
             if (current_actor != nullptr)
@@ -694,7 +722,8 @@ void TopMenubar::Draw(float dt)
             ImGui::PopItemWidth();
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            float extra_watercombo_padding = 75.f; // The water combo is big and reaches out of the menu.
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y + extra_watercombo_padding;
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }

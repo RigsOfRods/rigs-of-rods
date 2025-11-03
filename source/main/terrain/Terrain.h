@@ -78,7 +78,6 @@ public:
     float                   getWaterHeight() const;
     TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
     TerrainObjectManager*   getObjectManager()            { return m_object_manager; }
-    HydraxWater*            getHydraxManager()            { return m_hydrax_water; }
     SkyManager*             getSkyManager();
     SkyXManager*            getSkyXManager()              { return SkyX_manager; }
     RTSSManager*            getRTSSManager()              { return m_rtss_manager; }
@@ -86,6 +85,8 @@ public:
     Collisions*             GetCollisions()               { return m_collisions; }
     Wavefield*              getWater()                    { return m_wavefield.get(); }
     IGfxWater*              getGfxWater()                 { return m_gfx_water.get(); }
+    void                    createWater();
+    void                    destroyWater();
     /// @}
 
     /// @name Visuals
@@ -125,7 +126,6 @@ private:
     void initAiPresets();
     void initSkySubSystem();
     void initVegetation();
-    void initWater();
 
     void fixCompositorClearColor();
     void loadTerrainObjects();
@@ -141,7 +141,6 @@ private:
     RTSSManager*            m_rtss_manager;
     SkyManager*             m_sky_manager = nullptr;
     SkyXManager*            SkyX_manager = nullptr;
-    HydraxWater*            m_hydrax_water = nullptr;
 
     // Properties
 

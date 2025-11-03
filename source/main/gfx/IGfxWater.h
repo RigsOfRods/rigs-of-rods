@@ -34,24 +34,30 @@ class IGfxWater
 public:
     IGfxWater()
     {
+        m_active_water_mode = App::gfx_water_mode->getEnum<GfxWaterMode>();
     }
 
     virtual ~IGfxWater()
     {
     }
 
-    virtual void           SetWaterBottomHeight(float) {};
+    virtual void           SetWaterBottomHeight(float) {}
     virtual void           SetWaterVisible(bool value) = 0;
-    virtual void           WaterSetSunPosition(Ogre::Vector3) {}
     virtual void           FrameStepWater(float dt) = 0;
     virtual void           SetReflectionPlaneHeight(float) {}
     virtual void           UpdateReflectionPlane(float) {}
     virtual void           WaterPrepareShutdown() {}
     virtual void           UpdateWater() = 0;
+    virtual void           SetWaterColor(Ogre::ColourValue color) {}
+    virtual void           SetWaterSunPosition(Ogre::Vector3 pos) {}
+    GfxWaterMode           GetActiveWaterMode() { return m_active_water_mode; }
 
     // Only used by class Water for SurveyMap texture creation
     virtual void           SetForcedCameraTransform(Ogre::Radian /*fovy*/, Ogre::Vector3 /*pos*/, Ogre::Quaternion /*rot*/) {};
     virtual void           ClearForcedCameraTransform() {};
+
+protected:
+    GfxWaterMode m_active_water_mode; //!< A snapshot of cvar `gfx_water_mode` at the time of water creation - because the cvar can change (i.e. via TopMenubar or scripting, see also `MSG_SIM_REINIT_WATER_REQUESTED`)
 };
 
 /// @} // addtogroup Gfx

@@ -122,6 +122,9 @@ public:
     CacheEntryPtr tuning_hovered_addonpart;
     void RefreshTuningMenu();
 
+    // Water settings menu
+    std::string water_mode_combostring;
+
 private:
     bool IsMenuEnabled(TopMenu which);
 
@@ -145,7 +148,6 @@ private:
     bool    m_confirm_remove_all = false;
 
     float   m_daytime = 0.f;
-    float   m_waves_height;
     bool    m_quickload = false;
     bool    m_terrn_import_started = false;
     std::string m_quicksave_name;

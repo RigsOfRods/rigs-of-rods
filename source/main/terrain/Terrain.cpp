@@ -62,7 +62,6 @@ RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2DocumentPtr def)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
     , m_cur_gravity(DEFAULT_GRAVITY)
-    , m_hydrax_water(nullptr)
     , m_cache_entry(entry)
     , m_def(def)
 {
@@ -106,11 +105,6 @@ void RoR::Terrain::dispose()
         m_main_light = nullptr;
     }
 
-    if (m_hydrax_water != nullptr)
-    {
-        m_gfx_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
-    }
-
     if (m_object_manager != nullptr)
     {
         delete(m_object_manager);
@@ -135,10 +129,7 @@ void RoR::Terrain::dispose()
         m_collisions = nullptr;
     }
 
-    if (m_wavefield)
-    {
-        m_wavefield.reset();
-    }
+    this->destroyWater();
 
     if (App::GetScriptEngine()->getTerrainScriptUnit() != SCRIPTUNITID_INVALID)
     {
@@ -198,7 +189,7 @@ bool RoR::Terrain::initialize()
     this->initAiPresets();
 
     loading_window->SetProgress(77, _L("Initializing Water Subsystem"));
-    this->initWater();
+    this->createWater();
 
     loading_window->SetProgress(80, _L("Loading Terrain Objects"));
     this->loadTerrainObjects(); // *.tobj files
@@ -391,7 +382,7 @@ void RoR::Terrain::fixCompositorClearColor()
     }
 }
 
-void RoR::Terrain::initWater()
+void RoR::Terrain::createWater()
 {
     // disabled in global config
     if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::NONE)
@@ -421,24 +412,20 @@ void RoR::Terrain::initWater()
                 conf_file = HYDRAX_DEFAULT_CONFIG_FILE;
             }
         }
-        m_hydrax_water = new HydraxWater(m_wavefield.get(), m_def->water_height, conf_file);
 
-        m_gfx_water = std::unique_ptr<IGfxWater>(m_hydrax_water);
-
-        //Apply depth technique to the terrain
-        TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
-        while (ti.hasMoreElements())
-        {
-            Ogre::Terrain* t = ti.getNext()->instance;
-            MaterialPtr ptr = t->getMaterial();
-            m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
-        }
+        m_gfx_water = std::unique_ptr<IGfxWater>(new HydraxWater(m_wavefield.get(), m_def->water_height, m_geometry_manager->getTerrainGroup(), conf_file));
     }
     else
     {
         m_gfx_water = std::unique_ptr<IGfxWater>(new GfxWater(this->getMaxTerrainSize(), m_def->water_height));
         m_gfx_water->SetWaterBottomHeight(m_def->water_bottom_height);
     }
+}
+
+void RoR::Terrain::destroyWater()
+{
+    m_gfx_water.reset();
+    m_wavefield.reset();
 }
 
 void RoR::Terrain::initRTSS()

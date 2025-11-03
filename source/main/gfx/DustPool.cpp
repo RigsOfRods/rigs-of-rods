@@ -278,15 +278,19 @@ void DustPool::update()
         }
         else if (types[i] == DUST_RIPPLE)
         {
-            positions[i].y = RoR::App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight() - 0.02;
-            sns[i]->setPosition(positions[i]);
+            // Make sure water wasn't disabled in Top menubar - if yes, just drop the particle.
+            if (RoR::App::GetGameContext()->GetTerrain()->getWater())
+            {
+                positions[i].y = RoR::App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight() - 0.02;
+                sns[i]->setPosition(positions[i]);
 
-            col.a = vel * 0.04;
-            col.b = 0.9;
-            col.g = 0.9;
-            col.r = 0.9;
+                col.a = vel * 0.04;
+                col.b = 0.9;
+                col.g = 0.9;
+                col.r = 0.9;
 
-            emit->setTimeToLive(vel * 0.04 / 0.1);
+                emit->setTimeToLive(vel * 0.04 / 0.1);
+            }
         }
 
         emit->setColour(col);
