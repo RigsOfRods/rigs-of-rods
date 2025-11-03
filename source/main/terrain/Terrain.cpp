@@ -410,10 +410,16 @@ void RoR::Terrain::initWater()
     {
         // try to load hydrax config
         std::string conf_file = m_def->hydrax_conf_file;
-        if (m_def->hydrax_conf_file == "" || !ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->hydrax_conf_file))
+        if (conf_file == ""
+            || !ResourceGroupManager::getSingleton().resourceExists(this->getTerrainFileResourceGroup(), conf_file))
         {
-            // no config provided, fall back to the default one
-            conf_file = HYDRAX_DEFAULT_CONFIG_FILE;
+            // no config specified in terrn2, try the user's global one
+            conf_file = HYDRAX_USER_CONFIG_FILE;
+            if (!ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, conf_file))
+            {
+                // no config provided, fall back to the default one
+                conf_file = HYDRAX_DEFAULT_CONFIG_FILE;
+            }
         }
         m_hydrax_water = new HydraxWater(m_wavefield.get(), m_def->water_height, conf_file);
 
