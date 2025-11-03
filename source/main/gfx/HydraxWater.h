@@ -31,7 +31,8 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-static const std::string HYDRAX_DEFAULT_CONFIG_FILE = "HydraxDefault.hdx";
+static const std::string HYDRAX_DEFAULT_CONFIG_FILE = "HydraxDefault.hdx"; // Fallback, in game resources   
+static const std::string HYDRAX_USER_CONFIG_FILE = "hydrax.cfg"; // Primary, in user config dir
 
 class HydraxWater : public IGfxWater
 {
