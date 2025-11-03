@@ -464,7 +464,11 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
     {
         DashBoard* d = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
         loadedRTTDashboards++;
-        d->setVisible(true);
+        // This dashboard shouldn't be visible at this point, since
+        // it's not linked to the current player actor yet.
+        // GameContext.ChangePlayerActor() will change the visibility
+        // when needed.
+        d->setVisible(false);
         if (scriptfilename != "")
         {
             d->loadScript(scriptfilename, m_actor);
