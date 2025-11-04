@@ -1241,6 +1241,11 @@ void ActorSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
     }
 }
 
+void ActorSpawner::ProcessCustomDashInputs(RigDef::CustomDashboardInput & def)
+{
+    m_actor->ar_dashboard->registerCustomInput(def.name, def.data_type);
+}
+
 void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 {
     if (def.key == "helpMaterial")
@@ -6922,15 +6927,6 @@ void ActorSpawner::FinalizeGfxSetup()
     if (!App::gfx_enable_videocams->getBool())
     {
         m_actor->m_gfx_actor->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
-    }
-
-    // Load custom inputs for dashboards
-    for (auto& module : m_selected_modules)
-    {
-        for (auto& dashVal : module->customdashboardinputs)
-        {
-            m_actor->ar_dashboard->registerCustomInput(dashVal.name, dashVal.data_type);
-        }
     }
 
     // Load dashboard layouts
