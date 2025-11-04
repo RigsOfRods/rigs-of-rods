@@ -164,6 +164,7 @@ private:
     void ProcessCommand(RigDef::Command2 & def);
     void ProcessContacter(RigDef::Node::Ref & node_ref);
     void ProcessCruiseControl(RigDef::CruiseControl & def);
+    void ProcessCustomDashInputs(RigDef::CustomDashboardInput & def);
     void ProcessDescription(Ogre::String const& line);
     void ProcessEngine(RigDef::Engine & def);
     void ProcessEngoption(RigDef::Engoption & def);
