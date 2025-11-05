@@ -89,8 +89,6 @@ TerrainObjectManager::~TerrainObjectManager()
     }
 #endif //USE_PAGED
 
-    App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
-
     App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_terrn2_grouping_node);
 }
 
