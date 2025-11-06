@@ -77,8 +77,22 @@ void RenderingDiag::Draw()
 
 void RenderingDiag::DrawMainScreenTab()
 {
-    ImGui::Text(_LC("RenderingDiag", "Main screen"));
+    ImGui::TextDisabled(_LC("RenderingDiag", ":: O P T I O N S ::"));
+
+    float nearclip = App::GetCameraManager()->GetCamera()->getNearClipDistance();
+    if (ImGui::InputFloat(_LC("RenderingDiag", "Camera near clip"), &nearclip, 0.01f, 2.f, "%.2f"))
+    {
+        App::GetCameraManager()->GetCamera()->setNearClipDistance(nearclip);
+    }
+
+    float farclip = App::GetCameraManager()->GetCamera()->getFarClipDistance();
+    if (ImGui::InputFloat(_LC("RenderingDiag", "Camera far clip"), &farclip, 10.f, 100000.0f, "%.2f"))
+    {
+        App::GetCameraManager()->GetCamera()->setFarClipDistance(farclip);
+    }
+
     ImGui::Separator();
+    ImGui::TextDisabled(_LC("RenderingDiag", ":: S T A T S ::"));
 
     const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()->getStatistics();
     ImGui::Text("%s", fmt::format("FPS: {:5.1f}, Batch: {:5}, Tri: {:6}", stats.lastFPS, stats.batchCount, stats.triangleCount).c_str());

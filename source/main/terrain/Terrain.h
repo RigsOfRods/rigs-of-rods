@@ -92,7 +92,6 @@ public:
     /// @name Visuals
     /// @{
     Ogre::Light*            getMainLight()                { return m_main_light; }
-    int                     getFarClip() const            { return m_sight_range; }
     float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
     /// @}
 
@@ -147,7 +146,6 @@ private:
     CacheEntryPtr           m_cache_entry;
     Terrn2DocumentPtr       m_def;
     float                   m_paged_detail_factor = 0.f;
-    int                     m_sight_range = 1000;
 
     // Gameplay
 
