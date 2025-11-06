@@ -116,7 +116,8 @@ CameraManager::CameraManager() :
     m_staticcam_update_timer.reset();
 
     m_camera = App::GetGfxScene()->GetSceneManager()->createCamera("PlayerCam");
-    m_camera->setNearClipDistance(0.5);
+    m_camera->setNearClipDistance(0.01);
+    m_camera->setFarClipDistance(100000.0); // Value of 0.0 means 'infinite' in Ogre, but causes glitches with HydraX and SkyX.
     m_camera->setAutoAspectRatio(true);
     this->CreateCameraNode();
 
