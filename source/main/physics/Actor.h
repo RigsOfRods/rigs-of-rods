@@ -178,7 +178,7 @@ public:
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
-    bool              getHandBrake() { return ar_handbrake; }
+    bool              getHandbrake() { return ar_handbrake; }
     bool              getParkingBrake() { return ar_parking_brake; }
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
