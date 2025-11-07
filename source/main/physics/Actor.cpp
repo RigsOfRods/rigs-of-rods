@@ -1669,6 +1669,7 @@ void Actor::SyncReset(bool reset_position)
 	
     ar_fusedrag = Vector3::ZERO;
     this->setBlinkType(BlinkType::BLINK_NONE);
+    ar_handbrake = false;
     ar_parking_brake = false;
     ar_trailer_parking_brake = false;
     ar_avg_wheel_speed = 0.0f;
@@ -3809,6 +3810,11 @@ void Actor::hookToggle(int group, ActorLinkingRequestType mode, NodeNum_t mousen
             it->hk_beam->bm_disabled = true;
         }
     }
+}
+
+void Actor::setHandbrake(bool state)
+{
+    ar_handbrake = state;
 }
 
 void Actor::parkingbrakeToggle()

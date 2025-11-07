@@ -159,6 +159,7 @@ public:
     /// @name User interaction
     /// @{
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    void              setHandbrake();
     void              parkingbrakeToggle();
     void              tractioncontrolToggle();
     void              antilockbrakeToggle();
@@ -177,6 +178,7 @@ public:
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
+    bool              getHandBrake() { return ar_handbrake; }
     bool              getParkingBrake() { return ar_parking_brake; }
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
@@ -462,6 +464,7 @@ public:
     float             ar_hydro_elevator_state = 0.f;
     float             ar_sleep_counter = 0.f;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model = nullptr;
+    bool              ar_handbrake = false;
     bool              ar_parking_brake = false;
     bool              ar_trailer_parking_brake = false;
     float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle

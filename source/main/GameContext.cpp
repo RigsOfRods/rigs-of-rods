@@ -1938,6 +1938,15 @@ void GameContext::UpdateTruckInputEvents(float dt)
         }
     }
 
+    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HANDBRAKE))
+    {
+        m_player_actor->setHandbrake(true);
+    }
+    else
+    {
+        m_player_actor->setHandbrake(false);
+    }
+    
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
             !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
     {

@@ -317,6 +317,7 @@ void registerEventTypeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_LIGHTTOGGLE09",            EV_TRUCK_LIGHTTOGGLE09        ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_LIGHTTOGGLE10",            EV_TRUCK_LIGHTTOGGLE10        ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_MANUAL_CLUTCH",            EV_TRUCK_MANUAL_CLUTCH        ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_HANDBRAKE",                EV_TRUCK_HANDBRAKE            ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_PARKING_BRAKE",            EV_TRUCK_PARKING_BRAKE        ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_TRAILER_PARKING_BRAKE",    EV_TRUCK_TRAILER_PARKING_BRAKE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_RIGHT_MIRROR_LEFT",        EV_TRUCK_RIGHT_MIRROR_LEFT    ); ROR_ASSERT(result >= 0);

@@ -145,6 +145,7 @@ InputEvent eventInfo[] = {
     {"TRUCK_LIGHTTOGGLE10",           EV_TRUCK_LIGHTTOGGLE10,           "Keyboard EXPL+CTRL+0",         _LC("InputEvent", "toggle custom light 10")},
     {"TRUCK_PARKING_BRAKE",           EV_TRUCK_PARKING_BRAKE,           "Keyboard P",                   _LC("InputEvent", "toggle parking brake")},
     {"TRUCK_TRAILER_PARKING_BRAKE",   EV_TRUCK_TRAILER_PARKING_BRAKE,   "Keyboard EXPL+CTRL+P",         _LC("InputEvent", "toggle trailer parking brake")},
+    {"TRUCK_HANDBRAKE",               EV_TRUCK_HANDBRAKE,               "Keyboard SPACE"                _LC("InputEvent", "hold handbrake")},
     {"TRUCK_ANTILOCK_BRAKE",          EV_TRUCK_ANTILOCK_BRAKE,          "Keyboard EXPL+SHIFT+B",        _LC("InputEvent", "toggle antilock brake")},
     {"TRUCK_TOGGLE_VIDEOCAMERA",      EV_TRUCK_TOGGLE_VIDEOCAMERA,      "Keyboard EXPL+CTRL+V",         _LC("InputEvent", "toggle videocamera")},
     {"TRUCK_TRACTION_CONTROL",        EV_TRUCK_TRACTION_CONTROL,        "Keyboard EXPL+SHIFT+T",        _LC("InputEvent", "toggle traction control")},
