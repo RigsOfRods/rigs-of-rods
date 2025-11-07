@@ -73,8 +73,8 @@ struct NodeSB
 
 struct ScrewpropSB
 {
-    float             simbuf_sp_rudder;
-    float             simbuf_sp_throttle;
+    float             simbuf_sp_rudder = 0;
+    float             simbuf_sp_throttle = 0;
 };
 
 struct CommandKeySB
