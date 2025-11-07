@@ -42,6 +42,7 @@
 #include "PlatformUtils.h"
 #include "Replay.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
@@ -666,7 +667,7 @@ void TopMenubar::Draw(float dt)
             {
                 ImGui::Separator();
                 ImGui::PushID("water");
-                ImGui::TextDisabled("%s", _LC("TopMenubar", "Water:"));
+                ImGui::TextDisabled("%s", _LC("TopMenubar", "Water"));
 
                 if (water_mode_combostring == "")
                 {
@@ -701,6 +702,34 @@ void TopMenubar::Draw(float dt)
                     }
                 }
                 ImGui::PopID(); // "water"
+            }
+
+            // SKY SETTINGS
+            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
+            {
+                ImGui::PushID("SkyX");
+                ImGui::Separator();
+                ImGui::TextDisabled("%s", _LC("TopMenubar", "Sky"));
+
+                float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
+                if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(timeofday);
+                }
+
+                float sunrisetime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunriseTime24Hour();
+                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunriseTime24Hour(sunrisetime);
+                }
+
+                float sunsettime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunsetTime24Hour();
+                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
+                }
+
+                ImGui::PopID(); // "SkyX"
             }
             
             // VEHICLE CONTROL SETTINGS
