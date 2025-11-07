@@ -51,6 +51,16 @@ public:
 
 	SkyX::SkyX* GetSkyX() { return mSkyX; }
 
+    // Time settings
+    void setTimeOfDay24Hour(float timeOfDay24Hour);
+    float getTimeOfDay24Hour();
+
+    void setSunsetTime24Hour(float sunsetTime24Hour);
+    float getSunsetTime24Hour();
+
+    void setSunriseTime24Hour(float sunriseTime24Hour);
+    float getSunriseTime24Hour();
+
 protected:
 	Ogre::Light *mLight0 = nullptr;
 	Ogre::Light *mLight1 = nullptr;

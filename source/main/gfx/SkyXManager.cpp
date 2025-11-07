@@ -194,3 +194,44 @@ void SkyXManager::freeResources()
 {
 	//TODO
 }
+
+// SkyX stores time data as Vector3 :/
+//  x = time-of-day in [0, 24]h range
+//  y = sunrise hour in [0, 24]h range
+//  z = sunset hour in [0, 24] range
+
+void SkyXManager::setTimeOfDay24Hour(float timeOfDay24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.x = timeOfDay24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getTimeOfDay24Hour()
+{
+    return mBasicController->getTime().x;
+}
+
+void SkyXManager::setSunsetTime24Hour(float sunsetTime24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.z = sunsetTime24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getSunsetTime24Hour()
+{
+    return mBasicController->getTime().z;
+}
+
+void SkyXManager::setSunriseTime24Hour(float sunriseTime24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.y = sunriseTime24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getSunriseTime24Hour()
+{
+    return mBasicController->getTime().y;
+}
