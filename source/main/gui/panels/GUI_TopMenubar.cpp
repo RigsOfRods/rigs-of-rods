@@ -296,8 +296,10 @@ void TopMenubar::Draw(float dt)
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+        if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+        {
             m_daytime = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        }
 #endif // USE_CAELUM
     }
 
@@ -642,8 +644,49 @@ void TopMenubar::Draw(float dt)
             }
 
             // SKY SETTINGS
+
+            ImGui::Separator();
+            ImGui::PushID("sky");
+            ImGui::TextDisabled("%s", _LC("TopMenubar", "Sky"));
+
+            if (sky_mode_combostring == "")
+            {
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::NONE));
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SANDSTORM));
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::CAELUM));
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SKYX));
+                ImTerminateComboboxString(sky_mode_combostring);
+            }
+
+            const bool sky_reinit_combo = DrawGCombo(App::gfx_sky_mode, _LC("TopMenubar", "Mode"), sky_mode_combostring.c_str());
+            const bool sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
+            if (sky_reinit_combo || sky_reinit_btn)
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_SKY_REQUESTED));
+            }
+
+            if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+            {
+                float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
+                if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(timeofday);
+                }
+
+                float sunrisetime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunriseTime24Hour();
+                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunriseTime24Hour(sunrisetime);
+                }
+
+                float sunsettime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunsetTime24Hour();
+                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
+                }
+            }
 #ifdef USE_CAELUM
-            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+            if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
@@ -660,6 +703,7 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
+            ImGui::PopID(); // "sky"
 
             // WATER SETTINGS
             if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
@@ -702,34 +746,6 @@ void TopMenubar::Draw(float dt)
                     }
                 }
                 ImGui::PopID(); // "water"
-            }
-
-            // SKY SETTINGS
-            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-            {
-                ImGui::PushID("SkyX");
-                ImGui::Separator();
-                ImGui::TextDisabled("%s", _LC("TopMenubar", "Sky"));
-
-                float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
-                if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(timeofday);
-                }
-
-                float sunrisetime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunriseTime24Hour();
-                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunriseTime24Hour(sunrisetime);
-                }
-
-                float sunsettime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunsetTime24Hour();
-                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
-                }
-
-                ImGui::PopID(); // "SkyX"
             }
             
             // VEHICLE CONTROL SETTINGS

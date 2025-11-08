@@ -394,16 +394,14 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
-        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX); // Can be toggled anytime via TopMenubar
+
+        // Following subsystems can be toggled anytime via TopMenubar
+        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
+        this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
         m_base_resource_loaded = true;
     }
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-        this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
     if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
