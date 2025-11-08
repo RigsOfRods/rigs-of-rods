@@ -39,7 +39,7 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("..\\resource\\SkyX\\","FileSystem", "SkyX",true); //Temp
 
-	mBasicController = new SkyX::BasicController();
+	mBasicController = new SkyX::BasicController(/* deleteBySkyX: */false);
 	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
 
 	mCfgFileManager = new SkyX::CfgFileManager(mSkyX, mBasicController, App::GetCameraManager()->GetCamera());
@@ -55,11 +55,16 @@ SkyXManager::~SkyXManager()
 {
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
     mSkyX->remove();
-
+    delete mSkyX;
     mSkyX = nullptr;
 
     delete mBasicController;
     mBasicController = nullptr;
+
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight0);
+    mLight0 = nullptr;
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight1);
+    mLight1 = nullptr;
 }
 
 Vector3 SkyXManager::getMainLightDirection()
@@ -170,8 +175,6 @@ bool SkyXManager::InitLight()
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.3, 0.45f));
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.1, 0.35f));
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.05, 0.0f));
-
-	App::GetGfxScene()->GetSceneManager()->setAmbientLight(ColourValue(0.35,0.35,0.35)); //Not needed because terrn2 has ambientlight settings
 
 	// Light
 	mLight0 = App::GetGfxScene()->GetSceneManager()->createLight("Light0");

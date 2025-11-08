@@ -1256,7 +1256,7 @@ void GameContext::UpdateSimInputEvents(float dt)
 void GameContext::UpdateSkyInputEvents(float dt)
 {
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM &&
         m_terrain->getSkyManager())
     {
         float time_factor = 1.0f;
@@ -1291,7 +1291,7 @@ void GameContext::UpdateSkyInputEvents(float dt)
     }
 
 #endif // USE_CAELUM
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX &&
         m_terrain->getSkyXManager())
     {
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))

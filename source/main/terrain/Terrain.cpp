@@ -51,6 +51,11 @@
 using namespace RoR;
 using namespace Ogre;
 
+static const Ogre::ColourValue SKYMODE_SANDSTORM_AMBIENT_LIGHT = Ogre::ColourValue(0.7f, 0.7f, 0.7f);
+static const Ogre::ColourValue SKYMODE_CAELUM_AMBIENT_LIGHT = Ogre::ColourValue(0.3f, 0.3f, 0.3f);
+static const Ogre::ColourValue SKYMODE_SKYX_AMBIENT_LIGHT = Ogre::ColourValue(0.35f,0.35f,0.35f);
+static const Ogre::ColourValue SKYMODE_NONE_AMBIENT_LIGHT = Ogre::ColourValue(1.f, 1.f, 1.f);
+
 RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2DocumentPtr def)
     : m_collisions(0)
     , m_geometry_manager(0)
@@ -167,12 +172,9 @@ bool RoR::Terrain::initialize()
 
     // sky, must come after camera due to m_sight_range
     loading_window->SetProgress(25, _L("Initializing Sky Subsystem"));
-    this->initSkySubSystem();
+    this->CreateSky();
 
-    loading_window->SetProgress(27, _L("Initializing Light Subsystem"));
-    this->initLight();
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::CAELUM) //Caelum has its own fog management
+    if (m_active_sky_mode != GfxSkyMode::CAELUM) //Caelum has its own fog management
     {
         loading_window->SetProgress(29, _L("Initializing Fog Subsystem"));
         this->initFog();
@@ -236,7 +238,34 @@ void RoR::Terrain::initCamera()
     // NOTE: camera far clip distance isn't linked to 'sight range'.
 }
 
-void RoR::Terrain::initSkySubSystem()
+void RoR::Terrain::DestroySky()
+{
+    App::GetGfxScene()->GetSceneManager()->setSkyBox(/* enable: */false, "");
+    if (m_active_sky_mode == GfxSkyMode::CAELUM && m_sky_manager)
+    {
+#ifdef USE_CAELUM
+        delete m_sky_manager;
+        m_sky_manager = nullptr;
+        m_main_light = nullptr; // destroyed by Caelum
+#endif //USE_CAELUM
+    }
+    else if (m_active_sky_mode == GfxSkyMode::SKYX && SkyX_manager)
+    {
+        delete SkyX_manager;
+        SkyX_manager = nullptr;
+        m_main_light = nullptr; // destroyed by SkyXManager
+    }
+    else if (m_active_sky_mode == GfxSkyMode::SANDSTORM)
+    {
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_main_light->getParentSceneNode());
+        App::GetGfxScene()->GetSceneManager()->destroyLight(m_main_light);
+        m_main_light = nullptr;
+    }
+    App::GetGfxScene()->GetSceneManager()->setAmbientLight(SKYMODE_NONE_AMBIENT_LIGHT);
+    m_active_sky_mode = GfxSkyMode::NONE;
+}
+
+void RoR::Terrain::CreateSky()
 {
 #ifdef USE_CAELUM
     // Caelum skies
@@ -255,19 +284,37 @@ void RoR::Terrain::initSkySubSystem()
             // no config provided, fall back to the default one
             m_sky_manager->LoadCaelumScript("ror_default_sky");
         }
+
+        // initLight()
+        m_main_light = m_sky_manager->GetSkyMainLight();
+        App::GetGfxScene()->GetSceneManager()->setAmbientLight(SKYMODE_CAELUM_AMBIENT_LIGHT);
     }
     else
 #endif //USE_CAELUM
     // SkyX skies
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {
-         // try to load SkyX config
-         if (!m_def->skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->skyx_config))
-            SkyX_manager = new SkyXManager(m_def->skyx_config);
-         else
-            SkyX_manager = new SkyXManager("SkyXDefault.skx");
+        // try to load SkyX config bundled with terrain
+        std::string configfile = m_def->skyx_config;
+        if (configfile == "" 
+            && !ResourceGroupManager::getSingleton().resourceExists(this->getTerrainFileResourceGroup(), configfile))
+        {
+            // Try using user's config file
+            configfile = SKYX_USER_CONFIG_FILE;
+            if (!ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, configfile))
+            {
+                // fall back to default config
+                configfile = SKYX_DEFAULT_CONFIG_FILE;
+            }
+        }
+        
+        SkyX_manager = new SkyXManager(configfile);
+
+        // initLight()
+        m_main_light = SkyX_manager->getMainLight();
+        App::GetGfxScene()->GetSceneManager()->setAmbientLight(SKYMODE_SKYX_AMBIENT_LIGHT);
     }
-    else
+    else if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SANDSTORM)
     {
         if (!m_def->cubemap_config.empty())
         {
@@ -279,23 +326,8 @@ void RoR::Terrain::initSkySubSystem()
             // use default
             App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 100, true);
         }
-    }
-}
 
-void RoR::Terrain::initLight()
-{
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-    {
-#ifdef USE_CAELUM
-        m_main_light = m_sky_manager->GetSkyMainLight();
-#endif
-    }
-    else if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-    {
-        m_main_light = SkyX_manager->getMainLight();
-    }
-    else
-    {
+        // initLight()
         // screw caelum, we will roll our own light
 
         // Create a light
@@ -309,7 +341,14 @@ void RoR::Terrain::initLight()
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
+
+        App::GetGfxScene()->GetSceneManager()->setAmbientLight(SKYMODE_SANDSTORM_AMBIENT_LIGHT);
     }
+    else
+    {
+        App::GetGfxScene()->GetSceneManager()->setAmbientLight(SKYMODE_NONE_AMBIENT_LIGHT);
+    }
+    m_active_sky_mode = App::gfx_sky_mode->getEnum<GfxSkyMode>();
 }
 
 void RoR::Terrain::initFog()

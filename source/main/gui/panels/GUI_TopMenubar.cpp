@@ -296,8 +296,10 @@ void TopMenubar::Draw(float dt)
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+        if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+        {
             m_daytime = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        }
 #endif // USE_CAELUM
     }
 
@@ -642,47 +644,29 @@ void TopMenubar::Draw(float dt)
             }
 
             // SKY SETTINGS
-#ifdef USE_CAELUM
-            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
-                float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
-                if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
-                }
-                ImGui::SameLine();
-                DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
-                if (App::gfx_sky_time_cycle->getBool())
-                {
-                    DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
-                }
-            }       
-#endif // USE_CAELUM
 
-            // WATER SETTINGS
-            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
+            ImGui::Separator();
+            ImGui::PushID("sky");
+            ImGui::TextDisabled("%s", _LC("TopMenubar", "Sky"));
+
+            if (sky_mode_combostring == "")
             {
-                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
-                {
-                    ImGui::PushID("waves");
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
-                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
-                    {
-                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
-                    }
-                    ImGui::PopID();
-                }
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::NONE));
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SANDSTORM));
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::CAELUM));
+                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SKYX));
+                ImTerminateComboboxString(sky_mode_combostring);
             }
 
-            // SKY SETTINGS
-            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
+            const bool sky_reinit_combo = DrawGCombo(App::gfx_sky_mode, _LC("TopMenubar", "Mode"), sky_mode_combostring.c_str());
+            const bool sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
+            if (sky_reinit_combo || sky_reinit_btn)
             {
-                ImGui::PushID("SkyX");
-                ImGui::Separator();
-                ImGui::TextDisabled("%s", _LC("TopMenubar", "Sky"));
+                App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_SKY_REQUESTED));
+            }
 
+            if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+            {
                 float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
                 if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
                 {
@@ -700,8 +684,40 @@ void TopMenubar::Draw(float dt)
                 {
                     App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
                 }
+            }
+#ifdef USE_CAELUM
+            if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
+                float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+                if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+                {
+                    App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
+                }
+                ImGui::SameLine();
+                DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+                if (App::gfx_sky_time_cycle->getBool())
+                {
+                    DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+                }
+            }       
+#endif // USE_CAELUM
+            ImGui::PopID(); // "sky"
 
-                ImGui::PopID(); // "SkyX"
+            // WATER SETTINGS
+            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
+            {
+                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
+                {
+                    ImGui::PushID("waves");
+                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
+                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
+                    {
+                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                    }
+                    ImGui::PopID();
+                }
             }
 
             // VEHICLE CONTROL SETTINGS

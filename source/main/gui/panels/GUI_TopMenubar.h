@@ -122,6 +122,9 @@ public:
     CacheEntryPtr tuning_hovered_addonpart;
     void RefreshTuningMenu();
 
+    // Sky settings menu
+    std::string sky_mode_combostring;
+
 private:
     bool IsMenuEnabled(TopMenu which);
 
