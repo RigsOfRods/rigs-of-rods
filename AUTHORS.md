@@ -50,6 +50,7 @@ If you are one of the previous authors and happen to come across this list pleas
 | skybon                         | skybon                  | Artem Vorotnikov       | my-name@my-surname.me            |
 | ulteq                          | ulteq                   | <uncompleted>          | my-name@web.de                   |
 | AnotherFoxGuy                  | AnotherFoxGuy           | <uncompleted>          | Edgar{at}AnotherFoxGuy{dot}com   |
+| EMN-CSharp                     | COETC                   | <uncompleted>          | <uncompleted>                    |
 
 If you are a first time commiter please add yourself to this list for legal reasons. You may want to disguise your email adress to prevent crawlers from detecting it. If you do so make sure it does not leave room for different interpretations.
 
