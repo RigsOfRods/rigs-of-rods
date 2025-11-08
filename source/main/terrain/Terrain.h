@@ -30,7 +30,7 @@
 #include "TerrainEditor.h"
 #include "Wavefield.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <string>
 
 namespace RoR {
@@ -86,6 +86,9 @@ public:
     Collisions*             GetCollisions()               { return m_collisions; }
     Wavefield*              getWater()                    { return m_wavefield.get(); }
     IGfxWater*              getGfxWater()                 { return m_gfx_water.get(); }
+    void                    CreateSky();
+    void                    DestroySky();
+    GfxSkyMode              GetActiveSkyMode() const      { return m_active_sky_mode; }
     /// @}
 
     /// @name Visuals
@@ -117,12 +120,10 @@ private:
     void initCamera();
     void initTerrainCollisions();
     void initFog();
-    void initLight();
     void initObjects();
     void initScripting();
     void initAiPresets();
     void initShadows();
-    void initSkySubSystem();
     void initVegetation();
     void initWater();
 
@@ -141,7 +142,7 @@ private:
     SkyManager*             m_sky_manager = nullptr;
     SkyXManager*            SkyX_manager = nullptr;
     HydraxWater*            m_hydrax_water = nullptr;
-
+    GfxSkyMode              m_active_sky_mode = GfxSkyMode::NONE; //!< The currently loaded sky mode (cvar 'gfx_sky_mode' can be changed anytime).
     // Properties
 
     CacheEntryPtr           m_cache_entry;

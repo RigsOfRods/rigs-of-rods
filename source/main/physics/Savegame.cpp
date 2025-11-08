@@ -38,6 +38,7 @@
 #include "ScrewProp.h"
 #include "Skidmark.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "Terrain.h"
 #include "TuneupFileFormat.h"
 #include "Utils.h"
@@ -280,8 +281,9 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
 
     App::GetGameContext()->GetActorManager()->SetSimulationPaused(j_doc["physics_paused"].GetBool());
 
+    // Sky system daytime
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
     {
         if (j_doc.HasMember("daytime"))
         {
@@ -289,6 +291,13 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
         }
     }
 #endif // USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+    {
+        if (j_doc.HasMember("daytime_24hr"))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(j_doc["daytime_24hr"].GetFloat());
+        }
+    }
 
     // Character
     auto data = j_doc["player_position"].GetArray();
@@ -444,11 +453,15 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("terrain_name", rapidjson::StringRef(App::sim_terrain_name->getStr().c_str()), j_doc.GetAllocator());
 
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
     {
         j_doc.AddMember("daytime", App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator());
     }
 #endif // USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+    {
+        j_doc.AddMember("daytime_24hr", App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour(), j_doc.GetAllocator());
+    }
 
     j_doc.AddMember("forced_awake", m_forced_awake, j_doc.GetAllocator());
 
