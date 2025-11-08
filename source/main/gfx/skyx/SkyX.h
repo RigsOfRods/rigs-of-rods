@@ -402,7 +402,7 @@ namespace SkyX
 		/// Time offset
 		Ogre::Real mTimeOffset;
 
-		CfgFileManager *mCfgFileManager;
+		CfgFileManager *mCfgFileManager = nullptr;
 	};
 }
 

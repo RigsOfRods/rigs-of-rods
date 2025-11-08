@@ -125,6 +125,9 @@ public:
     // Water settings menu
     std::string water_mode_combostring;
 
+    // Sky settings menu
+    std::string sky_mode_combostring;
+
 private:
     bool IsMenuEnabled(TopMenu which);
 
