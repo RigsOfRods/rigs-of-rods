@@ -538,6 +538,11 @@ bool Network::ConnectThread()
         CouldNotConnect(_L("Establishing network session: sorry, wrong protocol version!"));
         return false;
     }
+    else if (header.command==MSG2_NO_RANK)
+    {
+        CouldNotConnect(_L("Establishing network session: sorry, this server requires a user token!"));
+        return false;
+    }
 
     if (header.command!=MSG2_WELCOME)
     {
