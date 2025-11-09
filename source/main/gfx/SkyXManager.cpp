@@ -37,8 +37,6 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 {
 	InitLight();
 
-	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("..\\resource\\SkyX\\","FileSystem", "SkyX",true); //Temp
-
 	mBasicController = new SkyX::BasicController(/* deleteBySkyX: */false);
 	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
 
@@ -49,12 +47,19 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 	RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(mSkyX);
 	RoR::App::GetAppContext()->GetRenderWindow()->addListener(mSkyX);
+
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->attachViewport(RoR::App::GetAppContext()->GetViewport());
 }
 
 SkyXManager::~SkyXManager()
 {
-    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->detachViewport(RoR::App::GetAppContext()->GetViewport());
+
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
+
     mSkyX->remove();
     delete mSkyX;
     mSkyX = nullptr;
@@ -102,7 +107,6 @@ bool SkyXManager::UpdateSkyLight()
         App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
         App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
     }
-		
 
 	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
 	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");

@@ -72,6 +72,8 @@ namespace SkyX
 			_getFloatValue(CfgFile, "_NumerOfSamples")
 			));
 
+        this->loadPrecipitationParams(CfgFile);
+
 		// Layered clouds
 		if (_getBoolValue(CfgFile, "layeredclouds") && !_getBoolValue(CfgFile, "volClouds"))
 		{
@@ -121,34 +123,6 @@ namespace SkyX
 				vclouds->getLightningManager()->setLightningTimeMultiplier(_getFloatValue(CfgFile, "LightningTimeMultiplier"));
 			}
 		}
-		return true;
-	}
-
-	const bool CfgFileManager::save(const Ogre::String& File, const Ogre::String& Path) const
-	{
-		Ogre::String Data =
-			"#SkyX cfg file.\n\n";
-
-		Data += "#SkyX version field\n";
-		Data += _getVersionCfgString();
-
-		return _saveToFile(Data, File, Path);
-	}
-
-	const bool CfgFileManager::_saveToFile(const Ogre::String& Data, const Ogre::String& File, const Ogre::String& Path) const
-	{
-		FILE *DestinationFile = fopen((Path+"/"+File).c_str(), "w");
-
-		if (!DestinationFile)
-		{
-			return false;
-		}
-
-		fprintf(DestinationFile, "%s", Data.c_str());
-		fclose(DestinationFile);
-
-		SkyXLOG(File + " saved in " + Path + " .");
-
 		return true;
 	}
 
@@ -292,50 +266,82 @@ namespace SkyX
 	Ogre::Vector2 CfgFileManager::_getVector2Value(Ogre::ConfigFile& CfgFile, const Ogre::String Name)
 	{
 		Ogre::String Value = CfgFile.getSetting("<vector2>" + Name);
+		auto tokens = Ogre::StringUtil::split(Value, "x");
 
-		if (Value == "")
+		if (Value == "" || tokens.size() < 2)
 		{
+			LOG(fmt::format("[SkyX|Config] Value '{}' (setting '{}') is not a valid <vector2>", Value, Name));
 			return Ogre::Vector2(0,0);
 		}
 		else
 		{
-			return Ogre::Vector2(Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[0]),
-				                 Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[1]));
+			return Ogre::Vector2(
+				Ogre::StringConverter::parseReal(tokens[0]),
+				Ogre::StringConverter::parseReal(tokens[1]));
 		}
 	}
 
 	Ogre::Vector3 CfgFileManager::_getVector3Value(Ogre::ConfigFile& CfgFile, const Ogre::String Name)
 	{
 		Ogre::String Value = CfgFile.getSetting("<vector3>" + Name);
+		auto tokens = Ogre::StringUtil::split(Value, "x");
 
-		if (Value == "")
+		if (Value == "" || tokens.size() < 3)
 		{
+			LOG(fmt::format("[SkyX|Config] Value '{}' (setting '{}') is not a valid <vector3>", Value, Name));
 			return Ogre::Vector3(0,0,0);
 		}
 		else
 		{
-			return Ogre::Vector3(Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[0]),
-				                 Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[1]),
-								 Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[2]));
+			return Ogre::Vector3(
+				Ogre::StringConverter::parseReal(tokens[0]),
+				Ogre::StringConverter::parseReal(tokens[1]),
+				Ogre::StringConverter::parseReal(tokens[2]));
 		}
 	}
 
 	Ogre::Vector4 CfgFileManager::_getVector4Value(Ogre::ConfigFile& CfgFile, const Ogre::String Name)
 	{
 		Ogre::String Value = CfgFile.getSetting("<vector4>" + Name);
+		auto tokens = Ogre::StringUtil::split(Value, "x");
 
-		if (Value == "")
+		if (Value == "" || tokens.size() < 4)
 		{
+			LOG(fmt::format("[SkyX|Config] Value '{}' (setting '{}') is not a valid <vector4>", Value, Name));
 			return Ogre::Vector4(0, 0, 0, 0);
 		}
 		else
 		{
 			return Ogre::Vector4(
-				Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[0]),
-				Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[1]),
-				Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[2]),
-				Ogre::StringConverter::parseReal(Ogre::StringUtil::split(Value, "x")[3])
-				);
+				Ogre::StringConverter::parseReal(tokens[0]),
+				Ogre::StringConverter::parseReal(tokens[1]),
+				Ogre::StringConverter::parseReal(tokens[2]),
+				Ogre::StringConverter::parseReal(tokens[3]));
+		}
+	}
+
+	Ogre::ColourValue CfgFileManager::_getColourValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name)
+	{
+		Ogre::String Value = CfgFile.getSetting("<color>" + Name);
+		auto tokens = Ogre::StringUtil::split(Value, "x");
+
+		if (Value == "" || tokens.size() < 3)
+		{
+			LOG(fmt::format("[SkyX|Config] Value '{}' (setting '{}') is not a valid <color>", Value, Name));
+			return Ogre::ColourValue(0, 0, 0, 0);
+		}
+		else
+		{
+			Ogre::ColourValue retval(
+				Ogre::StringConverter::parseReal(tokens[0]),
+				Ogre::StringConverter::parseReal(tokens[1]),
+				Ogre::StringConverter::parseReal(tokens[2]));
+
+			if (tokens.size() > 3)
+			{
+				retval.a = Ogre::StringConverter::parseReal(tokens[3]);
+			}
+			return retval;
 		}
 	}
 
@@ -352,4 +358,28 @@ namespace SkyX
 			return Ogre::Degree(Ogre::StringConverter::parseReal(Value));
 		}
 	}
+
+    // Precipitation system ported from Caelum
+    // =================================================================================
+    // Names in Caelum script   | names in SkyX script                       | Descriptions
+    // ---------------------------------------------------------------------------------
+    // "texture"                | "PrecipitationTextureName"                 | 'precipitation_X.png', where X is: 'drizzle/icecrystals/icepellets/smallhail/hail/snow/snowgrains'
+    // "precipitation_colour"   | "<color>PrecipitationColor"                | 
+    // "falling_speed"          | "<float>PrecipitationFallingSpeed"         |
+    // "wind_speed"             | "<vector3>PrecipitationWindSpeed"          | Wind speed and direction
+    // "camera_speed_scale"     | "<vector3>PrecipitationCameraSpeedScale"   | Controls how much of an effect moving the camera has on rain drop directions.
+    // "intensity"              | "<float>PrecipitationIntensity"            |
+    // "auto_disable_intensity" | "<float>PrecipitationAutoDisableThreshold" | Auto-disable compositors when intensity is below threshold (expensive switch!). Use negative value to always keep enabled.
+
+void CfgFileManager::loadPrecipitationParams(Ogre::ConfigFile &CfgFile) const
+{
+    mSkyX->getPrecipitationController()->setTextureName(CfgFile.getSetting("PrecipitationTextureName"));
+    mSkyX->getPrecipitationController()->setColour(_getColourValue(CfgFile, "PrecipitationColor"));
+    mSkyX->getPrecipitationController()->setSpeed(_getFloatValue(CfgFile, "PrecipitationFallingSpeed"));
+    mSkyX->getPrecipitationController()->setWindSpeed(_getVector3Value(CfgFile, "PrecipitationWindSpeed"));
+    mSkyX->getPrecipitationController()->setCameraSpeedScale(_getVector3Value(CfgFile, "PrecipitationCameraSpeedScale"));
+    mSkyX->getPrecipitationController()->setIntensity(_getFloatValue(CfgFile, "PrecipitationIntensity"));
+    mSkyX->getPrecipitationController()->setAutoDisableThreshold(_getFloatValue(CfgFile, "PrecipitationAutoDisableThreshold"));
 }
+
+} // namespace SkyX
