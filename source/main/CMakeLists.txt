@@ -86,6 +86,8 @@ set(SOURCE_FILES
         gfx/skyx/SCfgFileManager.{h,cpp}
         gfx/skyx/SkyX.{h,cpp}
         gfx/skyx/VCloudsManager.{h,cpp}
+        gfx/skyx/Precipitation/SkyXFastGpuParamRef.{h,cpp}
+        gfx/skyx/Precipitation/SkyXPrecipitationController.{h,cpp}
         gfx/skyx/VClouds/DataManager.{h,cpp}
         gfx/skyx/VClouds/Ellipsoid.{h,cpp}
         gfx/skyx/VClouds/FastFakeRandom.{h,cpp}
