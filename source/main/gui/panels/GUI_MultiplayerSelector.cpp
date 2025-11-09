@@ -57,15 +57,22 @@ size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
     return size * nmemb;
 }
 
-void FetchServerlist(std::string portal_url)
+void GetServersTask(std::string query)
 {
-    std::string serverlist_url = portal_url + "/server-list?json=true";
+    std::string url = query + "/servers";
     std::string response_payload;
     std::string response_header;
     long        response_code = 0;
+    std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
 
     CURL *curl = curl_easy_init();
-    curl_easy_setopt(curl, CURLOPT_URL,           serverlist_url.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,     &response_payload);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA,    &response_header);
@@ -79,7 +86,7 @@ void FetchServerlist(std::string portal_url)
     if (curl_result != CURLE_OK || response_code != 200)
     {
         Ogre::LogManager::getSingleton().stream() 
-            << "[RoR|Multiplayer] Failed to retrieve serverlist;"
+            << "[RoR|Multiplayer] Failed to fetch the server list;"
             << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
 
         CurlFailInfo* failinfo = new CurlFailInfo();
@@ -94,34 +101,36 @@ void FetchServerlist(std::string portal_url)
 
     rapidjson::Document j_data_doc;
     j_data_doc.Parse(response_payload.c_str());
-    if (j_data_doc.HasParseError() || !j_data_doc.IsArray())
+    if (j_data_doc.HasParseError() || !j_data_doc.IsObject())
     {
         Ogre::LogManager::getSingleton().stream() 
-            << "[RoR|Multiplayer] Error parsing serverlist JSON"; // TODO: Report the actual error
+            << "[RoR|Multiplayer] Failed to parse JSON response body; the server list will be empty;"
+            << " Error: '" << j_data_doc.GetParseError();
         App::GetGameContext()->PushMessage(
             Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, _LC("MultiplayerSelector", "Server returned invalid data :(")));
         return;
     }
 
     // Pre-process data for display
-    size_t num_rows = j_data_doc.GetArray().Size();
+    rapidjson::Value& j_resp_body = j_data_doc["servers"];
+    size_t num_rows = j_resp_body.GetArray().Size();
     GUI::MpServerInfoVec* servers_ptr = new GUI::MpServerInfoVec();
     GUI::MpServerInfoVec& servers = *servers_ptr;
     servers.resize(num_rows);
     for (size_t i = 0; i < num_rows; ++i)
     {
-        rapidjson::Value& j_row = j_data_doc[static_cast<rapidjson::SizeType>(i)];
+        rapidjson::Value& j_row = j_resp_body[static_cast<rapidjson::SizeType>(i)];
 
         servers[i].display_name  = j_row["name"].GetString();
-        servers[i].display_terrn = j_row["terrain-name"].GetString();
-        servers[i].net_host      = j_row["ip"].GetString();
+        servers[i].display_terrn = j_row["terrain"].GetString();
+        servers[i].net_host      = j_row["host"].GetString();
         servers[i].net_port      = j_row["port"].GetInt();
 
-        servers[i].has_password  = j_row["has-password"].GetBool();
+        servers[i].has_password  = j_row["has_password"].GetBool();
         servers[i].display_passwd = servers[i].has_password ? _LC("MultiplayerSelector","Yes") : _LC("MultiplayerSelector","No");
 
-        servers[i].display_host  = fmt::format("{}:{}", j_row["ip"].GetString(), j_row["port"].GetInt());
-        servers[i].display_users = fmt::format("{} / {}", j_row["current-users"].GetInt(), j_row["max-clients"].GetInt());
+        servers[i].display_host  = fmt::format("{}:{}", j_row["host"].GetString(), j_row["port"].GetInt());
+        servers[i].display_users = fmt::format("0 / 0");
 
         servers[i].net_version = j_row["version"].GetString();
         servers[i].display_version = Ogre::StringUtil::replaceAll(j_row["version"].GetString(), "RoRnet_", "");
@@ -384,8 +393,8 @@ void MultiplayerSelector::StartAsyncRefresh()
     m_serverlist_data.clear();
     m_selected_item = -1;
     m_serverlist_msg = "";
-    std::packaged_task<void(std::string)> task(FetchServerlist);
-    std::thread(std::move(task), App::mp_api_url->getStr()).detach(); // launch on a thread
+    std::packaged_task<void(std::string)> task(GetServersTask);
+    std::thread(std::move(task), App::remote_query_url->getStr()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
 }
 

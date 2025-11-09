@@ -43,6 +43,7 @@ using namespace GUI;
 void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();
+    this->DrawProfileBox();
     if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         this->DrawVersionBox();
@@ -222,6 +223,74 @@ void GameMainMenu::DrawMenuPanel()
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(3);
     m_kb_enter_index = -1;
+}
+
+void GameMainMenu::DrawProfileBox()
+{
+    ImVec2 image_size = ImVec2(50, 50);
+    ImVec2 button_size = ImVec2(60, 30);
+    ImVec2 display_size = ImGui::GetIO().DisplaySize;
+
+    const float window_height = 15.0f;
+    const float margin = display_size.y / 15.0f;
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+    ImGui::SetNextWindowPos(ImVec2(margin, margin));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
+    if (ImGui::Begin(_LC("MainMenu", "Profile box"), nullptr, flags))
+    {
+
+        if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::AUTHENTICATED)
+        {
+            const auto& user = App::GetGuiManager()->LoginBox.GetUserProfile();
+
+            if (!user.avatar)
+            {
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(FetchIcon("blank.png")->getHandle()),
+                    image_size);
+            }
+            else if (user.avatar)
+            {
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(user.avatar->getHandle()),
+                    image_size);
+            }
+
+            ImGui::SameLine();
+            ImVec2 username_cursor = ImGui::GetCursorPos();
+            ImGui::Text("Hello, %s", user.username.c_str());
+            // Put the logout button under the username, aside of the avatar
+            ImGui::SetCursorPos(username_cursor + ImVec2(0, ImGui::GetTextLineHeightWithSpacing()));
+            if (ImGui::Button("Log out", button_size)) {
+                App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_LOGOUT_REQUESTED));
+            }
+        }
+        else if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::EXPIRED)
+        {
+            // On game startup the token gets verified, so display spinner.
+            LoadingIndicatorCircle("spinner", 15, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+            ImGui::SameLine();
+            ImGui::Text("Validating");
+        }
+        else
+        {
+            if (ImGui::Button("Log in", button_size)) {
+                App::GetGuiManager()->LoginBox.SetVisible(true);
+                this->SetVisible(false);
+            }
+
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+            ImHyperlink("https://forum.rigsofrods.org/login/register", "Register", /*tooltip:*/false);
+        }
+
+        ImGui::End();
+    }
+    ImGui::PopStyleColor(1);
 }
 
 void GameMainMenu::DrawVersionBox()
