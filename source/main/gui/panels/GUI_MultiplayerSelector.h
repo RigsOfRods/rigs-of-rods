@@ -65,9 +65,10 @@ public:
     void                Draw();
     void                DisplayRefreshFailed(CurlFailInfo* failinfo);
     void                UpdateServerlist(MpServerInfoVec* data);
+    void                SetSettingsTabSelected() { m_set_settings_tab_selected = true; }
 
 private:
-    void                DrawSetupTab();
+    void                DrawSettingsTab();
     void                DrawDirectTab();
     void                DrawServerlistTab();
 
@@ -82,6 +83,7 @@ private:
     Str<1000>           m_server_host_buf;
     Ogre::TexturePtr    m_lock_icon;
     bool                m_show_spinner = false;
+    bool                m_set_settings_tab_selected = false;
 
     // status or error messages
     std::string         m_serverlist_msg;
