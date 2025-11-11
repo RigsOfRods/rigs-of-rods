@@ -538,6 +538,13 @@ bool Network::ConnectThread()
         CouldNotConnect(_L("Establishing network session: sorry, wrong protocol version!"));
         return false;
     }
+    else if (header.command==MSG2_NO_RANK)
+    {
+        CouldNotConnect(_L("Establishing network session: sorry, this server requires a user token!"));
+        // ChainMessage() ensures the MP settings request is handled _after_ the MSG_NET_CONNECT_FAILURE with the text above.
+        App::GetGameContext()->ChainMessage(Message(MSG_GUI_OPEN_MP_SETTINGS_REQUESTED));
+        return false;
+    }
 
     if (header.command!=MSG2_WELCOME)
     {

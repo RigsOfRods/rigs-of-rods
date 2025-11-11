@@ -1548,6 +1548,21 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_GUI_OPEN_MP_SETTINGS_REQUESTED:
+                {
+                    try
+                    {
+                        App::GetGuiManager()->GameMainMenu.SetVisible(false);
+                        App::GetGuiManager()->MultiplayerSelector.SetVisible(true);
+                        App::GetGuiManager()->MultiplayerSelector.SetSettingsTabSelected();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:

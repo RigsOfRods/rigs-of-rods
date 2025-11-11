@@ -66,8 +66,10 @@ enum MessageType
     MSG2_STREAM_DATA,                  //!< stream data
     MSG2_STREAM_DATA_DISCARDABLE,      //!< stream data that is allowed to be discarded
 
+    MSG2_NO_RANK,                      //!< client has no ranked status
+
     // Legacy values (RoRnet_2.38 and earlier)
-    MSG2_WRONG_VER_LEGACY = 1003       //!< Wrong version
+    MSG2_WRONG_VER_LEGACY = 1003,      //!< Wrong version
 };
 
 enum UserAuth
