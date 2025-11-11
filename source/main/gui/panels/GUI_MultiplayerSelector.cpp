@@ -169,9 +169,11 @@ void MultiplayerSelector::Draw()
         this->DrawDirectTab();
         ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem(_LC("MultiplayerSelector", "Settings")))
+    int settingstab_flags = m_set_settings_tab_selected ? ImGuiTabItemFlags_SetSelected : 0;
+    m_set_settings_tab_selected = false;
+    if (ImGui::BeginTabItem(_LC("MultiplayerSelector", "Settings"), nullptr, settingstab_flags))
     {
-        this->DrawSetupTab();
+        this->DrawSettingsTab();
         ImGui::EndTabItem();
     }
 
@@ -184,7 +186,7 @@ void MultiplayerSelector::Draw()
     }
 }
 
-void MultiplayerSelector::DrawSetupTab()
+void MultiplayerSelector::DrawSettingsTab()
 {
     ImGui::PushID("setup");
 
@@ -207,6 +209,9 @@ void MultiplayerSelector::DrawSetupTab()
     ImGui::Separator();
 
     DrawGTextEdit(App::mp_player_token,       _LC("MultiplayerSelector", "User token"), m_user_token_buf);
+    ImGui::SameLine();
+    ImHyperlink("https://forum.rigsofrods.org/account/user-token", _LC("MultiplayerSelector", "(Get token online)"));
+    ImGui::TextDisabled(_LC("MultiplayerSelector", "Never share your user token, even if someone is claiming to be an administrator."));
     ImGui::PopItemWidth();
 
     ImGui::PopID();
