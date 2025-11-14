@@ -52,7 +52,6 @@ namespace SkyX // Ported to SkyX by ohlidalp
 		setWindSpeed (Ogre::Vector3(0, 0, 0));
 		mInternalTime = 0;
 		mSecondsSinceLastFrame = 0;
-        mFallingDirection = Ogre::Vector3::NEGATIVE_UNIT_Y;
 
 		setPresetType (PRECTYPE_RAIN);
 		
