@@ -2903,21 +2903,6 @@ void TopMenubar::DrawSettingsMenuSkyControls()
                 }
             }
 
-            // Falling direction
-            {
-                Ogre::Vector3 fdir = pc->getFallingDirection();
-                float f3[3] = { fdir.x, fdir.y, fdir.z };
-                if (ImGui::InputFloat3(_LC("TopMenubar", "Falling direction (xyz)"), f3, "%.3f"))
-                {
-                    pc->setFallingDirection(Ogre::Vector3(f3[0], f3[1], f3[2]));
-                }
-                ImGui::SameLine();
-                if (ImGui::SmallButton(_LC("TopMenubar", "Reset to -Y")))
-                {
-                    pc->setFallingDirection(Ogre::Vector3::NEGATIVE_UNIT_Y);
-                }
-            }
-
             // Auto-disable threshold
             {
                 float th = pc->getAutoDisableThreshold();

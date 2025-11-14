@@ -48,7 +48,7 @@ namespace SkyX // Ported to SkyX by ohlidalp
 		PrecipitationType mPresetType;
 		std::string mTextureName;
         Ogre::Vector3 mCameraSpeedScale;
-        Ogre::Vector3 mFallingDirection;
+        const Ogre::Vector3 mFallingDirection = Ogre::Vector3::NEGATIVE_UNIT_Y;
 
         float mAutoDisableThreshold;
         bool mHardDisableCompositor;
@@ -92,15 +92,6 @@ namespace SkyX // Ported to SkyX by ohlidalp
 
 		void setWindSpeed(const Ogre::Vector3 &value);
 		const Ogre::Vector3 getWindSpeed() const;
-
-        /** The basic direction for falling precipitation.
-         *
-         *  This property define the notion of a "falling down" direction.
-         *  By default this is Vector3::NEGATIVE_UNIT_Y. You need to change
-         *  this for a Z-up system.
-         */
-        void setFallingDirection(const Ogre::Vector3 &value) { mFallingDirection = value; }
-		const Ogre::Vector3 getFallingDirection() const { return mFallingDirection; }
 
 		/// Set manual camera speed for all viewports.
 		void setManualCameraSpeed(const Ogre::Vector3 &value);
