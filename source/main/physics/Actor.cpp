@@ -637,6 +637,7 @@ void Actor::calcNetwork()
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
     ar_parking_brake = flagmask & NETMASK_PBRAKE;
+    ar_handbrake = flagmask & NETMASK_HANDBRAKE;
 
     this->setLightStateMask(oob1->lightmask);
 
@@ -2093,6 +2094,8 @@ void Actor::sendStreamData()
 
         if (ar_parking_brake)
             send_oob->flagmask += NETMASK_PBRAKE;
+        if (ar_handbrake)
+           send_oob->flagmask += NETMASK_HANDBRAKE;
         if (m_tractioncontrol)
             send_oob->flagmask += NETMASK_TC_ACTIVE;
         if (m_antilockbrake)
