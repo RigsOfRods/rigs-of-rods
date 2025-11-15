@@ -2774,31 +2774,56 @@ void TopMenubar::DrawSettingsMenuSkyControls()
 
     if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
     {
-        ImGui::TextDisabled("%s", _LC("TopMenubar", "Time of day:"));
-        float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
-        if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
+        auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
+
+        ImGui::TextDisabled("%s", _LC("TopMenubar", "Time:"));
+        float timeofday = skyx_mgr->getTimeOfDay24Hour();
+        if (ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
         {
-            App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(timeofday);
+            skyx_mgr->setTimeOfDay24Hour(timeofday);
         }
 
-        float sunrisetime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunriseTime24Hour();
-        if(ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
-        {
-            App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunriseTime24Hour(sunrisetime);
+        { // sunrise/sunset sliders have custom style
+            const float EDGE = 5.f;
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+            ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH-EDGE*2);
+
+            float sunrisetime = skyx_mgr->getSunriseTime24Hour();
+            ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(EDGE, 0));
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
+            {
+                skyx_mgr->setSunriseTime24Hour(sunrisetime);
+            }
+
+            ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(EDGE, -2));
+            float sunsettime = skyx_mgr->getSunsetTime24Hour();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
+            {
+                skyx_mgr->setSunsetTime24Hour(sunsettime);
+            }
+
+            ImGui::PopStyleVar(); // FramePadding
+            ImGui::PopItemWidth();
         }
 
-        float sunsettime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunsetTime24Hour();
-        if(ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
+        float moonphase = skyx_mgr->GetSkyX()->getController()->getMoonPhase();
+        if (ImGui::SliderFloat(_LC("TopMenubar", "Moon phase"), &moonphase, -1.f, 1.f, "%.2f"))
         {
-            App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
+            skyx_mgr->GetSkyX()->getController()->setMoonPhase(moonphase);
+        }
+
+        float timefactor = skyx_mgr->GetSkyX()->getTimeMultiplier();
+        if (ImGui::SliderFloat(_LC("TopMenubar", "Time factor"), &timefactor, 0.001, 0.11, "%.2f"))
+        {
+            skyx_mgr->GetSkyX()->setTimeMultiplier(timefactor);
         }
 
         // Weather controls (precipitation system ported from caelum)
         ImGui::Separator();
         ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Weather:"));
 
-        auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
-        if (skyx_mgr && skyx_mgr->GetSkyX() && skyx_mgr->GetSkyX()->getPrecipitationController())
+        
+        if (skyx_mgr->GetSkyX()->getPrecipitationController())
         {
             auto* pc = skyx_mgr->GetSkyX()->getPrecipitationController();
 
