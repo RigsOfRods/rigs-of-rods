@@ -2,10 +2,9 @@
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution.
 
-fragment_program Caelum/PrecipitationFP cg
+fragment_program Caelum/PrecipitationFP glsl hlsl
 {
-	source Precipitation.cg
-	entry_point MainFP
+	source PrecipitationMainFP.glsl
 	profiles ps_3_0 fp40 arbfp1
 	
 	default_params
@@ -13,10 +12,9 @@ fragment_program Caelum/PrecipitationFP cg
 	}
 }
 
-vertex_program Caelum/PrecipitationVP cg
+vertex_program Caelum/PrecipitationVP glsl hlsl
 {
-	source Precipitation.cg
-	entry_point MainVP
+	source PrecipitationMainVP.glsl
 	profiles vs_3_0 vp40 arbvp1
 	
 	default_params
