@@ -102,7 +102,7 @@ void GameAbout::Draw()
     ImGui::Text("%s%s", "mikadou:",                     " Modernized thread pool, cmake, various fixes");
     ImGui::Text("%s%s", "ulteq:",                       " Various features, multithreading, lots of fixes");
     ImGui::Text("%s%s", "tritonas00:",                  " Various improvements and Linux fixes");
-    ImGui::Text("%s%s", "Ezequiel (RoR Forum: COETC):", " Various features, fixes");
+    ImGui::Text("%s%s", "Ezequiel (Eze):",              " Various features, fixes");
 
     ImGui::NewLine();
     ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Core Content Contributors"));
