@@ -66,6 +66,11 @@ namespace SkyX
 		 */
 		virtual Ogre::Real getMoonPhase() = 0;
 
+		/** Set moon phase
+		    @param phase Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
+		 */
+		virtual void setMoonPhase(Ogre::Real phase) = 0;
+
 		/** Must the controller be destroyed by SkyX?
 		    @return true if yes, false if not
 		 */

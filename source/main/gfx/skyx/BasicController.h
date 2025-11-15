@@ -99,7 +99,7 @@ namespace SkyX
 		/** Set moon phase
 		    @param mp Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
 		 */
-		inline void setMoonPhase(const Ogre::Real& mp)
+		inline void setMoonPhase(const Ogre::Real mp)
 		{
 			mMoonPhase = mp;
 		}
