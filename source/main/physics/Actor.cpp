@@ -2319,10 +2319,10 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
         div++;
     }
 
-    // parking brake
+    // parking brake and handbrake
     if (hydrobeam.hb_anim_flags & ANIM_FLAG_PBRAKE)
     {
-        float pbrake = ar_parking_brake;
+        float pbrake = (ar_parking_brake || ar_handbrake);
         cstate -= pbrake;
         div++;
     }
@@ -4076,7 +4076,7 @@ void Actor::updateDashBoards(float dt)
     }
 
     // parking brake
-    ar_dashboard->setBool(DD_PARKINGBRAKE, ar_parking_brake);
+    ar_dashboard->setBool(DD_PARKINGBRAKE, ar_parking_brake || ar_handbrake);
 
     // locked lamp
     bool locked = isLocked();
