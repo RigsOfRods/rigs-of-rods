@@ -43,7 +43,7 @@ namespace SkyX
 		, mUnderHorizonFading(true)
 		, mUnderHorizonFadingExponent(0.75)
 		, mUnderHorizonFadingMultiplier(2)
-		, mRadiusMultiplier(0.95f)
+		, mRadiusMultiplier(0.75f)
         , mMaterialName("_NULL_")
 	{
 	}
