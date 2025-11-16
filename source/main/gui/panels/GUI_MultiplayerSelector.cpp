@@ -242,7 +242,6 @@ void MultiplayerSelector::DrawServerlistTab()
     {
         try
         {
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
             m_lock_icon = Ogre::TextureManager::getSingleton().load(
                 "lock.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
         }

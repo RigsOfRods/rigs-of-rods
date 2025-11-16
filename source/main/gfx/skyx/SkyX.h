@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier VerguÌn Gonz·lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Vergu√≠n Gonz√°lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "ColorGradient.h"
 #include "Controller.h"
 #include "BasicController.h"
+#include "Precipitation/SkyXPrecipitationController.h"
 #include "VCloudsManager.h"
 #include "VClouds/VClouds.h"
 #include "VClouds/GeometryManager.h"
@@ -225,6 +226,14 @@ namespace SkyX
 			return mVCloudsManager;
 		}
 
+        /**
+        * Precipitation controller ported from Caelum
+        */
+        PrecipitationController* getPrecipitationController()
+        {
+            return mPrecipitationController;
+        }
+
 		/** Set controller
 		    @param c Controller
 		 */
@@ -354,6 +363,10 @@ namespace SkyX
 			return mCfgFileManager->load(File);
 		}
 
+        // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+        void attachViewport(Ogre::Viewport* viewport);
+        void detachViewport(Ogre::Viewport* viewport);
+
 	private:
 		/// Is SkyX created?
 		bool mCreated;
@@ -370,6 +383,10 @@ namespace SkyX
 		CloudsManager* mCloudsManager;
 		/// Volumetric clouds manager
 		VCloudsManager* mVCloudsManager;
+        /// Precipitation compositor manager - ported from Caelum by ohlidalp
+        PrecipitationController* mPrecipitationController = nullptr;
+        /// Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+        std::set<Ogre::Viewport*> mAttachedViewports;
 
 		/// Controller
 		Controller* mController;
@@ -402,7 +419,7 @@ namespace SkyX
 		/// Time offset
 		Ogre::Real mTimeOffset;
 
-		CfgFileManager *mCfgFileManager;
+		CfgFileManager *mCfgFileManager = nullptr;
 	};
 }
 

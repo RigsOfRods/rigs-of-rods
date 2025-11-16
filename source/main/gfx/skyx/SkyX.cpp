@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier VerguÌn Gonz·lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Vergu√≠n Gonz√°lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -51,6 +51,7 @@ namespace SkyX
 	{
 		// Need to be instanced here, when SkyX::mSceneManager is valid
 		mVCloudsManager = new VCloudsManager(this);
+        mPrecipitationController = new PrecipitationController(sm);
 	}
 
 	SkyX::~SkyX()
@@ -63,6 +64,7 @@ namespace SkyX
 		delete mMoonManager;
 		delete mCloudsManager;
 		delete mVCloudsManager;
+        delete mPrecipitationController;
 
 		if (mCfgFileManager)
 			delete mCfgFileManager;
@@ -149,6 +151,7 @@ namespace SkyX
 		mMoonManager->updateMoonPhase(mController->getMoonPhase());
 		mCloudsManager->update();
 		mVCloudsManager->update(timeSinceLastFrame);
+        mPrecipitationController->update(timeSinceLastFrame, Ogre::ColourValue(0.6, 0.6, 0.6));
 	}
 
 	void SkyX::notifyCameraRender(Ogre::Camera* c)
@@ -271,4 +274,18 @@ namespace SkyX
 	{
 		notifyCameraRender(evt.source->getCamera());
 	}
+
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+
+    void SkyX::attachViewport(Ogre::Viewport* viewport)
+    { 
+        mAttachedViewports.insert(viewport);
+        mPrecipitationController->createViewportInstance(viewport);
+    }
+
+    void SkyX::detachViewport(Ogre::Viewport* viewport) 
+    { 
+        mAttachedViewports.erase(viewport);
+        mPrecipitationController->destroyViewportInstance(viewport);
+    }
 }

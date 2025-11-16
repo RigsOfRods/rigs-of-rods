@@ -41,6 +41,7 @@
 
 #include "Application.h"
 #include "BitFlags.h"
+#include "GfxData.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
 
@@ -49,7 +50,7 @@
 #include <vector>
 #include <string>
 #include <OgreString.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <OgreStringConverter.h>
 
 namespace RigDef {
@@ -260,6 +261,16 @@ struct AeroAnimator // used by Animator
 struct Assetpack
 {
     std::string filename;
+};
+
+/// Sets the attenuation parameters of the light source i.e. how it diminishes with distance.
+/// See `Ogre::Light::setAttenuation()` - https://ogrecave.github.io/ogre/api/latest/class_ogre_1_1_light.html#a43f763d809bc7da9a85fec15f57380f4
+struct AttenuationDefaults // used by Flare3
+{
+    float range     = RoR::ATTENUATION_DEFAULT_RANGE_METERS;     //!< The absolute upper range of the light in meters.
+    float constant  = RoR::ATTENUATION_DEFAULT_CONSTANT_FACTOR;  //!< The constant factor in the attenuation formula: 1.0 means never attenuate, 0.0 is complete attenuation.
+    float linear    = RoR::ATTENUATION_DEFAULT_LINEAR_FACTOR;    //!< The linear factor in the attenuation formula: 1 means attenuate evenly over the distance.
+    float quadratic = RoR::ATTENUATION_DEFAULT_QUADRATIC_FACTOR; //!< The quadratic factor in the attenuation formula: adds a curvature to the attenuation formula. 
 };
 
 struct BaseWheel
@@ -764,6 +775,7 @@ struct Flare2 : public FlareBase // Note 'flares' are auto-imported as 'flares2'
 struct Flare3: public FlareBase
 {
     std::shared_ptr<Inertia> inertia_defaults;
+    std::shared_ptr<AttenuationDefaults> attenuation_defaults;
 };
 
 struct FlaregroupNoImport

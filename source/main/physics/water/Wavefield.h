@@ -22,6 +22,7 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "Hydrax.h"
 #include "Vec3.h"
 
 namespace RoR {
@@ -30,6 +31,7 @@ namespace RoR {
 /// @{
 
 class Wavefield //!< Water physics, see 'wavefield.cfg' in your config directory.
+    : public Hydrax::Noise::Noise // Hydrax retrieves wave heights via interface `Noise` :/
 {
 public:
     Wavefield(Vec3 terrn_size);
@@ -37,11 +39,16 @@ public:
     float GetStaticWaterHeight(); //!< Returns static water level configured in 'terrn2'
     void  SetStaticWaterHeight(float value);
     void  SetWavesHeight(float);
+    float GetWavesHeight() { return m_waves_height; }
     float CalcWavesHeight(Vec3 pos, float timeshift_sec = 0.f);
     Vec3  CalcWavesVelocity(Vec3 pos, float timeshift_sec = 0.f);
     void  FrameStepWaveField(float dt);
     bool  IsUnderWater(Vec3 pos);
     float GetWaveHeight(Vec3 pos);
+
+    // Implementation of Hydrax::Noise interface
+    virtual float getValue(const float& x, const float& z) override;
+    virtual void update(const Ogre::Real& timeSinceLastFrame) override {} // intentionally empty - we don't need HydraX to update us
 
 private:
 

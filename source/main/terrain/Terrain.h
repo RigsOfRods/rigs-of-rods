@@ -30,7 +30,7 @@
 #include "TerrainEditor.h"
 #include "Wavefield.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <string>
 
 namespace RoR {
@@ -78,20 +78,23 @@ public:
     float                   getWaterHeight() const;
     TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
     TerrainObjectManager*   getObjectManager()            { return m_object_manager; }
-    HydraxWater*            getHydraxManager()            { return m_hydrax_water; }
     SkyManager*             getSkyManager();
     SkyXManager*            getSkyXManager()              { return SkyX_manager; }
-    ShadowManager*          getShadowManager()            { return m_shadow_manager; }
+    RTSSManager*            getRTSSManager()              { return m_rtss_manager; }
     TerrainEditor*          GetTerrainEditor()            { return &m_terrain_editor; }
     Collisions*             GetCollisions()               { return m_collisions; }
     Wavefield*              getWater()                    { return m_wavefield.get(); }
     IGfxWater*              getGfxWater()                 { return m_gfx_water.get(); }
+    void                    createWater();
+    void                    destroyWater();
+    void                    CreateSky();
+    void                    DestroySky();
+    GfxSkyMode              GetActiveSkyMode() const      { return m_active_sky_mode; }
     /// @}
 
     /// @name Visuals
     /// @{
     Ogre::Light*            getMainLight()                { return m_main_light; }
-    int                     getFarClip() const            { return m_sight_range; }
     float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
     /// @}
 
@@ -118,14 +121,11 @@ private:
     void initCamera();
     void initTerrainCollisions();
     void initFog();
-    void initLight();
     void initObjects();
     void initScripting();
+    void initRTSS();
     void initAiPresets();
-    void initShadows();
-    void initSkySubSystem();
     void initVegetation();
-    void initWater();
 
     void fixCompositorClearColor();
     void loadTerrainObjects();
@@ -138,17 +138,15 @@ private:
     std::unique_ptr<Wavefield> m_wavefield;
     TerrainEditor           m_terrain_editor;
     Collisions*             m_collisions = nullptr;
-    ShadowManager*          m_shadow_manager = nullptr;
+    RTSSManager*            m_rtss_manager;
     SkyManager*             m_sky_manager = nullptr;
     SkyXManager*            SkyX_manager = nullptr;
-    HydraxWater*            m_hydrax_water = nullptr;
-
+    GfxSkyMode              m_active_sky_mode = GfxSkyMode::NONE; //!< The currently loaded sky mode (cvar 'gfx_sky_mode' can be changed anytime).
     // Properties
 
     CacheEntryPtr           m_cache_entry;
     Terrn2DocumentPtr       m_def;
     float                   m_paged_detail_factor = 0.f;
-    int                     m_sight_range = 1000;
 
     // Gameplay
 

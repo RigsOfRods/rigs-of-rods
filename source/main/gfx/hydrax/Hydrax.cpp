@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier VerguÌn Gonz·lez <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Vergu√≠n Gonz√°lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,7 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 --------------------------------------------------------------------------------
 Contributors:
-    Jose Luis CercÛs Pita <jlcercos@alumnos.upm.es>
+    Jose Luis Cerc√≥s Pita <jlcercos@alumnos.upm.es>
 --------------------------------------------------------------------------------
 */
 
@@ -769,12 +769,14 @@ namespace Hydrax
 			    MaterialManager::GPUP_FRAGMENT, MaterialManager::MAT_WATER,
 			    "uFoamRange", Strength);
 
+			/* Foam is not visible underwater
 			if (isComponent(HYDRAX_COMPONENT_UNDERWATER))
 		    {
 		        mMaterialManager->setGpuProgramParameter(
 			        MaterialManager::GPUP_FRAGMENT, MaterialManager::MAT_UNDERWATER,
 			        "uFoamRange", Strength);
 		    }
+			*/
 		}
 
 		mDecalsManager->_setWaterStrength(Strength);
