@@ -637,6 +637,7 @@ void Actor::calcNetwork()
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
     ar_parking_brake = flagmask & NETMASK_PBRAKE;
+    ar_handbrake = flagmask & NETMASK_HANDBRAKE;
 
     this->setLightStateMask(oob1->lightmask);
 
@@ -1669,6 +1670,7 @@ void Actor::SyncReset(bool reset_position)
 	
     ar_fusedrag = Vector3::ZERO;
     this->setBlinkType(BlinkType::BLINK_NONE);
+    ar_handbrake = false;
     ar_parking_brake = false;
     ar_trailer_parking_brake = false;
     ar_avg_wheel_speed = 0.0f;
@@ -2092,6 +2094,8 @@ void Actor::sendStreamData()
 
         if (ar_parking_brake)
             send_oob->flagmask += NETMASK_PBRAKE;
+        if (ar_handbrake)
+           send_oob->flagmask += NETMASK_HANDBRAKE;
         if (m_tractioncontrol)
             send_oob->flagmask += NETMASK_TC_ACTIVE;
         if (m_antilockbrake)
@@ -2315,10 +2319,10 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
         div++;
     }
 
-    // parking brake
+    // parking brake and handbrake
     if (hydrobeam.hb_anim_flags & ANIM_FLAG_PBRAKE)
     {
-        float pbrake = ar_parking_brake;
+        float pbrake = (ar_parking_brake || ar_handbrake);
         cstate -= pbrake;
         div++;
     }
@@ -3811,6 +3815,11 @@ void Actor::hookToggle(int group, ActorLinkingRequestType mode, NodeNum_t mousen
     }
 }
 
+void Actor::setHandbrake(bool state)
+{
+    ar_handbrake = state;
+}
+
 void Actor::parkingbrakeToggle()
 {
     if (ar_state == ActorState::DISPOSED)
@@ -4067,7 +4076,7 @@ void Actor::updateDashBoards(float dt)
     }
 
     // parking brake
-    ar_dashboard->setBool(DD_PARKINGBRAKE, ar_parking_brake);
+    ar_dashboard->setBool(DD_PARKINGBRAKE, ar_parking_brake || ar_handbrake);
 
     // locked lamp
     bool locked = isLocked();

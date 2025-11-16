@@ -90,7 +90,7 @@ enum Netmask
     NETMASK_ALB_ACTIVE   = BITMASK(6), //!< anti lock brake light on?
     NETMASK_ENGINE_CONT  = BITMASK(7), //!< ignition on?
     NETMASK_ENGINE_RUN   = BITMASK(8), //!< engine running?
-
+    NETMASK_HANDBRAKE    = BITMASK(14),//!< handbrake held?
     NETMASK_ENGINE_MODE_AUTOMATIC     = BITMASK(9), //!< engine mode
     NETMASK_ENGINE_MODE_SEMIAUTO      = BITMASK(10), //!< engine mode
     NETMASK_ENGINE_MODE_MANUAL        = BITMASK(11), //!< engine mode
