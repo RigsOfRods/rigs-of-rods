@@ -265,7 +265,7 @@ enum inputEvents
     EV_TRUCK_LIGHTTOGGLE09,       //!< toggle custom light 9
     EV_TRUCK_LIGHTTOGGLE10,       //!< toggle custom light 10
     EV_TRUCK_MANUAL_CLUTCH,       //!< manual clutch (for manual transmission)
-    EV_TRUCK_HANDBRAKE,           //!< hold handbrake
+    EV_TRUCK_PARKING_BRAKE_HOLD,  //!< hold parking brake
     EV_TRUCK_PARKING_BRAKE,       //!< toggle parking brake
     EV_TRUCK_TRAILER_PARKING_BRAKE, //!< toggle trailer parking brake
     EV_TRUCK_RIGHT_MIRROR_LEFT,

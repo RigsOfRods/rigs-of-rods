@@ -159,7 +159,7 @@ public:
     /// @name User interaction
     /// @{
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
-    void              setHandbrake();
+    void              setParkingbrakeHold();
     void              parkingbrakeToggle();
     void              tractioncontrolToggle();
     void              antilockbrakeToggle();
@@ -464,7 +464,7 @@ public:
     float             ar_hydro_elevator_state = 0.f;
     float             ar_sleep_counter = 0.f;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model = nullptr;
-    bool              ar_handbrake = false;
+    bool              ar_parking_brake_hold = false;
     bool              ar_parking_brake = false;
     bool              ar_trailer_parking_brake = false;
     float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle

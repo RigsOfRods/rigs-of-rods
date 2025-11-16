@@ -165,7 +165,7 @@ bool OutGauge::Update(float dt, ActorPtr truck)
             gd.DashLights |= DL_ABS;
 
         gd.ShowLights = 0;
-        if (truck->ar_parking_brake || ar_handbrake)
+        if (truck->ar_parking_brake || ar_parking_brake_hold)
             gd.ShowLights |= DL_HANDBRAKE;
         if (truck->getHeadlightsVisible())
             gd.ShowLights |= DL_FULLBEAM;
