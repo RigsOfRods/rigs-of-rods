@@ -740,6 +740,7 @@ void TopMenubar::Draw(float dt)
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_max.y += MENU_SKYCOMBO_EXTRAPAD; // The sky mode combo extends beyond normal menu height
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
