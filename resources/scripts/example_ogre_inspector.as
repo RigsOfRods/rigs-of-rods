@@ -72,7 +72,14 @@ class OgreInspector
             else
             {
                 ImGui::TextDisabled("Ogre::SceneNode [0]");
-            }            
+            }
+            
+            // ambient light
+            color ambientColor = sceneMgr.getAmbientLight();
+            if (ImGui::ColorEdit3("Ambient Light", ambientColor))
+            {
+                sceneMgr.setAmbientLight(ambientColor);
+            }         
             
             ImGui::TreePop();
         }
