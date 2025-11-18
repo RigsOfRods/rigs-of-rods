@@ -768,7 +768,7 @@ void TopMenubar::Draw(float dt)
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
             float extra_watercombo_padding = 75.f; // The water combo is big and reaches out of the menu.
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y + extra_watercombo_padding;
+            m_open_menu_hoverbox_max.y = std::max(m_open_menu_hoverbox_max.y, 300.f); // Make room for comboboxes in case they overflow parent menu
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
