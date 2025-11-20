@@ -268,9 +268,9 @@ namespace SkyX
 		Ogre::String Value = CfgFile.getSetting("<vector2>" + Name);
         auto tokens = Ogre::StringUtil::split(Value, "x");
 
-		if (Value == "" || tokens.size() < 3)
+		if (Value == "" || tokens.size() < 2)
 		{
-            LOG(fmt::format("[SkyX|Config] Value '{}' (setting '{}') is not a valid <vector3>", Value, Name));
+            LOG(fmt::format("[SkyX|Config] Value '{}' (setting '{}') is not a valid <vector2>", Value, Name));
 			return Ogre::Vector2(0,0);
 		}
 		else
