@@ -59,7 +59,7 @@ public:
     const ImVec4  TAB_BG_COLOR         = ImVec4(0.24f, 0.24f, 0.25f, 1.f);
     const ImVec4  TAB_ACTIVE_BG_COLOR  = ImVec4(0.33f, 0.33f, 0.32f, 1.f);
     const ImVec2  TAB_ITEM_PADDING     = ImVec2(12.f, 5.f);
-    const float   SETTINGSMENU_ITEM_WIDTH = 135.f; // Width includes [+/-] buttons
+    const float   SETTINGSMENU_ITEM_WIDTH = 150.f; // Width includes [+/-] buttons
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };
     enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR, STATEBOX_IMPORT_TERRAIN, STATEBOX_OVERWRITE_TERRAIN };
@@ -146,6 +146,7 @@ private:
     bool DrawSettingsMenuBeginTabItem(const char* title);
     bool DrawSettingsMenuBeginTabBar();
     void DrawSettingsMenuSkyControls();
+    void DrawSettingsMenuWeatherControls(); //!< SkyX clouds and precipitation
     void DrawSettingsMenuWaterControls();
     void DrawSettingsMenuGeneralControls();
 
