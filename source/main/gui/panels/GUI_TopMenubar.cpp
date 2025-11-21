@@ -592,6 +592,11 @@ void TopMenubar::Draw(float dt)
                     this->DrawSettingsMenuSkyControls();
                     ImGui::EndTabItem();
                 }
+                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Weather")))
+                {
+                    this->DrawSettingsMenuWeatherControls();
+                    ImGui::EndTabItem();
+                }
                 if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
                     && App::GetGameContext()->GetTerrain()->getWater()
                     && App::GetGameContext()->GetTerrain()->GetDef()->has_water
@@ -2809,12 +2814,103 @@ void TopMenubar::DrawSettingsMenuSkyControls()
         {
             skyx_mgr->GetSkyX()->setTimeMultiplier(timefactor);
         }
+    }
+#ifdef USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
+        float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
+        }
+        ImGui::SameLine();
+        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+        if (App::gfx_sky_time_cycle->getBool())
+        {
+            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+        }
+    }
+#endif // USE_CAELUM
+    ImGui::PopID(); // "sky"
+}
+
+void TopMenubar::DrawSettingsMenuWeatherControls()
+{
+    ImGui::PushID("weather");
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH);
+    auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
+
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+    {
+        // SkyX volumetric clouds
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Clouds:"));
+
+        if (skyx_mgr->GetSkyX()->getVCloudsManager())
+        {
+            // vHeight: x = Cloud field y-coord start, y: Field height (both in world coordinates)
+            Ogre::Vector2 vHeight = skyx_mgr->GetSkyX()->getVCloudsManager()->getHeight();
+            float height_val = vHeight.x;
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Height"), &height_val, 100.0f, 2000.0f, "%.1f"))
+            {
+                vHeight.x = height_val;
+                skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
+                skyx_mgr->GetSkyX()->getVCloudsManager()->remove();
+                skyx_mgr->GetSkyX()->getVCloudsManager()->create();
+            }
+            float thickness_val = vHeight.y;
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Thickness"), &thickness_val, 1000.0f, 6000.0f, "%.1f"))
+            {
+                vHeight.y = thickness_val;
+                skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
+                skyx_mgr->GetSkyX()->getVCloudsManager()->remove();
+                skyx_mgr->GetSkyX()->getVCloudsManager()->create();
+            }
+
+            // wind speed (float)
+            float windspd = skyx_mgr->GetSkyX()->getVCloudsManager()->getWindSpeed();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind speed"), &windspd, 0.0f, 250.0f, "%.1f"))
+            {
+                skyx_mgr->GetSkyX()->getVCloudsManager()->setWindSpeed(windspd);
+            }
+
+            SkyX::VClouds::VClouds* vclouds = skyx_mgr->GetSkyX()->getVCloudsManager()->getVClouds();
+
+            // wind direction (degree)
+            Ogre::Degree winddir = vclouds->getWindDirection();
+            float winddir_deg = winddir.valueDegrees();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind direction"), &winddir_deg, 0.0f, 360.0f, "%.1f"))
+            {
+                vclouds->setWindDirection(Ogre::Degree(winddir_deg));
+            }
+
+            // ambient color (vector3)
+            Ogre::Vector3 ambcol = vclouds->getAmbientColor();
+            if (ImGui::ColorEdit3(_LC("TopMenubar", "Ambient color"), (float*)&ambcol, ImGuiColorEditFlags_Float))
+            {
+                vclouds->setAmbientColor(ambcol);
+            }
+
+            // light response (vector4)
+            Ogre::Vector4 lightresp = vclouds->getLightResponse();
+            if (ImGui::DragFloat4(_LC("TopMenubar", "Light response"), (float*)&lightresp, 0.01f))
+            {
+                vclouds->setLightResponse(lightresp);
+            }
+
+            // ambient factors (vector4)
+            Ogre::Vector4 ambfactors = vclouds->getAmbientFactors();
+            if (ImGui::DragFloat4(_LC("TopMenubar", "Ambient factors"), (float*)&ambfactors, 0.01f))
+            {
+                vclouds->setAmbientFactors(ambfactors);
+            }
+        }
 
         // Weather controls (precipitation system ported from caelum)
         ImGui::Separator();
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Weather:"));
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Precipitation:"));
 
-        
         if (skyx_mgr->GetSkyX()->getPrecipitationController())
         {
             auto* pc = skyx_mgr->GetSkyX()->getPrecipitationController();
@@ -2936,25 +3032,9 @@ void TopMenubar::DrawSettingsMenuSkyControls()
             }
         }
     }
-#ifdef USE_CAELUM
-    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
-    {
-        ImGui::Separator();
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
-        float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
-        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
-        {
-            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
-        }
-        ImGui::SameLine();
-        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
-        if (App::gfx_sky_time_cycle->getBool())
-        {
-            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
-        }
-    }
-#endif // USE_CAELUM
-    ImGui::PopID(); // "sky"
+
+    ImGui::PopItemWidth();
+    ImGui::PopID();
 }
 
 void TopMenubar::DrawSettingsMenuWaterControls()
