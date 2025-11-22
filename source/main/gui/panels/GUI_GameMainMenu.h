@@ -49,6 +49,7 @@ private:
     void             DrawMenuPanel();
     void             DrawVersionBox();
     void             DrawNoticeBox();
+    void             DrawProfileBox();
     bool             HighlightButton(const std::string &text, ImVec2 btn_size, int index) const;
     void             HandleInputEvents();
     bool             m_is_visible = false;
