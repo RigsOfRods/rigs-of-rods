@@ -300,7 +300,7 @@ namespace SkyX // Ported to SkyX by ohlidalp
 		mParams.corner1.set(mParams.fpParams, corner1);
 		mParams.corner2.set(mParams.fpParams, corner2);
 		mParams.corner3.set(mParams.fpParams, corner3);
-		mParams.corner4.set(mParams.fpParams, corner4);		
+		mParams.corner4.set(mParams.fpParams, corner4);
 		
 		float fallSpeed = precDir.length();
 
