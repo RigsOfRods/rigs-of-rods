@@ -58,11 +58,11 @@ public:
     void setTimeOfDay24Hour(float timeOfDay24Hour);
     float getTimeOfDay24Hour();
 
-    void setSunsetTime24Hour(float sunsetTime24Hour);
-    float getSunsetTime24Hour();
+    void setLatitudeDeg(float latitudeDeg);
+    float getLatitudeDeg();
 
-    void setSunriseTime24Hour(float sunriseTime24Hour);
-    float getSunriseTime24Hour();
+    void setDayOfYear(int dayOfYear);
+    int getDayOfYear();
 
 protected:
 	Ogre::Light *mLight0 = nullptr;

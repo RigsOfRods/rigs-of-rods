@@ -51,6 +51,10 @@ namespace SkyX
 		 */
 		inline virtual void update(const Ogre::Real& simDeltaTime){}
 
+        virtual void setLatitudeDeg(Ogre::Real latitudeDeg) = 0;
+
+        virtual Ogre::Real getLatitudeDeg() const = 0;
+
 		/** Get sun direction
 		    @return Sun direction, the Earth-to-Sun direction
 		 */

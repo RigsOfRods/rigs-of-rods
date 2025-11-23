@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX
 {
-	/** Basic controller class		         
+	/** Basic controller class
 	 */
 	class BasicController : public Controller
 	{
@@ -63,15 +63,6 @@ namespace SkyX
 			return mTime;
 		}
 
-		/** Set eastn direction
-		    @param ed East direction, in X,Z world coords (must be normalized)
-		 */
-		inline void setEastDirection(const Ogre::Vector2& ed)
-		{
-			mEastDirection = ed;
-			update(0);
-		}
-
 		/** Get east direction
 		    @return Current east direction, in X,Z world coords
 		 */
@@ -79,6 +70,36 @@ namespace SkyX
 		{
 			return mEastDirection;
 		}
+
+        /** Set latitude in degrees
+            @param latitudeDeg Latitude in degrees
+         */
+        void setLatitudeDeg(const Ogre::Real latitudeDeg) override
+        {
+            mLatitudeDeg = Ogre::Math::Clamp(latitudeDeg, -90.f, 90.f);
+            update(0);
+        }
+
+        /** Get latitude in degrees
+            @return Latitude in degrees
+         */
+        Ogre::Real getLatitudeDeg() const override
+        {
+            return mLatitudeDeg;
+        }
+
+        // day of year
+        inline void setDayOfYear(const Ogre::Real dayOfYear)
+        {
+            mDayOfYear = Ogre::Math::Clamp(dayOfYear, 0.f, 365.f);
+            update(0);
+        }
+
+        // get day of year
+        inline Ogre::Real getDayOfYear() const
+        {
+            return mDayOfYear;
+        }
 
 		/** Get sun direction
 		    @return Sun direction, the Earth-to-Sun direction
@@ -113,10 +134,13 @@ namespace SkyX
 		}
 
 	private:
+        void recalculateSunriseSunsetTime(Ogre::Radian decl, Ogre::Radian lat);
+
 		/// Time information: x = time in [0, 24]h range, y = sunrise hour in [0, 24]h range, z = sunset hour in [0, 24] range
 		Ogre::Vector3 mTime;
 		/// East direction (in X,Z world coords)
-		Ogre::Vector2 mEastDirection;
+        // RIGSOFRODS: Hardcoded for consistency. Point 0,0,0 is the north-west corner of the map. Y is up, X goes east, Z goes south.
+		const Ogre::Vector2 mEastDirection = Ogre::Vector2(1, 0);
 
 		/// Sun direction
 		Ogre::Vector3 mSunDirection;
@@ -124,6 +148,10 @@ namespace SkyX
 		Ogre::Vector3 mMoonDirection;
 		/// Moon phase
 		Ogre::Real mMoonPhase;
+		/// Latitude in degrees
+		Ogre::Real mLatitudeDeg;
+		/// Day of the year
+		Ogre::Real mDayOfYear;
 	};
 }
 

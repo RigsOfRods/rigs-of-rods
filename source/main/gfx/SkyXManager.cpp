@@ -20,6 +20,7 @@
 */
 
 #include "SkyXManager.h"
+#include "BasicController.h"
 
 #include "Actor.h"
 #include "AppContext.h"
@@ -220,26 +221,22 @@ float SkyXManager::getTimeOfDay24Hour()
     return mBasicController->getTime().x;
 }
 
-void SkyXManager::setSunsetTime24Hour(float sunsetTime24Hour)
+void SkyXManager::setLatitudeDeg(float latitudeDeg)
 {
-    Ogre::Vector3 skyxTime = mBasicController->getTime();
-    skyxTime.z = sunsetTime24Hour;
-    mBasicController->setTime(skyxTime);
+    mBasicController->setLatitudeDeg(latitudeDeg);
 }
 
-float SkyXManager::getSunsetTime24Hour()
+float SkyXManager::getLatitudeDeg()
 {
-    return mBasicController->getTime().z;
+    return mBasicController->getLatitudeDeg();
 }
 
-void SkyXManager::setSunriseTime24Hour(float sunriseTime24Hour)
+void SkyXManager::setDayOfYear(int dayOfYear)
 {
-    Ogre::Vector3 skyxTime = mBasicController->getTime();
-    skyxTime.y = sunriseTime24Hour;
-    mBasicController->setTime(skyxTime);
+    mBasicController->setDayOfYear(static_cast<Ogre::Real>(dayOfYear));
 }
 
-float SkyXManager::getSunriseTime24Hour()
+int SkyXManager::getDayOfYear()
 {
-    return mBasicController->getTime().y;
+    return static_cast<int>(mBasicController->getDayOfYear());
 }
