@@ -2785,18 +2785,18 @@ void TopMenubar::DrawSettingsMenuSkyControls()
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
             ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH-EDGE*2);
 
-            float sunrisetime = skyx_mgr->getSunriseTime24Hour();
+            float lattitude = skyx_mgr->getLatitudeDeg();
             ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(EDGE, 0));
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Lattitude"), &lattitude, 0.f, 90.f, "%.2f"))
             {
-                skyx_mgr->setSunriseTime24Hour(sunrisetime);
+                skyx_mgr->setLatitudeDeg(lattitude);
             }
 
             ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(EDGE, -2));
-            float sunsettime = skyx_mgr->getSunsetTime24Hour();
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
+            int day = skyx_mgr->getDayOfYear();
+            if (ImGui::SliderInt(_LC("TopMenubar", "Day of Year"), &day, 1, 365))
             {
-                skyx_mgr->setSunsetTime24Hour(sunsettime);
+                skyx_mgr->setDayOfYear(day);
             }
 
             ImGui::PopStyleVar(); // FramePadding
