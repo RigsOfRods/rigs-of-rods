@@ -12,7 +12,7 @@ OGRE_NATIVE_GLSL_VERSION_DIRECTIVE
 
 OGRE_UNIFORMS(
 
-    SAMPLER2D(scene, 0);
+    SAMPLER2D(samplerScene, 0);
     
     SAMPLER2D(samplerPrec, 1);
 
@@ -69,7 +69,7 @@ MAIN_DECLARATION
 		mix(corner2, corner4, scr_pos.y),
 		scr_pos.x ) ;
 	
-	vec4 scenecol = texture2D(scene, scr_pos);
+	vec4 scenecol = texture2D(samplerScene, scr_pos);
 	vec2 cCoords = CylindricalCoordinates(eye);
 	float prec1 = Precipitation(cCoords, intensity/4, vec2(deltaX.x,deltaY.x));
 	float prec2 = Precipitation(cCoords, intensity/4, vec2(deltaX.y,deltaY.y));
