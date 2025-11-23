@@ -12,7 +12,7 @@ namespace SkyX // Ported to SkyX by ohlidalp
 	{
 		Ogre::ColourValue Colour;
         float Speed;
-		std::string Name;
+		const char* Name;
 	};
 
 	enum PrecipitationType
@@ -175,8 +175,9 @@ namespace SkyX // Ported to SkyX by ohlidalp
         Ogre::Vector3 mCameraSpeed;
 		bool mAutoCameraSpeed;
 
-        virtual void notifyMaterialSetup(uint pass_id, Ogre::MaterialPtr &mat);
-        virtual void notifyMaterialRender(uint pass_id, Ogre::MaterialPtr &mat);
+        // Ogre::CompositorInstance::Listener
+        virtual void notifyMaterialSetup(uint pass_id, Ogre::MaterialPtr &mat) override;
+        virtual void notifyMaterialRender(uint pass_id, Ogre::MaterialPtr &mat) override;
 
         /// Called to enforce parameters on a composing material
         /// Called from notifyMaterialRender.
