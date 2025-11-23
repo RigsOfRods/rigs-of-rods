@@ -48,6 +48,7 @@ namespace SkyX // Ported to SkyX by ohlidalp
 		PrecipitationType mPresetType;
 		std::string mTextureName;
         Ogre::Vector3 mCameraSpeedScale;
+        //RIGSOFRODS: The only meaningful value under OGRE is (0, -1, 0), any other only confuses the system.
         const Ogre::Vector3 mFallingDirection = Ogre::Vector3::NEGATIVE_UNIT_Y;
 
         float mAutoDisableThreshold;
