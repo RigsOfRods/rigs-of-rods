@@ -724,7 +724,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("Entity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("SubEntity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("SubEntity", sizeof(SubEntity), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Node", sizeof(Node), asOBJ_REF | asOBJ_NOCOUNT);
@@ -739,10 +739,10 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("Root", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("AnimationState", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("AnimationState", sizeof(AnimationState), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("AnimationStateSet", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("AnimationStateSet", sizeof(AnimationStateSet), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
@@ -751,7 +751,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("ManualObject", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("ManualObject", sizeof(ManualObject), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Image", sizeof(Image), asOBJ_VALUE | asGetTypeTraits<Image>());
@@ -764,7 +764,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
+    r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<MeshPtr>());
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("SubMesh", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
@@ -776,16 +776,16 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("MaterialManager", sizeof(MaterialManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("MaterialPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
+    r = engine->RegisterObjectType("MaterialPtr", sizeof(MaterialPtr), asOBJ_VALUE | asGetTypeTraits<MaterialPtr>());
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("Technique", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("Technique", sizeof(Technique), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("Pass", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("Pass", sizeof(Pass), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("TextureUnitState", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectType("TextureUnitState", sizeof(TextureUnitState), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Timer", sizeof(Timer), asOBJ_VALUE | asGetTypeTraits<Timer>());
