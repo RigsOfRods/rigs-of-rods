@@ -23,7 +23,8 @@ enum modCacheActivityType
 
     MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 rg name
     MODCACHEACTIVITY_BUNDLE_RELOADED,  //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 rg name
-    MODCACHEACTIVITY_BUNDLE_UNLOADED   //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number
+    MODCACHEACTIVITY_BUNDLE_UNLOADED,  //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number
+    MODCACHEACTIVITY_BUNDLE_DELETED,   //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: $5 filename (for each associated entry, separate ENTRY_DELETED event is issued)
 };
 
 } // namespace Script2Game

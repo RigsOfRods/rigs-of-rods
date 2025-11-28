@@ -1470,10 +1470,11 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_NET_REFRESH_REPOLIST_FAILURE:
     case MSG_NET_FETCH_AI_PRESETS_SUCCESS:
     case MSG_NET_FETCH_AI_PRESETS_FAILURE:
+    case MSG_NET_DOWNLOAD_REPOFILE_SUCCESS:
+    case MSG_NET_DOWNLOAD_REPOFILE_FAILURE:
+    case MSG_NET_DOWNLOAD_REPOFILE_PROGRESS:
         // GUI
     case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
-    case MSG_GUI_DOWNLOAD_PROGRESS:
-    case MSG_GUI_DOWNLOAD_FINISHED:
     case MSG_GUI_OPEN_SELECTOR_REQUESTED:
         // Editing
     case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
@@ -1838,6 +1839,28 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
             return false;
         }
         break;
+    }
+
+    case MSG_NET_DOWNLOAD_REPOFILE_REQUESTED:
+    {
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t repo_resource_id = -1;
+        int64_t repo_file_id = -1;
+        std::string repo_filename;
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "resource_id", "int64", repo_resource_id) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "file_id", "int64", repo_file_id) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "filename", "string", repo_filename))
+        {
+            RepoFileInstallRequest* rq = new RepoFileInstallRequest();
+            rq->rfir_resource_id = repo_resource_id;
+            rq->rfir_repofile_id = repo_file_id;
+            rq->rfir_filename = repo_filename;
+            m.payload = rq;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     default:;

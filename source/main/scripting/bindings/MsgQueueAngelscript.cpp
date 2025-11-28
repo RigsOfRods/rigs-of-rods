@@ -65,6 +65,10 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_REFRESH_REPOLIST_FAILURE", MSG_NET_REFRESH_REPOLIST_FAILURE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_FETCH_AI_PRESETS_SUCCESS", MSG_NET_FETCH_AI_PRESETS_SUCCESS); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_FETCH_AI_PRESETS_FAILURE", MSG_NET_FETCH_AI_PRESETS_FAILURE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_DOWNLOAD_REPOFILE_REQUESTED", MSG_NET_DOWNLOAD_REPOFILE_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_DOWNLOAD_REPOFILE_SUCCESS", MSG_NET_DOWNLOAD_REPOFILE_SUCCESS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_DOWNLOAD_REPOFILE_FAILURE", MSG_NET_DOWNLOAD_REPOFILE_FAILURE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_DOWNLOAD_REPOFILE_PROGRESS", MSG_NET_DOWNLOAD_REPOFILE_PROGRESS); ROR_ASSERT(result >= 0);
     // Simulation
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_PAUSE_REQUESTED", MSG_SIM_PAUSE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_UNPAUSE_REQUESTED", MSG_SIM_UNPAUSE_REQUESTED); ROR_ASSERT(result >= 0);
@@ -88,8 +92,6 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_GUI_CLOSE_SELECTOR_REQUESTED", MSG_GUI_CLOSE_SELECTOR_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_GUI_MP_CLIENTS_REFRESH", MSG_GUI_MP_CLIENTS_REFRESH); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED", MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_GUI_DOWNLOAD_PROGRESS", MSG_GUI_DOWNLOAD_PROGRESS); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_GUI_DOWNLOAD_FINISHED", MSG_GUI_DOWNLOAD_FINISHED); ROR_ASSERT(result >= 0);
     // Editing
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED", MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED", MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED); ROR_ASSERT(result >= 0);

@@ -96,6 +96,9 @@ namespace RoR
     typedef int BuoyCachedNodeID_t; //<! Offset to `Buoyance::buoy_cached_nodes`, use BUOYCACHEDNODEID_INVALID as empty value.
     static const BuoyCachedNodeID_t BUOYCACHEDNODEID_INVALID = -1;
 
+    typedef int RepoFileInstallRequestID_t; //!< Unique sequentially generated ID of a repository item installation request; use `GUI::RepositorySelector::GetNextInstallRequestId()`.
+    static const RepoFileInstallRequestID_t REPOFILEINSTALLREQUESTID_INVALID = -1; //!< Invalid ID for repository item installation request.
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

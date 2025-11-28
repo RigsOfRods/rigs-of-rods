@@ -907,6 +907,24 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_DOWNLOAD_REPOFILE_REQUESTED:
+                {
+                    RepoFileInstallRequest* request = static_cast<RepoFileInstallRequest*>(m.payload);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.QueueInstallRepoFile(request);
+
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                       fmt::format(_LC("RepositorySelector", "Repo file installation requested: {}"), request->rfir_filename));
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -1503,13 +1521,15 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_GUI_DOWNLOAD_PROGRESS:
+                case MSG_NET_DOWNLOAD_REPOFILE_PROGRESS:
                 {
                     int* percentage = static_cast<int*>(m.payload);
                     try
                     {
-                        App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
-                        App::GetGuiManager()->LoadingWindow.SetProgress(*percentage, m.description, false);
+                        if (percentage)
+                        {
+                            App::GetGuiManager()->LoadingWindow.SetProgress(*percentage, m.description, false);
+                        }
                     }
                     catch (...) 
                     {
@@ -1519,13 +1539,14 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_GUI_DOWNLOAD_FINISHED:
+                case MSG_NET_DOWNLOAD_REPOFILE_SUCCESS:
+                case MSG_NET_DOWNLOAD_REPOFILE_FAILURE:
                 {
                     try
                     {
                         App::GetGuiManager()->LoadingWindow.SetVisible(false);
                         App::GetGuiManager()->RepositorySelector.SetVisible(true);
-                        App::GetGuiManager()->RepositorySelector.DownloadFinished();
+                        App::GetGuiManager()->RepositorySelector.DownloadFinished(m.type);
                     }
                     catch (...) 
                     {
@@ -1757,6 +1778,42 @@ int main(int argc, char *argv[])
                         HandleMsgQueueException(m.type);
                     }
   
+                    break;
+                }
+
+                case MSG_EDI_DELETE_BUNDLE_REQUESTED:
+                {
+                    try
+                    {
+                        const std::string bundle_filename = m.description;
+                        std::string bundle_filepath = PathCombine(PathCombine(App::sys_user_dir->getStr(), "mods"), bundle_filename);
+
+                        // make sure the bundle is unloaded
+                        bool all_clear = true;
+                        for (const CacheEntryPtr& entry: App::GetCacheSystem()->GetEntries())
+                        {
+                            if (entry->resource_bundle_path == bundle_filepath && entry->resource_group != "")
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_EDI_UNLOAD_BUNDLE_REQUESTED, static_cast<void*>(new CacheEntryPtr(entry))));
+                                all_clear = false;
+                            }
+                        }
+
+                        if (all_clear)
+                        {
+                            App::GetCacheSystem()->DeleteResourceBundleByFilename(bundle_filename);
+                        }
+                        else
+                        {
+                            // Re-post the same message again so that it's message chain is executed later.
+                            App::GetGameContext()->PushMessage(m);
+                            failed_m = true;
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
