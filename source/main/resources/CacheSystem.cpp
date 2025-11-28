@@ -750,7 +750,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
                 { return !entry->deleted && entry->fname == f.filename && entry->resource_bundle_path == path; }) != m_entries.end())
         return;
 
-    RoR::LogFormat("[RoR|CacheSystem] Preparing to add file '%f'", f.filename.c_str());
+    LOG(fmt::format("[RoR|ModCache] Preparing to add file '{}'", f.filename));
 
     try
     {
@@ -840,7 +840,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
     }
     catch (Ogre::Exception& e)
     {
-        RoR::LogFormat("[RoR|CacheSystem] Error processing file '%s', message :%s",
+        RoR::LogFormat("[RoR|ModCache] Error processing file '%s', message :%s",
             f.filename.c_str(), e.getFullDescription().c_str());
     }
 }
@@ -1452,7 +1452,7 @@ static bool CheckAndReplacePathIgnoreCase(const CacheEntryPtr& entry, CVar* dir,
     ROR_ASSERT(entry->resource_bundle_path != "");
     if (entry->resource_bundle_path == "")
     {
-        LOG(fmt::format("[RoR|CacheSystem] CheckAndReplacePathIgnoreCase(): INTERNAL ERROR - entry '{}' has no bundle path!", entry->fname));
+        LOG(fmt::format("[RoR|ModCache] CheckAndReplacePathIgnoreCase(): INTERNAL ERROR - entry '{}' has no bundle path!", entry->fname));
         return false;
     }
 
@@ -2462,3 +2462,64 @@ bool CacheQueryResult::operator<(CacheQueryResult const& other) const
     return cqr_score < other.cqr_score;
 }
 
+void CacheSystem::DeleteResourceBundleByFilename(const std::string& bundle_filename)
+{
+    std::string bundle_path;
+    if (!this->IsRepoFileInstalled(bundle_filename, bundle_path))
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(_LC("CacheSystem", "Could not delete resource bundle '{}': not found in mod cache."), bundle_filename));
+        return;
+    }
+
+    // Delete (flag 'deleted') all individual cache entries that belong to this bundle
+    for (const CacheEntryPtr& entry: App::GetCacheSystem()->GetEntries())
+    {
+        if (entry->resource_bundle_path == bundle_path)
+        {
+            entry->deleted = true; // The object must remain in memory until all references expire.
+            TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
+                /*ints*/ MODCACHEACTIVITY_ENTRY_DELETED, entry->number);
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                fmt::format(_LC("CacheSystem", "Deleted {} '{}' because bundle {} is being removed."), entry->fext, entry->dname, bundle_filename));
+        }
+    }
+
+    // Erase the 'deleted' entries from memory
+    RoR::EraseIf(m_entries, [](CacheEntryPtr& e) { return e->deleted; });
+
+    // Actually delete the bundle from disk
+    try
+    {
+        Ogre::ArchiveManager::getSingleton().unload(bundle_path);
+        if (!Ogre::FileSystemLayer::removeFile(bundle_path))
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Could not delete resource bundle file '{}' from disk."), bundle_filename));
+            return;
+        }
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
+            /*ints*/ MODCACHEACTIVITY_BUNDLE_DELETED, 0, 0, 0,
+            /*strings*/ bundle_filename);
+    }
+    catch (Ogre::Exception& oex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Could not delete resource bundle '{}', message: {}."), bundle_filename, oex.getDescription()));
+    }
+}
+
+bool CacheSystem::IsRepoFileInstalled(const std::string& repo_filename, std::string& out_filepath)
+{
+    for (const CacheEntryPtr& entry: App::GetCacheSystem()->GetEntries())
+    {
+        std::string path, basename;
+        Ogre::StringUtil::splitFilename(entry->resource_bundle_path, basename, path);
+        if (basename == repo_filename) 
+        {
+            out_filepath = entry->resource_bundle_path;
+            return true;
+        }
+    }
+    return false;
+}
