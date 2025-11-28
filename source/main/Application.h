@@ -110,6 +110,8 @@ enum MsgType
     MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
+    MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
     MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
     MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)

@@ -891,6 +891,22 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS:
+                case MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE: // If failed there is no file on disk so placeholder will be set instead.
+                {
+                    RepoImageDownloadRequest* rq = static_cast<RepoImageDownloadRequest*>(m.payload);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.LoadDownloadedImage(rq);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete rq;
+                    break;
+                }
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
