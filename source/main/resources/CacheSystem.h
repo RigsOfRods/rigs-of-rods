@@ -217,7 +217,7 @@ struct CreateProjectRequest
     std::string cpr_description;     //!< Optional, implemented for tuneups.
     CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from.
     ActorPtr cpr_source_actor;       //!< Only for type `SAVE_TUNEUP`
-    CreateProjectRequestType cpr_type = CreateProjectRequestType::NONE;     
+    CreateProjectRequestType cpr_type = CreateProjectRequestType::NONE;
     bool cpr_overwrite = false;
 };
 
@@ -326,6 +326,9 @@ public:
 
     const std::vector<std::string>& GetContentDirs() const { return m_content_dirs; }
 
+    void DeleteResourceBundleByFilename(const std::string& bundle_filename); //!< Deletes all CacheEntries which share the given resource bundle (ZIP or directory).
+    void ParseSingleZip(Ogre::String path);
+
 private:
 
     CacheValidity EvaluateCacheValidity(); // Called by `ContentManager` on startup only.
@@ -341,7 +344,7 @@ private:
 
     void ParseZipArchives(Ogre::String group);
     bool ParseKnownFiles(Ogre::String group); // returns true if no known files are found
-    void ParseSingleZip(Ogre::String path);
+    
 
     void ClearCache(); // removes                   all files from the cache
     void PruneCache(); // removes modified (or deleted) files from the cache

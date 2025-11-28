@@ -52,6 +52,17 @@ namespace RoR {
         std::string thumb_url;
     };
 
+    /// Payload for `MSG_NET_INSTALL_REPOFILE_REQUEST` message
+    struct RepoFileInstallRequest
+    {
+        // rfir_ prefix: RepoFileInstallRequest
+        RepoFileInstallRequestID_t rfir_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
+        int rfir_resource_id = 0;
+        int rfir_repofile_id = 0;
+        std::string rfir_filename;
+        int rfir_filesize_bytes = 0; // For display only
+    };
+
     // This will be removed during OGRE14 migration
     struct RepoImageRequestHandler: public Ogre::WorkQueue::RequestHandler
     {
@@ -140,8 +151,9 @@ public:
     void                                DrawResourceView(float searchbox_x);
     void                                DrawResourceViewRightColumn();
     void                                OpenResource(int resource_id);
-    void                                Download(int resource_id, std::string filename, int id);
-    void                                DownloadFinished();
+    void                                RequestInstallRepoFile(int resource_id, int datafile_pos);
+    void                                QueueInstallRepoFile(RepoFileInstallRequest* request);
+    void                                DownloadFinished(MsgType result);
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
@@ -153,8 +165,12 @@ public:
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
     void                                DownloadAttachment(int attachment_id, std::string const& attachment_ext);
     void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);
+    RepoFileInstallRequestID_t          GetNextInstallRequestId() { return m_next_install_request_id++; }
 
 private:
+    void                                TryProcessNextQueuedInstallRequest();
+    void                                DrawFooterDownloadsInfo();
+
     bool                                m_is_visible = false;
     bool                                m_draw = false;
     ResourcesCollection                 m_data;
@@ -164,13 +180,15 @@ private:
     std::string                         m_all_category_label;
     std::string                         m_current_category_label;
     int                                 m_gallery_mode_attachment_id = -1;
-    bool                                m_update_cache = false;
     bool                                m_show_spinner = false;
     std::string                         m_current_sort = "Last Update";
     std::string                         m_view_mode = "List";
     ResourceItemArrayPos_t              m_resourceview_item_arraypos = RESOURCEITEMARRAYPOS_INVALID;
     Ogre::TexturePtr                    m_fallback_thumbnail;
     RepoAttachmentsMap                  m_repo_attachments; //!< Fully loaded images in memory.
+    RepoFileInstallRequestID_t          m_next_install_request_id = 0;
+    std::vector<RepoFileInstallRequest> m_queued_install_requests;
+    RepoFileInstallRequestID_t          m_active_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
 
     // This will be removed during OGRE14 migration
     Ogre::uint16                        m_ogre_workqueue_channel = 0;

@@ -47,6 +47,10 @@ enum MsgType
     MSG_NET_REFRESH_REPOLIST_FAILURE,          //!< Background task notification, DO NOT PUSH MANUALLY.
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,          //!< Background task notification, DO NOT PUSH MANUALLY.
     MSG_NET_FETCH_AI_PRESETS_FAILURE,          //!< Background task notification, DO NOT PUSH MANUALLY.
+    MSG_NET_INSTALL_REPOFILE_REQUESTED         //!< Download file from repository and install it. You must known the exact IDs. Params: 'resource_id' (int), 'file_id' (int), 'filename' (string)
+    MSG_NET_INSTALL_REPOFILE_SUCCESS,          //!< Background task notification, DO NOT PUSH MANUALLY.
+    MSG_NET_INSTALL_REPOFILE_FAILURE,          //!< Background task notification, DO NOT PUSH MANUALLY.
+    MSG_NET_INSTALL_REPOFILE_PROGRESS,         //!< Background task notification, DO NOT PUSH MANUALLY.
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,                   //!< Pause game. No params.
     MSG_SIM_UNPAUSE_REQUESTED,                 //!< Unpause game. No params.
