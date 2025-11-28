@@ -1581,7 +1581,7 @@ void RepositorySelector::SetVisible(bool visible)
     {
         this->Refresh();
     }
-    else if (!visible && (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU))
+    else if (!visible)
     {
         App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }

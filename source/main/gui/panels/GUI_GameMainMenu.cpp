@@ -71,7 +71,7 @@ void GameMainMenu::DrawMenuPanel()
     }
     else
     {
-        m_num_buttons = 4;
+        m_num_buttons = 5;
         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             title = "Menu";
@@ -145,13 +145,16 @@ void GameMainMenu::DrawMenuPanel()
                 App::GetGuiManager()->MultiplayerSelector.SetVisible(true);
                 this->SetVisible(false);
             }
+        }
 
-            if (HighlightButton(_LC("MainMenu", "Repository"), btn_size, button_index++))
-            {
-                App::GetGuiManager()->RepositorySelector.SetVisible(true);
-                this->SetVisible(false);
-            }
+        if (HighlightButton(_LC("MainMenu", "Repository"), btn_size, button_index++))
+        {
+            App::GetGuiManager()->RepositorySelector.SetVisible(true);
+            this->SetVisible(false);
+        }
 
+        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+        {
             if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
             {
                 App::GetGuiManager()->GameSettings.SetVisible(true);

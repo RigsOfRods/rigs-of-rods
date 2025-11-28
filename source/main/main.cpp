@@ -2086,6 +2086,7 @@ int main(int argc, char *argv[])
 
             // Create snapshot of simulation state for Gfx/GUI updates
             if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||   // Obviously
+                App::sim_state->getEnum<SimState>() == SimState::PAUSED ||    // Avoid dangling (DISPOSED) pointers in simbuffer
                 App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE) // Needed for character movement
             {
                 App::GetGfxScene()->BufferSimulationData();
