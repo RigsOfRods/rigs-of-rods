@@ -751,6 +751,12 @@ void TopMenubar::Draw(float dt)
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (ImGui::Button(_LC("TopMenubar", "Browse repository ...")))
+            {
+                App::GetGuiManager()->RepositorySelector.SetVisible(true);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Pre-spawn diag. options:"));
 

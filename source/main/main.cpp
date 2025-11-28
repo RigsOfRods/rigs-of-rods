@@ -1749,11 +1749,23 @@ int main(int argc, char *argv[])
                         bool all_clear = true;
                         for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                         {
-                            if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
+                            ROR_ASSERT(actor);
+                            ROR_ASSERT(actor->getUsedActorEntry());
+                            const bool uses_actor_rg = (actor->getUsedActorEntry()->resource_group == (*entry_ptr)->resource_group);
+                            // Skin entry is optional.
+                            const bool uses_skin_rg = (actor->getUsedSkinEntry() && actor->getUsedSkinEntry()->resource_group == (*entry_ptr)->resource_group);
+                            if (uses_actor_rg || uses_skin_rg)
                             {
                                 App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                                 all_clear = false;
                             }
+                        }
+                        // Check terrain, too! Could have been uninstalled via RepoUI.
+                        if (App::GetGameContext()->GetTerrain()
+                            && App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_group == (*entry_ptr)->resource_group)
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                            all_clear = false;
                         }
 
                         if (all_clear)
@@ -2086,6 +2098,7 @@ int main(int argc, char *argv[])
 
             // Create snapshot of simulation state for Gfx/GUI updates
             if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||   // Obviously
+                App::sim_state->getEnum<SimState>() == SimState::PAUSED ||    // Avoid dangling (DISPOSED) pointers in simbuffer
                 App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE) // Needed for character movement
             {
                 App::GetGfxScene()->BufferSimulationData();
