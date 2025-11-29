@@ -63,6 +63,7 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("TerrainClass", "float getHeightAt(float x, float z)", asMETHOD(RoR::Terrain,getHeightAt), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "vector3 getSpawnPos()", asMETHOD(RoR::Terrain,getSpawnPos), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "degree getSpawnRot()", asMETHOD(RoR::Terrain, getSpawnRot), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainClass", "vector3 getMaxTerrainSize()", asMETHOD(RoR::Terrain, getMaxTerrainSize), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Subsystems
     result = engine->RegisterObjectMethod("TerrainClass", "void addSurveyMapEntity(const string &in type, const string &in filename, const string &in resource_group, const string &in caption, const vector3 &in pos, float angle, int id)", asMETHOD(RoR::Terrain, addSurveyMapEntity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
