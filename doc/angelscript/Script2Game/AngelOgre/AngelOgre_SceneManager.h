@@ -13,21 +13,40 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
     */
     class  SceneManager
     {
+        // PLEASE maintain the same order as in source/main/scripting/bindings/OgreAngelscript.cpp
     public:
-        Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg);
-        
+    
         const string& getName() const;
-
-        SceneNode@ getRootSceneNode();
-
+        
+        array<MovableObject@>@ __getMovableObjectsByType(const string&in typeName);
+    
+        /// @name Entities
+        /// @{
+        Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg);
         void destroyEntity(Entity@);
-
-        void destroyEntity(const string &in);
+        void destroyEntity(const string &in);        
+        /// @}
         
-        void destroySceneNode(SceneNode@);
-        
+        /// @name Scene nodes
+        /// @{
+        SceneNode@ getRootSceneNode();  
+        void destroySceneNode(SceneNode@);        
         void destroySceneNode(const string &in);
+        /// @}
         
+        /// @name Ambient light
+        /// @{
+        const color& getAmbientLight() const;
+        void setAmbientLight(const color &in);
+        /// @}
+        
+        /// @name Manual object
+        /// @{
+        ManualObject@ createManualObject(const string &in);           
+        ManualObject@ getManualObject(const string &in);
+        ManualObject@ destroyManualObject(const string &in);       
+        void destroyManualObject(ManualObject@);
+        /// @}
     
     };
     

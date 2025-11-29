@@ -643,6 +643,50 @@ static bool GpuProgramParametersPtrIsNull(GpuProgramParametersPtr* self)
     return !(self)->operator bool();
 }
 
+/***SCENEMANAGER***/
+
+static AngelScript::CScriptArray* SceneManager__getMovableObjectsByType(SceneManager* self, const std::string& typeName)
+{
+    if (!self)
+    {
+        App::GetScriptEngine()->SLOG("SceneManager::__getMovableObjectsByType(): SceneManager is null");
+        return nullptr;
+    }
+
+    try
+    {
+        // Get the iterator
+        SceneManager::MovableObjectIterator it = self->getMovableObjectIterator(typeName);
+
+        // Create script array for MovableObjects
+        AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<Ogre::MovableObject@>");
+        if (!typeinfo)
+        {
+            App::GetScriptEngine()->SLOG("SceneManager::__getMovableObjectsByType(): Failed to get array type info");
+            return nullptr;
+        }
+
+        AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+
+        // Iterate through all movable objects of this type
+        while (it.hasMoreElements())
+        {
+            Ogre::MovableObject* obj = it.getNext();
+            if (obj)
+            {
+                arr->InsertLast(&obj);
+            }
+        }
+
+        return arr;
+    }
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("SceneManager::__getMovableObjectsByType()");
+        return nullptr;
+    }
+}
+
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
 void registerOgreVector2(AngelScript::asIScriptEngine* engine);
@@ -1678,16 +1722,24 @@ void registerOgreSceneManager(AngelScript::asIScriptEngine* engine)
     int r;
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectMethod("SceneManager", "const string& getName() const", asMETHOD(SceneManager, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SceneManager", "array<MovableObject@>@ __getMovableObjectsByType(const string&in typeName)", asFUNCTION(SceneManager__getMovableObjectsByType), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    // Entities
     r = engine->RegisterObjectMethod("SceneManager", "Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg = \"OgreAutodetect\")", asFUNCTIONPR([](Ogre::SceneManager* self, const std::string& entityName, const std::string& meshName, const std::string& meshRG) -> Ogre::Entity* {
         try { return self->createEntity(entityName, meshName, meshRG); }
         catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::SceneManager::createEntity()"); return nullptr; }
     }, (Ogre::SceneManager* , const std::string& , const std::string& , const std::string& ), Ogre::Entity*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("SceneManager", "const string& getName() const", asMETHOD(SceneManager, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("SceneManager", "SceneNode@ getRootSceneNode()", asMETHOD(SceneManager, getRootSceneNode), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroyEntity(Entity@)", asMETHODPR(SceneManager, destroyEntity, (Entity*), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroyEntity(const string &in)", asMETHODPR(SceneManager, destroyEntity, (const Ogre::String&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    // Scene nodes
+    r = engine->RegisterObjectMethod("SceneManager", "SceneNode@ getRootSceneNode()", asMETHOD(SceneManager, getRootSceneNode), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroySceneNode(SceneNode@)", asMETHODPR(SceneManager, destroySceneNode, (SceneNode*), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroySceneNode(const string &in)", asMETHODPR(SceneManager, destroySceneNode, (const Ogre::String&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    // Ambient light
     r = engine->RegisterObjectMethod("SceneManager", "const color& getAmbientLight() const", asMETHOD(SceneManager, getAmbientLight), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void setAmbientLight(const color &in)", asMETHODPR(SceneManager, setAmbientLight, (const ColourValue&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
@@ -2446,10 +2498,6 @@ void registerOgreLight(AngelScript::asIScriptEngine* engine)
     // Power scale
     r = engine->RegisterObjectMethod("Light", "void setPowerScale(float power)", asMETHOD(Ogre::Light, setPowerScale), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Light", "float getPowerScale() const", asMETHOD(Ogre::Light, getPowerScale), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-
-    // Shadow
-    r = engine->RegisterObjectMethod("Light", "void setCastShadows(bool enabled)", asMETHOD(Ogre::Light, setCastShadows), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("Light", "bool getCastShadows() const", asMETHOD(Ogre::Light, getCastShadows), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     // Derived direction (useful for attached lights)
     r = engine->RegisterObjectMethod("Light", "const vector3& getDerivedPosition() const", asMETHOD(Ogre::Light, getDerivedPosition), asCALL_THISCALL); ROR_ASSERT(r >= 0);
