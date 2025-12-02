@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier VerguÌn Gonz·lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Vergu√≠n Gonz√°lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -99,7 +99,7 @@ namespace SkyX
 		/** Set moon phase
 		    @param mp Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
 		 */
-		inline void setMoonPhase(const Ogre::Real& mp)
+		inline void setMoonPhase(const Ogre::Real mp)
 		{
 			mMoonPhase = mp;
 		}

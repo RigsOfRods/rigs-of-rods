@@ -77,6 +77,7 @@
 #include <OgreSceneManager.h>
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
+#include <OgreParticleSystemRenderer.h>
 #include <OgreEntity.h>
 #include <climits>
 #include <fmt/format.h>
@@ -1530,7 +1531,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     }
 
     // Collect 'forset' nodes
-    std::vector<unsigned int> node_indices;
+    std::vector<NodeNum_t> node_indices;
     bool nodes_found = true;
     for (auto& node_def: def.node_list)
     {
@@ -2171,6 +2172,12 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
     // Also create unique copy of the material, so we can adjust opacity via Ogre::Material to simulate incandescence.
     f.bbs->setMaterial(f.bbs->getMaterial()->clone(f.snode->getName() + "_mat"));
 
+    // Also apply attenuation settings
+    f.light->setAttenuation(
+        def.attenuation_defaults->range,
+        def.attenuation_defaults->constant,
+        def.attenuation_defaults->linear,
+        def.attenuation_defaults->quadratic);
 }
 
 void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
@@ -2401,6 +2408,9 @@ void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
         flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
         flare.light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
         flare.light->setCastShadows(false);
+
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(flare.light);
     }
     m_actor->ar_flares.push_back(flare);
 }
@@ -5325,7 +5335,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
         );
 
     int num_nodes = num_rays * 4;
-    std::vector<unsigned int> node_indices;
+    std::vector<NodeNum_t> node_indices;
     node_indices.reserve(num_nodes);
     for (int i = 0; i < num_nodes; ++i)
     {
@@ -7154,6 +7164,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 
         vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
+        Ogre::SceneNode* vcam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        vcam_snode->attachObject(vcam.vcam_ogre_camera);
+
         if (!App::gfx_window_videocams->getBool())
         {
             vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
@@ -7277,6 +7290,9 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         vcam.vcam_ogre_camera->setAspectRatio(
             (App::GetCameraManager()->GetCamera()->getViewport()->getActualWidth() / App::GetCameraManager()->GetCamera()->getViewport()->getActualHeight()) / 2.0f);
 
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(vcam.vcam_ogre_camera);
+
         // Setup rendering
         vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
         vcam.vcam_render_target->setActive(true);
@@ -7337,7 +7353,7 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
     params["templateName"] = template_name;
 
     Ogre::MovableObject* obj = App::GetGfxScene()->GetSceneManager()->createMovableObject(
-       name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
+       name, Ogre::MOT_PARTICLE_SYSTEM, &params);
     Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
 

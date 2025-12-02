@@ -110,6 +110,8 @@ enum MsgType
     MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
+    MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
     MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
     MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)
@@ -134,6 +136,7 @@ enum MsgType
     MSG_SIM_ADD_FREEFORCE_REQUESTED,       //!< Payload = RoR::FreeForceRequest* (owner)
     MSG_SIM_MODIFY_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceRequest* (owner)
     MSG_SIM_REMOVE_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceID_t* (owner)
+    MSG_SIM_REINIT_WATER_REQUESTED,
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,
@@ -161,6 +164,7 @@ enum MsgType
     MSG_EDI_ADD_FREEBEAMGFX_REQUESTED,     //!< Payload = RoR::FreeBeamGfxRequest* (owner)
     MSG_EDI_MODIFY_FREEBEAMGFX_REQUESTED,  //!< Payload = RoR::FreeBeamGfxRequest* (owner)
     MSG_EDI_DELETE_FREEBEAMGFX_REQUESTED,  //!< Payload = RoR::FreeBeamGfxID_t* (owner)
+    MSG_EDI_REINIT_SKY_REQUESTED,
 };
 
 const char* MsgTypeToString(MsgType type);
@@ -263,6 +267,7 @@ enum class Keyword
     SCRIPTS,
     SECTION,
     SECTIONCONFIG,
+    SET_ATTENUATION_DEFAULTS,
     SET_BEAM_DEFAULTS,
     SET_BEAM_DEFAULTS_SCALE,
     SET_COLLISION_RANGE,
@@ -408,6 +413,7 @@ std::string ToLocalizedString(GfxWaterMode e);
 
 enum class GfxSkyMode
 {
+    NONE,       //!< No sky (simple color)
     SANDSTORM,  //!< Sandstorm (fastest)
     CAELUM,     //!< Caelum (best looking, slower)
     SKYX,       //!< SkyX (best looking, slower)
@@ -776,6 +782,7 @@ extern CVar* gfx_sky_time_cycle;
 extern CVar* gfx_sky_time_speed;
 extern CVar* gfx_texture_filter;
 extern CVar* gfx_vegetation_mode;
+extern CVar* gfx_trees_paged; //!< (bool) Render trees like regular entities, not via paged-geometry (still needs ROR_USE_PAGED though!)
 extern CVar* gfx_water_mode;
 extern CVar* gfx_anisotropy;
 extern CVar* gfx_water_waves;
@@ -786,7 +793,6 @@ extern CVar* gfx_surveymap_icons;
 extern CVar* gfx_declutter_map;
 extern CVar* gfx_envmap_enabled;
 extern CVar* gfx_envmap_rate;
-extern CVar* gfx_shadow_quality;
 extern CVar* gfx_skidmarks_mode;
 extern CVar* gfx_sight_range;
 extern CVar* gfx_camera_height;

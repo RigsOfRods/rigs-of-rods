@@ -90,12 +90,11 @@ void FireExtinguisherAffector::_affectParticles(ParticleSystem* pSystem, Real ti
         Real squaredRadius = Math::Pow(fire->getRadius(), 2);
         Vector3 middlePoint = fire->getAbsoluteMiddlePoint();
 
-        ParticleIterator pi = pSystem->_getIterator();
-        Particle *p;
+        size_t numParticles = pSystem->getNumParticles();
         int fireHits = 0;
-        while (!pi.end())
+        for (size_t i = 0; i < numParticles; ++i)
         {
-            p = pi.getNext();
+            Particle *p = pSystem->getParticle(i);
 
             if ( middlePoint.squaredDistance(p->mPosition) < squaredRadius )
             {

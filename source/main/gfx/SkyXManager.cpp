@@ -37,9 +37,7 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 {
 	InitLight();
 
-	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("..\\resource\\SkyX\\","FileSystem", "SkyX",true); //Temp
-
-	mBasicController = new SkyX::BasicController();
+	mBasicController = new SkyX::BasicController(/* deleteBySkyX: */false);
 	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
 
 	mCfgFileManager = new SkyX::CfgFileManager(mSkyX, mBasicController, App::GetCameraManager()->GetCamera());
@@ -49,17 +47,30 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 	RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(mSkyX);
 	RoR::App::GetAppContext()->GetRenderWindow()->addListener(mSkyX);
+
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->attachViewport(RoR::App::GetAppContext()->GetViewport());
 }
 
 SkyXManager::~SkyXManager()
 {
-    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
-    mSkyX->remove();
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->detachViewport(RoR::App::GetAppContext()->GetViewport());
 
+    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
+
+    mSkyX->remove();
+    delete mSkyX;
     mSkyX = nullptr;
 
     delete mBasicController;
     mBasicController = nullptr;
+
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight0);
+    mLight0 = nullptr;
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight1);
+    mLight1 = nullptr;
 }
 
 Vector3 SkyXManager::getMainLightDirection()
@@ -91,22 +102,19 @@ bool SkyXManager::UpdateSkyLight()
 	// Calculate current color gradients point
 	float point = (-lightDir.y + 1.0f) / 2.0f;
 
-    if (App::GetGameContext()->GetTerrain()->getHydraxManager ()) 
-    {
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
-    }
-		
+	IGfxWater* iwater = App::GetGameContext()->GetTerrain()->getGfxWater();
+	if (iwater)
+	{
+		Ogre::Vector3 waterCol = mWaterGradient.getColor(point);
+		iwater->SetWaterColor(Ogre::ColourValue(waterCol.x, waterCol.y, waterCol.z));
+        iwater->SetWaterSunPosition(sunPos*0.1);
+	}
 
 	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
 	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
 
-	mLight0->setPosition(sunPos*0.02);
-	mLight1->setDirection(lightDir);
-    if (App::GetGameContext()->GetTerrain()->getWater())
-    {
-        App::GetGameContext()->GetTerrain()->getGfxWater()->WaterSetSunPosition(sunPos*0.1);
-    }
+	mLight0->getParentSceneNode()->setPosition(sunPos*0.02);
+	mLight1->getParentSceneNode()->setDirection(lightDir);
 
 	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459
 /*	Ogre::Vector3 sunCol = mSunGradient.getColor(point);
@@ -115,7 +123,7 @@ bool SkyXManager::UpdateSkyLight()
 	*/
 	Ogre::Vector3 ambientCol = mAmbientGradient.getColor(point);
 	mLight1->setDiffuseColour(ambientCol.x, ambientCol.y, ambientCol.z);
-	mLight1->setPosition(100,100,100);
+	mLight1->getParentSceneNode()->setPosition(100,100,100);
 
 	if (mBasicController->getTime().x > 12)
 	{
@@ -171,8 +179,6 @@ bool SkyXManager::InitLight()
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.1, 0.35f));
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.05, 0.0f));
 
-	App::GetGfxScene()->GetSceneManager()->setAmbientLight(ColourValue(0.35,0.35,0.35)); //Not needed because terrn2 has ambientlight settings
-
 	// Light
 	mLight0 = App::GetGfxScene()->GetSceneManager()->createLight("Light0");
 	mLight0->setDiffuseColour(1, 1, 1);
@@ -180,6 +186,12 @@ bool SkyXManager::InitLight()
 
 	mLight1 = App::GetGfxScene()->GetSceneManager()->createLight("Light1");
 	mLight1->setType(Ogre::Light::LT_DIRECTIONAL);
+
+        Ogre::SceneNode* mLight0_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        mLight0_snode->attachObject(mLight0);
+
+        Ogre::SceneNode* mLight1_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        mLight1_snode->attachObject(mLight1);
 
 	return true;
 }
@@ -193,4 +205,45 @@ size_t SkyXManager::getMemoryUsage()
 void SkyXManager::freeResources()
 {
 	//TODO
+}
+
+// SkyX stores time data as Vector3 :/
+//  x = time-of-day in [0, 24]h range
+//  y = sunrise hour in [0, 24]h range
+//  z = sunset hour in [0, 24] range
+
+void SkyXManager::setTimeOfDay24Hour(float timeOfDay24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.x = timeOfDay24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getTimeOfDay24Hour()
+{
+    return mBasicController->getTime().x;
+}
+
+void SkyXManager::setSunsetTime24Hour(float sunsetTime24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.z = sunsetTime24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getSunsetTime24Hour()
+{
+    return mBasicController->getTime().z;
+}
+
+void SkyXManager::setSunriseTime24Hour(float sunriseTime24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.y = sunriseTime24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getSunriseTime24Hour()
+{
+    return mBasicController->getTime().y;
 }

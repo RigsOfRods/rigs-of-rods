@@ -82,7 +82,7 @@ void Console::cVarSetupBuiltins()
     App::diag_rig_log_node_import= this->cVarCreate("diag_rig_log_node_import","RigImporter_LogAllNodes",    CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_stats = this->cVarCreate("diag_rig_log_node_stats", "RigImporter_LogNodeStats",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_truck_mass         = this->cVarCreate("diag_truck_mass",         "Debug Truck Mass",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::diag_envmap             = this->cVarCreate("diag_envmap",             "EnvMapDebug",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_envmap             = this->cVarCreate("diag_envmap",             "EnvMapDebug",                               CVAR_TYPE_BOOL,    "false");
     App::diag_videocameras       = this->cVarCreate("diag_videocameras",       "VideoCameraDebug",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_preset_terrain     = this->cVarCreate("diag_preset_terrain",     "Preselected Terrain",        CVAR_ARCHIVE);
     App::diag_preset_spawn_pos   = this->cVarCreate("diag_spawn_position",     "",                           CVAR_ARCHIVE);
@@ -175,6 +175,7 @@ void Console::cVarSetupBuiltins()
     App::gfx_sky_mode            = this->cVarCreate("gfx_sky_mode",            "Sky effects",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)GfxSkyMode::CAELUM*/);
     App::gfx_texture_filter      = this->cVarCreate("gfx_texture_filter",      "Texture Filtering",          CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxTexFilter::ANISOTROPIC*/);
     App::gfx_vegetation_mode     = this->cVarCreate("gfx_vegetation_mode",     "Vegetation",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxVegetation::FULL*/);
+    App::gfx_trees_paged         = this->cVarCreate("gfx_trees_paged",         "Trees use paged geometry",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_sky_time_cycle      = this->cVarCreate("gfx_sky_time_cycle",      "",                                          CVAR_TYPE_BOOL,    "false");
     App::gfx_sky_time_speed      = this->cVarCreate("gfx_sky_time_speed",      "",                                          CVAR_TYPE_INT,     "300");
     App::gfx_water_mode          = this->cVarCreate("gfx_water_mode",          "Water effects",              CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxWaterMode::FULL_FAST*/);
@@ -187,7 +188,6 @@ void Console::cVarSetupBuiltins()
     App::gfx_declutter_map       = this->cVarCreate("gfx_declutter_map",       "Declutter overview map",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_envmap_enabled      = this->cVarCreate("gfx_envmap_enabled",      "Reflections",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_envmap_rate         = this->cVarCreate("gfx_envmap_rate",         "ReflectionUpdateRate",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "1");
-    App::gfx_shadow_quality      = this->cVarCreate("gfx_shadow_quality",      "Shadows Quality",            CVAR_ARCHIVE | CVAR_TYPE_INT,     "2");
     App::gfx_skidmarks_mode      = this->cVarCreate("gfx_skidmarks_mode",      "Skidmarks",                  CVAR_ARCHIVE | CVAR_TYPE_INT,     "0");
     App::gfx_sight_range         = this->cVarCreate("gfx_sight_range",         "SightRange",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "5000");
     App::gfx_camera_height       = this->cVarCreate("gfx_camera_height",       "Static camera height",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "5");

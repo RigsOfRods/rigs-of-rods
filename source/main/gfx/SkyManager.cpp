@@ -54,6 +54,7 @@ SkyManager::SkyManager() : m_caelum_system(nullptr), m_last_clock(0.0)
 SkyManager::~SkyManager()
 {
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(m_caelum_system);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(m_caelum_system);
     m_caelum_system->shutdown(false);
     m_caelum_system = nullptr;
 }
@@ -126,14 +127,6 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
 #else
 #error please use a recent Caelum version, see http://www.rigsofrods.org/wiki/pages/Compiling_3rd_party_libraries#Caelum
 #endif // CAELUM_VERSION
-        // now optimize the moon a bit
-        if (m_caelum_system->getMoon())
-        {
-            m_caelum_system->getMoon()->setAutoDisable(true);
-            //m_caelum_system->getMoon()->setAutoDisableThreshold(1);
-            m_caelum_system->getMoon()->setForceDisable(true);
-            m_caelum_system->getMoon()->getMainLight()->setCastShadows(false);
-        }
 
         m_caelum_system->setEnsureSingleShadowSource(true);
         m_caelum_system->setEnsureSingleLightSource(true);
@@ -145,8 +138,17 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
     {
         RoR::LogFormat("[RoR] Exception while loading sky script: %s", e.getFullDescription().c_str());
     }
-    Ogre::Vector3 lightsrc = m_caelum_system->getSun()->getMainLight()->getDirection();
-    m_caelum_system->getSun()->getMainLight()->setDirection(lightsrc.normalisedCopy());
+    Ogre::Vector3 lightsrc = m_caelum_system->getSun()->getMainLight()->getDerivedDirection();
+    m_caelum_system->getSun()->getMainLight()->getParentSceneNode()->setDirection(lightsrc.normalisedCopy());
+
+    // now optimize the moon a bit
+    if (m_caelum_system->getMoon())
+    {
+        m_caelum_system->getMoon()->setAutoDisable(true);
+        //m_caelum_system->getMoon()->setAutoDisableThreshold(1);
+        m_caelum_system->getMoon()->setForceDisable(true);
+        m_caelum_system->getMoon()->getMainLight()->setCastShadows(false);
+    }
 }
 
 void SkyManager::SetSkyTimeFactor(float factor)

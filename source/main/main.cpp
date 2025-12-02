@@ -56,7 +56,11 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "Utils.h"
+
+#include <Ogre.h>
+#include <OGRE/Bites/OgreSGTechniqueResolverListener.h>
 #include <Overlay/OgreOverlaySystem.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <ctime>
 #include <iomanip>
 #include <string>
@@ -140,6 +144,12 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
+#ifdef USE_CAELUM
+        // Initialize CaelumPlugin, must happen before initialising resource groups
+        new Caelum::CaelumPlugin();
+        Caelum::CaelumPlugin::getSingleton().initialise();
+#endif //USE_CAELUM
+
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Deploy base config files from 'skeleton.zip'
@@ -176,6 +186,7 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FONTS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
@@ -192,6 +203,22 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        //Note: for DirectX this needs to happen early
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            ErrorUtils::ShowError(_L("Startup error"), _L("Failed to setup RTShader system"));
+            return -1;
+        }
+
+        auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADER);
+        mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
+        mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
+        App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
+        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
+        Ogre::MaterialManager::getSingleton().setActiveScheme(Ogre::MSN_SHADERGEN);
+        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
 
         App::CreateGuiManager(); // Needs scene manager
 
@@ -891,6 +918,22 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS:
+                case MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE: // If failed there is no file on disk so placeholder will be set instead.
+                {
+                    RepoImageDownloadRequest* rq = static_cast<RepoImageDownloadRequest*>(m.payload);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.LoadDownloadedImage(rq);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete rq;
+                    break;
+                }
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -952,14 +995,6 @@ int main(int argc, char *argv[])
                             if (App::audio_menu_music->getBool())
                             {
                                 SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
-                            }
-                            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SANDSTORM)
-                            {
-                                App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
-                            }
-                            else
-                            {
-                                App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
                             }
                             App::GetDiscordRpc()->UpdatePresence();
                             App::sim_state->setVal((int)SimState::RUNNING);
@@ -1403,6 +1438,20 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_SIM_REINIT_WATER_REQUESTED:
+                {
+                    try
+                    {
+                        App::GetGameContext()->GetTerrain()->destroyWater();
+                        App::GetGameContext()->GetTerrain()->createWater();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:
@@ -1840,6 +1889,20 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_EDI_REINIT_SKY_REQUESTED:
+                {
+                    try
+                    {
+                        App::GetGameContext()->GetTerrain()->DestroySky();
+                        App::GetGameContext()->GetTerrain()->CreateSky();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+                
                 default:;
                 }
 

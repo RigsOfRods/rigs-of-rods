@@ -45,6 +45,7 @@
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
+#include "RTSSManager.h"
 
 #include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <Overlay/OgreFontManager.h>
@@ -87,8 +88,6 @@ TerrainObjectManager::~TerrainObjectManager()
         delete geom;
     }
 #endif //USE_PAGED
-
-    App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
 
     App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_terrn2_grouping_node);
 }
@@ -299,38 +298,51 @@ void TerrainObjectManager::ProcessTree(
     densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
     //densityMap->setMapBounds(TRect(0, 0, mapsizex, mapsizez));
 
-    PagedGeometry* geom = new PagedGeometry();
-    geom->setTempDir(App::sys_cache_dir->getStr() + PATH_SLASH);
-    geom->setCamera(App::GetCameraManager()->GetCamera());
-    geom->setPageSize(50);
-    geom->setInfinite();
+    PagedGeometry* geom = nullptr;
+    TreeLoader2D* treeLoader = nullptr;
     Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, mapsizex, mapsizez);
-    geom->setBounds(bounds);
+    StaticGeometry* staGeom = nullptr;
 
-    //Set up LODs
-    //trees->addDetailLevel<EntityPage>(50);
-    float min = minDist * terrainManager->getPagedDetailFactor();
-    if (min < 10)
-        min = 10;
-    geom->addDetailLevel<BatchPage>(min, min / 2);
-    float max = maxDist * terrainManager->getPagedDetailFactor();
-    if (max < 10)
-        max = 10;
-
-    // Check if farther details level is greater than closer
-    if (max / 10 > min / 2)
+    if (App::gfx_trees_paged->getBool())
     {
-        geom->addDetailLevel<ImpostorPage>(max, max / 10);
+        geom = new PagedGeometry();
+        geom->setTempDir(App::sys_cache_dir->getStr() + PATH_SLASH);
+        geom->setCamera(App::GetCameraManager()->GetCamera());
+        geom->setPageSize(50);
+        geom->setInfinite();
+        geom->setBounds(bounds);
+
+        //Set up LODs
+        //trees->addDetailLevel<EntityPage>(50);
+        float min = minDist * terrainManager->getPagedDetailFactor();
+        if (min < 10)
+            min = 10;
+        geom->addDetailLevel<BatchPage>(min, min / 2);
+        float max = maxDist * terrainManager->getPagedDetailFactor();
+        if (max < 10)
+            max = 10;
+
+        // Check if farther details level is greater than closer
+        if (max / 10 > min / 2)
+        {
+            geom->addDetailLevel<ImpostorPage>(max, max / 10);
+        }
+
+        treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
+        treeLoader->setMinimumScale(scalefrom);
+        treeLoader->setMaximumScale(scaleto);
+        geom->setPageLoader(treeLoader);
+        treeLoader->setHeightFunction(&getTerrainHeight);
+        if (String(ColorMap) != "none")
+        {
+            treeLoader->setColorMap(ColorMap);
+        }
     }
-
-    TreeLoader2D *treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
-    treeLoader->setMinimumScale(scalefrom);
-    treeLoader->setMaximumScale(scaleto);
-    geom->setPageLoader(treeLoader);
-    treeLoader->setHeightFunction(&getTerrainHeight);
-    if (String(ColorMap) != "none")
+    else
     {
-        treeLoader->setColorMap(ColorMap);
+        ROR_ASSERT(m_tobj_grouping_node); // We are loading TOBJ or one was loaded before.
+        std::string name = fmt::format("{}/trees {}", m_tobj_grouping_node->getName(), treemesh);
+        staGeom = App::GetGfxScene()->GetSceneManager()->createStaticGeometry(name);
     }
 
     Entity* curTree = App::GetGfxScene()->GetSceneManager()->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
@@ -349,7 +361,16 @@ void TerrainObjectManager::ProcessTree(
                 float yaw = Math::RangeRandom(yawfrom, yawto);
                 float scale = Math::RangeRandom(scalefrom, scaleto);
                 Vector3 pos = Vector3(nx, 0, nz);
-                treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                if (App::gfx_trees_paged->getBool())
+                {
+                    treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                }
+                else
+                {
+                    pos.y = terrainManager->getHeightAt(pos.x, pos.z);
+                    staGeom->addEntity(curTree, pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                }
+
                 if (strlen(treeCollmesh))
                 {
                     pos.y = terrainManager->getHeightAt(pos.x, pos.z);
@@ -383,7 +404,16 @@ void TerrainObjectManager::ProcessTree(
                     float yaw = Math::RangeRandom(yawfrom, yawto);
                     float scale = Math::RangeRandom(scalefrom, scaleto);
                     Vector3 pos = Vector3(nx, 0, nz);
-                    treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                    if (App::gfx_trees_paged->getBool())
+                    {
+                        treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                    }
+                    else
+                    {
+                        pos.y = terrainManager->getHeightAt(pos.x, pos.z);
+                        staGeom->addEntity(curTree, pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                    }
+
                     if (strlen(treeCollmesh))
                     {
                         pos.y = terrainManager->getHeightAt(pos.x, pos.z);
@@ -393,7 +423,16 @@ void TerrainObjectManager::ProcessTree(
             }
         }
     }
-    m_paged_geometry.push_back(geom);
+
+    if (App::gfx_trees_paged->getBool())
+    {
+        m_paged_geometry.push_back(geom);
+    }
+    else
+    {
+        staGeom->build();
+        m_static_geometry.push_back(staGeom);
+    }
 #endif //USE_PAGED
 }
 
@@ -684,6 +723,14 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
     }
 
+    if (mo)
+    {
+        for (Ogre::SubEntity* subent : mo->getEntity()->getSubEntities())
+        {
+            App::GetGameContext()->GetTerrain()->getRTSSManager()->EnableRTSS(subent->getMaterial());
+        }
+    }
+
     for (LocalizerType type : odef->localizers)
     {
         Localizer loc;
@@ -920,15 +967,22 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (ODefSpotlight& spotl: odef->spotlights)
     {
-        Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight();
+        SceneNode *sn = tenode->createChildSceneNode();
+        // Don't create lights with pssm enabled, this crashes the game
+        // TODO: Fix the crash instead of disabling the light
+        if(App::gfx_shadow_type->getEnum<GfxShadowType>() != GfxShadowType::PSSM)
+        {
+            Light *spotLight = App::GetGfxScene()->GetSceneManager()->createLight();
+            sn->attachObject(spotLight);
 
-        spotLight->setType(Light::LT_SPOTLIGHT);
-        spotLight->setPosition(spotl.pos);
-        spotLight->setDirection(spotl.dir);
-        spotLight->setAttenuation(spotl.range, 1.0, 0.3, 0.0);
-        spotLight->setDiffuseColour(spotl.color);
-        spotLight->setSpecularColour(spotl.color);
-        spotLight->setSpotlightRange(Degree(spotl.angle_inner), Degree(spotl.angle_outer));
+            spotLight->setType(Light::LT_SPOTLIGHT);
+            spotLight->getParentSceneNode()->setPosition(spotl.pos);
+            spotLight->getParentSceneNode()->setDirection(spotl.dir);
+            spotLight->setAttenuation(spotl.range, 1.0, 0.3, 0.0);
+            spotLight->setDiffuseColour(spotl.color);
+            spotLight->setSpecularColour(spotl.color);
+            spotLight->setSpotlightRange(Degree(spotl.angle_inner), Degree(spotl.angle_outer));
+        }
 
         BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
         lflare->createBillboard(spotl.pos, spotl.color);
@@ -938,21 +992,26 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         float fsize = Math::Clamp(spotl.range / 10, 0.2f, 2.0f);
         lflare->setDefaultDimensions(fsize, fsize);
 
-        SceneNode *sn = tenode->createChildSceneNode();
-        sn->attachObject(spotLight);
         sn->attachObject(lflare);
     }
 
     for (ODefPointLight& plight : odef->point_lights)
     {
-        Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight();
+        SceneNode *sn = tenode->createChildSceneNode();
+        // Don't create lights with pssm enabled, this crashes the game
+        // TODO: Fix the crash instead of disabling the light
+        if(App::gfx_shadow_type->getEnum<GfxShadowType>() != GfxShadowType::PSSM)
+        {
+            Light *pointlight = App::GetGfxScene()->GetSceneManager()->createLight();
+            sn->attachObject(pointlight);
 
-        pointlight->setType(Light::LT_POINT);
-        pointlight->setPosition(plight.pos);
-        pointlight->setDirection(plight.dir);
-        pointlight->setAttenuation(plight.range, 1.0, 0.3, 0.0);
-        pointlight->setDiffuseColour(plight.color);
-        pointlight->setSpecularColour(plight.color);
+            pointlight->setType(Light::LT_POINT);
+            pointlight->getParentSceneNode()->setPosition(plight.pos);
+            pointlight->getParentSceneNode()->setDirection(plight.dir);
+            pointlight->setAttenuation(plight.range, 1.0, 0.3, 0.0);
+            pointlight->setDiffuseColour(plight.color);
+            pointlight->setSpecularColour(plight.color);
+        }
 
         BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
         lflare->createBillboard(plight.pos, plight.color);
@@ -962,8 +1021,6 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         float fsize = Math::Clamp(plight.range / 10, 0.2f, 2.0f);
         lflare->setDefaultDimensions(fsize, fsize);
 
-        SceneNode *sn = tenode->createChildSceneNode();
-        sn->attachObject(pointlight);
         sn->attachObject(lflare);
     }
 
@@ -1168,6 +1225,18 @@ TerrainEditorObjectID_t TerrainObjectManager::FindEditorObjectByInstanceName(std
     else
     {
         return TERRAINEDITOROBJECTID_INVALID;
+    }
+}
+
+void TerrainObjectManager::SetAllObjectsVisible(bool visible)
+{
+    if (visible && !m_terrn2_grouping_node->isInSceneGraph())
+    {
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->addChild(m_terrn2_grouping_node);
+    }
+    else if (!visible && m_terrn2_grouping_node->isInSceneGraph())
+    {
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_terrn2_grouping_node);
     }
 }
 

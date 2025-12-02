@@ -30,7 +30,7 @@
 
 #include <OgreColourValue.h>
 #include <OgreDataStream.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 namespace RoR {
 
@@ -69,10 +69,10 @@ struct Terrn2Document
     std::string              caelum_config;
     int                      caelum_fog_start = 0;
     int                      caelum_fog_end = 0;
-    std::string              cubemap_config;
+    std::string              cubemap_config; //!< Material name
     bool                     has_water = false;
     std::string              hydrax_conf_file;
-    std::string              skyx_config;
+    std::string              skyx_config; //!< Filename
     std::string              traction_map_file;
     std::string              custom_material_name;
     std::string              teleport_map_image;

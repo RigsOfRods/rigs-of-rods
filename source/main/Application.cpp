@@ -235,6 +235,7 @@ CVar* gfx_sky_time_cycle;
 CVar* gfx_sky_time_speed;
 CVar* gfx_texture_filter;
 CVar* gfx_vegetation_mode;
+CVar* gfx_trees_paged;
 CVar* gfx_water_mode;
 CVar* gfx_anisotropy;
 CVar* gfx_water_waves;
@@ -245,7 +246,6 @@ CVar* gfx_surveymap_icons;
 CVar* gfx_declutter_map;
 CVar* gfx_envmap_enabled;
 CVar* gfx_envmap_rate;
-CVar* gfx_shadow_quality;
 CVar* gfx_skidmarks_mode;
 CVar* gfx_sight_range;
 CVar* gfx_camera_height;
@@ -496,6 +496,7 @@ std::string ToLocalizedString(GfxSkyMode e)
 {
     switch (e)
     {
+    case GfxSkyMode::NONE:      return _LC("GfxSkyMode", "None");
     case GfxSkyMode::SANDSTORM: return _LC("GfxSkyMode", "Sandstorm (fastest)");
     case GfxSkyMode::CAELUM:    return _LC("GfxSkyMode", "Caelum (best looking, slower)");
     case GfxSkyMode::SKYX:      return _LC("GfxSkyMode", "SkyX (best looking, slower)");
@@ -651,6 +652,7 @@ const char* MsgTypeToString(MsgType type)
     case MSG_SIM_ADD_FREEFORCE_REQUESTED      : return "MSG_SIM_ADD_FREEFORCE_REQUESTED";
     case MSG_SIM_MODIFY_FREEFORCE_REQUESTED   : return "MSG_SIM_MODIFY_FREEFORCE_REQUESTED";
     case MSG_SIM_REMOVE_FREEFORCE_REQUESTED   : return "MSG_SIM_REMOVE_FREEFORCE_REQUESTED";
+    case MSG_SIM_REINIT_WATER_REQUESTED       : return "MSG_SIM_REINIT_WATER_REQUESTED";
 
     case MSG_GUI_OPEN_MENU_REQUESTED          : return "MSG_GUI_OPEN_MENU_REQUESTED";
     case MSG_GUI_CLOSE_MENU_REQUESTED         : return "MSG_GUI_CLOSE_MENU_REQUESTED";
@@ -790,6 +792,7 @@ const char * KeywordToString(RigDef::Keyword keyword)
         case Keyword::SCREWPROPS:           return "screwprops";
         case Keyword::SECTION:              return "section";
         case Keyword::SECTIONCONFIG:        return "sectionconfig";
+        case Keyword::SET_ATTENUATION_DEFAULTS: return "set_attenuation_defaults";
         case Keyword::SET_BEAM_DEFAULTS:    return "set_beam_defaults";
         case Keyword::SET_BEAM_DEFAULTS_SCALE: return "set_beam_defaults_scale";
         case Keyword::SET_COLLISION_RANGE:  return "set_collision_range";

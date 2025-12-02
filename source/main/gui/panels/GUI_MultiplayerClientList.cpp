@@ -172,7 +172,7 @@ void MpClientList::Draw()
         if (parts.size() == 2)
         {
             StringUtil::toLowerCase(parts[1]);
-            flag_tex = FetchIcon((parts[1] + ".png").c_str());
+            flag_tex = FetchFlag((parts[1] + ".png").c_str());
             this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
         }
 

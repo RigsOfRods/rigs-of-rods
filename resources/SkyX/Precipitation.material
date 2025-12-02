@@ -1,0 +1,53 @@
+// This file is part of the Caelum project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution.
+
+fragment_program Caelum/PrecipitationFP glsl hlsl
+{
+    source PrecipitationMainFP.glsl
+    profiles ps_3_0 fp40 arbfp1
+    
+    default_params
+    {
+    }
+}
+
+vertex_program Caelum/PrecipitationVP glsl hlsl
+{
+    source PrecipitationMainVP.glsl
+    profiles vs_3_0 vp40 arbvp1
+    
+    default_params
+    {
+        param_named_auto worldviewproj_matrix worldviewproj_matrix
+    }
+}
+
+material Caelum/PrecipitationMaterial
+{
+    technique Default
+    {
+        pass Main
+        {
+            vertex_program_ref Caelum/PrecipitationVP
+            {
+            }
+            
+            fragment_program_ref Caelum/PrecipitationFP
+            {
+                param_named samplerScene int 0
+                param_named samplerPrec  int 1
+            }
+            
+            texture_unit Scene
+            {           
+            }
+            
+            texture_unit Precipitation
+            {
+                texture precipitation_drizzle.png
+                filtering trilinear
+            }
+        }
+    }
+}

@@ -21,6 +21,8 @@
 
 #include "Application.h"
 
+#include <unordered_set>
+
 namespace RoR {
 
 /// @addtogroup Physics

@@ -22,13 +22,7 @@
 #include "ContentManager.h"
 
 
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
-
-
 #include "Application.h"
-#include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
 #include "SkinFileFormat.h"
@@ -51,12 +45,15 @@
 
 #include "Utils.h"
 
-#include <OgreFileSystem.h>
+#include <Ogre.h>
+#include <OgreMeshLodGenerator.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <regex>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <sstream>
-#include <OgreMeshLodGenerator.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -71,7 +68,7 @@ using namespace RoR;
 DECLARE_RESOURCE_PACK( OGRE_CORE,             "OgreCore",             "OgreCoreRG");
 DECLARE_RESOURCE_PACK( WALLPAPERS,            "wallpapers",           "Wallpapers");
 DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsRG");
-DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
+DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "Caelum");
 DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
 DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
 DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
@@ -211,10 +208,6 @@ void ContentManager::InitContentManager()
 
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
-
-    LOG("RoR|ContentManager: Registering colored text overlay factory");
-    ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
-    OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
     // set default mipmap level (NB some APIs ignore this)
     if (TextureManager::getSingletonPtr())
@@ -382,20 +375,6 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 {
     Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
 
-    //Dirty, needs to be improved
-    if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
-    {
-        if (rg_name == RGN_MANAGED_MATS) // Only load shared resources on startup
-        {
-            ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem", rg_name);
-        }
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
-    }
-    else
-    {
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
-    }
-
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
     // Last
@@ -411,26 +390,25 @@ void ContentManager::LoadGameplayResources()
     {
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
         this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
         this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
 
+        // Following subsystems can be toggled anytime via TopMenubar
+        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
+        this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
+
         m_base_resource_loaded = true;
     }
 
-    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
-        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-        this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
-
     if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
+
+
+    auto* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    auto* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
 }
 
 std::string ContentManager::ListAllUserContent()

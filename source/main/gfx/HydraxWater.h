@@ -25,25 +25,28 @@
 #include "ProjectedGrid.h"
 
 #include <Ogre.h>
+#include <OgreTerrainGroup.h>
 
 namespace RoR {
 
 /// @addtogroup Gfx
 /// @{
 
+static const std::string HYDRAX_DEFAULT_CONFIG_FILE = "HydraxDefault.hdx"; // Fallback, in game resources   
+static const std::string HYDRAX_USER_CONFIG_FILE = "hydrax.cfg"; // Primary, in user config dir
+
 class HydraxWater : public IGfxWater
 {
 public:
 
-    HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
+    HydraxWater(Hydrax::Noise::Noise* noise, float waterHeight, Ogre::TerrainGroup* terrain_grp, Ogre::String configFile);
     ~HydraxWater();
 
+    void SetWaterSunPosition(Ogre::Vector3 pos) override;
     void SetWaterVisible(bool value) override;
-    void WaterSetSunPosition(Ogre::Vector3) override;
     void FrameStepWater(float dt) override;
     void UpdateWater() override;
-
-    Hydrax::Hydrax* GetHydrax() { return mHydrax; }
+    void SetWaterColor(Ogre::ColourValue color) override;
 
 protected:
 
@@ -51,7 +54,7 @@ protected:
     Hydrax::Hydrax* mHydrax;
     float waveHeight;
     float waterHeight;
-    Hydrax::Noise::Perlin* waternoise;
+    Hydrax::Noise::Noise* waternoise;
     Hydrax::Module::ProjectedGrid* mModule;
     Ogre::String CurrentConfigFile;
 };

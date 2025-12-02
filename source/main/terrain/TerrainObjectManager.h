@@ -76,6 +76,7 @@ public:
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return m_has_predefined_actors; };
     bool           UpdateTerrainObjects(float dt);
+    void           SetAllObjectsVisible(bool visible);
 
     void ProcessTree(
         float yawfrom, float yawto,
@@ -142,12 +143,13 @@ protected:
     Terrain*                  terrainManager = nullptr;
     ProceduralManagerPtr      m_procedural_manager;
     int                       m_entity_counter = 0;
-    Ogre::SceneNode*          m_terrn2_grouping_node = nullptr; //!< For a readable scene graph (via inspector script)
+    Ogre::SceneNode*          m_terrn2_grouping_node = nullptr; //!< For dynamic visibility (and nice scenegraph) ~ Base for all other scenenodes.
     Ogre::SceneNode*          m_tobj_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
     Ogre::SceneNode*          m_angelscript_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
 
 #ifdef USE_PAGED
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
+    std::vector<Ogre::StaticGeometry*> m_static_geometry;
 #endif //USE_PAGED
 };
 

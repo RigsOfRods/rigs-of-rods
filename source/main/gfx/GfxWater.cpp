@@ -129,7 +129,7 @@ void GfxWater::PrepareWater()
     m_water_plane.normal = Vector3::UNIT_Y;
     m_water_plane.d = 0;
 
-    const auto type = App::gfx_water_mode->getEnum<GfxWaterMode>();
+    const auto type = m_active_water_mode;
     const bool full_gfx = type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST;
 
     if (full_gfx || type == GfxWaterMode::REFLECT)
@@ -174,6 +174,9 @@ void GfxWater::PrepareWater()
                     (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                     (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
+                Ogre::SceneNode* m_refract_cam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                m_refract_cam_snode->attachObject(m_refract_cam);
+
                 m_refract_rtt_viewport = m_refract_rtt_target->addViewport(m_refract_cam);
                 m_refract_rtt_viewport->setClearEveryFrame(true);
                 m_refract_rtt_viewport->setBackgroundColour(App::GetGfxScene()->GetSceneManager()->getFogColour());
@@ -206,6 +209,9 @@ void GfxWater::PrepareWater()
             m_reflect_cam->setAspectRatio(
                 (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                 (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
+
+            Ogre::SceneNode* m_reflect_cam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            m_reflect_cam_snode->attachObject(m_reflect_cam);
 
             m_reflect_rtt_viewport = m_reflect_rtt_target->addViewport(m_reflect_cam);
             m_reflect_rtt_viewport->setClearEveryFrame(true);
@@ -309,7 +315,7 @@ void GfxWater::SetWaterVisible(bool value)
 
 void GfxWater::SetReflectionPlaneHeight(float centerheight)
 {
-    const auto type = App::gfx_water_mode->getEnum<GfxWaterMode>();
+    const auto type = m_active_water_mode;
     if (type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST || type == GfxWaterMode::REFLECT)
     {
         this->UpdateReflectionPlane(centerheight);
@@ -400,39 +406,39 @@ void GfxWater::UpdateWater()
     }
 
     m_frame_counter++;
-    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_FAST)
+    if (m_active_water_mode == GfxWaterMode::FULL_FAST)
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
-            m_reflect_cam->setOrientation(camera_rot);
-            m_reflect_cam->setPosition(camera_pos);
+            m_reflect_cam->getParentSceneNode()->setOrientation(camera_rot);
+            m_reflect_cam->getParentSceneNode()->setPosition(camera_pos);
             m_reflect_cam->setFOVy(camera_fov);
             m_reflect_rtt_target->update();
         }
         if (m_frame_counter % 2 == 0 || m_waterplane_force_update_pos)
         {
-            m_refract_cam->setOrientation(camera_rot);
-            m_refract_cam->setPosition(camera_pos);
+            m_refract_cam->getParentSceneNode()->setOrientation(camera_rot);
+            m_refract_cam->getParentSceneNode()->setPosition(camera_pos);
             m_refract_cam->setFOVy(camera_fov);
             m_refract_rtt_target->update();
         }
     }
-    else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
+    else if (m_active_water_mode == GfxWaterMode::FULL_HQ)
     {
-        m_reflect_cam->setOrientation(camera_rot);
-        m_reflect_cam->setPosition(camera_pos);
+        m_reflect_cam->getParentSceneNode()->setOrientation(camera_rot);
+        m_reflect_cam->getParentSceneNode()->setPosition(camera_pos);
         m_reflect_cam->setFOVy(camera_fov);
         m_reflect_rtt_target->update();
 
-        m_refract_cam->setOrientation(camera_rot);
-        m_refract_cam->setPosition(camera_pos);
+        m_refract_cam->getParentSceneNode()->setOrientation(camera_rot);
+        m_refract_cam->getParentSceneNode()->setPosition(camera_pos);
         m_refract_cam->setFOVy(camera_fov);
         m_refract_rtt_target->update();
     }
-    else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
+    else if (m_active_water_mode == GfxWaterMode::REFLECT)
     {
-        m_reflect_cam->setOrientation(camera_rot);
-        m_reflect_cam->setPosition(camera_pos);
+        m_reflect_cam->getParentSceneNode()->setOrientation(camera_rot);
+        m_reflect_cam->getParentSceneNode()->setPosition(camera_pos);
         m_reflect_cam->setFOVy(camera_fov);
         m_reflect_rtt_target->update();
     }

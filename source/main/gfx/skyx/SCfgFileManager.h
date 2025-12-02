@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier VerguÌn Gonz·lez <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Vergu√≠n Gonz√°lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -55,13 +55,6 @@ namespace SkyX
 		 */
 		const bool load(const Ogre::String& File) const;
 
-		/** Save current hydrax config to a file
-		    @param File Destination file name
-			@param Path File path
-			@return false if an error has been ocurred(Check the log file in this case).
-		 */
-		const bool save(const Ogre::String& File, const Ogre::String& Path = "") const;
-
 		static Ogre::String _getCfgString(const Ogre::String& Name, const int& Value);
 		static Ogre::String _getCfgString(const Ogre::String& Name, const Ogre::Real& Value);
 		static Ogre::String _getCfgString(const Ogre::String& Name, const bool& Value);
@@ -97,15 +90,13 @@ namespace SkyX
 
 		static Ogre::Vector4 _getVector4Value(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
+		static Ogre::ColourValue _getColourValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
+
 		static Ogre::Degree _getDegreeValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
 		static bool _isStringInList(const Ogre::StringVector &List, const Ogre::String &Find);
 
 	private:
-		/** Save a string in file
-			@return false if an error has ocurred
-		 */
-		const bool _saveToFile(const Ogre::String& Data, const Ogre::String& File, const Ogre::String& Path) const;
 
 		/** Load a cfg file in an Ogre::ConfigFile
 		    @param File File name
@@ -123,6 +114,10 @@ namespace SkyX
 		    @return true if it's the same version, false if not.
 		 */
 		const bool _checkVersion(Ogre::ConfigFile& CfgFile) const;
+
+        // Precipitation system ported from Caelum
+
+        void loadPrecipitationParams(Ogre::ConfigFile &CfgFile) const;
 
 		/// Hydrax parent pointer
 		SkyX* mSkyX;
