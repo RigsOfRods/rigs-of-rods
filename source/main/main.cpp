@@ -1542,16 +1542,18 @@ int main(int argc, char *argv[])
                 case MSG_NET_DOWNLOAD_REPOFILE_SUCCESS:
                 case MSG_NET_DOWNLOAD_REPOFILE_FAILURE:
                 {
+                    RepoFileInstallRequest* request = static_cast<RepoFileInstallRequest*>(m.payload);
                     try
                     {
                         App::GetGuiManager()->LoadingWindow.SetVisible(false);
                         App::GetGuiManager()->RepositorySelector.SetVisible(true);
-                        App::GetGuiManager()->RepositorySelector.DownloadFinished(m.type);
+                        App::GetGuiManager()->RepositorySelector.InstallDownloadedRepoFile(m.type, request);
                     }
                     catch (...) 
                     {
                         HandleMsgQueueException(m.type);
                     }
+                    delete request;
                     break;
                 }
 
@@ -1797,8 +1799,11 @@ int main(int argc, char *argv[])
                 {
                     try
                     {
-                        const std::string bundle_filename = m.description;
-                        std::string bundle_filepath = PathCombine(PathCombine(App::sys_user_dir->getStr(), "mods"), bundle_filename);
+                        std::string bundle_filepath;
+                        if (!App::GetCacheSystem()->IsRepoFileInstalled(m.description, /*[out]*/bundle_filepath))
+                        {
+                            break; // nothing to do
+                        }
 
                         // make sure the bundle is unloaded
                         bool all_clear = true;
@@ -1813,7 +1818,10 @@ int main(int argc, char *argv[])
 
                         if (all_clear)
                         {
-                            App::GetCacheSystem()->DeleteResourceBundleByFilename(bundle_filename);
+                            std::string bundle_basename, bundle_dirpath;
+                            Ogre::StringUtil::splitFilename(bundle_filepath, bundle_basename, bundle_dirpath);
+                            App::GetCacheSystem()->DeleteResourceBundleByFilename(bundle_basename);
+                            App::GetGuiManager()->RepositorySelector.NotifyRepoFileUninstalled(bundle_basename);
                         }
                         else
                         {

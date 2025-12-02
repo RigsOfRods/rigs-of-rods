@@ -115,10 +115,10 @@ enum MsgType
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
     MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
     MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)
-    MSG_NET_DOWNLOAD_REPOFILE_REQUESTED,    //!< Payload = RoR::RepoFileInstallRequest* (owner)
-    MSG_NET_DOWNLOAD_REPOFILE_SUCCESS,      //!< Payload = int* (owner)
-    MSG_NET_DOWNLOAD_REPOFILE_FAILURE,      //!< Payload = int* (owner)
-    MSG_NET_DOWNLOAD_REPOFILE_PROGRESS,     //!< Payload = int* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_REQUESTED,   //!< Payload = RoR::RepoFileInstallRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_SUCCESS,     //!< Payload = RoR::RepoFileInstallRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_FAILURE,     //!< Payload = RoR::RepoFileInstallRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_PROGRESS,    //!< Payload = int* (owner)
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
