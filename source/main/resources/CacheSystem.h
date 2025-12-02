@@ -300,6 +300,7 @@ public:
     CacheEntryPtr         GetEntryByNumber(int modid);
     CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
     size_t                Query(CacheQuery& query);
+    bool                  IsRepoFileInstalled(const std::string& repo_filename, std::string& out_filepath); //!< Checks whether a ZIP archive from the online repository is installed in the local modcache.
     /// @}
 
     /// @name Loading

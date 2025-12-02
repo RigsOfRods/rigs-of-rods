@@ -65,10 +65,10 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_REFRESH_REPOLIST_FAILURE", MSG_NET_REFRESH_REPOLIST_FAILURE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_FETCH_AI_PRESETS_SUCCESS", MSG_NET_FETCH_AI_PRESETS_SUCCESS); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_FETCH_AI_PRESETS_FAILURE", MSG_NET_FETCH_AI_PRESETS_FAILURE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_REQUESTED", MSG_NET_INSTALL_REPOFILE_REQUESTED); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_SUCCESS", MSG_NET_INSTALL_REPOFILE_SUCCESS); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_FAILURE", MSG_NET_INSTALL_REPOFILE_FAILURE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_PROGRESS", MSG_NET_INSTALL_REPOFILE_PROGRESS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_REQUESTED", MSG_NET_DOWNLOAD_REPOFILE_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_SUCCESS", MSG_NET_DOWNLOAD_REPOFILE_SUCCESS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_FAILURE", MSG_NET_DOWNLOAD_REPOFILE_FAILURE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_INSTALL_REPOFILE_PROGRESS", MSG_NET_DOWNLOAD_REPOFILE_PROGRESS); ROR_ASSERT(result >= 0);
     // Simulation
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_PAUSE_REQUESTED", MSG_SIM_PAUSE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_UNPAUSE_REQUESTED", MSG_SIM_UNPAUSE_REQUESTED); ROR_ASSERT(result >= 0);

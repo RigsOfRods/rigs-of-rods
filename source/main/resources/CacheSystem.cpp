@@ -2488,3 +2488,17 @@ void CacheSystem::DeleteResourceBundleByFilename(const std::string& bundle_filen
         /*strings*/ bundle_filename);
 }
 
+bool CacheSystem::IsRepoFileInstalled(const std::string& repo_filename, std::string& out_filepath)
+{
+    for (const CacheEntryPtr& entry: App::GetCacheSystem()->GetEntries())
+    {
+        std::string path, basename;
+        Ogre::StringUtil::splitFilename(entry->resource_bundle_path, basename, path);
+        if (basename == repo_filename) 
+        {
+            out_filepath = entry->resource_bundle_path;
+            return true;
+        }
+    }
+    return false;
+}

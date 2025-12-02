@@ -1470,9 +1470,9 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_NET_REFRESH_REPOLIST_FAILURE:
     case MSG_NET_FETCH_AI_PRESETS_SUCCESS:
     case MSG_NET_FETCH_AI_PRESETS_FAILURE:
-    case MSG_NET_INSTALL_REPOFILE_SUCCESS:
-    case MSG_NET_INSTALL_REPOFILE_FAILURE:
-    case MSG_NET_INSTALL_REPOFILE_PROGRESS:
+    case MSG_NET_DOWNLOAD_REPOFILE_SUCCESS:
+    case MSG_NET_DOWNLOAD_REPOFILE_FAILURE:
+    case MSG_NET_DOWNLOAD_REPOFILE_PROGRESS:
         // GUI
     case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
     case MSG_GUI_OPEN_SELECTOR_REQUESTED:
@@ -1841,7 +1841,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         break;
     }
 
-    case MSG_NET_INSTALL_REPOFILE_REQUESTED:
+    case MSG_NET_DOWNLOAD_REPOFILE_REQUESTED:
     {
         // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
         int64_t repo_resource_id = -1;

@@ -907,7 +907,7 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_NET_INSTALL_REPOFILE_REQUESTED:
+                case MSG_NET_DOWNLOAD_REPOFILE_REQUESTED:
                 {
                     RepoFileInstallRequest* request = static_cast<RepoFileInstallRequest*>(m.payload);
                     try
@@ -1521,7 +1521,7 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_NET_INSTALL_REPOFILE_PROGRESS:
+                case MSG_NET_DOWNLOAD_REPOFILE_PROGRESS:
                 {
                     int* percentage = static_cast<int*>(m.payload);
                     try
@@ -1539,19 +1539,21 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_NET_INSTALL_REPOFILE_SUCCESS:
-                case MSG_NET_INSTALL_REPOFILE_FAILURE:
+                case MSG_NET_DOWNLOAD_REPOFILE_SUCCESS:
+                case MSG_NET_DOWNLOAD_REPOFILE_FAILURE:
                 {
+                    RepoFileInstallRequest* request = static_cast<RepoFileInstallRequest*>(m.payload);
                     try
                     {
                         App::GetGuiManager()->LoadingWindow.SetVisible(false);
                         App::GetGuiManager()->RepositorySelector.SetVisible(true);
-                        App::GetGuiManager()->RepositorySelector.DownloadFinished(m.type);
+                        App::GetGuiManager()->RepositorySelector.InstallDownloadedRepoFile(m.type, request);
                     }
                     catch (...) 
                     {
                         HandleMsgQueueException(m.type);
                     }
+                    delete request;
                     break;
                 }
 
@@ -1802,6 +1804,7 @@ int main(int argc, char *argv[])
                         if (all_clear)
                         {
                             App::GetCacheSystem()->DeleteResourceBundleByFilename(bundle_filename);
+                            App::GetGuiManager()->RepositorySelector.NotifyRepoFileUninstalled(bundle_filename);
                         }
                         else
                         {
