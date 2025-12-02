@@ -52,7 +52,7 @@ namespace RoR {
         std::string thumb_url;
     };
 
-    /// Payload for `MSG_NET_INSTALL_REPOFILE_REQUEST` message
+    /// Payload for `MSG_NET_INSTALL_REPOFILE_REQUEST` message - also used for update (overwrites existing)
     struct RepoFileInstallRequest
     {
         // rfir_ prefix: RepoFileInstallRequest
@@ -60,6 +60,7 @@ namespace RoR {
         int rfir_resource_id = 0;
         int rfir_repofile_id = 0;
         std::string rfir_filename;
+        std::string rfir_filepath; // Custom path needed for updates (overwrite existing file)
         int rfir_filesize_bytes = 0; // For display only
     };
 
@@ -113,11 +114,20 @@ struct ResourceItem
 typedef int ResourceItemArrayPos_t;
 const int RESOURCEITEMARRAYPOS_INVALID = -1;
 
+enum class ResFileInstallStatus
+{
+    RFIS_UNKNOWN = 0,
+    RFIS_INSTALLED,
+    RFIS_NOT_INSTALLED
+};
+
 struct ResourceFiles
 {
     int                 id;
     std::string         filename;
     int                 size;
+    ResFileInstallStatus cached_install_status = ResFileInstallStatus::RFIS_UNKNOWN;
+    std::string          cached_install_path; //!< Valid if `cached_install_status == RFIS_INSTALLED`
 };
 
 struct ResourcesCollection
@@ -151,9 +161,10 @@ public:
     void                                DrawResourceView(float searchbox_x);
     void                                DrawResourceViewRightColumn();
     void                                OpenResource(int resource_id);
-    void                                RequestInstallRepoFile(int resource_id, int datafile_pos);
+    void                                RequestInstallRepoFile(int resource_id, int datafile_pos, std::string filepath);
     void                                QueueInstallRepoFile(RepoFileInstallRequest* request);
-    void                                DownloadFinished(MsgType result);
+    void                                InstallDownloadedRepoFile(MsgType result, RepoFileInstallRequest* request);
+    void                                NotifyRepoFileUninstalled(std::string const& filename);
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
@@ -170,6 +181,7 @@ public:
 private:
     void                                TryProcessNextQueuedInstallRequest();
     void                                DrawFooterDownloadsInfo();
+    bool                                CheckRepoFileIsInstalled(ResourceFiles& resfile, std::string& out_filepath);
 
     bool                                m_is_visible = false;
     bool                                m_draw = false;
