@@ -2464,9 +2464,15 @@ bool CacheQueryResult::operator<(CacheQueryResult const& other) const
 
 void CacheSystem::DeleteResourceBundleByFilename(const std::string& bundle_filename)
 {
-    std::string bundle_path = PathCombine(PathCombine(App::sys_user_dir->getStr(), "mods"), bundle_filename);
+    std::string bundle_path;
+    if (!this->IsRepoFileInstalled(bundle_filename, bundle_path))
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(_LC("CacheSystem", "Could not delete resource bundle '{}': not found in mod cache."), bundle_filename));
+        return;
+    }
 
-    // Delete all individual cache entries that belong to this bundle
+    // Delete (flag 'deleted') all individual cache entries that belong to this bundle
     for (const CacheEntryPtr& entry: App::GetCacheSystem()->GetEntries())
     {
         if (entry->resource_bundle_path == bundle_path)
@@ -2478,14 +2484,29 @@ void CacheSystem::DeleteResourceBundleByFilename(const std::string& bundle_filen
                 fmt::format(_LC("CacheSystem", "Deleted {} '{}' because bundle {} is being removed."), entry->fext, entry->dname, bundle_filename));
         }
     }
-    this->PruneCache();
+
+    // Erase the 'deleted' entries from memory
+    RoR::EraseIf(m_entries, [](CacheEntryPtr& e) { return e->deleted; });
 
     // Actually delete the bundle from disk
-    Ogre::ArchiveManager::getSingleton().unload(bundle_path);
-    Ogre::FileSystemLayer::removeFile(bundle_path);
-    TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
-        /*ints*/ MODCACHEACTIVITY_BUNDLE_DELETED, 0, 0, 0,
-        /*strings*/ bundle_filename);
+    try
+    {
+        Ogre::ArchiveManager::getSingleton().unload(bundle_path);
+        if (!Ogre::FileSystemLayer::removeFile(bundle_path))
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Could not delete resource bundle file '{}' from disk."), bundle_filename));
+            return;
+        }
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
+            /*ints*/ MODCACHEACTIVITY_BUNDLE_DELETED, 0, 0, 0,
+            /*strings*/ bundle_filename);
+    }
+    catch (Ogre::Exception& oex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Could not delete resource bundle '{}', message: {}."), bundle_filename, oex.getDescription()));
+    }
 }
 
 bool CacheSystem::IsRepoFileInstalled(const std::string& repo_filename, std::string& out_filepath)
