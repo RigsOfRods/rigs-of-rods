@@ -540,10 +540,10 @@ void ActorManager::UpdateNetTimeOffset(int sourceid, int offset)
     }
 }
 
-int ActorManager::CheckNetworkStreamsOk(int sourceid)
+RoRnet::UiStreamsHealth ActorManager::CheckNetworkStreamsOk(int sourceid)
 {
     if (!m_stream_mismatches[sourceid].empty())
-        return 0;
+        return RoRnet::UiStreamsHealth::MISMATCHES;
 
     for (ActorPtr& actor: m_actors)
     {
@@ -552,16 +552,16 @@ int ActorManager::CheckNetworkStreamsOk(int sourceid)
 
         if (actor->ar_net_source_id == sourceid)
         {
-            return 1;
+            return RoRnet::UiStreamsHealth::ALL_OK;
         }
     }
 
-    return 2;
+    return RoRnet::UiStreamsHealth::IDLE;
 }
 
-int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
+RoRnet::UiStreamsHealth ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 {
-    int result = 2;
+    RoRnet::UiStreamsHealth result = RoRnet::UiStreamsHealth::IDLE;
 
     for (ActorPtr& actor: m_actors)
     {
@@ -570,9 +570,9 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 
         int stream_result = actor->ar_net_stream_results[sourceid];
         if (stream_result == -1 || stream_result == -2)
-            return 0;
+            return RoRnet::UiStreamsHealth::MISMATCHES;
         if (stream_result == 1)
-            result = 1;
+            result = RoRnet::UiStreamsHealth::ALL_OK;
     }
 
     return result;

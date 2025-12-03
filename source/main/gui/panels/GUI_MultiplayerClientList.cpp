@@ -141,18 +141,18 @@ void MpClientList::Draw()
         {
             switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
             {
-            case 0: down_tex = m_icon_arrow_down_red;  break;
-            case 1: down_tex = m_icon_arrow_down;      break;
-            case 2: down_tex = m_icon_arrow_down_grey; break;
+            case RoRnet::UiStreamsHealth::MISMATCHES: up_tex = m_icon_arrow_down_red;  break;
+            case RoRnet::UiStreamsHealth::ALL_OK:     up_tex = m_icon_arrow_down;      break;
+            case RoRnet::UiStreamsHealth::IDLE:       up_tex = m_icon_arrow_down_grey; break;
             default:;
             }
             
 
             switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
             {
-            case 0: up_tex = m_icon_arrow_up_red;  break;
-            case 1: up_tex = m_icon_arrow_up;      break;
-            case 2: up_tex = m_icon_arrow_up_grey; break;
+            case RoRnet::UiStreamsHealth::MISMATCHES: up_tex = m_icon_arrow_up_red;  break;
+            case RoRnet::UiStreamsHealth::ALL_OK:     up_tex = m_icon_arrow_up;      break;
+            case RoRnet::UiStreamsHealth::IDLE:       up_tex = m_icon_arrow_up_grey; break;
             default:;
             }
         }
@@ -243,9 +243,9 @@ void MpClientList::Draw()
                 }
                 switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
                 {
-                case 0: ImGui::Text("%s", _LC("MultiplayerClientList", "Truck loading errors")); break;
-                case 1: ImGui::Text("%s", _LC("MultiplayerClientList", "Truck loaded correctly, no errors")); break;
-                case 2: ImGui::Text("%s", _LC("MultiplayerClientList", "no truck loaded")); break;
+                case RoRnet::UiStreamsHealth::MISMATCHES: ImGui::Text("%s", _LC("MultiplayerClientList", "Truck loading errors")); break;
+                case RoRnet::UiStreamsHealth::ALL_OK:     ImGui::Text("%s", _LC("MultiplayerClientList", "Truck loaded correctly, no errors")); break;
+                case RoRnet::UiStreamsHealth::IDLE:       ImGui::Text("%s", _LC("MultiplayerClientList", "no truck loaded")); break;
                 default:; // never happens
                 }
 
@@ -258,9 +258,9 @@ void MpClientList::Draw()
                 }
                 switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
                 {
-                case 0: ImGui::Text("%s", _LC("MultiplayerClientList", "Remote Truck loading errors")); break;
-                case 1: ImGui::Text("%s", _LC("MultiplayerClientList", "Remote Truck loaded correctly, no errors")); break;
-                case 2: ImGui::Text("%s", _LC("MultiplayerClientList", "No Trucks loaded")); break;
+                case RoRnet::UiStreamsHealth::MISMATCHES: ImGui::Text("%s", _LC("MultiplayerClientList", "Remote Truck loading errors")); break;
+                case RoRnet::UiStreamsHealth::ALL_OK:     ImGui::Text("%s", _LC("MultiplayerClientList", "Remote Truck loaded correctly, no errors")); break;
+                case RoRnet::UiStreamsHealth::IDLE:       ImGui::Text("%s", _LC("MultiplayerClientList", "No Trucks loaded")); break;
                 default:; // never happens
                 }
             }
