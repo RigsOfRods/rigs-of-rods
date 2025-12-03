@@ -81,12 +81,6 @@ public:
     void           UpdatePhysicsSimulation();
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
-    unsigned long  GetNetTime()                            { return m_net_timer.getMilliseconds(); };
-    int            GetNetTimeOffset(int sourceid);
-    void           UpdateNetTimeOffset(int sourceid, int offset);
-    void           AddStreamMismatch(int sourceid, int streamid) { m_stream_mismatches[sourceid].insert(streamid); };
-    int            CheckNetworkStreamsOk(int sourceid);
-    int            CheckNetRemoteStreamsOk(int sourceid);
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
@@ -108,9 +102,18 @@ public:
     // Truck file handling
     void                  ExportActorDef(RigDef::DocumentPtr def, std::string filename, std::string rg_name);
 
+    /// @name Networking
+    /// @{
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif
+    unsigned long  GetNetTime() { return m_net_timer.getMilliseconds(); };
+    int            GetNetTimeOffset(int sourceid);
+    void           UpdateNetTimeOffset(int sourceid, int offset);
+    void           AddStreamMismatch(int sourceid, int streamid) { m_stream_mismatches[sourceid].insert(streamid); };
+    RoRnet::UiStreamsHealth CheckNetworkStreamsOk(int sourceid);
+    RoRnet::UiStreamsHealth CheckNetRemoteStreamsOk(int sourceid);
+    /// @}
 
     // Savegames (defined in Savegame.cpp)
 
