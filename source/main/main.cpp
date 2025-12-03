@@ -1318,6 +1318,11 @@ int main(int argc, char *argv[])
                         {
                             App::GetGfxScene()->OnFreeForceBroken(args->arg2ex);
                         }
+                        else if (args->type == SE_GENERIC_MODCACHE_ACTIVITY && args->arg1 == modCacheActivityType::MODCACHEACTIVITY_ENTRY_ADDED && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                        {
+                            // Catch up to other players who may already be driving this mod
+                            App::GetGameContext()->GetActorManager()->RetryFailedStreamRegistrations(args);
+                        }
                         App::GetScriptEngine()->triggerEvent(args->type, args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex, args->arg8ex);
 
                     }
