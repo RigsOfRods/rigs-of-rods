@@ -357,6 +357,11 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 void ActorManager::RemoveStreamSource(int sourceid)
 {
     m_stream_mismatches.erase(sourceid);
+    RoR::EraseIf(m_stream_mismatched_regs,
+        [sourceid](const RoRnet::ActorStreamRegister& reg)
+        {
+            return reg.origin_sourceid == sourceid;
+        });
 
     for (ActorPtr& actor : m_actors)
     {
@@ -366,6 +371,71 @@ void ActorManager::RemoveStreamSource(int sourceid)
         if (actor->ar_net_source_id == sourceid)
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+        }
+    }
+}
+
+void ActorManager::RemoveStream(int sourceid, int streamid)
+{
+    // Delete associated actor
+    ActorPtr b = this->GetActorByNetworkLinks(sourceid, streamid);
+    if (b)
+    {
+        if (b->ar_state == ActorState::NETWORKED_OK || b->ar_state == ActorState::NETWORKED_HIDDEN)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(b))));
+        }
+    }
+
+    // Erase stream mismatch records
+    m_stream_mismatches[sourceid].erase(streamid);
+    RoR::EraseIf(m_stream_mismatched_regs,
+        [sourceid, streamid](const RoRnet::ActorStreamRegister& reg)
+        {
+            return reg.origin_sourceid == sourceid &&
+                    reg.origin_streamid == streamid;
+        });
+}
+
+void ActorManager::RetryFailedStreamRegistrations(ScriptEventArgs* args)
+{
+    ROR_ASSERT(args->type == SE_GENERIC_MODCACHE_ACTIVITY);
+    ROR_ASSERT(args->arg1 == modCacheActivityType::MODCACHEACTIVITY_ENTRY_ADDED);
+
+    std::string filename = args->arg5ex;
+    CacheEntryPtr entry = App::GetCacheSystem()->GetEntryByNumber(args->arg2ex);
+    ROR_ASSERT(entry);
+
+    for (auto it = m_stream_mismatched_regs.begin(); it != m_stream_mismatched_regs.end(); )
+    {
+        RoRnet::ActorStreamRegister reg = *it;
+        std::string reg_filename_maybe_bundlequalified = SanitizeUtf8CString(reg.name);
+        std::string reg_filename;
+        std::string reg_bundlename;
+        SplitBundleQualifiedFilename(reg_filename_maybe_bundlequalified, /*out:*/ reg_bundlename, /*out:*/ reg_filename);
+        if (reg_filename == filename)
+        {
+            RoR::LogFormat("[RoR] Retrying STREAM_REGISTER for user id %d, stream id %d, filename '%s'",
+                reg.origin_sourceid, reg.origin_streamid, reg_filename_maybe_bundlequalified.c_str());
+            m_stream_mismatches[reg.origin_sourceid].erase(reg.origin_streamid);
+            it = m_stream_mismatched_regs.erase(it);
+
+            // Gather info needed to spawn
+            RoRnet::UserInfo info;
+            BitMask_t peeropts = BitMask_t(0);
+            if (!App::GetNetwork()->GetUserInfo(reg.origin_sourceid, info)
+                || !App::GetNetwork()->GetUserPeerOpts(reg.origin_sourceid, peeropts))
+            {
+                RoR::LogFormat("[RoR] Error retrying STREAM_REGISTER, user id %d does not exist", reg.origin_sourceid);
+            }
+            else
+            {
+                this->RequestSpawnRemoteActor(&reg, entry, info, peeropts);
+            }
+        }
+        else
+        {
+            ++it;
         }
     }
 }
@@ -412,6 +482,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                 }
                 else
                 {
+                    auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
                     Str<200> text;
                     text << _L("spawned a new vehicle: ") << filename;
                     App::GetConsole()->putNetMessage(
@@ -428,38 +499,15 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
                             _L("Mod not installed: ") + filename);
                         RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename_maybe_bundlequalified.c_str());
-                        AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
+                        this->AddStreamMismatch(actor_reg);
                         reg->status = -1;
                     }
                     else
                     {
-                        auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
-                        if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
-                        {
-                            int offset = actor_reg->time - m_net_timer.getMilliseconds();
-                            m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
-                        }
-                        ActorSpawnRequest* rq = new ActorSpawnRequest;
-                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
-                        rq->asr_cache_entry = actor_entry;
-                        if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
-                        {
-                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin); // FIXME: fetch skin by name+guid! ~ 03/2019
-                        }
-                        if (strnlen(actor_reg->sectionconfig, 60) < 60)
-                        {
-                            rq->asr_config = actor_reg->sectionconfig;
-                        }
-                        rq->asr_net_username = tryConvertUTF(info.username);
-                        rq->asr_net_color    = info.colournum;
-                        rq->asr_net_peeropts = peeropts;
-                        rq->net_source_id    = reg->origin_sourceid;
-                        rq->net_stream_id    = reg->origin_streamid;
-
-                        App::GetGameContext()->PushMessage(Message(
-                            MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
-
-                        reg->status = 1;
+                        RoR::LogFormat("[RoR] Creating remote actor (user id %d, stream id %d) with filename '%s'",
+                            reg->origin_sourceid, reg->origin_streamid, filename_maybe_bundlequalified.c_str());
+                        this->RequestSpawnRemoteActor(actor_reg, actor_entry, info, peeropts);
+                        reg->status = 1; // success
                     }
                 }
 
@@ -491,15 +539,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
-            ActorPtr b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
-            if (b)
-            {
-                if (b->ar_state == ActorState::NETWORKED_OK || b->ar_state == ActorState::NETWORKED_HIDDEN)
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(b))));
-                }
-            }
-            m_stream_mismatches[packet.header.source].erase(packet.header.streamid);
+            this->RemoveStream(packet.header.source, packet.header.streamid);
         }
         else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
@@ -521,6 +561,40 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
     }
 }
 #endif // USE_SOCKETW
+
+void ActorManager::RequestSpawnRemoteActor(RoRnet::ActorStreamRegister* actor_reg, const CacheEntryPtr& actor_entry, const RoRnet::UserInfo& userinfo, BitMask_t peeropts)
+{
+    if (m_stream_time_offsets.find(actor_reg->origin_sourceid) == m_stream_time_offsets.end())
+    {
+        int offset = actor_reg->time - m_net_timer.getMilliseconds();
+        m_stream_time_offsets[actor_reg->origin_sourceid] = offset - 100;
+    }
+    ActorSpawnRequest* rq = new ActorSpawnRequest;
+    rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
+    rq->asr_cache_entry = actor_entry;
+    if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
+    {
+        rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin); // FIXME: fetch skin by name+guid! ~ 03/2019
+    }
+    if (strnlen(actor_reg->sectionconfig, 60) < 60)
+    {
+        rq->asr_config = actor_reg->sectionconfig;
+    }
+    rq->asr_net_username = tryConvertUTF(userinfo.username);
+    rq->asr_net_color    = userinfo.colournum;
+    rq->asr_net_peeropts = peeropts;
+    rq->net_source_id    = actor_reg->origin_sourceid;
+    rq->net_stream_id    = actor_reg->origin_streamid;
+
+    App::GetGameContext()->PushMessage(Message(
+        MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+}
+
+void ActorManager::AddStreamMismatch(RoRnet::ActorStreamRegister* reg)
+{
+    m_stream_mismatches[reg->origin_sourceid].insert(reg->origin_streamid);
+    m_stream_mismatched_regs.push_back(*reg);
+}
 
 int ActorManager::GetNetTimeOffset(int sourceid)
 {

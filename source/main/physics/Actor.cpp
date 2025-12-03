@@ -425,15 +425,15 @@ void Actor::pushNetwork(char* data, int size)
         if (!m_net_initialized)
         {
             // Update stream status (remote and local)
-            RoRnet::StreamRegister reg;
-            memset(&reg, 0, sizeof(RoRnet::StreamRegister));
+            RoRnet::ActorStreamRegister reg;
+            memset(&reg, 0, sizeof(RoRnet::ActorStreamRegister));
             reg.status = -2;
             reg.origin_sourceid = ar_net_source_id;
             reg.origin_streamid = ar_net_stream_id;
             strncpy(reg.name, ar_filename.c_str(), 128);
             App::GetNetwork()->AddPacket(reg.origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT,
                     sizeof(RoRnet::StreamRegister), (char *)&reg);
-            App::GetGameContext()->GetActorManager()->AddStreamMismatch(ar_net_source_id, ar_net_stream_id);
+            App::GetGameContext()->GetActorManager()->AddStreamMismatch(&reg);
 
             // Inform the local player
             RoRnet::UserInfo info;
