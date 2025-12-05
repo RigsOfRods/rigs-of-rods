@@ -26,7 +26,7 @@ class RoR(ConanFile):
         self.requires("socketw/3.11.0@anotherfoxguy/stable")
 
         self.requires("jasper/4.2.4", override=True)
-        self.requires("libpng/1.6.39", override=True)
+        self.requires("libpng/1.6.52", override=True)
         self.requires("libwebp/1.3.2", override=True)
         self.requires("zlib/1.2.13", override=True)
 
