@@ -402,7 +402,7 @@ void ActorManager::RetryFailedStreamRegistrations(ScriptEventArgs* args)
     ROR_ASSERT(args->type == SE_GENERIC_MODCACHE_ACTIVITY);
     ROR_ASSERT(args->arg1 == modCacheActivityType::MODCACHEACTIVITY_ENTRY_ADDED);
 
-    std::string filename = fmt::format("{}.{}", args->arg5ex, args->arg6ex);
+    std::string filename = args->arg5ex;
     CacheEntryPtr entry = App::GetCacheSystem()->GetEntryByNumber(args->arg2ex);
     ROR_ASSERT(entry);
 

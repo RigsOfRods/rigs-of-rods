@@ -836,6 +836,8 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             entry->addtimestamp = m_update_time;
             this->GenerateFileCache(entry, group);
             m_entries.push_back(entry);
+            // This isn't just for script, it also triggers retry-spawn in multiplayer, see `case MSG_SIM_SCRIPT_EVENT_TRIGGERED:` in main.cpp
+            TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY, MODCACHEACTIVITY_ENTRY_ADDED, entry->number, 0,0, entry->fname, entry->fext);
         }
     }
     catch (Ogre::Exception& e)
