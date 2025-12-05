@@ -25,10 +25,11 @@
 #pragma once
 
 #include "Application.h"
-#include "SimData.h"
 #include "CmdKeyInertia.h"
 #include "Network.h"
 #include "RigDef_Prerequisites.h"
+#include "ScriptEvents.h"
+#include "SimData.h"
 #include "ThreadPool.h"
 
 #include <string>
@@ -58,7 +59,7 @@ public:
     /// @name Actor lookup
     /// @{
     const ActorPtr& GetActorById(ActorInstanceID_t actor_id);
-    const ActorPtr& GetActorByNetworkLinks(int source_id, int stream_id); // used by character
+    const ActorPtr& GetActorByNetworkLinks(int source_id, int stream_id);
     ActorPtr        FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     const ActorPtr& FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player);
     const ActorPtr& FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player);
@@ -81,12 +82,6 @@ public:
     void           UpdatePhysicsSimulation();
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
-    unsigned long  GetNetTime()                            { return m_net_timer.getMilliseconds(); };
-    int            GetNetTimeOffset(int sourceid);
-    void           UpdateNetTimeOffset(int sourceid, int offset);
-    void           AddStreamMismatch(int sourceid, int streamid) { m_stream_mismatches[sourceid].insert(streamid); };
-    int            CheckNetworkStreamsOk(int sourceid);
-    int            CheckNetRemoteStreamsOk(int sourceid);
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
@@ -108,9 +103,20 @@ public:
     // Truck file handling
     void                  ExportActorDef(RigDef::DocumentPtr def, std::string filename, std::string rg_name);
 
+    /// @name Networking
+    /// @{
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif
+    unsigned long  GetNetTime() { return m_net_timer.getMilliseconds(); };
+    int            GetNetTimeOffset(int sourceid);
+    void           UpdateNetTimeOffset(int sourceid, int offset);
+    void           AddStreamMismatch(RoRnet::ActorStreamRegister* reg);
+    void           RetryFailedStreamRegistrations(ScriptEventArgs* args);
+    void           RequestSpawnRemoteActor(RoRnet::ActorStreamRegister* reg, const CacheEntryPtr& cache_entry, const RoRnet::UserInfo& userinfo, BitMask_t peeropts);
+    RoRnet::UiStreamsHealth CheckNetworkStreamsOk(int sourceid);
+    RoRnet::UiStreamsHealth CheckNetRemoteStreamsOk(int sourceid);
+    /// @}
 
     // Savegames (defined in Savegame.cpp)
 
@@ -133,6 +139,7 @@ private:
     bool           CheckActorCollAabbIntersect(int a, int b);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool           PredictActorCollAabbIntersect(int a, int b);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     void           RemoveStreamSource(int sourceid);
+    void           RemoveStream(int sourceid, int streamid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(ActorPtr source_actor); //!< Fowards things to trailers
     void           UpdateTruckFeatures(ActorPtr vehicle, float dt);
@@ -140,6 +147,7 @@ private:
 
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
+    std::vector<RoRnet::ActorStreamRegister> m_stream_mismatched_regs; //!< Networking: Remember mismatched stream regs to re-process after downloading the missing mods.
     std::map<int, int>  m_stream_time_offsets;       //!< Networking: A network time offset for each stream source
     Ogre::Timer         m_net_timer;
 

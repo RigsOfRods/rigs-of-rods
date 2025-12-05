@@ -133,6 +133,15 @@ enum PeerOptions
     PEEROPT_HIDE_ACTORS   = BITMASK(3), //!< Spawn actors hidden and immediatelly hide existing actors.
 };
 
+// Used by client to display informative icons on MP player list.
+enum class UiStreamsHealth
+{
+    INVALID = -1,                  //!< Invalid status
+    MISMATCHES = 0,                //!< Loading errors - some mods could not be loaded (probably not installed)
+    ALL_OK = 1,                    //!< Stream is OK - no errors loading the mods
+    IDLE = 2,                      //!< Player has no active streams
+};
+
 // -------------------------------- structs -----------------------------------
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
 // Prefer alignment to 4 or 2 bytes (put int32/float/etc. fields on top)

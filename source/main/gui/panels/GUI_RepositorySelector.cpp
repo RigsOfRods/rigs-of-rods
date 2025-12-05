@@ -71,6 +71,7 @@ struct RepoProgressContext
 {
     std::string filename;
     double old_perc = 0;
+    RepoFileInstallRequestID_t install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
 };
 
 static size_t CurlProgressFunc(void* ptr, double filesize_B, double downloaded_B)
@@ -87,7 +88,7 @@ static size_t CurlProgressFunc(void* ptr, double filesize_B, double downloaded_B
 
     if (perc > context->old_perc)
     {
-        RoR::Message m(MSG_GUI_DOWNLOAD_PROGRESS);
+        RoR::Message m(MSG_NET_DOWNLOAD_REPOFILE_PROGRESS);
         m.payload = reinterpret_cast<void*>(new int(perc));
         m.description = fmt::format("{} {}\n{}: {:.2f}{}\n{}: {:.2f}{}", "Downloading", context->filename, "File size", filesize_B/(1024 * 1024), "MB", "Downloaded", downloaded_B/(1024 * 1024), "MB");
         App::GetGameContext()->PushMessage(m);
@@ -120,6 +121,8 @@ std::vector<GUI::ResourceCategories> GetResourceCategories(std::string portal_ur
     long response_code = 0;
     std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
 
+    // The CURL* handle is not multithreaded, see https://curl.se/libcurl/c/threadsafe.html
+    // For simplicity we avoid any reuse during OGRE14 migration.
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, repolist_url.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -321,27 +324,27 @@ void GetResourceFiles(std::string portal_url, int resource_id)
             Message(MSG_NET_OPEN_RESOURCE_SUCCESS, (void*)cdata_ptr));
 }
 
-void DownloadResourceFile(int resource_id, std::string filename, int id)
+void DownloadResourceFile(RepoFileInstallRequest request)
 {
-    RoR::Message m(MSG_GUI_DOWNLOAD_PROGRESS);
+    RoR::Message m(MSG_NET_DOWNLOAD_REPOFILE_PROGRESS);
     int perc = 0;
     m.payload = reinterpret_cast<void*>(new int(perc));
     m.description = "Initialising...";
     App::GetGameContext()->PushMessage(m);
 
-    std::string url = "https://forum.rigsofrods.org/resources/" + std::to_string(resource_id) + "/download?file=" + std::to_string(id);
-    std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
-    std::string file = PathCombine(path, filename);
+    std::string url = "https://forum.rigsofrods.org/resources/" + std::to_string(request.rfir_resource_id) + "/download?file=" + std::to_string(request.rfir_repofile_id);
+    std::string part_filepath = request.rfir_filepath + ".part";
 
     RepoProgressContext progress_context;
-    progress_context.filename = filename;
+    progress_context.filename = request.rfir_filename;
+    progress_context.install_request_id = request.rfir_install_request_id;
     long response_code = 0;
 
     CURL *curl = curl_easy_init();
     try // We write using Ogre::DataStream which throws exceptions
     {
         // smart pointer - closes stream automatically
-        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_THUMBNAILS);
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(part_filepath, RGN_CACHE);
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -363,7 +366,7 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
                 << "[RoR|Repository] Failed to download resource;"
                 << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
 
-            // FIXME: we need a FAILURE message for MSG_GUI_DOWNLOAD_FINISHED
+            App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOFILE_FAILURE, new RepoFileInstallRequest(request)));
         }
     }
     catch (Ogre::Exception& oex)
@@ -376,8 +379,7 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    App::GetGameContext()->PushMessage(
-            Message(MSG_GUI_DOWNLOAD_FINISHED));
+    App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOFILE_SUCCESS, new RepoFileInstallRequest(request)));
 }
 #endif // defined(USE_CURL)
 
@@ -385,9 +387,7 @@ RepositorySelector::RepositorySelector()
 {
     Ogre::WorkQueue* wq = Ogre::Root::getSingleton().getWorkQueue();
     m_ogre_workqueue_channel = wq->getChannel("RoR/RepoThumbnails");
-    wq->addRequestHandler(m_ogre_workqueue_channel, this);
-    wq->addResponseHandler(m_ogre_workqueue_channel, this);
-
+    wq->addRequestHandler(m_ogre_workqueue_channel, &m_repo_image_request_handler);
     m_fallback_thumbnail = FetchIcon("ror.png");
 }
 
@@ -586,10 +586,12 @@ void RepositorySelector::Draw()
             if (m_gallery_mode_attachment_id != -1)
             {
                 this->DrawGalleryView();
+                this->DrawFooterDownloadsInfo();
             }
             else
             {
                 this->DrawResourceView(searchbox_x);
+                this->DrawFooterDownloadsInfo();
             }
         }
         else
@@ -931,6 +933,8 @@ void RepositorySelector::Draw()
                 }
             }
             ImGui::EndChild();
+
+            this->DrawFooterDownloadsInfo();
         }
     }
 
@@ -974,6 +978,29 @@ void RepositorySelector::Draw()
     {
         this->SetVisible(false);
     }
+}
+
+void RepositorySelector::DrawFooterDownloadsInfo()
+{
+    // show number of queued downloads, total filesize in MB and current download progressbar
+    // --------------------------------------------------------------------------------------
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+    if (m_queued_install_requests.size() == 0)
+    {
+        ImGui::TextDisabled("%s", _LC("RepositorySelector", "No downloads queued."));
+        return;
+    }
+    // Calculate total size of queued downloads
+    size_t total_bytes = 0;
+    for (auto& req : m_queued_install_requests)
+    {
+        total_bytes += req.rfir_filesize_bytes;
+    }
+    std::string download_count_text = fmt::format("{} {}", _LC("RepositorySelector", "Num. queued downloads:"), m_queued_install_requests.size());
+    std::string download_size_text = fmt::format("{} {:.2f} MB", _LC("RepositorySelector", "Total Size:"), total_bytes / (1024.0 * 1024.0));
+
+    ImGui::Text("%s (%s)", download_count_text.c_str(), download_size_text.c_str());
 }
 
 void RepositorySelector::DrawGalleryView()
@@ -1193,13 +1220,20 @@ void RepositorySelector::DrawResourceViewRightColumn()
 
         ImGui::AlignTextToFramePadding();
 
-        // File
+        // File - construct download path
         std::string path = PathCombine(App::sys_user_dir->getStr(), "mods");
         std::string file = PathCombine(path, m_data.files[i].filename);
+        // Determine installation status
+        std::string installed_file;
+        const bool is_installed = this->CheckRepoFileIsInstalled(m_data.files[i], /*[out]*/ installed_file);
+        if (is_installed)
+        {
+            file = installed_file;
+        }
 
         // Get created time
         int file_time = 0;
-        if (FileExists(file))
+        if (is_installed)
         {
             file_time = GetFileLastModifiedTime(file);
         }
@@ -1207,7 +1241,7 @@ void RepositorySelector::DrawResourceViewRightColumn()
         // Filename and size on separate line
         ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
 
-        if (FileExists(file) && ImGui::IsItemHovered())
+        if (is_installed && ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
 
@@ -1224,7 +1258,7 @@ void RepositorySelector::DrawResourceViewRightColumn()
         ImGui::TextDisabled("(%d %s)", size, "KB");
 
         // File exists show indicator
-        if (FileExists(file))
+        if (is_installed)
         {
             ImGui::SameLine();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
@@ -1233,40 +1267,50 @@ void RepositorySelector::DrawResourceViewRightColumn()
 
         // Buttons (new line)
 
-        std::string btn_label;
-        ImVec4 btn_color = ImGui::GetStyle().Colors[ImGuiCol_Button];
-        ImVec4 text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
-        if (FileExists(file) && selected_item.last_update > file_time)
+        if (!FileExists(file + ".part")) // Hide buttons if a download is in progress for this file
         {
-            btn_label = fmt::format(_LC("RepositorySelector", "Update"));
-        }
-        else if (FileExists(file))
-        {
-            btn_label = fmt::format(_LC("RepositorySelector", "Reinstall"));
+            std::string btn_label;
+            ImVec4 btn_color = ImGui::GetStyle().Colors[ImGuiCol_Button];
+            ImVec4 text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+            if (is_installed && selected_item.last_update > file_time)
+            {
+                btn_label = fmt::format(_LC("RepositorySelector", "Update"));
+            }
+            else if (is_installed)
+            {
+                btn_label = fmt::format(_LC("RepositorySelector", "Reinstall"));
+            }
+            else
+            {
+                btn_label = fmt::format(_LC("RepositorySelector", "Install"));
+                btn_color = RESOURCE_INSTALL_BTN_COLOR;
+                text_color = ImVec4(0.1, 0.1, 0.1, 1.0);
+            }
+
+            ImGui::PushStyleColor(ImGuiCol_Button, btn_color);
+            ImGui::PushStyleColor(ImGuiCol_Text, text_color);
+            if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
+            {
+                this->RequestInstallRepoFile(selected_item.resource_id, i, file);
+            }
+            ImGui::PopStyleColor(2); // Button, Text
         }
         else
         {
-            btn_label = fmt::format(_LC("RepositorySelector", "Install"));
-            btn_color = RESOURCE_INSTALL_BTN_COLOR;
-            text_color = ImVec4(0.1, 0.1, 0.1, 1.0);
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            ImGui::Button(_LC("RepositorySelector", "Install"), ImVec2(100, 0));
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
         }
 
-        ImGui::PushStyleColor(ImGuiCol_Button, btn_color);
-        ImGui::PushStyleColor(ImGuiCol_Text, text_color);
-        if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
-        {
-            this->Download(selected_item.resource_id, m_data.files[i].filename, m_data.files[i].id);
-        }
-        ImGui::PopStyleColor(2); // Button, Text
-
-        if (FileExists(file))
+        if (is_installed)
         {
             ImGui::SameLine();
             if (ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
             {
-                Ogre::ArchiveManager::getSingleton().unload(file);
-                Ogre::FileSystemLayer::removeFile(file);
-                m_update_cache = true;
+                // Request modcache to remove this file - this will also despawn any actors using it.
+                App::GetGameContext()->PushMessage(Message(MSG_EDI_DELETE_BUNDLE_REQUESTED, m_data.files[i].filename));
             }
         }
         else
@@ -1448,10 +1492,11 @@ void RepositorySelector::DownloadAttachment(int attachment_id, std::string const
     else
     {
         // Request the async download
-        RepoWorkQueueTicket ticket;
-        ticket.attachment_id = attachment_id;
-        ticket.attachment_ext = attachment_ext;
-        Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
+        RepoImageDownloadRequest* request = new RepoImageDownloadRequest();
+        request->attachment_id = attachment_id;
+        request->attachment_ext = attachment_ext;
+
+        Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(request));
     }
 }
 
@@ -1465,19 +1510,88 @@ void RepositorySelector::OpenResource(int resource_id)
 #endif // defined(USE_CURL)
 }
 
-void RepositorySelector::Download(int resource_id, std::string filename, int id)
+void RepositorySelector::RequestInstallRepoFile(int resource_id, int datafile_pos, std::string filepath)
 {
-#if defined(USE_CURL)
-    m_update_cache = false;
-    this->SetVisible(false);
-    std::packaged_task<void(int, std::string, int)> task(DownloadResourceFile);
-    std::thread(std::move(task), resource_id, filename, id).detach();
-#endif // defined(USE_CURL)
+    RepoFileInstallRequest* request = new RepoFileInstallRequest();
+    request->rfir_install_request_id = this->GetNextInstallRequestId();
+    request->rfir_resource_id = resource_id;
+    request->rfir_repofile_id = m_data.files[datafile_pos].id;
+    request->rfir_filename = m_data.files[datafile_pos].filename;
+    request->rfir_filesize_bytes = m_data.files[datafile_pos].size;
+    request->rfir_filepath = filepath;
+    App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOFILE_REQUESTED, request));
 }
 
-void RepositorySelector::DownloadFinished()
+void RepositorySelector::QueueInstallRepoFile(RepoFileInstallRequest* request)
 {
-    m_update_cache = true;
+    m_queued_install_requests.push_back(*request); // copy
+    this->TryProcessNextQueuedInstallRequest();
+}
+
+void RepositorySelector::TryProcessNextQueuedInstallRequest()
+{
+    if (m_active_install_request_id == REPOFILEINSTALLREQUESTID_INVALID && m_queued_install_requests.size() > 0)
+    {
+        RepoFileInstallRequest next_request = m_queued_install_requests.front();
+#if defined(USE_CURL)
+        std::packaged_task<void(RepoFileInstallRequest)> task(DownloadResourceFile);
+        std::thread(std::move(task), next_request).detach();
+#endif // defined(USE_CURL)
+        m_active_install_request_id = next_request.rfir_install_request_id;
+    }
+    else
+    {
+        m_active_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
+    }
+}
+
+void RepositorySelector::InstallDownloadedRepoFile(MsgType result, RepoFileInstallRequest* request)
+{
+    if (m_active_install_request_id != REPOFILEINSTALLREQUESTID_INVALID)
+    {
+        ROR_ASSERT(m_queued_install_requests.size() > 0
+            && m_active_install_request_id == m_queued_install_requests.front().rfir_install_request_id);
+
+        // Install the new bundle
+        if (result == MSG_NET_DOWNLOAD_REPOFILE_SUCCESS)
+        {
+            ROR_ASSERT(FileExists(request->rfir_filepath + ".part"));
+            if (FileExists(request->rfir_filepath))
+            {
+                Ogre::FileSystemLayer::removeFile(request->rfir_filepath);
+            }
+            Ogre::FileSystemLayer::renameFile(request->rfir_filepath + ".part", request->rfir_filepath);
+            App::GetCacheSystem()->ParseSingleZip(request->rfir_filepath);
+
+            // Update the installation status
+            auto itor = std::find_if(m_data.files.begin(), m_data.files.end(),
+                [request](ResourceFiles const& file) { return file.id == request->rfir_repofile_id; });
+            ROR_ASSERT(itor != m_data.files.end());
+            if (itor != m_data.files.end())
+            {
+                itor->cached_install_status = ResFileInstallStatus::RFIS_INSTALLED;
+                itor->cached_install_path = request->rfir_filepath;
+            }
+        }
+
+        // remove finished request from queue
+        m_queued_install_requests.erase(m_queued_install_requests.begin());
+        m_active_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
+        this->TryProcessNextQueuedInstallRequest();
+    }
+}
+
+void RepositorySelector::NotifyRepoFileUninstalled(std::string const& filename)
+{
+    // Update the installation status
+    auto itor = std::find_if(m_data.files.begin(), m_data.files.end(),
+        [filename](ResourceFiles const& file) { return file.filename == filename; });
+    ROR_ASSERT(itor != m_data.files.end());
+    if (itor != m_data.files.end())
+    {
+        itor->cached_install_status = ResFileInstallStatus::RFIS_NOT_INSTALLED;
+        itor->cached_install_path = "";
+    }
 }
 
 void RepositorySelector::ShowError(CurlFailInfo* failinfo)
@@ -1499,14 +1613,9 @@ void RepositorySelector::SetVisible(bool visible)
     {
         this->Refresh();
     }
-    else if (!visible && (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU))
+    else if (!visible)
     {
         App::GetGuiManager()->GameMainMenu.SetVisible(true);
-        if (m_update_cache)
-        {
-            m_update_cache = false;
-            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
-        }
     }
 }
 
@@ -1648,7 +1757,8 @@ void RepositorySelector::DrawResourceDescriptionBBCode(const ResourceItem& item,
 
 // -------------------------------------------------------
 // Async thumbnail/attachment download via Ogre::WorkQueue
-// see https://wiki.ogre3d.org/How+to+use+the+WorkQueue
+// NOTE: The API changed in OGRE 14.0
+// see https://github.com/OGRECave/ogre/blob/master/Docs/14-Notes.md#task-based-workqueue
 
 void RepositorySelector::DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor)
 {
@@ -1672,9 +1782,12 @@ void RepositorySelector::DrawThumbnail(ResourceItemArrayPos_t resource_arraypos,
                 && !m_data.items[resource_arraypos].thumbnail_dl_queued)
             {
                 // Image is in visible screen area and not yet downloading.
-                RepoWorkQueueTicket ticket;
-                ticket.thumb_resourceitem_idx = resource_arraypos;
-                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(ticket));
+                RepoImageDownloadRequest* request = new RepoImageDownloadRequest();
+                request->thumb_resourceitem_idx = resource_arraypos;
+                request->thumb_resource_id = m_data.items[request->thumb_resourceitem_idx].resource_id;
+                request->thumb_url = m_data.items[request->thumb_resourceitem_idx].icon_url;
+
+                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(request));
                 m_data.items[resource_arraypos].thumbnail_dl_queued = true;
             }
         }
@@ -1752,40 +1865,41 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
     }
 }
 
-Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ)
+/*static*/ void RepositorySelector::DownloadImage(RepoImageDownloadRequest* request)
 {
     // This runs on background worker thread in Ogre::WorkQueue's thread pool.
     // Purpose: to fetch one thumbnail image using CURL.
     // -----------------------------------------------------------------------
 
-    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
+    ROR_ASSERT(request->thumb_resourceitem_idx != -1 || request->attachment_id != -1);
     std::string filename, filepath, rg_name, url;
-    if (ticket.thumb_resourceitem_idx != -1)
+    if (request->thumb_resourceitem_idx != -1)
     {
-        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filename = std::to_string(request->thumb_resource_id) + ".png";
         filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
         rg_name = RGN_THUMBNAILS;
-        url = m_data.items[ticket.thumb_resourceitem_idx].icon_url;
+        url = request->thumb_url;
 
     }
-    else if (ticket.attachment_id != -1)
+    else if (request->attachment_id != -1)
     {
-        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
+        filename = fmt::format("{}.{}", request->attachment_id, request->attachment_ext);
         filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
         rg_name = RGN_REPO_ATTACHMENTS;
-        url = "https://forum.rigsofrods.org/attachments/" + std::to_string(ticket.attachment_id);
+        url = "https://forum.rigsofrods.org/attachments/" + std::to_string(request->attachment_id);
     }
     else
     {
         // Invalid request, return empty response.
         LOG("[RoR|RepoUI] Invalid (empty) download request - ignoring it");
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+        return;
     }
     long response_code = 0;
 
     if (FileExists(filepath))
     {
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
+        App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS, request));
+        return;
     }
     else
     {
@@ -1794,6 +1908,9 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
             // smart pointer - closes stream automatically
             Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, rg_name);
 
+            // The CURL* handle is not multithreaded, see https://curl.se/libcurl/c/threadsafe.html
+            // For simplicity we avoid any reuse during OGRE14 migration.
+            CURL *curl_th = curl_easy_init();
             curl_easy_setopt(curl_th, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl_th, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
             curl_easy_setopt(curl_th, CURLOPT_FOLLOWLOCATION, 1L); // Necessary for attachment images
@@ -1803,6 +1920,7 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
             curl_easy_setopt(curl_th, CURLOPT_WRITEFUNCTION, CurlOgreDataStreamWriteFunc);
             curl_easy_setopt(curl_th, CURLOPT_WRITEDATA, datastream.get());
             CURLcode curl_result = curl_easy_perform(curl_th);
+            curl_easy_cleanup(curl_th);
 
             // If CURL follows a redirect then it returns 0 for HTTP response code.
             if (curl_result != CURLE_OK || (response_code != 0 && response_code != 200))
@@ -1812,12 +1930,11 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
                     << " URL: '" << url << "',"
                     << " Error: '" << curl_easy_strerror(curl_result) << "',"
                     << " HTTP status code: " << response_code;
-
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
             }
             else
             {
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(ticket));
+                App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS, request));
+                return;
             }
         }
         catch (Ogre::Exception& oex)
@@ -1826,29 +1943,33 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format("Repository UI: cannot download image '{}' - {}",
                     url, oex.getDescription()));
-
-            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(ticket));
         }
+
+        // Remove any incomplete download before reporting failure
+        if (FileExists(filepath))
+        {
+            Ogre::FileSystemLayer::removeFile(filepath);
+        }
+        App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE, request));
     }
 }
 
-void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, const Ogre::WorkQueue *srcQ)
+void RepositorySelector::LoadDownloadedImage(RepoImageDownloadRequest* request)
 {
     // This runs on main thread.
     // It's safe to load the texture and modify GUI data.
     // --------------------------------------------------
 
-    auto ticket = Ogre::any_cast<RepoWorkQueueTicket>(req->getData());
     std::string filename, filepath, rg_name;
-    if (ticket.thumb_resourceitem_idx != -1)
+    if (request->thumb_resourceitem_idx != -1)
     {
-        filename = std::to_string(m_data.items[ticket.thumb_resourceitem_idx].resource_id) + ".png";
+        filename = std::to_string(m_data.items[request->thumb_resourceitem_idx].resource_id) + ".png";
         filepath = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
         rg_name = RGN_THUMBNAILS;
     }
-    else if (ticket.attachment_id != -1)
+    else if (request->attachment_id != -1)
     {
-        filename = fmt::format("{}.{}", ticket.attachment_id, ticket.attachment_ext);
+        filename = fmt::format("{}.{}", request->attachment_id, request->attachment_ext);
         filepath = PathCombine(App::sys_repo_attachments_dir->getStr(), filename);
         rg_name = RGN_REPO_ATTACHMENTS;
     }
@@ -1871,15 +1992,41 @@ void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, co
             tex = m_fallback_thumbnail;
         }
 
-        if (ticket.thumb_resourceitem_idx != -1)
+        if (request->thumb_resourceitem_idx != -1)
         {
             // Thumbnail for resource item
-            m_data.items[ticket.thumb_resourceitem_idx].preview_tex = tex;
+            m_data.items[request->thumb_resourceitem_idx].preview_tex = tex;
         }
-        else if (ticket.attachment_id != -1)
+        else if (request->attachment_id != -1)
         {
             // Attachment image to display in description
-            m_repo_attachments[ticket.attachment_id] = tex;
+            m_repo_attachments[request->attachment_id] = tex;
         }
     }
+}
+
+// This will be removed after OGRE14 migration is complete
+Ogre::WorkQueue::Response* RepoImageRequestHandler::handleRequest(const Ogre::WorkQueue::Request* req, const Ogre::WorkQueue* srcQ)
+{
+    RepoImageDownloadRequest* request = Ogre::any_cast<RepoImageDownloadRequest*>(req->getData());
+    RepositorySelector::DownloadImage(request);
+    return nullptr; // Because we use `MSG_NET_DOWNLOAD_REPOIMAGE_*` message to notify main thread, we don't need OGRE's response system here.
+}
+
+bool RepositorySelector::CheckRepoFileIsInstalled(ResourceFiles& resfile, std::string& out_filepath)
+{
+    if (resfile.cached_install_status == ResFileInstallStatus::RFIS_UNKNOWN)
+    {
+        if (App::GetCacheSystem()->IsRepoFileInstalled(resfile.filename, resfile.cached_install_path))
+        {
+            resfile.cached_install_status = ResFileInstallStatus::RFIS_INSTALLED;
+        }
+        else
+        {
+            resfile.cached_install_status = ResFileInstallStatus::RFIS_NOT_INSTALLED;
+        }
+    }
+
+    out_filepath = resfile.cached_install_path;
+    return (resfile.cached_install_status == ResFileInstallStatus::RFIS_INSTALLED);
 }

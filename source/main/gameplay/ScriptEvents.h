@@ -96,7 +96,8 @@ enum modCacheActivityType
 
     MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args: #1 type, #2 entry number, --, --, #5 rg name
     MODCACHEACTIVITY_BUNDLE_RELOADED,  //!< Args: #1 type, #2 entry number, --, --, #5 rg name
-    MODCACHEACTIVITY_BUNDLE_UNLOADED   //!< Args: #1 type, #2 entry number
+    MODCACHEACTIVITY_BUNDLE_UNLOADED,  //!< Args: #1 type, #2 entry number
+    MODCACHEACTIVITY_BUNDLE_DELETED,   //!< Args: #1 type, #2 entry number
 };
 
 /// Argument #1 of script event `RoR::SE_GENERIC_FREEFORCES_ACTIVITY`

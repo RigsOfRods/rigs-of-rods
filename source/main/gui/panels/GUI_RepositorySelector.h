@@ -39,6 +39,43 @@
 #endif //USE_CURL
 
 namespace RoR {
+
+    struct RepoImageDownloadRequest
+    {
+        // Only one should be set!
+        int thumb_resourceitem_idx = -1; //!< fetch thumbnail
+        int attachment_id = -1; //!< download attachment
+        // attachment extras
+        std::string attachment_ext;
+        // thumb extras
+        int thumb_resource_id = 0;
+        std::string thumb_url;
+    };
+
+    /// Payload for `MSG_NET_INSTALL_REPOFILE_REQUEST` message - also used for update (overwrites existing)
+    struct RepoFileInstallRequest
+    {
+        // rfir_ prefix: RepoFileInstallRequest
+        RepoFileInstallRequestID_t rfir_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
+        int rfir_resource_id = 0;
+        int rfir_repofile_id = 0;
+        std::string rfir_filename;
+        std::string rfir_filepath; // Custom path needed for updates (overwrite existing file)
+        int rfir_filesize_bytes = 0; // For display only
+    };
+
+    // This will be removed during OGRE14 migration
+    struct RepoImageRequestHandler: public Ogre::WorkQueue::RequestHandler
+    {
+        Ogre::WorkQueue::Response* handleRequest(const Ogre::WorkQueue::Request* req, const Ogre::WorkQueue* srcQ) override;
+    };
+
+    // `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile. ~ This will also be removed during OGRE14 migration
+    inline std::ostream& operator<<(std::ostream& os, RepoImageDownloadRequest& val)
+    {
+        return os;
+    }
+
 namespace GUI {
 
 struct ResourceCategories
@@ -77,11 +114,20 @@ struct ResourceItem
 typedef int ResourceItemArrayPos_t;
 const int RESOURCEITEMARRAYPOS_INVALID = -1;
 
+enum class ResFileInstallStatus
+{
+    RFIS_UNKNOWN = 0,
+    RFIS_INSTALLED,
+    RFIS_NOT_INSTALLED
+};
+
 struct ResourceFiles
 {
     int                 id;
     std::string         filename;
     int                 size;
+    ResFileInstallStatus cached_install_status = ResFileInstallStatus::RFIS_UNKNOWN;
+    std::string          cached_install_path; //!< Valid if `cached_install_status == RFIS_INSTALLED`
 };
 
 struct ResourcesCollection
@@ -93,28 +139,11 @@ struct ResourcesCollection
 
 typedef std::map<int, Ogre::TexturePtr> RepoAttachmentsMap; //!< Maps attachment ID to Ogre::TexturePtr
 
-struct RepoWorkQueueTicket
-{
-    // Only one should be set!
-    int thumb_resourceitem_idx = -1; //!< fetch thumbnail
-    int attachment_id = -1; //!< download attachment
-    std::string attachment_ext;
-};
-
-// `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile.
-inline std::ostream& operator<<(std::ostream& os, RepoWorkQueueTicket& val)
-{
-    return os;
-}
-
 class BBCodeDrawingContext;
 
-class RepositorySelector:
-    public Ogre::WorkQueue::RequestHandler, // Processes tasks on background thread
-    public Ogre::WorkQueue::ResponseHandler // Processes task results on rendering thread
+class RepositorySelector
 {
 public:
-    const Ogre::uint16                  WORKQUEUE_ROR_REPO_THUMBNAIL = 1; // Work queue request type, named by OGRE convention.
     const float                         ATTACH_MAX_WIDTH = 160.f;
     const float                         ATTACH_MAX_HEIGHT = 90.f;
     const float                         ATTACH_SPINNER_RADIUS = 20.f;
@@ -132,23 +161,28 @@ public:
     void                                DrawResourceView(float searchbox_x);
     void                                DrawResourceViewRightColumn();
     void                                OpenResource(int resource_id);
-    void                                Download(int resource_id, std::string filename, int id);
-    void                                DownloadFinished();
+    void                                RequestInstallRepoFile(int resource_id, int datafile_pos, std::string filepath);
+    void                                QueueInstallRepoFile(RepoFileInstallRequest* request);
+    void                                InstallDownloadedRepoFile(MsgType result, RepoFileInstallRequest* request);
+    void                                NotifyRepoFileUninstalled(std::string const& filename);
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
+    static void                         DownloadImage(RepoImageDownloadRequest* request); //!< To be run on background via Ogre WorkQueue
+    void                                LoadDownloadedImage(RepoImageDownloadRequest* request); //!< To be run on main thread
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item, ImVec2 panel_screenpos, ImVec2 panel_size);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
     void                                DownloadAttachment(int attachment_id, std::string const& attachment_ext);
     void                                DownloadBBCodeAttachmentsRecursive(const bbcpp::BBNode& parent);
-
-    /// Ogre::WorkQueue API
-    virtual Ogre::WorkQueue::Response*  handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ) override; //!< Processes tasks on background thread
-    virtual void                        handleResponse(const Ogre::WorkQueue::Response *req, const Ogre::WorkQueue *srcQ) override; //!< Processes task results on main thread
+    RepoFileInstallRequestID_t          GetNextInstallRequestId() { return m_next_install_request_id++; }
 
 private:
+    void                                TryProcessNextQueuedInstallRequest();
+    void                                DrawFooterDownloadsInfo();
+    bool                                CheckRepoFileIsInstalled(ResourceFiles& resfile, std::string& out_filepath);
+
     bool                                m_is_visible = false;
     bool                                m_draw = false;
     ResourcesCollection                 m_data;
@@ -158,17 +192,19 @@ private:
     std::string                         m_all_category_label;
     std::string                         m_current_category_label;
     int                                 m_gallery_mode_attachment_id = -1;
-    bool                                m_update_cache = false;
     bool                                m_show_spinner = false;
     std::string                         m_current_sort = "Last Update";
     std::string                         m_view_mode = "List";
     ResourceItemArrayPos_t              m_resourceview_item_arraypos = RESOURCEITEMARRAYPOS_INVALID;
-    Ogre::uint16                        m_ogre_workqueue_channel = 0;
     Ogre::TexturePtr                    m_fallback_thumbnail;
     RepoAttachmentsMap                  m_repo_attachments; //!< Fully loaded images in memory.
-#ifdef USE_CURL
-    CURL                                *curl_th = curl_easy_init(); // One connection for fetching thumbnails using connection reuse
-#endif
+    RepoFileInstallRequestID_t          m_next_install_request_id = 0;
+    std::vector<RepoFileInstallRequest> m_queued_install_requests;
+    RepoFileInstallRequestID_t          m_active_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
+
+    // This will be removed during OGRE14 migration
+    Ogre::uint16                        m_ogre_workqueue_channel = 0;
+    RepoImageRequestHandler             m_repo_image_request_handler;
 
     // status or error messages
     std::string                         m_repofiles_msg;

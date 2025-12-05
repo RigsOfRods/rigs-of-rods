@@ -110,9 +110,15 @@ enum MsgType
     MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
+    MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOIMAGE_FAILURE,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
     MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
     MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_REQUESTED,   //!< Payload = RoR::RepoFileInstallRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_SUCCESS,     //!< Payload = RoR::RepoFileInstallRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_FAILURE,     //!< Payload = RoR::RepoFileInstallRequest* (owner)
+    MSG_NET_DOWNLOAD_REPOFILE_PROGRESS,    //!< Payload = int* (owner)
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
@@ -142,8 +148,6 @@ enum MsgType
     MSG_GUI_MP_CLIENTS_REFRESH,
     MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED,    //!< Payload = MessageBoxConfig* (owner)
     MSG_GUI_HIDE_MESSAGE_BOX_REQUESTED,
-    MSG_GUI_DOWNLOAD_PROGRESS,
-    MSG_GUI_DOWNLOAD_FINISHED,
     MSG_GUI_REFRESH_TUNING_MENU_REQUESTED,
     MSG_GUI_SHOW_CHATBOX_REQUESTED,        //!< Description = message or server command to pre-fill in the chatbox (deleting whatever was there previously)
     MSG_GUI_OPEN_MP_SETTINGS_REQUESTED,
@@ -155,6 +159,7 @@ enum MsgType
     MSG_EDI_LOAD_BUNDLE_REQUESTED,         //!< Payload = RoR::CacheEntryPtr* (owner)
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntryPtr* (owner)
     MSG_EDI_UNLOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntryPtr* (owner)
+    MSG_EDI_DELETE_BUNDLE_REQUESTED,       //!< Description = filename
     MSG_EDI_CREATE_PROJECT_REQUESTED,      //!< Payload = RoR::CreateProjectRequest* (owner)
     MSG_EDI_MODIFY_PROJECT_REQUESTED,      //!< Payload = RoR::UpdateProjectRequest* (owner)
     MSG_EDI_DELETE_PROJECT_REQUESTED,      //!< Payload = RoR::CacheEntryPtr* (owner)

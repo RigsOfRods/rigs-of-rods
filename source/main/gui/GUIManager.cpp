@@ -187,6 +187,8 @@ void GUIManager::DrawSimulationGui(float dt)
     {
         this->FlexbodyDebug.Draw();
     }
+
+
 };
 
 void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
@@ -395,6 +397,9 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
+    // UI usable in both main menu and simulation
+    // ------------------------------------------
+
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !App::ui_hide_gui->getBool() && !this->SurveyMap.IsVisible())
     {
         this->MpClientList.Draw();
@@ -413,6 +418,11 @@ void GUIManager::DrawCommonGui()
     if (this->GameControls.IsVisible())
     {
         this->GameControls.Draw();
+    }
+
+    if (this->RepositorySelector.IsVisible())
+    {
+        this->RepositorySelector.Draw();
     }
 }
 
@@ -448,11 +458,6 @@ void GUIManager::DrawMainMenuGui()
     if (this->GameAbout.IsVisible())
     {
         this->GameAbout.Draw();
-    }
-
-    if (this->RepositorySelector.IsVisible())
-    {
-        this->RepositorySelector.Draw();
     }
 }
 
