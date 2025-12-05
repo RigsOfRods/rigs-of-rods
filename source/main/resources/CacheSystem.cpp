@@ -750,7 +750,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
                 { return !entry->deleted && entry->fname == f.filename && entry->resource_bundle_path == path; }) != m_entries.end())
         return;
 
-    RoR::LogFormat("[RoR|CacheSystem] Preparing to add file '%f'", f.filename.c_str());
+    LOG(fmt::format("[RoR|ModCache] Preparing to add file '{}'", f.filename));
 
     try
     {
@@ -842,7 +842,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
     }
     catch (Ogre::Exception& e)
     {
-        RoR::LogFormat("[RoR|CacheSystem] Error processing file '%s', message :%s",
+        RoR::LogFormat("[RoR|ModCache] Error processing file '%s', message :%s",
             f.filename.c_str(), e.getFullDescription().c_str());
     }
 }
@@ -1454,7 +1454,7 @@ static bool CheckAndReplacePathIgnoreCase(const CacheEntryPtr& entry, CVar* dir,
     ROR_ASSERT(entry->resource_bundle_path != "");
     if (entry->resource_bundle_path == "")
     {
-        LOG(fmt::format("[RoR|CacheSystem] CheckAndReplacePathIgnoreCase(): INTERNAL ERROR - entry '{}' has no bundle path!", entry->fname));
+        LOG(fmt::format("[RoR|ModCache] CheckAndReplacePathIgnoreCase(): INTERNAL ERROR - entry '{}' has no bundle path!", entry->fname));
         return false;
     }
 
