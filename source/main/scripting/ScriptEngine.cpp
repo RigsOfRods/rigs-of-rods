@@ -550,6 +550,11 @@ ScriptRetCode_t ScriptEngine::addFunction(const String &arg, const ScriptUnitID_
                 if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == nullptr)
                     m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = func;
             }
+            else if (func == mod->GetFunctionByDecl("void dispose()"))
+            {
+                if (m_script_units[m_terrain_script_unit].disposeFunctionPtr == nullptr)
+                    m_script_units[m_terrain_script_unit].disposeFunctionPtr = func;
+            }
             // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead. See commentary in `envokeCallback()`
             else if (func == this->getFunctionByDeclAndLogCandidates(
                 m_terrain_script_unit, GETFUNCFLAG_OPTIONAL,
@@ -618,6 +623,9 @@ ScriptRetCode_t ScriptEngine::deleteFunction(const String &arg, const ScriptUnit
 
             if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == func)
                 m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = nullptr;
+
+            if (m_script_units[m_terrain_script_unit].disposeFunctionPtr == func)
+                m_script_units[m_terrain_script_unit].disposeFunctionPtr = nullptr;
         }
         else
         {
@@ -1005,6 +1013,8 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     m_script_units[unit_id].eventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallback(int, int)");
     m_script_units[unit_id].eventCallbackExFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)");
 
+    m_script_units[unit_id].disposeFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void dispose()");
+
     // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead. See commentary in `envokeCallback()`
     m_script_units[unit_id].defaultEventCallbackFunctionPtr = this->getFunctionByDeclAndLogCandidates(
         unit_id, GETFUNCFLAG_OPTIONAL, GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
@@ -1075,6 +1085,25 @@ void ScriptEngine::unloadScript(ScriptUnitID_t nid)
     {
         if (m_script_units[nid].scriptModule != nullptr)
         {
+            // Call the dispose() method in the script, so we can
+            // give it an opportunity to free resources.
+            AngelScript::asIScriptFunction* dispose_function = m_script_units[nid].disposeFunctionPtr;
+            if (dispose_function != nullptr &&
+                this->prepareContextAndHandleErrors(nid, dispose_function->GetId()))
+            {
+                SLOG(fmt::format("Executing dispose() in {}", m_script_units[nid].scriptName));
+                int dispose_result = this->executeContextAndHandleErrors(nid);
+                if (dispose_result != AngelScript::asEXECUTION_FINISHED)
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                        fmt::format("Error running function `dispose()` on script {}, check AngelScript.log", m_script_units[nid].scriptName));
+                }
+                else
+                {
+                    SLOG(fmt::format("The script {} freed its resources successfully.", m_script_units[nid].scriptName));
+                }
+            }
+
             engine->DiscardModule(m_script_units[nid].scriptModule->GetName());
             m_script_units[nid].scriptModule = nullptr;
         }

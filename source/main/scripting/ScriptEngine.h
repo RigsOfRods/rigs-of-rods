@@ -80,6 +80,7 @@ struct ScriptUnit
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
+    AngelScript::asIScriptFunction* disposeFunctionPtr = nullptr; //!< script function pointer to the dispose function
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
     CacheEntryPtr originatingGadget; //!< For ScriptCategory::GADGET ~ determines resource group
     Ogre::String scriptName; //!< Name of the '.as' file exclusively.
