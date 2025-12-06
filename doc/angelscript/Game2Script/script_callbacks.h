@@ -42,6 +42,11 @@ void eventCallbackEx(Script2Game::scriptEvents event, int arg1, int arg2ex, int 
 */
 void defaultEventCallback(int trigger_type, string inst, string box, int nodeid);
 
+/** Optional; Invoked before terminating the script.
+*   Allows the script to release objects and resources used during runtime.
+*/
+void dispose();
+
 /** @}*/   //addtogroup Game2Script
 /** @}*/   //addtogroup ScriptSideAPIs
 
