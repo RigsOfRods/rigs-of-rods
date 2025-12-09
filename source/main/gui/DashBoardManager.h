@@ -41,7 +41,6 @@ namespace RoR {
 #define DD_MAX_SCREWPROP  6
 #define DD_MAX_AEROENGINE 6
 #define DD_MAX_WING       6
-#define DD_MAX_CUSTOM_INPUTS 512
 #define DD_MAX_GEOMETRIC_ANIMATIONS 10
 
 #define MAX_CONTROLS      1024
@@ -205,10 +204,7 @@ enum DashData
     DD_SIGNAL_TURNRIGHT, //!< Right blinker is lit.
     DD_SIGNAL_WARNING,   //!< The warning-blink indicator is lit.
 
-    DD_CUSTOMINPUT_START,
-    DD_CUSTOMINPUT_END = DD_CUSTOMINPUT_START + DD_MAX_CUSTOM_INPUTS,
-
-    DD_MAX
+    DD_MAX // This is the starting point for custom inputs
 };
 
 enum LoadDashBoardFlags
@@ -228,21 +224,21 @@ public:
     int registerCustomInput(Ogre::String name, int dataType);
 
     // Getter / Setter
-    bool _getBool(size_t key) { return key < DD_MAX ? data[key].data.value_bool : false; };
+    bool _getBool(size_t key) { return key < data.size() ? data[key].data.value_bool : false; };
     int _getInt(size_t key) { return data[key].data.value_int; };
     float _getFloat(size_t key) { return data[key].data.value_float; };
     float getNumeric(size_t key);
-    char* getChar(size_t key) { return key < DD_MAX ? data[key].data.value_char : nullptr; };
-    bool getEnabled(size_t key) { return key < DD_MAX ? data[key].enabled : false; };
+    char* getChar(size_t key) { return key < data.size() ? data[key].data.value_char : nullptr; };
+    bool getEnabled(size_t key) { return key < data.size() ? data[key].enabled : false; };
 
-    void setBool(size_t key, bool val) { if (key < DD_MAX) data[key].data.value_bool = val; };
-    void setInt(size_t key, int val) { if (key < DD_MAX) data[key].data.value_int = val; };
-    void setFloat(size_t key, float val) { if (key < DD_MAX) data[key].data.value_float = val; };
-    void setChar(size_t key, const char* val) { if (key < DD_MAX) strncpy(data[key].data.value_char, val, DD_MAXCHAR); };
+    void setBool(size_t key, bool val) { if (key < data.size()) data[key].data.value_bool = val; };
+    void setInt(size_t key, int val) { if (key < data.size()) data[key].data.value_int = val; };
+    void setFloat(size_t key, float val) { if (key < data.size()) data[key].data.value_float = val; };
+    void setChar(size_t key, const char* val) { if (key < data.size()) strncpy(data[key].data.value_char, val, DD_MAXCHAR); };
 
-    void setEnabled(size_t key, bool val) { if (key < DD_MAX) data[key].enabled = val; };
+    void setEnabled(size_t key, bool val) { if (key < data.size()) data[key].enabled = val; };
 
-    int getDataType(size_t key) { return key < DD_MAX ? data[key].type : DC_INVALID; };
+    int getDataType(size_t key) { return key < data.size() ? data[key].type : DC_INVALID; };
 
     int getLinkIDForName(Ogre::String& str);
     std::string getLinkNameForID(DashData id);
@@ -259,12 +255,13 @@ public:
     void setVisible3d(bool visibility);
     bool getVisible() { return visible; };
     void windowResized();
+    size_t getInputCount() { return data.size(); }
 protected:
     std::string determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename);
     std::string determineTruckLayoutFromDashboardMod(Ogre::FileInfoListPtr& filelist);
     void loadDashboardModDetails(CacheEntryPtr& entry);
     bool visible = false;
-    dashData_t data[DD_MAX];
+    std::vector<dashData_t> data;
     std::vector<DashBoard*> m_dashboards;
     bool m_hud_loaded = false;
     bool m_rtt_loaded = false;

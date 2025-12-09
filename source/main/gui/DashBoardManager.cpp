@@ -40,6 +40,9 @@ using namespace RoR;
 
 DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(actor)
 {
+    // Reserve memory for built-in inputs.
+    data.resize(DD_MAX);
+
     // init data
     INITDATA(DD_ENGINE_RPM              , DC_FLOAT, "rpm");
     INITDATA(DD_ENGINE_SPEEDO_KPH       , DC_FLOAT, "speedo_kph");
@@ -149,6 +152,8 @@ DashBoardManager::~DashBoardManager(void)
         delete m_dashboards.back();
         m_dashboards.pop_back();
     }
+    
+    data.clear();
 }
 
 int DashBoardManager::registerCustomInput(Ogre::String name, int dataType)
@@ -156,12 +161,6 @@ int DashBoardManager::registerCustomInput(Ogre::String name, int dataType)
     int newKey = -1;
     bool valid = true;
 
-    if (registeredCustomInputs >= DD_MAX_CUSTOM_INPUTS)
-    {
-        valid = false;
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("{}: Cannot register dashboard custom input \"{}\", maximum reached ({} custom inputs).", m_actor->ar_design_name, name, DD_MAX_CUSTOM_INPUTS));
-    }
     if (getLinkIDForName(name) != -1)
     {
         valid = false;
@@ -177,8 +176,8 @@ int DashBoardManager::registerCustomInput(Ogre::String name, int dataType)
 
     if (valid)
     {
-        newKey = DD_CUSTOMINPUT_START + registeredCustomInputs;
-        INITDATA(newKey, dataType, name);
+        newKey = DD_MAX + registeredCustomInputs;
+        data.push_back(dashData_t(dataType, name));
         registeredCustomInputs++;
     }
 
@@ -187,7 +186,7 @@ int DashBoardManager::registerCustomInput(Ogre::String name, int dataType)
 
 int DashBoardManager::getLinkIDForName(Ogre::String& str)
 {
-    for (int i = 0; i < DD_MAX; i++)
+    for (int i = 0; i < data.size(); i++)
     {
         if (data[i].name == str)
             return i;
@@ -197,7 +196,7 @@ int DashBoardManager::getLinkIDForName(Ogre::String& str)
 
 std::string DashBoardManager::getLinkNameForID(DashData id)
 {
-    if (id > 0 && id < DD_MAX)
+    if (id >= 0 && id < data.size())
     {
         return data[id].name;
     }
@@ -516,7 +515,7 @@ void DashBoardManager::updateFeatures()
 
 float DashBoardManager::getNumeric(size_t key)
 {
-    if (key >= DD_MAX)
+    if (key >= data.size())
         return 0;
 
     switch (data[key].type)
