@@ -2985,7 +2985,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt)
             if (anim.animFlags & PROP_ANIM_FLAG_DASHBOARD)
             {
                 int link_id = (int)anim.animOpt3;
-                ROR_ASSERT(link_id < DD_MAX);
+                ROR_ASSERT(link_id < m_actor->ar_dashboard->getInputCount());
                 cstate += m_actor->ar_dashboard->getNumeric(link_id);
             }
 
