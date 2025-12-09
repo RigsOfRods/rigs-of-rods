@@ -147,14 +147,37 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 
 void ContentManager::InitContentManager()
 {
+    // Note: Using `createResourceGroup()` is optional, `addResourceLocation()` creates it automagically.
+    // However, OGRE resource groups have 'inGlobalPool' flag ON by default,
+    // which means every filename must be unique across the pool, or mixups happen.
+    // Wherever possible we declare the RGs manually and set the 'inGlobalPool' flag to OFF.
+
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_config_dir->getStr(), "FileSystem", RGN_CONFIG, /*recursive=*/false, /*readOnly=*/false);
+
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_savegames_dir->getStr(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
+
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_scripts_dir->getStr(), "FileSystem", RGN_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
+
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_logs_dir->getStr(), "FileSystem", RGN_LOGS, /*recursive:*/false, /*readonly:*/false);
+
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_cache_dir->getStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
+
+    ResourceGroupManager::getSingleton().createResourceGroup(RGN_THUMBNAILS, /* inGlobalPool: */false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_thumbnails_dir->getStr(), "FileSystem", RGN_THUMBNAILS, /*recursive=*/false, /*readOnly=*/false);
+
+    ResourceGroupManager::getSingleton().createResourceGroup(RGN_REPO_ATTACHMENTS, /* inGlobalPool: */false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_repo_attachments_dir->getStr(), "FileSystem", RGN_REPO_ATTACHMENTS, /*recursive=*/false, /*readOnly=*/false);
+
+    ResourceGroupManager::getSingleton().createResourceGroup(RGN_AVATAR, /* inGlobalPool: */false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_avatar_dir->getStr(), "FileSystem", RGN_AVATAR, /*recursive=*/false, /*readOnly=*/false);
 
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
@@ -258,13 +281,6 @@ void ContentManager::InitModCache(CacheValidity validity)
     //   Upon loading/creating new resource groups, OGRE complains (=assert on Debug, exception on Release) if the submitted flag doesn't match.
     //   It's possible to manually unload archives to reset the flag, but for simplicity we just always load subdirs as 'writable', even during modcache update.
     // ------------------------------------------------------------------------------------------
-
-    ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_cache_dir->getStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
-    ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_thumbnails_dir->getStr(), "FileSystem", RGN_THUMBNAILS, /*recursive=*/false, /*readOnly=*/false);
-    ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_repo_attachments_dir->getStr(), "FileSystem", RGN_REPO_ATTACHMENTS, /*recursive=*/false, /*readOnly=*/false);
 
     // Add top-level ZIPs/directories to RGN_CONTENT (non-recursive)
 

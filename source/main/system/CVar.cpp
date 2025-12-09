@@ -72,10 +72,13 @@ void Console::cVarSetupBuiltins()
     App::mp_server_password      = this->cVarCreate("mp_server_password",      "Server password",            CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_player_name          = this->cVarCreate("mp_player_name",          "Nickname",                   CVAR_ARCHIVE,                     "Player");
     App::mp_player_token         = this->cVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
-    App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
+    App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org"); /* @deprecated Replaced by remote_query_url */
     App::mp_cyclethru_net_actors = this->cVarCreate("mp_cyclethru_net_actors", "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
-    App::remote_query_url        = this->cVarCreate("remote_query_url",        "",                           CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");
+    App::remote_query_url        = this->cVarCreate("remote_query_url",        "Remote API query URL",       CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");
+    App::remote_login_token      = this->cVarCreate("remote_login_token",      "Remote API login token",     CVAR_ARCHIVE | CVAR_NO_LOG,       "");
+    App::remote_refresh_token    = this->cVarCreate("remote_refresh_token",    "Remote API refresh token",   CVAR_ARCHIVE | CVAR_NO_LOG,       "");
+    App::remote_user_auth_state  = this->cVarCreate("remote_user_auth_state",  "",                                          CVAR_TYPE_INT,     "0"/*(int)UserAuthState::UNAUTHENTICATED*/);
 
     App::diag_auto_spawner_report= this->cVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_camera             = this->cVarCreate("diag_camera",             "Camera Debug",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
@@ -111,6 +114,7 @@ void Console::cVarSetupBuiltins()
     App::sys_config_dir          = this->cVarCreate("sys_config_dir",          "Config Root",                0);
     App::sys_cache_dir           = this->cVarCreate("sys_cache_dir",           "Cache Path",                 0);
     App::sys_thumbnails_dir      = this->cVarCreate("sys_thumbnails_dir",      "Thumbnails Path",            0);
+    App::sys_avatar_dir          = this->cVarCreate("sys_avatar_dir",          "Avatar cache",               0);
     App::sys_logs_dir            = this->cVarCreate("sys_logs_dir",            "Log Path",                   0);
     App::sys_resources_dir       = this->cVarCreate("sys_resources_dir",       "Resources Path",             0);
     App::sys_profiler_dir        = this->cVarCreate("sys_profiler_dir",        "Profiler output dir",        0);
