@@ -13,7 +13,7 @@ jobs:
           submodules: true
 
       - name: Cache conan
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           key: conan-ubuntu-22-${{ hashFiles('conanfile.py') }}
           path: ~/.conan2/
@@ -96,7 +96,7 @@ jobs:
         shell: cmd
 
       - name: Cache conan packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           key: conan-windows-${{ hashFiles('conanfile.py') }}
           path: ~/.conan2
