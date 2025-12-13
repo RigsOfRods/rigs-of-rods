@@ -149,6 +149,7 @@ InputEvent eventInfo[] = {
     {"TRUCK_TOGGLE_VIDEOCAMERA",      EV_TRUCK_TOGGLE_VIDEOCAMERA,      "Keyboard EXPL+CTRL+V",         _LC("InputEvent", "toggle videocamera")},
     {"TRUCK_TRACTION_CONTROL",        EV_TRUCK_TRACTION_CONTROL,        "Keyboard EXPL+SHIFT+T",        _LC("InputEvent", "toggle traction control")},
     {"TRUCK_CRUISE_CONTROL",          EV_TRUCK_CRUISE_CONTROL,          "Keyboard EXPL+SPACE",          _LC("InputEvent", "toggle cruise control")},
+    {"TRUCK_CRUISE_CONTROL_RESUME",   EV_TRUCK_CRUISE_CONTROL_RESUME,   "Keyboard EXPL+CTRL+SHIFT+SPACE",   _LC("InputEvent", "resume cruise control")},
     {"TRUCK_CRUISE_CONTROL_READJUST", EV_TRUCK_CRUISE_CONTROL_READJUST, "Keyboard EXPL+CTRL+SPACE",     _LC("InputEvent", "match target speed / rpm with current truck speed / rpm")},
     {"TRUCK_CRUISE_CONTROL_ACCL",     EV_TRUCK_CRUISE_CONTROL_ACCL,     "Keyboard EXPL+CTRL+R",         _LC("InputEvent", "increase target speed / rpm")},
     {"TRUCK_CRUISE_CONTROL_DECL",     EV_TRUCK_CRUISE_CONTROL_DECL,     "Keyboard EXPL+CTRL+F",         _LC("InputEvent", "decrease target speed / rpm")},
