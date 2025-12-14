@@ -1787,7 +1787,14 @@ int main(int argc, char *argv[])
                         if (App::GetGameContext()->GetTerrain()
                             && App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_group == (*entry_ptr)->resource_group)
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                            }
+                            else
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                            }
                             all_clear = false;
                         }
 
