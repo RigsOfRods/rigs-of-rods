@@ -172,6 +172,12 @@ void GameMainMenu::DrawMenuPanel()
         }
         else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
+            if (HighlightButton(_LC("MainMenu", "Repository"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->RepositorySelector.SetVisible(true);
+                this->SetVisible(false);
+            }
+
             if (HighlightButton(_LC("MainMenu", "Controls"), btn_size, button_index++))
             {
                 App::GetGuiManager()->GameControls.SetVisible(true);

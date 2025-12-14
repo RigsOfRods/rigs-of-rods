@@ -1613,7 +1613,7 @@ void RepositorySelector::SetVisible(bool visible)
     {
         this->Refresh();
     }
-    else if (!visible && (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU))
+    else if (!visible && (App::sim_state->getEnum<SimState>() == SimState::PAUSED)) // Invocable both from pause-menu (paused) and top-menubar (unpaused)
     {
         App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
