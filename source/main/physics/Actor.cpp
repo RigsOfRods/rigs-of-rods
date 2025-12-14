@@ -785,7 +785,9 @@ void Actor::recalculateNodeMasses()
     for (int i = 0; i < this->ar_num_cinecams; ++i)
     {
         // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
-        ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+        ROR_ASSERT(m_used_actor_entry);
+        ROR_ASSERT(m_used_actor_entry->actor_def);
+        ar_nodes[ar_cinecam_node[i]].mass = m_used_actor_entry->actor_def->root_module->cinecam[i].node_mass;
     }
 
     if (App::diag_truck_mass->getBool())
@@ -4876,6 +4878,16 @@ CacheEntryPtr& Actor::getUsedActorEntry()
 CacheEntryPtr& Actor::getUsedSkinEntry()
 {
     return m_used_skin_entry;
+}
+
+CacheEntryPtrVec& Actor::getUsedAddonpartEntries()
+{
+    return m_used_addonpart_entries;
+}
+
+CacheEntryPtrVec& Actor::getUsedAssetpackEntries()
+{
+    return m_used_assetpack_entries;
 }
 
 TuneupDefPtr& Actor::getWorkingTuneupDef()

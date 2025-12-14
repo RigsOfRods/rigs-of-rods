@@ -1761,7 +1761,23 @@ int main(int argc, char *argv[])
                             const bool uses_actor_rg = (actor->getUsedActorEntry()->resource_group == (*entry_ptr)->resource_group);
                             // Skin entry is optional.
                             const bool uses_skin_rg = (actor->getUsedSkinEntry() && actor->getUsedSkinEntry()->resource_group == (*entry_ptr)->resource_group);
-                            if (uses_actor_rg || uses_skin_rg)
+                            // Look for addonparts, too.
+                            const bool uses_addonpart_rg = std::find_if(
+                                actor->getUsedAddonpartEntries().begin(),
+                                actor->getUsedAddonpartEntries().end(),
+                                [entry_ptr](const CacheEntryPtr& ap_entry)
+                                {
+                                    return ap_entry->resource_group == (*entry_ptr)->resource_group;
+                                }) != actor->getUsedAddonpartEntries().end();
+                            // Finally look for assetpacks
+                            const bool uses_assetpack_rg = std::find_if(
+                                actor->getUsedAssetpackEntries().begin(),
+                                actor->getUsedAssetpackEntries().end(),
+                                [entry_ptr](const CacheEntryPtr& ap_entry)
+                                {
+                                    return ap_entry->resource_group == (*entry_ptr)->resource_group;
+                                }) != actor->getUsedAssetpackEntries().end();
+                            if (uses_actor_rg || uses_skin_rg || uses_addonpart_rg || uses_assetpack_rg)
                             {
                                 App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                                 all_clear = false;

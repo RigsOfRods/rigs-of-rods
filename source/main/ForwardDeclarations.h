@@ -255,6 +255,7 @@ namespace RoR
 
     typedef std::vector<ActorPtr> ActorPtrVec;
     typedef std::vector<TerrainEditorObjectPtr> TerrainEditorObjectPtrVec;
+    typedef std::vector<CacheEntryPtr> CacheEntryPtrVec;
 
     namespace GUI
     {
