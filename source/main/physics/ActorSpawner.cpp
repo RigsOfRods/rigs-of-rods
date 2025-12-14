@@ -6016,7 +6016,7 @@ NodeNum_t ActorSpawner::RegisterNode(RigDef::Node::Id & id)
 void ActorSpawner::ProcessNode(RigDef::Node & def)
 {
     const NodeNum_t nodeid = RegisterNode(def.id);
-    if (!nodeid == NODENUM_INVALID)
+    if (nodeid == NODENUM_INVALID)
     {
         return; // Error already logged
     }
