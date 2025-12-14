@@ -272,6 +272,8 @@ public:
     // not exported to scripting:
     CacheEntryPtr&    getUsedActorEntry(); //!< The actor entry itself.
     CacheEntryPtr&    getUsedSkinEntry();
+    CacheEntryPtrVec& getUsedAddonpartEntries();
+    CacheEntryPtrVec& getUsedAssetpackEntries();
     TuneupDefPtr&     getWorkingTuneupDef();
     void              ensureWorkingTuneupDef(); //!< Creates a working tuneup def if it doesn't exist yet.
     void              removeWorkingTuneupDef(); //!< Deletes the working tuneup def object if it exists.
@@ -605,9 +607,7 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
-    RigDef::DocumentPtr                m_definition;
     std::unique_ptr<GfxActor>          m_gfx_actor;
-    Ogre::String                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
@@ -651,9 +651,7 @@ private:
     float             m_odometer_total = 0.f;        //!< GUI state
     float             m_odometer_user = 0.f;         //!< GUI state
     int               m_num_command_beams = 0;     //!< TODO: Remove! Spawner context only; likely unused feature
-    CacheEntryPtr     m_used_actor_entry;
-    CacheEntryPtr     m_used_skin_entry;               //!< Graphics
-    TuneupDefPtr      m_working_tuneup_def;            //!< Each actor gets unique instance, even if loaded from .tuneup file in modcache.
+
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state
@@ -661,6 +659,16 @@ private:
     TyrePressure      m_tyre_pressure;
     std::vector<std::string>  m_description;
     std::vector<PropAnimKeyState> m_prop_anim_key_states;
+
+    /// @name Mods and config
+    /// @{
+    std::string       m_section_config;                //!< Classic 'sectionconfig' in truck file.
+    TuneupDefPtr      m_working_tuneup_def;            //!< Each actor gets unique instance, even if loaded from .tuneup file in modcache.
+    // cache entries
+    CacheEntryPtr     m_used_actor_entry;              //!< Required.
+    CacheEntryPtr     m_used_skin_entry;               //!< Optional, only graphics.
+    CacheEntryPtrVec  m_used_addonpart_entries;        //!< Optional, assigned by player via Tuning menu (.tuneup files).
+    CacheEntryPtrVec  m_used_assetpack_entries;        //!< Optional, specified by mod author in truck file via 'assetpacks' section.
 
     /// @name Networking
     /// @{

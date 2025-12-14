@@ -97,8 +97,8 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     ActorSpawner spawner;
     spawner.ConfigureSections(actor->m_section_config, def);
-    spawner.ConfigureAddonParts(actor->m_working_tuneup_def);
-    spawner.ConfigureAssetPacks(actor, def);
+    spawner.ConfigureAddonParts(actor);
+    spawner.ConfigureAssetPacks(actor);
     spawner.ProcessNewActor(actor, rq, def);
 
     if (App::diag_actor_dump->getBool())

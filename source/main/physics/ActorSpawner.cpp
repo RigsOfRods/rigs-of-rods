@@ -106,13 +106,13 @@ void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef:
     }
 }
 
-void ActorSpawner::ConfigureAddonParts(TuneupDefPtr& tuneup_def)
+void ActorSpawner::ConfigureAddonParts(ActorPtr actor)
 {
-    if (tuneup_def)
+    if (actor->m_working_tuneup_def)
     {
-        AddonPartUtility::ResetUnwantedAndTweakedElements(tuneup_def);
+        AddonPartUtility::ResetUnwantedAndTweakedElements(actor->m_working_tuneup_def);
 
-        for (const std::string& addonpart: tuneup_def->use_addonparts)
+        for (const std::string& addonpart: actor->m_working_tuneup_def->use_addonparts)
         {
             CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, addonpart);
             if (addonpart_entry)
@@ -120,11 +120,12 @@ void ActorSpawner::ConfigureAddonParts(TuneupDefPtr& tuneup_def)
                 App::GetCacheSystem()->LoadResource(addonpart_entry);
 
                 AddonPartUtility util;
-                util.ResolveUnwantedAndTweakedElements(tuneup_def, addonpart_entry);
+                util.ResolveUnwantedAndTweakedElements(actor->m_working_tuneup_def, addonpart_entry);
                 auto module = util.TransformToRigDefModule(addonpart_entry);
                 if (module)
                 {
                     m_selected_modules.push_back(module);
+                    actor->m_used_addonpart_entries.push_back(addonpart_entry);
                     LOG(" == ActorSpawner: Addon part added to configuration: " + addonpart);
                 }
                 else
@@ -140,13 +141,20 @@ void ActorSpawner::ConfigureAddonParts(TuneupDefPtr& tuneup_def)
     }
 }
 
-void ActorSpawner::ConfigureAssetPacks(ActorPtr actor, RigDef::DocumentPtr def)
+void ActorSpawner::ConfigureAssetPacks(ActorPtr actor)
 {
     for (auto& module: m_selected_modules)
     {
         for (RigDef::Assetpack const& assetpack: module->assetpacks)
         {
             App::GetCacheSystem()->LoadAssetPack(actor->getUsedActorEntry(), assetpack.filename);
+
+            // Record used assetpack entry
+            CacheEntryPtr assetpack_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AssetPack, /*partial:*/false, assetpack.filename);
+            if (assetpack_entry)
+            {
+                actor->m_used_assetpack_entries.push_back(assetpack_entry);
+            }
         }
     }
 }
@@ -386,8 +394,6 @@ void ActorSpawner::InitializeRig()
 
     // Lights mode
     m_actor->m_flares_mode = App::gfx_flares_mode->getEnum<GfxFlaresMode>();
-
-    m_actor->m_definition = m_file;
 
     m_flex_factory = RoR::FlexFactory(this);
 
