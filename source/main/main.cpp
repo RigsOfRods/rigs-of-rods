@@ -475,10 +475,8 @@ int main(int argc, char *argv[])
                     try
                     {
                         ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
-                        ScriptUnitID_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
-                        // we want to notify any running scripts that we might change something (prevent cheating)
-                        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
-                            ASMANIP_SCRIPT_LOADED, nid, (int)request->lsr_category, 0, request->lsr_filename);
+                        // Notifications for script manipulations are sent by loadScript().
+                        App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
                     }
                     catch (...)
                     {
@@ -493,10 +491,7 @@ int main(int argc, char *argv[])
                     ScriptUnitID_t* id = static_cast<ScriptUnitID_t*>(m.payload);
                     try
                     {
-                        ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(*id);
-                        // we want to notify any running scripts that we might change something (prevent cheating)
-                        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
-                            ASMANIP_SCRIPT_UNLOADING, *id, (int)unit.scriptCategory, 0, unit.scriptName);
+                        // Notifications for script manipulations are sent by unloadScript().
                         App::GetScriptEngine()->unloadScript(*id);
                     }
                     catch (...)

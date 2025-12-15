@@ -910,6 +910,11 @@ ScriptUnitID_t ScriptEngine::loadScript(
         return SCRIPTUNITID_INVALID;
     }
 
+    // The script is running at this point.
+    // Notify any running scripts that we might change something (prevent cheating).
+    triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
+        ASMANIP_SCRIPT_LOADED, unit_id, (int)category, 0, scriptName);
+
     return unit_id;
 }
 
@@ -1073,6 +1078,10 @@ void ScriptEngine::unloadScript(ScriptUnitID_t nid)
 {
     if (this->scriptUnitExists(nid))
     {
+        // Notify any running scripts that we might change something (prevent cheating).
+        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
+            ASMANIP_SCRIPT_UNLOADING, nid, (int)m_script_units[nid].scriptCategory, 0, m_script_units[nid].scriptName);
+
         if (m_script_units[nid].scriptModule != nullptr)
         {
             engine->DiscardModule(m_script_units[nid].scriptModule->GetName());
