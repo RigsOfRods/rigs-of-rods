@@ -71,7 +71,7 @@ void GameMainMenu::DrawMenuPanel()
     }
     else
     {
-        m_num_buttons = 4;
+        m_num_buttons = 5;
         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             title = "Menu";
