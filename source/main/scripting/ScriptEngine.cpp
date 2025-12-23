@@ -907,6 +907,9 @@ ScriptUnitID_t ScriptEngine::loadScript(
         {
             m_terrain_script_unit = SCRIPTUNITID_INVALID;
         }
+        // Notify running scripts that loading failed (the request might have come from one of them).
+        triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
+            ASMANIP_SCRIPT_LOAD_FAILED, 0, (int)category, 0, scriptName);
         return SCRIPTUNITID_INVALID;
     }
 

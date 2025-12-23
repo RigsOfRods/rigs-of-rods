@@ -258,8 +258,8 @@ class ScriptEditorWindow
         this.tabs[this.currentTab].handleRequests(dt);
 
         int flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
-
-        if (ImGui::Begin("Script editor", this.closeBtnHandler.windowOpen, flags))
+        string title = "Script editor##" + thisScript; // Add script unit ID to allow multiple instances (run editor from editor!).
+        if (ImGui::Begin(title, this.closeBtnHandler.windowOpen, flags))
         {
             this.closeBtnHandler.draw();
             this.drawMenubar();
@@ -1283,17 +1283,21 @@ void onEventAngelScriptManip(int manipType, int scriptUnitId, int scriptCategory
     + ", scriptCategory:"+scriptCategory+", scriptName:"+scriptName+"; //this.waitingForManipEvent:"+this.waitingForManipEvent);*/
 
     // Only handle LOADED manip if we're waiting for it
-    if (manipType == ASMANIP_SCRIPT_LOADED
+    if ((manipType == ASMANIP_SCRIPT_LOADED || manipType == ASMANIP_SCRIPT_LOAD_FAILED)
     && this.currentScriptUnitID == SCRIPTUNITID_INVALID
     && this.bufferName == scriptName
     && this.waitingForManipEvent)
     {
-        this.currentScriptUnitID = scriptUnitId;
         waitingForManipEvent = false;
-        // Force registering of exception callback so that the editor can monitor exceptions.
-        game.setRegisteredEventsMask(scriptUnitId,
-        game.getRegisteredEventsMask(scriptUnitId) | SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
-        /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
+        if (manipType == ASMANIP_SCRIPT_LOADED)
+        {
+            this.currentScriptUnitID = scriptUnitId;
+            
+            // Force registering of exception callback so that the editor can monitor exceptions.
+            int newMask = game.getRegisteredEventsMask(scriptUnitId) | SE_ANGELSCRIPT_EXCEPTIONCALLBACK;
+            game.setRegisteredEventsMask(scriptUnitId, newMask);
+            /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
+        }
     }
     // Handle UNLOADING manip even if not expected - user may abort script manually via Console/ScriptMonitorUI or it may have crashed and get killed by the editor (see `killScriptOnAngelscriptException`).
     else if (manipType == ASMANIP_SCRIPT_UNLOADING
