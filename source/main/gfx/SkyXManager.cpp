@@ -53,6 +53,7 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 SkyXManager::~SkyXManager()
 {
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
     mSkyX->remove();
     delete mSkyX;
