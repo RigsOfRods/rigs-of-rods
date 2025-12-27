@@ -580,163 +580,30 @@ void TopMenubar::Draw(float dt)
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Settings menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            // AUDIO SETTINGS
-            ImGui::Separator();
-            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
-            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
-            DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
-
-            // RENDER SETTINGS
-            ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
-            if (App::gfx_envmap_enabled->getBool())
+            if (this->DrawSettingsMenuBeginTabBar())
             {
-                DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 2);
-            }
-            DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
-
-            // SIM SETTINGS
-            ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
-            float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Slow motion"), &slowmotion, 0.01f, 1.0f))
-            {
-                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(slowmotion);
-            }
-            float timelapse = std::max(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Time lapse"), &timelapse, 1.0f, 10.0f))
-            {
-                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
-            }
-
-            // CAMERA SETTINGS
-            if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
-                DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
-                DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
-            }
-            else
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
-                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "General")))
                 {
-                    int fov = App::gfx_fov_internal->getInt();
-                    if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
-                    {
-                        App::gfx_fov_internal->setVal(fov);
-                    }
+                    this->DrawSettingsMenuGeneralControls();
+                    ImGui::EndTabItem();
                 }
-                else
+                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Sky")))
                 {
-                    int fov = App::gfx_fov_external->getInt();
-                    if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
-                    {
-                        App::gfx_fov_external->setVal(fov);
-                    }
+                    this->DrawSettingsMenuSkyControls();
+                    ImGui::EndTabItem();
                 }
-                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+                if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
+                    && App::GetGameContext()->GetTerrain()->getWater()
+                    && App::GetGameContext()->GetTerrain()->GetDef()->has_water
+                    && this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Water")))
                 {
-                    DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
+                    this->DrawSettingsMenuWaterControls();
+                    ImGui::EndTabItem();
                 }
+                ImGui::EndTabBar();
             }
 
-            // SKY SETTINGS
-
-            ImGui::Separator();
-            ImGui::PushID("sky");
-            ImGui::TextDisabled("%s", _LC("TopMenubar", "Sky"));
-
-            if (sky_mode_combostring == "")
-            {
-                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::NONE));
-                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SANDSTORM));
-                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::CAELUM));
-                ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SKYX));
-                ImTerminateComboboxString(sky_mode_combostring);
-            }
-
-            const bool sky_reinit_combo = DrawGCombo(App::gfx_sky_mode, _LC("TopMenubar", "Mode"), sky_mode_combostring.c_str());
-            const bool sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
-            if (sky_reinit_combo || sky_reinit_btn)
-            {
-                App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_SKY_REQUESTED));
-            }
-
-            if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
-            {
-                float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
-                if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(timeofday);
-                }
-
-                float sunrisetime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunriseTime24Hour();
-                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunriseTime24Hour(sunrisetime);
-                }
-
-                float sunsettime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunsetTime24Hour();
-                if(ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
-                }
-            }
-#ifdef USE_CAELUM
-            if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
-                float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
-                if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
-                }
-                ImGui::SameLine();
-                DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
-                if (App::gfx_sky_time_cycle->getBool())
-                {
-                    DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
-                }
-            }       
-#endif // USE_CAELUM
-            ImGui::PopID(); // "sky"
-
-            // WATER SETTINGS
-            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
-            {
-                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
-                {
-                    ImGui::PushID("waves");
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
-                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
-                    {
-                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
-                    }
-                    ImGui::PopID();
-                }
-            }
-
-            // VEHICLE CONTROL SETTINGS
-            if (current_actor != nullptr)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
-                DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
-            }
-
-            // MULTIPLAYER SETTINGS
-            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Multiplayer:"));
-                DrawGCheckbox(App::mp_pseudo_collisions, _LC("TopMenubar", "Collisions"));
-                DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
-            }
-            ImGui::PopItemWidth();
+            // Menu window epilogue
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
@@ -2874,4 +2741,205 @@ bool TopMenubar::IsMenuEnabled(TopMenu which)
     default:
         return true;
     }
+}
+
+void TopMenubar::DrawSettingsMenuSkyControls()
+{
+    ImGui::PushID("sky");
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH);
+
+    if (sky_mode_combostring == "")
+    {
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::NONE));
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SANDSTORM));
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::CAELUM));
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SKYX));
+        ImTerminateComboboxString(sky_mode_combostring);
+    }
+
+    const bool sky_reinit_combo = DrawGCombo(App::gfx_sky_mode, _LC("TopMenubar", "Mode"), sky_mode_combostring.c_str());
+    const bool sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
+    if (sky_reinit_combo || sky_reinit_btn)
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_SKY_REQUESTED));
+    }
+
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+    {
+        ImGui::TextDisabled("%s", _LC("TopMenubar", "Time of day:"));
+        float timeofday = App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour();
+        if(ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(timeofday);
+        }
+
+        float sunrisetime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunriseTime24Hour();
+        if(ImGui::SliderFloat(_LC("TopMenubar", "Sunrise"), &sunrisetime, 0.f, 24.f, "%.2f"))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunriseTime24Hour(sunrisetime);
+        }
+
+        float sunsettime = App::GetGameContext()->GetTerrain()->getSkyXManager()->getSunsetTime24Hour();
+        if(ImGui::SliderFloat(_LC("TopMenubar", "Sunset"), &sunsettime, 0.f, 24.f, "%.2f"))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->setSunsetTime24Hour(sunsettime);
+        }
+
+        // Weather controls (precipitation system ported from caelum)
+    }
+#ifdef USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
+        float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
+        }
+        ImGui::SameLine();
+        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+        if (App::gfx_sky_time_cycle->getBool())
+        {
+            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+        }
+    }
+#endif // USE_CAELUM
+    ImGui::PopID(); // "sky"
+}
+
+void TopMenubar::DrawSettingsMenuWaterControls()
+{
+    ImGui::PushID("water");
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH);
+
+    Wavefield* iwater = App::GetGameContext()->GetTerrain()->getWater();
+
+    if (iwater 
+        && RoR::App::gfx_water_waves->getBool())
+    {
+        float water_waves_height = iwater->GetWavesHeight();
+        if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
+        {
+            App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);
+        }
+    }
+    ImGui::PopID(); // "water"
+}
+
+void TopMenubar::DrawSettingsMenuGeneralControls()
+{
+    ImGui::PushID("general");
+
+    // AUDIO SETTINGS
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH); // Width includes [+/-] buttons
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
+    DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
+
+    // RENDER SETTINGS
+    ImGui::Separator();
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
+    if (App::gfx_envmap_enabled->getBool())
+    {
+        DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 2);
+    }
+    DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
+
+    // SIM SETTINGS
+    ImGui::Separator();
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
+    float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
+    if (ImGui::SliderFloat(_LC("TopMenubar", "Slow motion"), &slowmotion, 0.01f, 1.0f))
+    {
+        App::GetGameContext()->GetActorManager()->SetSimulationSpeed(slowmotion);
+    }
+    float timelapse = std::max(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
+    if (ImGui::SliderFloat(_LC("TopMenubar", "Time lapse"), &timelapse, 1.0f, 10.0f))
+    {
+        App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
+    }
+
+    // CAMERA SETTINGS
+    if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
+        DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
+        DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
+    }
+    else
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
+        if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+        {
+            int fov = App::gfx_fov_internal->getInt();
+            if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
+            {
+                App::gfx_fov_internal->setVal(fov);
+            }
+        }
+        else
+        {
+            int fov = App::gfx_fov_external->getInt();
+            if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
+            {
+                App::gfx_fov_external->setVal(fov);
+            }
+        }
+        if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+        {
+            DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
+        }
+    }
+
+    // VEHICLE CONTROL SETTINGS
+    if (App::GetGameContext()->GetPlayerActor() != nullptr)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
+        DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
+    }
+
+    // MULTIPLAYER SETTINGS
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Multiplayer:"));
+        DrawGCheckbox(App::mp_pseudo_collisions, _LC("TopMenubar", "Collisions"));
+        DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
+    }
+
+    ImGui::PopItemWidth();
+    ImGui::PopID(); // "general"
+}
+
+bool TopMenubar::DrawSettingsMenuBeginTabItem(const char* title)
+{
+    ImGui::PushStyleColor(ImGuiCol_Tab, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Header, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_TabActive, TAB_ACTIVE_BG_COLOR);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, TAB_ITEM_PADDING);
+
+    const bool retval = ImGui::BeginTabItem(title);
+
+    ImGui::PopStyleColor(3); // ImGuiCol_Tab/Header/TabActive
+    ImGui::PopStyleVar();   // ImGuiStyleVar_FramePadding
+
+    return retval;
+}
+
+bool TopMenubar::DrawSettingsMenuBeginTabBar()
+{
+    ImGui::PushStyleColor(ImGuiCol_Tab, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Header, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_TabActive, TAB_ACTIVE_BG_COLOR);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, TAB_ITEM_PADDING);
+
+    const bool retval = ImGui::BeginTabBar("##SettingsMenuTabBar");
+
+    ImGui::PopStyleColor(3); // ImGuiCol_Tab/Header/TabActive
+    ImGui::PopStyleVar();   // ImGuiStyleVar_FramePadding
+
+    return retval;
 }
