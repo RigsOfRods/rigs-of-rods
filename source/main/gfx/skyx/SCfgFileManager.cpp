@@ -365,7 +365,6 @@ namespace SkyX
     // "camera_speed_scale"     | "<vector3>PrecipitationCameraSpeedScale"   | Controls how much of an effect moving the camera has on rain drop directions.
     // "intensity"              | "<float>PrecipitationIntensity"            |
     // "auto_disable_intensity" | "<float>PrecipitationAutoDisableThreshold" | Auto-disable compositors when intensity is below threshold (expensive switch!). Use negative value to always keep enabled.
-    // "falling_direction"      | "<vector3>PrecipitationFallingDirection"   | Which way is 'down'?
 
 void CfgFileManager::loadPrecipitationParams(Ogre::ConfigFile &CfgFile) const
 {
@@ -376,7 +375,6 @@ void CfgFileManager::loadPrecipitationParams(Ogre::ConfigFile &CfgFile) const
     mSkyX->getPrecipitationController()->setCameraSpeedScale(_getVector3Value(CfgFile, "PrecipitationCameraSpeedScale"));
     mSkyX->getPrecipitationController()->setIntensity(_getFloatValue(CfgFile, "PrecipitationIntensity"));
     mSkyX->getPrecipitationController()->setAutoDisableThreshold(_getFloatValue(CfgFile, "PrecipitationAutoDisableThreshold"));
-    mSkyX->getPrecipitationController()->setFallingDirection(_getVector3Value(CfgFile, "PrecipitationFallingDirection"));
 }
 
 } // namespace SkyX
