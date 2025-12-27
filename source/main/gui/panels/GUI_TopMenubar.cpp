@@ -2786,6 +2786,130 @@ void TopMenubar::DrawSettingsMenuSkyControls()
         }
 
         // Weather controls (precipitation system ported from caelum)
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Weather:"));
+
+        auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
+        if (skyx_mgr && skyx_mgr->GetSkyX() && skyx_mgr->GetSkyX()->getPrecipitationController())
+        {
+            auto* pc = skyx_mgr->GetSkyX()->getPrecipitationController();
+
+            // Preset combo (shows "Custom" when user-tweaked)
+            static const char* kPresetNames[] = {
+                "Drizzle", "Rain", "Snow", "Snow grains", "Ice crystals", "Ice pellets", "Hail", "Small hail"
+            };
+            SkyX::PrecipitationType curType = pc->getPresetType();
+            int selectedIndex = -1;
+            const char* preview = "Custom";
+            if (curType >= SkyX::PRECTYPE_DRIZZLE && curType <= SkyX::PRECTYPE_SMALLHAIL)
+            {
+                selectedIndex = static_cast<int>(curType);
+                preview = kPresetNames[selectedIndex];
+            }
+            if (ImGui::BeginCombo(_LC("TopMenubar", "Preset"), preview))
+            {
+                for (int i = (int)SkyX::PRECTYPE_DRIZZLE; i <= (int)SkyX::PRECTYPE_SMALLHAIL; ++i)
+                {
+                    bool is_selected = (selectedIndex == i);
+                    if (ImGui::Selectable(kPresetNames[i], is_selected))
+                    {
+                        pc->setPresetType(static_cast<SkyX::PrecipitationType>(i));
+                    }
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            // Intensity
+            float intensity = pc->getIntensity();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Intensity"), &intensity, 0.0f, 1.0f, "%.3f"))
+            {
+                pc->setIntensity(intensity);
+            }
+
+            // Color (RGBA)
+            {
+                Ogre::ColourValue col = pc->getColour();
+                float col4[4] = { col.r, col.g, col.b, col.a };
+                if (ImGui::ColorEdit4(_LC("TopMenubar", "Color"), col4, ImGuiColorEditFlags_Float))
+                {
+                    pc->setColour(Ogre::ColourValue(col4[0], col4[1], col4[2], col4[3]));
+                }
+            }
+
+            // Falling speed
+            {
+                float spd = pc->getSpeed();
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Falling speed"), &spd, 0.0f, 2.0f, "%.3f"))
+                {
+                    pc->setSpeed(spd);
+                }
+            }
+
+            // Wind speed (xyz)
+            {
+                Ogre::Vector3 wind = pc->getWindSpeed();
+                float wind3[3] = { wind.x, wind.y, wind.z };
+                if (ImGui::DragFloat3(_LC("TopMenubar", "Wind speed (xyz)"), wind3, 0.1f))
+                {
+                    pc->setWindSpeed(Ogre::Vector3(wind3[0], wind3[1], wind3[2]));
+                }
+            }
+
+            // Camera influence (uniform scale)
+            {
+                Ogre::Vector3 css = pc->getCameraSpeedScale();
+                float camInfluence = css.x; // assume uniform
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Camera influence"), &camInfluence, 0.0f, 0.7f, "%.2f"))
+                {
+                    pc->setCameraSpeedScale(camInfluence);
+                }
+            }
+
+            // Auto/manual camera speed
+            {
+                bool autoCam = true;
+                Ogre::Vector3 manualCam = Ogre::Vector3::ZERO;
+                if (!pc->mViewportInstanceMap.empty())
+                {
+                    auto* inst = pc->mViewportInstanceMap.begin()->second;
+                    autoCam = inst->getAutoCameraSpeed();
+                    manualCam = inst->getCameraSpeed();
+                }
+
+                if (ImGui::Checkbox(_LC("TopMenubar", "Auto camera speed"), &autoCam))
+                {
+                    if (autoCam)
+                        pc->setAutoCameraSpeed();
+                    else
+                        pc->setManualCameraSpeed(Ogre::Vector3::ZERO);
+                }
+
+                if (!autoCam)
+                {
+                    float cam3[3] = { manualCam.x, manualCam.y, manualCam.z };
+                    if (ImGui::DragFloat3(_LC("TopMenubar", "Manual camera speed (xyz)"), cam3, 1.0f))
+                    {
+                        pc->setManualCameraSpeed(Ogre::Vector3(cam3[0], cam3[1], cam3[2]));
+                    }
+                }
+            }
+
+            // Auto-disable threshold
+            {
+                float th = pc->getAutoDisableThreshold();
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Auto-disable threshold"), &th, -1.0f, 0.1f, "%.3f"))
+                {
+                    pc->setAutoDisableThreshold(th);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text("%s", _LC("TopMenubar", "Negative = compositor always enabled. Non-negative disables when below intensity."));
+                    ImGui::EndTooltip();
+                }
+            }
+        }
     }
 #ifdef USE_CAELUM
     if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
