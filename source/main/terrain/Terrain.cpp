@@ -257,7 +257,6 @@ void RoR::Terrain::DestroySky()
     }
     else if (m_active_sky_mode == GfxSkyMode::SANDSTORM)
     {
-        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_main_light->getParentSceneNode());
         App::GetGfxScene()->GetSceneManager()->destroyLight(m_main_light);
         m_main_light = nullptr;
     }
