@@ -4741,7 +4741,7 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 0, m_actor->getTruckFileResourceGroup()),
         TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 1, def.material_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 1, m_actor->getTruckFileResourceGroup()),
-        def.rim_radius
+        TuneupUtil::getTweakedWheelRimRadius(m_actor->getWorkingTuneupDef(), wheel_id, def.rim_radius)
     );
 
     CreateWheelSkidmarks(wheel_id);
