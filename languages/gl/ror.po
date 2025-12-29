@@ -3,53 +3,54 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# rcasl <rcasl@outlook.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Galician (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/gl/)\n"
+"PO-Revision-Date: 2025-12-29 13:02+0000\n"
+"Last-Translator: rcasl <rcasl@outlook.com>\n"
+"Language-Team: Galician <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/gl/>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.1\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr ""
+msgstr "Erro no inicio"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"Non hai plugin de renderizado dispoñible. Comprobe o arquivo plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "capturar imaxes en:"
+msgstr "Captura de pantalla: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Erro ao obter a ruta do directorio do programa"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Erro ao recuperar a ruta do directorio de usuario"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
 msgstr ""
-"Carpeta de recursos non atopada. Asegurese de que o programa está ben "
-"instalado"
+"Cartafol de recursos non atopado. Asegúrese de que o programa está ben "
+"instalado."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Cartafol de recursos defectuoso. Comprobe a súa correcta instalación."
 
 #: Application.cpp:387
 #, fuzzy
@@ -59,58 +60,44 @@ msgid "Automatic shift"
 msgstr "Cambio automático"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Cambio manual - Embrague automático"
+msgstr "Cambio manual con embrague automático"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Totalmente manual cambio secuencial"
+msgstr "Totalmente manual: cambio secuencial"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Totalmente manual cambio secuencial"
+msgstr "Totalmente manual: cambio de marchas"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Totalmente manual cambio secuencial"
+msgstr "Totalmente manual: diferentes marchas no cambio"
 
 #: Application.cpp:400
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr "Sandstorm (rápido)"
+msgstr "Ningún (máis rápido)"
 
 #: Application.cpp:401
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr ""
+msgstr "Sen fontes de luz"
 
 #: Application.cpp:402
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Todos os vehiculos, todas as luces"
+msgstr "Só o vehículo actual, luces principais"
 
 #: Application.cpp:403
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr "Todos os vehiculos, todas as luces"
+msgstr "Todos os vehiculos, luces principais"
 
 #: Application.cpp:404
 #, fuzzy
@@ -122,135 +109,117 @@ msgstr "Todos os vehiculos, todas as luces"
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Desactivado"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "Sandstorm (rápido)"
+msgstr "Sandstorm (máis rápido)"
 
 #: Application.cpp:424
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr "Caelum ( maís bonito, lento)"
+msgstr "Caelum (máis bonito, lento)"
 
 #: Application.cpp:425
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Caelum ( maís bonito, lento)"
+msgstr "SkyX (máis bonito, máis lento)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Ningún"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr "Bilinear"
+msgstr "Bilineal"
 
 #: Application.cpp:436
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr "Trilinear"
+msgstr "Trilineal"
 
 #: Application.cpp:437
-#, fuzzy
-#| msgid "Drag anisotropy:"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Arrastre anisontropía"
+msgstr "Anisótropo"
 
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Ningunha"
 
 #: Application.cpp:447
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:448
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr "20%"
+msgstr "50%"
 
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Toda"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Ningún"
 
 #: Application.cpp:459
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr "Sandstorm (rápido)"
+msgstr "Básico (máis rápido)"
 
 #: Application.cpp:460
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "Reflexión"
 
 #: Application.cpp:461
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "Reflexión + refracción (velocidade optimizada)"
 
 #: Application.cpp:462
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "Reflexión + refracción (calidade optimizada)"
 
 #: Application.cpp:463
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Ningún"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Estático"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Cabeceo"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Ningún"
 
 #: Application.cpp:484
 #, fuzzy
@@ -262,25 +231,25 @@ msgstr "Todo"
 #: Application.cpp:485
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "Dinámico"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Duro"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Mol"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
-msgstr ""
+msgstr "Terreo non atopado: "
 
 #: GameContext.cpp:122 GameContext.cpp:144
 msgid "Terrain loading error"
-msgstr ""
+msgstr "Erro ao cargar o terreo"
 
 #: GameContext.cpp:658
 msgid "Please clear the place first"
@@ -288,7 +257,7 @@ msgstr "Por favor vacia o lugar primeiro"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "¡Non se atopou a librea '{}' para o actor '{}'!"
 
 #: GameContext.cpp:1036
 #, fuzzy
@@ -298,23 +267,23 @@ msgstr "activa ou desactiva o modo repetición"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Modo de reinicio suave activado"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
-msgstr ""
+msgstr "Hora establecida a "
 
 #: GameContext.cpp:1417
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Non hai camión de rescate!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "activado mando a distancia"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "desactivado mando a distancia"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
@@ -326,11 +295,11 @@ msgstr ""
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
-msgstr ""
+msgstr " [borboriñado] "
 
 #: gameplay/EngineSim.cpp:1463
 msgid "Low range selected"
-msgstr ""
+msgstr "Rango baixo escolmado"
 
 #: gameplay/EngineSim.cpp:1469
 msgid "Mid range selected"
@@ -338,63 +307,63 @@ msgstr "Rango medio seleccionado"
 
 #: gameplay/EngineSim.cpp:1475
 msgid "High range selected"
-msgstr ""
+msgstr "Rango alto escolmado"
 
 #: gameplay/Landusemap.cpp:101
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "Erro ao cargar a configuración do terreo"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV: Límite acadado"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
-msgstr ""
+msgstr "Campo de visión (FOV): "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Cámara en modo libre"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Cámara fixa"
 
 #: gfx/camera/CameraManager.cpp:870
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Activado movemento limitado de cámara"
 
 #: gfx/camera/CameraManager.cpp:874
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Desactivado movemento limitado de cámara"
 
 #: gfx/camera/CameraManager.cpp:1158
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Activado seguimento automático"
 
 #: gfx/camera/CameraManager.cpp:1162
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Desactivado seguimento automático"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Manter presionado para confirmar"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
-msgstr ""
+msgstr "FPS actual: "
 
 #: gui/OverlayWrapper.cpp:429
 msgid "Average FPS: "
-msgstr ""
+msgstr "FPS medio: "
 
 #: gui/OverlayWrapper.cpp:430
 msgid "Best FPS: "
-msgstr ""
+msgstr "Mellor FPS: "
 
 #: gui/OverlayWrapper.cpp:431
 msgid "Worst FPS: "
-msgstr ""
+msgstr "Peor FPS: "
 
 #: gui/OverlayWrapper.cpp:432
 msgid "Triangle Count: "
@@ -402,11 +371,11 @@ msgstr "Triángulos:"
 
 #: gui/OverlayWrapper.cpp:459
 msgid "Textures: "
-msgstr ""
+msgstr "Texturas: "
 
 #: gui/OverlayWrapper.cpp:461
 msgid "Compositors: "
-msgstr ""
+msgstr "Compositores: "
 
 #: gui/OverlayWrapper.cpp:463
 msgid "Fonts: "
@@ -414,202 +383,182 @@ msgstr "Fontes:"
 
 #: gui/OverlayWrapper.cpp:465
 msgid "GPU Program: "
-msgstr ""
+msgstr "Programa GPU: "
 
 #: gui/OverlayWrapper.cpp:467
 msgid "HL GPU Program: "
-msgstr ""
+msgstr "Programa HL GPU: "
 
 #: gui/OverlayWrapper.cpp:469 gui/OverlayWrapper.cpp:475
 msgid "Materials: "
-msgstr ""
+msgstr "Materiais: "
 
 #: gui/OverlayWrapper.cpp:471
 msgid "Meshes: "
-msgstr ""
+msgstr "Mallas: "
 
 #: gui/OverlayWrapper.cpp:473
 msgid "Skeletons: "
-msgstr ""
+msgstr "Esqueletos: "
 
 #: gui/OverlayWrapper.cpp:482
 msgid "Memory (Ogre): "
-msgstr "Memoria (Ogre)"
+msgstr "Memoria (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "acelerar o vehículo"
+msgstr "Escala o vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "acelerar o vehículo"
+msgstr "Obtén o none do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Obtén o nome do arquivo do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Obtén o nome da sección cargada para un vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "acelerar o vehículo"
+msgstr "Obtén o tipo do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "acelerar o vehículo"
+msgstr "Restablece o vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr ""
+msgstr "Alterna o freo de man"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle truck front lights"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "Encender/Apagar luces dianteiras do vehiculo"
+msgstr "Alterna o control de tracción"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr ""
+msgstr "Alterna o ABS"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgid "toggle truck front lights"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "Encender/Apagar luces dianteiras do vehiculo"
+msgstr "Alterna as balizas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr ""
+msgstr "Alterna as partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Obtén a cantidade total de nodos do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "acelerar o vehículo"
+msgstr "Obtén a masa total do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Obtén a cantidade total de nodos das rodas do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "acelerar o vehículo"
+msgstr "Establece a masa do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Devolve verdadeiro se está activada a luz de freo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "Devolve verdadeiro se está activada a luz personalizada co número"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "activa ou desactiva o modo repetición"
+msgstr "Alterna a luz personalizada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Obtén o modo da baliza"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Define o tipo de intermitente"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Obtén o tipo de intermitente"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr ""
+msgstr "Obtén o modo de partículas personalizado"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Devolve verdadeiro se están activas as luces de marcha atrás"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Devolve o ángulo ao que apunta o vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "Devolve verdadeiro se está bloqueado un gancho deste vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Obtén a velocidade actual das rodas do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr ""
+msgstr "Obtén a velocidade actual do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "Obtén as forzas G que está a experimentar actualmente o vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr ""
+msgstr "Obtén a rotación actual do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr ""
+msgstr "Obtén a posición actual do vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
-#, fuzzy
-#| msgid "fix the camera to a position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "Fixar a camara nunha posición"
+msgstr "Obtén a posición do nodo"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -645,22 +594,22 @@ msgstr "coeficiente de fricción dinamica"
 #: gui/panels/GUI_ConsoleView.cpp:249
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Por área:"
 
 #: gui/panels/GUI_ConsoleView.cpp:250
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Eco do ficheiro de rexistro"
 
 #: gui/panels/GUI_ConsoleView.cpp:251
 msgctxt "Console"
 msgid "Scripting"
-msgstr ""
+msgstr "Scripting"
 
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Actores"
 
 #: gui/panels/GUI_ConsoleView.cpp:253
 #, fuzzy
@@ -672,22 +621,22 @@ msgstr "Cargando terreno"
 #: gui/panels/GUI_ConsoleView.cpp:256
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Por nivel:"
 
 #: gui/panels/GUI_ConsoleView.cpp:257
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Avisos"
 
 #: gui/panels/GUI_ConsoleView.cpp:258
 msgctxt "Console"
 msgid "Warnings"
-msgstr ""
+msgstr "Advertencias"
 
 #: gui/panels/GUI_ConsoleView.cpp:259
 msgctxt "Console"
 msgid "Errors"
-msgstr ""
+msgstr "Erros"
 
 #: gui/panels/GUI_ConsoleView.cpp:260
 #, fuzzy
@@ -706,18 +655,18 @@ msgstr "Comandos"
 #: gui/panels/GUI_ConsoleWindow.cpp:50
 msgctxt "Console"
 msgid "Filter options"
-msgstr ""
+msgstr "Opcións de filtro"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
 msgctxt "Console"
 msgid "AngelScript"
-msgstr ""
+msgstr "AngelScript"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr ""
+msgstr "Monitor de scripts"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 #, fuzzy
@@ -729,22 +678,22 @@ msgstr "Comando 7"
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "Depuración de Flexbody/Prop"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "Vas a pé."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
-msgstr ""
+msgstr "Este vehículo non ten corpos flexibles nin accesorios."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "Escolme elemento"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 #, fuzzy
@@ -756,27 +705,27 @@ msgstr "Opciones varias"
 #: gui/panels/GUI_FrictionSettings.cpp:48
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
-msgstr ""
+msgstr "Chan activo actual: "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
-msgstr ""
+msgstr "Tipo de chan escolmado:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
-msgstr ""
+msgstr "Axustes de chan sólido"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
-msgstr ""
+msgstr "Nivel de chan sólido:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
-msgstr ""
+msgstr "Nivel de chan sólido"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 msgctxt "FrictionSettings"
@@ -786,16 +735,20 @@ msgid ""
 "of solid ground. If it is 100 then the solid ground will be way deep (100m), "
 "with fluid on top."
 msgstr ""
+"Con esto pode definir a profundidade do chan sólido. Se é 0, entón a "
+"superficie será sólida. Se é 0,1, entón terá unha capa fluída de 10 cm por "
+"riba do chan sólido. Se é 100, entón o chan sólido estará moi fondo (100 m), "
+"con fluido por riba."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
 msgctxt "FrictionSettings"
 msgid "Strength:"
-msgstr ""
+msgstr "Forza:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
 msgctxt "FrictionSettings"
 msgid "Strength"
-msgstr ""
+msgstr "Forza"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
 msgctxt "FrictionSettings"
