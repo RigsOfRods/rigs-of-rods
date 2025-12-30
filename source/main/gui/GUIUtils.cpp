@@ -373,12 +373,22 @@ Ogre::TexturePtr RoR::FetchIcon(const char* name)
 {
     try
     {
-        return Ogre::static_pointer_cast<Ogre::Texture>(
+        Ogre::TexturePtr tex = Ogre::static_pointer_cast<Ogre::Texture>(
             Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+        
+        // Load the texture now to catch FileNotFoundException early. This is more efficient than
+        // lazy loading because: (1) the texture will be loaded on first use anyway, and
+        // (2) catching exceptions here is safer than during ImGui rendering.
+        if (!tex->isLoaded())
+        {
+            tex->load();
+        }
+        return tex;
     }
-    catch (...) {}
-
-    return Ogre::TexturePtr(); // null
+    catch (...) 
+    {
+        return Ogre::TexturePtr(); // null
+    }
 }
 
 ImDrawList* RoR::GetImDummyFullscreenWindow(const std::string& name /* = "RoR_TransparentFullscreenWindow"*/)
