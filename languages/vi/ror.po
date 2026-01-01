@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-01 14:51+0100\n"
-"PO-Revision-Date: 2025-12-31 23:01+0000\n"
+"PO-Revision-Date: 2026-01-02 04:01+0000\n"
 "Last-Translator: nguyen <barnacl437@disroot.org>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/vi/>\n"
@@ -33,7 +33,7 @@ msgstr ""
 
 #: AppContext.cpp:280
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Không có sẵn plugin hệ thống kết xuất. Hãy kiểm tra lại plugins.cfg"
 
 #: AppContext.cpp:287
 msgid "Error restoring settings from 'ogre.cfg'"
