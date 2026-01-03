@@ -189,14 +189,19 @@ bool GameScript::getCaelumAvailable()
     return result;
 }
 
-void GameScript::stopTimer()
+void GameScript::stopTimer(int actorID)
 {
-    App::GetGameContext()->GetRaceSystem().StopRaceTimer();
+    App::GetGameContext()->GetRaceSystem().StopRaceTimer(actorID);
 }
 
-void GameScript::startTimer(int id)
+void GameScript::startTimer(int raceID, int actorID)
 {
-    App::GetGameContext()->GetRaceSystem().StartRaceTimer(id);
+    App::GetGameContext()->GetRaceSystem().StartRaceTimer(raceID, actorID);
+}
+
+void GameScript::setTimer(int actorID, float time, bool raceIsInProgress)
+{
+    App::GetGameContext()->GetRaceSystem().SetRaceTimer(actorID, time, raceIsInProgress);
 }
 
 void GameScript::setTimeDiff(float diff)
@@ -482,10 +487,19 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
                 " Just pass an empty string to the `game.spawnObject()` parameter.");
             App::GetScriptEngine()->setForwardScriptLogToConsole(true);
 
-            // Look up the function and log if not found or found with bad arguments (probably a typo).
+            // Look up the function.
+            // First try the alternate function signature, now used in races.as to pass the actor ID to raceEvent().
+            // We do the first lookup silently, as we will only complain if the default function signature cannot be matched as well.
             AngelScript::asIScriptFunction* handler_func = App::GetScriptEngine()->getFunctionByDeclAndLogCandidates(
-                App::GetScriptEngine()->getTerrainScriptUnit(), GETFUNCFLAG_REQUIRED,
-                eventhandler, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
+                App::GetScriptEngine()->getTerrainScriptUnit(), GETFUNCFLAG_SILENT,
+                eventhandler, GETFUNC_ALTERNATEEVENTCALLBACK_SIGFMT);
+            if (handler_func == nullptr)
+            {
+                // Look up the function and log if not found or found with bad arguments (probably a typo).
+                handler_func = App::GetScriptEngine()->getFunctionByDeclAndLogCandidates(
+                    App::GetScriptEngine()->getTerrainScriptUnit(), GETFUNCFLAG_REQUIRED,
+                    eventhandler, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);              
+            }
             if (handler_func != nullptr)
             {
                 handler_func_id = handler_func->GetId();

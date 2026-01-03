@@ -31,8 +31,9 @@ namespace RoR {
 class RaceSystem
 {
 public:
-    void                StartRaceTimer(int id);
-    void                StopRaceTimer();
+    void                StartRaceTimer(int raceID, int actorID);
+    void                StopRaceTimer(int actorID);
+    void                SetRaceTimer(int actorID, float time, bool raceIsInProgress);
     bool                IsRaceInProgress() const { return m_race_id != -1; }
     int                 GetRaceId() const { return m_race_id; }
     float               GetRaceTime() const;
@@ -58,6 +59,12 @@ private:
     float               m_race_time_diff = 0.f;
     float               m_race_best_time = 0.f;
     float               m_race_start_time = 0.f;
+    bool                m_race_in_progress = false;
+    std::map<int, float> m_race_time_diffs;
+    std::map<int, float> m_race_best_times;
+    std::map<int, float> m_race_start_times;
+    std::map<int, float> m_race_lastlap_times;
+    std::map<int, bool>  m_races_in_progress;
 };
 
 } // namespace RoR
