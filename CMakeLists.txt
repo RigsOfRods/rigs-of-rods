@@ -19,7 +19,7 @@ set(PROJECT_NAME_LONG "Rigs of Rods")
 set(REQUIRED_DEPS_VERSION 30)
 
 # The version is used by installer
-project(${PROJECT_NAME_UNDERSCORE} VERSION 2023.09)
+project(${PROJECT_NAME_UNDERSCORE} VERSION 2026.01)
 
 ################################################################################
 # Available build options
