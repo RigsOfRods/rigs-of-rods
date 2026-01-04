@@ -80,7 +80,7 @@ jobs:
 
   build-msvc:
     name: Windows build
-    runs-on: windows-2022
+    runs-on: windows-2025
     env:
       BUILD_TOOLS_PATH: C:\apps\build-tools\
       CONAN_USER_HOME_SHORT: None
