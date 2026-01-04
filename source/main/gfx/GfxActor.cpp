@@ -3267,7 +3267,9 @@ void RoR::GfxActor::UpdateFlares(float dt, bool is_player)
 
         // The billboard flare
         flare.snode->setVisible(flare.intensity > 0);
-        if (flare.uses_inertia)
+        if (flare.uses_inertia
+            && flare.bbs->getMaterial() // Make sure material is assigned and has a texture unit.
+            && flare.bbs->getMaterial()->getTechniques()[0]->getPasses()[0]->getTextureUnitStates().size() > 0)
         {
             // simulate incandescence by adjusting opacity
             // Reference: https://forums.ogre3d.org/viewtopic.php?p=226205&sid=c108bfca815d507cbebe1781651e5e67#p226205
