@@ -219,8 +219,12 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     // > Race system
     result = engine->RegisterObjectMethod("GameScriptClass", "void setBestLapTime(float time)", asMETHOD(GameScript,setBestLapTime), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setTimeDiff(float diff)", asMETHOD(GameScript,setTimeDiff), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "void startTimer(int id)", asMETHOD(GameScript,startTimer), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "void stopTimer()", asMETHOD(GameScript,stopTimer), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void startTimer(int, int)", asMETHODPR(GameScript,startTimer,(int,int),void), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void stopTimer(int)", asMETHODPR(GameScript,stopTimer,(int),void), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setTimer(int, float, bool)", AngelScript::asMETHOD(GameScript,setTimer), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    // Overloads for backwards compatibility with earlier community Angelscript files
+    result = engine->RegisterObjectMethod("GameScriptClass", "void startTimer(int)", asMETHODPR(GameScript,startTimer,(int),void), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void stopTimer()", asMETHODPR(GameScript,stopTimer,(),void), asCALL_THISCALL); ROR_ASSERT(result>=0);
     
     // > Material helpers
     result = engine->RegisterObjectMethod("GameScriptClass", "int setMaterialAmbient(const string &in, float, float, float)", asMETHOD(GameScript,setMaterialAmbient), asCALL_THISCALL); ROR_ASSERT(result>=0);

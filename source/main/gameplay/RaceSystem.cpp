@@ -43,17 +43,53 @@ void RaceSystem::UpdateDirectionArrow(char* text, Ogre::Vector3 position)
     }
 }
 
-void RaceSystem::StartRaceTimer(int id)
+void RaceSystem::StartRaceTimer(int raceID, int actorID)
 {
-    m_race_start_time = App::GetGameContext()->GetActorManager()->GetTotalTime();
+    if (actorID > ACTORINSTANCEID_INVALID)
+    {
+        m_race_start_times[actorID] = App::GetGameContext()->GetActorManager()->GetTotalTime();
+        m_races_in_progress[actorID] = true;
+    }
+    else
+    {
+        m_race_start_time = App::GetGameContext()->GetActorManager()->GetTotalTime();
+    }
     m_race_time_diff = 0.0f;
-    m_race_id = id;
+    m_race_id = raceID;
 }
 
-void RaceSystem::StopRaceTimer()
+void RaceSystem::StopRaceTimer(int actorID)
 {
-    m_race_start_time = 0.0f;
+    float time;
+
+    if (actorID > ACTORINSTANCEID_INVALID)
+    {
+        if (m_races_in_progress[actorID])
+        {
+            time = App::GetGameContext()->GetActorManager()->GetTotalTime() - m_race_start_times[actorID];
+            m_race_lastlap_times[actorID] = time;
+        }
+    }
+    else
+    {
+        m_race_start_time = 0.0f;
+    }
     m_race_id = -1;
+}
+
+void RaceSystem::SetRaceTimer(int actorID, float time, bool raceIsInProgress)
+{
+    if (actorID > ACTORINSTANCEID_INVALID)
+    {
+        LOG("SetRaceTimer() for actorID: " + TOSTRING(actorID) + " Start time was: " + TOSTRING(m_race_start_times[actorID]) + " New start time: " + TOSTRING(time) + ".");
+        m_race_start_times[actorID] = (double)time;
+        m_races_in_progress[actorID] = raceIsInProgress;
+    }
+    else
+    {
+        m_race_start_time = time;
+        m_race_in_progress = raceIsInProgress;
+    }
 }
 
 float RaceSystem::GetRaceTime() const
@@ -63,6 +99,6 @@ float RaceSystem::GetRaceTime() const
 
 void RaceSystem::ResetRaceUI()
 {
-    this->StopRaceTimer();
+    this->StopRaceTimer(ACTORINSTANCEID_INVALID);
     this->UpdateDirectionArrow(nullptr, Ogre::Vector3::ZERO); // hide arrow
 }
