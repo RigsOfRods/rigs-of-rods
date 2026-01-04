@@ -286,7 +286,7 @@ void registerEventTypeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_SURVEY_MAP_TOGGLE",              EV_SURVEY_MAP_TOGGLE          ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_SURVEY_MAP_ZOOM_IN",             EV_SURVEY_MAP_ZOOM_IN         ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_SURVEY_MAP_ZOOM_OUT",            EV_SURVEY_MAP_ZOOM_OUT        ); ROR_ASSERT(result >= 0);
-                                                                                                                           
+
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_ACCELERATE",               EV_TRUCK_ACCELERATE           ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_ACCELERATE_MODIFIER_25",   EV_TRUCK_ACCELERATE_MODIFIER_25 ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_ACCELERATE_MODIFIER_50",   EV_TRUCK_ACCELERATE_MODIFIER_50 ); ROR_ASSERT(result >= 0);
@@ -300,6 +300,7 @@ void registerEventTypeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_BRAKE_MODIFIER_25",        EV_TRUCK_BRAKE_MODIFIER_25    ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_BRAKE_MODIFIER_50",        EV_TRUCK_BRAKE_MODIFIER_50    ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_CRUISE_CONTROL",           EV_TRUCK_CRUISE_CONTROL       ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_CRUISE_CONTROL_RESUME",    EV_TRUCK_CRUISE_CONTROL_RESUME  ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_CRUISE_CONTROL_ACCL",      EV_TRUCK_CRUISE_CONTROL_ACCL  ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_CRUISE_CONTROL_DECL",      EV_TRUCK_CRUISE_CONTROL_DECL  ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCK_CRUISE_CONTROL_READJUST",  EV_TRUCK_CRUISE_CONTROL_READJUST); ROR_ASSERT(result >= 0);
