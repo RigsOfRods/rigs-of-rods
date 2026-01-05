@@ -2180,8 +2180,11 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
     this->_ProcessSimpleInertia(*def.inertia_defaults, f.inertia);
 
     // Also create unique copy of the material, so we can adjust opacity via Ogre::Material to simulate incandescence.
-    f.bbs->setMaterial(f.bbs->getMaterial()->clone(f.snode->getName() + "_mat"));
-
+    if (f.bbs != nullptr)
+    {
+        ROR_ASSERT(f.bbs->getMaterial());
+        f.bbs->setMaterial(f.bbs->getMaterial()->clone(f.snode->getName() + "_mat"));
+    }
 }
 
 void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
@@ -2191,7 +2194,7 @@ void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
     int blink_delay = def.blink_delay_milis;
     float size = def.size;
     const FlareID_t flare_id = static_cast<FlareID_t>(m_actor->ar_flares.size());
-    const bool is_placeholder = TuneupUtil::isFlareAnyhowRemoved(m_actor->getWorkingTuneupDef(), flare_id);
+    bool is_placeholder = TuneupUtil::isFlareAnyhowRemoved(m_actor->getWorkingTuneupDef(), flare_id);
 
     /* Backwards compatibility */
     if (blink_delay == -2) 
@@ -2263,8 +2266,8 @@ void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
         if (flare.dashboard_link == -1)
         {
             this->AddMessage(Message::TYPE_WARNING,
-                fmt::format("Skipping 'd' flare, invalid input link '{}'", def.dashboard_link));
-            return;
+                fmt::format("Disabling 'd' flare - invalid input link '{}'", def.dashboard_link));
+            is_placeholder = true;
         }
     }
 
@@ -2272,7 +2275,7 @@ void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
     std::string flare_name = this->ComposeName("Flare", flare_id);
     if (!is_placeholder)
     {
-        flare.snode = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("flareX", flare_id));        
+        flare.snode = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("flareX", flare_id));
         flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
     }
 
@@ -2284,11 +2287,7 @@ void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
         flare.fl_type = FlareType::TAIL_LIGHT;
     }
 
-    if (flare.bbs == nullptr)
-    {
-        AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name + "', continuing without it (compatibility)...");
-    }
-    else
+    if (flare.bbs != nullptr)
     {
         flare.bbs->createBillboard(0,0,0);
         flare.bbs->setVisibilityFlags(DEPTHMAP_DISABLED);
