@@ -2995,6 +2995,61 @@ void Actor::setAircraftFlaps(int flapsLevel)
     ar_aerial_flap = flapsLevel;
 }
 
+void Actor::setControlsLinkedToExternalInput(ActorControlTypeFlags linkedControls)
+{
+    ar_controls_linked_to_ext_input = linkedControls;
+}
+
+void Actor::setSteeringAngle(float steeringAngle)
+{
+    if (steeringAngle <= -1)
+        steeringAngle = -1;
+    else if (steeringAngle >= 1)
+        steeringAngle = 1;
+
+    ar_hydro_dir_command = steeringAngle;
+}
+
+void Actor::setBrakingLevel(float braking)
+{
+    if (braking <= 0)
+        braking = 0;
+    else if (braking >= 1)
+        braking = 1;
+
+    ar_brake = braking;
+}
+
+void Actor::setAircraftAileron(float aileron)
+{
+    if (aileron <= -1)
+        aileron = -1;
+    else if (aileron >= 1)
+        aileron = 1;
+
+    ar_aileron = aileron;
+}
+
+void Actor::setAircraftElevator(float elevator)
+{
+    if (elevator <= -1)
+        elevator = -1;
+    else if (elevator >= 1)
+        elevator = 1;
+
+    ar_elevator = elevator;
+}
+
+void Actor::setAircraftRudder(float rudder)
+{
+    if (rudder <= -1)
+        rudder = -1;
+    else if (rudder >= 1)
+        rudder = 1;
+
+    ar_rudder = rudder;
+}
+
 // call this once per frame in order to update the skidmarks
 void Actor::updateSkidmarks()
 {

@@ -113,6 +113,12 @@ public:
     int               getShockNode2(int shock_number);
     float             getAirbrakeIntensity() { return ar_airbrake_intensity; }
     int               getAircraftFlaps() { return ar_aerial_flap; }
+    float             getSteeringAngle();
+    float             getBrakingLevel() { return ar_brake; }
+    float             getAircraftAileron() { return ar_aileron; }
+    float             getAircraftElevator() { return ar_elevator; }
+    float             getAircraftRudder() { return ar_rudder; }
+    ActorControlTypeFlags getControlsLinkedToExternalInput() { return ar_controls_linked_to_ext_input; }
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords (pivot point is node 0).
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords (pivot point is node 0).
@@ -149,6 +155,12 @@ public:
     void              recalculateNodeMasses();
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
+    void              setControlsLinkedToExternalInput(ActorControlTypeFlags linkedControls);
+    void              setSteeringAngle(float steeringAngle);
+    void              setBrakingLevel(float braking);
+    void              setAircraftAileron(float aileron);
+    void              setAircraftElevator(float elevator);
+    void              setAircraftRudder(float rudder);
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -159,9 +171,14 @@ public:
     /// @name User interaction
     /// @{
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    bool              getParkingBrake() { return ar_parking_brake; }
+    bool              getCruiseControl() { return cc_mode; }
+    bool              getTractionControl() { return tc_mode; }
+    bool              getAntiLockBrake() { return alb_mode; }
     void              parkingbrakeToggle();
     void              tractioncontrolToggle();
     void              antilockbrakeToggle();
+    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     bool              isLocked();                          //!< Are hooks locked?
@@ -177,8 +194,6 @@ public:
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
-    bool              getParkingBrake() { return ar_parking_brake; }
-    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
     int               getAxleDiffMode() { return m_num_axle_diffs; }
@@ -292,7 +307,6 @@ public:
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
     /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
     void              resolveCollisions(float max_distance, bool consider_up);    
-    float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
@@ -448,6 +462,7 @@ public:
     
     float             ar_posnode_spawn_height = 0.f;
     VehicleAIPtr      ar_vehicle_ai;
+    ActorControlTypeFlags ar_controls_linked_to_ext_input = ACT_ALL_CONTROLS; //!< Bit flags indicating which controls are affected by external inputs (keyboard, controller, etc.)
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
     float             ar_wheel_speed = 0.f;         //!< Physics state; wheel speed in m/s
@@ -468,9 +483,9 @@ public:
     bool              ar_trailer_parking_brake = false;
     float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle = -0.52f;          //!< Sim state; rear view mirror angle
-    float             ar_elevator = 0.f;                    //!< Sim state; aerial controller
-    float             ar_rudder = 0.f;                      //!< Sim state; aerial/marine controller
-    float             ar_aileron = 0.f;                     //!< Sim state; aerial controller
+    float             ar_elevator = 0.f;                    //!< Sim state; aircraft elevator
+    float             ar_rudder = 0.f;                      //!< Sim state; aircraft rudder (boat rudders are controlled in RoR::Screwprop)
+    float             ar_aileron = 0.f;                     //!< Sim state; aircraft aileron
     int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
     std::string       ar_filename;                    //!< Attribute; filled at spawn

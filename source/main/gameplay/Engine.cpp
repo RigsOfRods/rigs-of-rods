@@ -1262,42 +1262,52 @@ void Engine::UpdateInputEvents(float dt)
     float accl = App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
     float brake = App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
 
-    if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
-        App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+    ActorControlTypeFlags linked_controls = m_actor->ar_controls_linked_to_ext_input;
+    if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
     {
-        float acclModifier = 0.0f;
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
+            App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
         {
-            acclModifier += 0.25f;
+            float acclModifier = 0.0f;
+            if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
+            {
+                acclModifier += 0.25f;
+            }
+            if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+            {
+                acclModifier += 0.50f;
+            }
+            accl *= acclModifier;
         }
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
-        {
-            acclModifier += 0.50f;
-        }
-        accl *= acclModifier;
     }
 
-    if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25) ||
-        App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+    if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
     {
-        float brakeModifier = 0.0f;
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25) ||
+            App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
         {
-            brakeModifier += 0.25f;
+            float brakeModifier = 0.0f;
+            if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
+            {
+                brakeModifier += 0.25f;
+            }
+            if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+            {
+                brakeModifier += 0.50f;
+            }
+            brake *= brakeModifier;
         }
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
-        {
-            brakeModifier += 0.50f;
-        }
-        brake *= brakeModifier;
     }
 
+    
     // arcade controls are only working with auto-clutch!
     if (!App::io_arcade_controls->getBool() || (this->getAutoMode() >= SimGearboxMode::MANUAL))
     {
         // classic mode, realistic
-        this->autoSetAcc(accl);
-        m_actor->ar_brake = brake;
+        if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
+            this->autoSetAcc(accl);
+        if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
+            m_actor->ar_brake = brake;
     }
     else
     {
@@ -1311,14 +1321,18 @@ void Engine::UpdateInputEvents(float dt)
         if (this->getGear() >= 0)
         {
             // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
-            this->autoSetAcc(accl);
-            m_actor->ar_brake = brake;
+            if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
+                this->autoSetAcc(accl);
+            if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
+                m_actor->ar_brake = brake;
         }
         else
         {
             // reverse gear, reverse controls: brake is accel. and accel. is brake.
-            this->autoSetAcc(brake);
-            m_actor->ar_brake = accl;
+            if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
+                this->autoSetAcc(brake);
+            if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
+                m_actor->ar_brake = accl;
         }
 
         // only when the truck really is not moving anymore
@@ -1397,23 +1411,27 @@ void Engine::UpdateInputEvents(float dt)
             ToLocalizedString(this->getAutoMode()), "cog.png");
     }
 
-    // joy clutch
-    float clutch = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
-    if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25) ||
-        App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
+    if (BITMASK_IS_1(linked_controls, ACT_CLUTCH))
     {
-        float clutchModifier = 0.0f;
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25))
+        // joy clutch
+        float clutch = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25) ||
+            App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
         {
-            clutchModifier += 0.25f;
+            float clutchModifier = 0.0f;
+            if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25))
+            {
+                clutchModifier += 0.25f;
+            }
+            if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
+            {
+                clutchModifier += 0.50f;
+            }
+            clutch *= clutchModifier;
         }
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
-        {
-            clutchModifier += 0.50f;
-        }
-        clutch *= clutchModifier;
+        this->setManualClutch(clutch);
     }
-    this->setManualClutch(clutch);
+
 
     SimGearboxMode shiftmode = this->getAutoMode();
 
