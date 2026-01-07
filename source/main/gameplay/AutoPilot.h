@@ -57,6 +57,8 @@ public:
     Autopilot(int actor_id);
     void reset();
     void disconnect();
+    bool getOperateControls() { return operate_controls; }
+    void setOperateControls(bool operateControls);
     void setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc);
     int toggleHeading(int mode);
     int toggleAlt(int mode);
@@ -88,6 +90,9 @@ public:
     int GetVsValue() const { return vs; }
 private:
 
+    // Allows custom autopilot scripts to use all the A/P settings and operate the
+    // controls without the default A/P interfering.
+    bool operate_controls; //!< Indicates whether the A/P can operate the controls.
     int mode_heading;
     int mode_alt;
     bool mode_ias;
