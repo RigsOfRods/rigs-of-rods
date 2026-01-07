@@ -81,6 +81,10 @@ void frameStep(float dt)
                     ImGui::Text("ILS is not available");
                 }
 
+                bool canOperateControls = autopilot.getOperateControls();
+                if (ImGui::Checkbox("Operate controls", canOperateControls))
+                    autopilot.setOperateControls(canOperateControls);
+
                 if (ImGui::Button("Disconnect A/P"))
                     autopilot.disconnect();
             }
