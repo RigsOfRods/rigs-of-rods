@@ -119,6 +119,18 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER); ROR_ASSERT(result >= 0);
+    
+    // enum ActorControlTypeFlags
+    result = engine->RegisterEnum("ActorControlTypeFlags"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_NO_CONTROLS", ACT_NO_CONTROLS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_THROTTLE", ACT_THROTTLE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_CLUTCH", ACT_CLUTCH); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_BRAKE", ACT_BRAKE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_STEERING", ACT_STEERING); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_AILERON", ACT_AILERON); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_ELEVATOR", ACT_ELEVATOR); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_RUDDER", ACT_RUDDER); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorControlTypeFlags", "ACT_ALL_CONTROLS", ACT_ALL_CONTROLS); ROR_ASSERT(result >= 0);
 
     // class Actor (historically Beam)
     Actor::RegisterRefCountingObject(engine, "BeamClass");
@@ -158,6 +170,12 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "int getShockNode2(int)", AngelScript::asMETHOD(Actor, getShockNode2), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getAirbrakeIntensity()", asMETHOD(Actor,getAirbrakeIntensity), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getAircraftFlaps()", asMETHOD(Actor,getAircraftFlaps), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getSteeringAngle()", asMETHOD(Actor, getSteeringAngle), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getBrakingLevel()", asMETHOD(Actor, getBrakingLevel), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getAircraftAileron()", asMETHOD(Actor, getAircraftAileron), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getAircraftElevator()", asMETHOD(Actor, getAircraftElevator), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getAircraftRudder()", asMETHOD(Actor, getAircraftRudder), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "ActorControlTypeFlags getControlsLinkedToExternalInput()", asMETHOD(Actor, getControlsLinkedToExternalInput), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - physics editing (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -170,11 +188,22 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void recalculateNodeMasses()", asMETHOD(Actor,recalculateNodeMasses), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setAirbrakeIntensity(float)", asMETHOD(Actor,setAirbrakeIntensity), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setAircraftFlaps(int)", asMETHOD(Actor,setAircraftFlaps), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setSteeringAngle(float)", asMETHOD(Actor, setSteeringAngle), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setBrakingLevel(float)", asMETHOD(Actor, setBrakingLevel), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setAircraftAileron(float)", asMETHOD(Actor, setAircraftAileron), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setAircraftElevator(float)", asMETHOD(Actor, setAircraftElevator), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setAircraftRudder(float)", asMETHOD(Actor, setAircraftRudder), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setControlsLinkedToExternalInput(ActorControlTypeFlags)", asMETHOD(Actor, setControlsLinkedToExternalInput), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - user interaction (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
+    result = engine->RegisterObjectMethod("BeamClass", "bool getParkingBrake()", asMETHOD(Actor, getParkingBrake), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getCruiseControl()", asMETHOD(Actor, getCruiseControl), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getTractionControl()", asMETHOD(Actor, getTractionControl), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getAntiLockBrake()", asMETHOD(Actor, getAntiLockBrake), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void tractioncontrolToggle()", asMETHOD(Actor,tractioncontrolToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void antilockbrakeToggle()", asMETHOD(Actor,antilockbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void antilockbrakeToggle()", asMETHOD(Actor, antilockbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void cruisecontrolToggle()", asMETHOD(Actor, cruisecontrolToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void toggleCustomParticles()", asMETHOD(Actor,toggleCustomParticles), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getCustomParticleMode()", asMETHOD(Actor,getCustomParticleMode), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isLocked()", asMETHOD(Actor,isLocked), asCALL_THISCALL); ROR_ASSERT(result>=0);
