@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
         App::sys_savegames_dir ->setStr(PathCombine(App::sys_user_dir->getStr(), "savegames"));
         App::sys_screenshot_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "screenshots"));
         App::sys_scripts_dir   ->setStr(PathCombine(App::sys_user_dir->getStr(), "scripts"));
+        App::sys_server_scripts_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "server_scripts"));
         App::sys_projects_dir  ->setStr(PathCombine(App::sys_user_dir->getStr(), "projects"));
         App::sys_repo_attachments_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "repo_attachments"));
 
@@ -200,8 +201,10 @@ int main(int argc, char *argv[])
         App::GetAppContext()->SetUpInput();
 
 #ifdef USE_ANGELSCRIPT
-        App::CreateScriptEngine();
         CreateFolder(App::sys_scripts_dir->getStr());
+        App::CreateScriptEngine();
+        CreateFolder(App::sys_server_scripts_dir->getStr());
+        App::CreateServerScriptEngine();
         CreateFolder(App::sys_projects_dir->getStr());
 #endif
 

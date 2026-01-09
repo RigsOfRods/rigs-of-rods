@@ -117,6 +117,7 @@ void Console::cVarSetupBuiltins()
     App::sys_savegames_dir       = this->cVarCreate("sys_savegames_dir",       "",                           0);
     App::sys_screenshot_dir      = this->cVarCreate("sys_screenshot_dir",      "",                           0);
     App::sys_scripts_dir         = this->cVarCreate("sys_scripts_dir",         "",                           0);
+    App::sys_server_scripts_dir  = this->cVarCreate("sys_server_scripts_dir",  "",                           0);
     App::sys_projects_dir        = this->cVarCreate("sys_projects_dir",        "",                           0);
     App::sys_repo_attachments_dir= this->cVarCreate("sys_repo_attachments_dir","",                           0);
 
