@@ -451,7 +451,12 @@ void Autopilot::UpdateIls()
     }
 
     last_closest_hdist = closest_hdist;
-    if (mode_heading == HEADING_NAV)
+
+    // If we aren't allowed to operate the controls, we won't check
+    // if the A/P has to be disconnected.
+    // This allows custom autopilot scripts to have their own NAV mode
+    // engagement/disengagement logic.
+    if (mode_heading == HEADING_NAV && operate_controls)
     {
         // disconnect if close to runway or no locators are available
         if (closest_hdist < 20.0 || closest_vdist < 20.0)
@@ -459,5 +464,4 @@ void Autopilot::UpdateIls()
         if (!this->IsIlsAvailable())
             wantsdisconnect = true;
     }
-        
 }
