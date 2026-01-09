@@ -223,6 +223,23 @@ int ServerScriptEngine::loadScript(std::string scriptname) {
     return 0;
 }
 
+void ServerScriptEngine::unloadScript() {
+    // Stop thread first
+    this->StopTimerThread();
+    deleteAllCallbacks();
+    context->Unprepare();
+    engine->ReturnContext(context);
+    context = nullptr;
+    if (engine) {
+        asIScriptModule *mod = engine->GetModule("script");
+        if (mod) {
+            engine->DiscardModule("script");
+        }
+    }
+
+
+}
+
 void ServerScriptEngine::ExceptionCallback(asIScriptContext *ctx, void *param) {
     const asIScriptFunction *function = ctx->GetExceptionFunction();
     Logger::Log(LOG_INFO, "--- exception ---");

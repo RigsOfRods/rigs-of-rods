@@ -123,6 +123,8 @@ public:
 
     int loadScript(std::string scriptName);
 
+    void unloadScript(); // RIGSOFRODS: Unload the script (only one can run at a time).
+
     void playerDeleted(int uid, int crash, bool doNestedCall = false);
 
     void playerAdded(int uid);

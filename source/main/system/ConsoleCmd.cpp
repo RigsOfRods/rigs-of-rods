@@ -501,6 +501,39 @@ public:
     }
 };
 
+class UnloadServerScriptCmd : public ConsoleCmd
+{
+public:
+    UnloadServerScriptCmd() : ConsoleCmd("unloadserverscript", "", _L("Stops a running RoRServer script")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+#ifdef USE_ANGELSCRIPT
+        ServerScriptEngine::ThreadState thread_state = App::GetServerScriptEngine()->GetTimerThreadState();
+        if (thread_state != ServerScriptEngine::ThreadState::RUNNING)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Server script was not running.");
+        }
+        else
+        {
+            App::GetServerScriptEngine()->unloadScript();
+            reply_type = Console::CONSOLE_SYSTEM_REPLY;
+            reply << _L("Server script stopped.");
+        }
+#else
+        reply_type = Console::CONSOLE_SYSTEM_ERROR;
+        reply << _L("Scripting disabled in this build");
+#endif
+        
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
 // -------------------------------------------------------------------------------------
 // CVar (builtin) console commmands
 
@@ -735,6 +768,7 @@ void Console::regBuiltinCommands()
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadServerScriptCmd();      m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new UnloadServerScriptCmd();    m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SpeedOfSoundCmd();          m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
