@@ -327,6 +327,7 @@ enum class MpState
     DISABLED,  //!< Not connected for whatever reason.
     CONNECTING,
     CONNECTED,
+    LOCAL_SCRIPT, //!< Not actually connected to network, but running server script locally.
 };
 
 enum class SimState

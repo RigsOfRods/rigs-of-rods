@@ -614,6 +614,11 @@ int ServerScriptEngine::loadScriptFile(const char *fileName, string &script) {
 }
 
 int ServerScriptEngine::frameStep(float dt) {
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
     int r;
@@ -647,6 +652,11 @@ int ServerScriptEngine::frameStep(float dt) {
 }
 
 void ServerScriptEngine::playerDeleted(int uid, int crash, bool doNestedCall /*= false*/) {
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
     if (!engine) return;
     if (!context) context = engine->CreateContext();
     int r;
@@ -691,6 +701,11 @@ void ServerScriptEngine::playerDeleted(int uid, int crash, bool doNestedCall /*=
 }
 
 void ServerScriptEngine::playerAdded(int uid) {
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
     if (!engine) return;
     if (!context) context = engine->CreateContext();
     int r;
@@ -720,6 +735,11 @@ void ServerScriptEngine::playerAdded(int uid) {
 }
 
 int ServerScriptEngine::streamAdded(int uid, RoRnet::StreamRegister *reg) {
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
     int r;
@@ -759,6 +779,11 @@ int ServerScriptEngine::streamAdded(int uid, RoRnet::StreamRegister *reg) {
 }
 
 int ServerScriptEngine::playerChat(int uid, std::string msg) {
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
     int r;
@@ -798,6 +823,11 @@ int ServerScriptEngine::playerChat(int uid, std::string msg) {
 }
 
 void ServerScriptEngine::gameCmd(int uid, const std::string &cmd) {
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
     if (!engine) return;
     if (!context) context = engine->CreateContext();
     int r;
@@ -834,6 +864,10 @@ void ServerScriptEngine::curlStatus(RoRServerCurlStatusType type, int n1, int n2
     // - for CURL_STATUS_PROGRESS, n1 = bytes downloaded, n2 = total bytes,
     // - otherwise, n1 = CURL return code, n2 = HTTP result code.
     // -------------------------------------------------------------------
+
+    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
+    // All script callbacks must be invoked while clients-mutex is locked
+    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
 
     if (!engine) return;
     if (!context) context = engine->CreateContext();
@@ -902,7 +936,9 @@ void ServerScriptEngine::StopTimerThread() {
         m_timer_thread_state = ThreadState::STOP_REQUESTED;
     }
 
+    Logger::Log(LOG_DEBUG, "ScriptEngine: stopping framestep thread...");
     m_timer_thread.join();
+    Logger::Log(LOG_DEBUG, "ScriptEngine: stopped framestep thread.");
     
     {
         std::lock_guard<std::mutex> scoped_lock(m_timer_thread_mutex);

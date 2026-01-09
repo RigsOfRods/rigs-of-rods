@@ -52,6 +52,7 @@
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
@@ -545,6 +546,13 @@ int main(int argc, char *argv[])
 #if USE_SOCKETW
                     try
                     {
+                        if (App::GetServerScriptEngine()->GetTimerThreadState() == ServerScriptEngine::ThreadState::RUNNING)
+                        {
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                _L("Stopping local server script engine before connecting to remote server."));
+                            App::GetServerScriptEngine()->StopTimerThread();
+                            App::mp_state->setVal((int)MpState::DISABLED);
+                        }
                         App::GetNetwork()->StartConnecting();
                     }
                     catch (...) 

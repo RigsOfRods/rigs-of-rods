@@ -508,7 +508,7 @@ void GUIManager::UpdateInputEvents(float dt)
 
         // EV_COMMON_ENTER_CHATMODE
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) &&
-            App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+            (App::mp_state->getEnum<MpState>() == MpState::CONNECTED || App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT))
         {
             this->ChatBox.SetVisible(!this->ChatBox.IsVisible());
         }
