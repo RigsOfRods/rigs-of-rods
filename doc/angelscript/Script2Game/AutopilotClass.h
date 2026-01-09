@@ -22,6 +22,20 @@ public:
     void disconnect();
 
     /**
+     * @brief Returns whether the autopilot can operate the controls.
+     * @returns `true` if the autopilot can operate the controls, `false` otherwise.
+     */
+    bool getOperateControls();
+
+    /**
+     * @brief Sets whether the autopilot can operate the controls.
+     * 
+     * You can use this method to replace the default autopilot
+     * with your own implementation.
+     */
+    void setOperateControls(bool operateControls);
+
+    /**
      * @brief Sets or toggles the heading modes.
      * @param headingMode The heading mode. If the autopilot is in the same mode as `headingMode`, it toggles it. Otherwise, it sets the new mode.
      * @return The new heading mode.
@@ -67,63 +81,74 @@ public:
 
     /**
      * @brief Adds `addedIAS` to the current airspeed reference for the auto-throttle.
-     * @param addedVS The airspeed (in knots) that will be added to the current airspeed reference. Use negative numbers to subtract.
+     * @param addedIAS The airspeed (in knots) that will be added to the current airspeed reference. Use negative numbers to subtract.
      */
     int adjustIAS(int addedIAS);
 
     /**
-     * @return The deviation (in degrees) from the ILS glideslope, if available.
+     * @brief Returns the deviation (in degrees) from the ILS glideslope, if available.
+     * @returns The deviation from the ILS glideslope.
      * @note Use `isILSAvailable()` to check if this value is available.
      */
     float getVerticalApproachDeviation();
 
     /**
-     * @return The deviation (in degrees) from the ILS localizer, if available.
+     * @brief Returns the deviation (in degrees) from the ILS localizer, if available.
+     * @return The deviation from the ILS localizer.
      * @note Use `isILSAvailable()` to check if this value is available.
      */
     float getHorizontalApproachDeviation();
 
     /**
-     * @return Whether the ILS is available.
+     * @brief Returns whether the ILS is available.
+     * @return `true` if the ILS information is available, `false` otherwise.
      */
     bool isILSAvailable();
 
     /**
+     * @brief Gets the current heading mode.
      * @return The current heading mode.
      */
     APHeadingMode getHeadingMode();
 
     /**
+     * @brief Gets the current heading value.
      * @return The current heading value (in degrees).
      */
     int getHeadingValue();
 
     /**
+     * @brief Gets the current altitude mode.
      * @return The current altitude mode.
      */
     APAltitudeMode getAltitudeMode();
 
     /**
+     * @brief Gets the current altitude value.
      * @return The current altitude value (in feet).
      */
     int getAltitudeValue();
 
     /**
-     * @return Whether the auto-throttle is enabled.
+     * @brief Returns whether the auto-throttle is engaged.
+     * @return `true` if the auto-throttle is engaged, `false` otherwise.
      */
     bool getIASMode();
 
     /**
+     * @brief Gets the current airspeed reference for the auto-throttle.
      * @return The current airspeed reference for the auto-throttle (in knots).
      */
     int getIASValue();
 
     /**
-     * @return Whether the GPWS is enabled.
+     * @brief Returns whether the GPWS is engaged.
+     * @return `true` if the GPWS is engaged, `false` otherwise.
      */
     bool getGPWSMode();
 
     /**
+     * @brief Gets the current vertical speed value.
      * @return The current vertical speed value (in feet per minute).
      */
     int getVerticalSpeedValue();

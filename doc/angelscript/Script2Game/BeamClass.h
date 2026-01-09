@@ -1,4 +1,3 @@
-
 namespace Script2Game {
 
 /** \addtogroup ScriptSideAPIs
@@ -9,9 +8,9 @@ namespace Script2Game {
  *  @{
  */    
 
-/**
- * @brief Binding of RoR::Actor; a softbody-physics gameplay object, can be anything from soda can to space shuttle.
- */
+ /**
+  * @brief Binding of RoR::Actor; a softbody-physics gameplay object, can be anything from soda can to space shuttle.
+  */
 class BeamClass
 {
 public:
@@ -45,10 +44,10 @@ public:
     /**
     * Orientation on all axes packed to single quaternion. Use `getYaw()`, `getPitch()` and `getRoll()` for individual rotations in radians.
     */
-    quaternion getOrientation()
+    quaternion getOrientation();
     
     /**
-    * Meters per second.
+    * Gets the vehicle speed, in meters per second.
     */
     float getSpeed();
     
@@ -173,6 +172,31 @@ public:
      * @return The flaps level for aircraft, from 0 (flaps up) to 5 (flaps fully down).
      */
     int getAircraftFlaps();
+
+    /**
+     * @brief Returns the current steering wheel position, from -1 (full right steering) to 1 (full left steering).
+     */
+    float getSteeringAngle();
+
+    /**
+     * @brief Returns the current braking level, from 0 (no braking) to 1 (maximum braking).
+     */
+    float getBrakingLevel();
+
+    /**
+     * @brief Returns the current aileron position, from -1 (full left bank) to 1 (full right bank).
+     */
+    float getAircraftAileron();
+
+    /**
+     * @brief Returns the current elevator position, from -1 (full pitch down) to 1 (full pitch up).
+     */
+    float getAircraftElevator();
+
+    /**
+     * @brief Returns the current rudder deflection for aircraft, from -1 (full right yaw) to 1 (full left yaw).
+     */
+    float getAircraftRudder();
     
     //! @}
     
@@ -237,13 +261,62 @@ public:
      * @brief Sets the flaps level for aircraft, from 0 (flaps up) to 5 (flaps fully down).
      */
     void setAircraftFlaps(int level);
+
+    /**
+     * @brief Sets the steering wheel position, from -1 (full right steering) to 1 (full left steering).
+     */
+    void setSteeringAngle(float steeringAngle);
+
+    /**
+     * @brief Sets the braking level, from 0 (no braking) to 1 (maximum braking).
+     */
+    void setBrakingLevel(float braking);
+
+    /**
+     * @brief Sets the aileron position, from -1 (full left bank) to 1 (full right bank).
+     */
+    void setAircraftAileron(float aileron);
+
+    /**
+     * @brief Sets the elevator position, from -1 (full pitch down) to 1 (full pitch up).
+     */
+    void setAircraftElevator(float elevator);
+
+    /**
+     * @brief Sets the rudder deflection for aircraft, from -1 (full right yaw) to 1 (full left yaw).
+     */
+    void setAircraftRudder(float rudder);
     
     //! @}
     
     /// @name User interaction
     /// @{
     // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'  
-    
+
+    /**
+     * @brief Returns whether the parking brake is engaged.
+     * @returns `true` if the parking brake is engaged, `false` otherwise.
+     */
+    bool getParkingBrake();
+
+    /**
+     * @brief Returns whether the cruise control is engaged.
+     * @returns `true` if the cruise control is engaged, `false` otherwise.
+     */
+    bool getCruiseControl();
+
+    /**
+     * @brief Returns whether the traction control is engaged.
+     * @returns `true` if the traction control is engaged, `false` otherwise.
+     */
+    bool getTractionControl();
+
+    /**
+     * @brief Returns whether the anti-lock brake system (ABS) is engaged.
+     * @returns `true` if the ABS is engaged, `false` otherwise.
+     */
+    bool getAntiLockBrake();
+
     /**
      * Toggles the parking brake.
      */
@@ -253,11 +326,16 @@ public:
      * Toggles the tracktion control.
      */
     void tractioncontrolToggle();
-    
+
     /**
      * Toggles the anti-lock brakes.
      */
     void antilockbrakeToggle();
+
+    /**
+     * Toggles the cruise control.
+     */
+    void cruisecontrolToggle();
     
     /**
      * Toggles the custom particles.
@@ -298,6 +376,43 @@ public:
     * Reports number of installed cinecams.
     */
     int getNumCinecams() const;
+
+    /**
+     * @brief Returns bit flags that indicate which controls are affected by external inputs.
+     * @note The flags are defined in the `ActorControlTypeFlags` enum.
+     * @returns `ActorControlTypeFlags` value that contains the bit flags.
+     */
+    ActorControlTypeFlags getControlsLinkedToExternalInput();
+
+    /**
+     * @brief Sets bit flags that indicate which controls are affected by external inputs, such as the keyboard.
+     * @note The flags are defined in the `ActorControlTypeFlags` enum.
+     * 
+     * Example code to link some controls:
+     * @code{.cpp}
+     * BeamClass@ currentTruck = game.getCurrentTruck();
+     * ActorControlTypeFlags ctrls = currentTruck.getControlsLinkedToExternalInput();
+     * // Link other controls to external input in addition
+     * // to the ones already enabled in ctrls.
+     * ctrls = ctrls | ACT_AILERON | ACT_ELEVATOR | ACT_RUDDER;
+     * currentTruck.setControlsLinkedToExternalInput(ctrls);
+     * // Now the aileron, elevator and rudder can be controlled
+     * // with an external input source such as the keyboard.
+     * @endcode
+     * 
+     * Example code to unlink some controls:
+     * @code{.cpp}
+     * BeamClass@ currentTruck = game.getCurrentTruck();
+     * ActorControlTypeFlags ctrls = currentTruck.getControlsLinkedToExternalInput();
+     * // Unlink some controls from external input,
+     * // without unlinking others.
+     * ctrls = ctrls & ~(ACT_AILERON | ACT_ELEVATOR | ACT_RUDDER);
+     * currentTruck.setControlsLinkedToExternalInput(ctrls);
+     * // Now the aileron, elevator and rudder can't be controlled
+     * // with an external input.
+     * @endcode
+     */
+    void setControlsLinkedToExternalInput(ActorControlTypeFlags linkedControls);
     
     
     //! @}
@@ -310,17 +425,17 @@ public:
     /**
     * Retrieve dashboard manager.
     */
-    DashboardManagerClassPtr @getDashboardManager();
+    DashBoardManagerClass @getDashboardManager();
     
     /**
      * Retrieve the waypoint AI object.
      */
-    VehicleAiClass @getVehicleAI();
+    VehicleAIClass @getVehicleAI();
 
     /**
     * Retrieve engine/transmission simulator.
     */
-    EngineClassPtr @getEngine();
+    EngineClass @getEngine();
 
     /**
     * @return The amount of aircraft engines defined for this actor.
@@ -446,11 +561,10 @@ public:
      */
     int getInstanceId();    
     
-    //! @}    
-}
+    //! @}  
+};
 
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
 
 } //namespace Script2Game
-

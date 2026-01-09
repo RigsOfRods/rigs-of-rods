@@ -14,14 +14,14 @@
 namespace Script2Game {
 
 /**
- * Altitude modes for the autopilot system
- */
-enum APAltitudeMode
+* Binding of RoR::InputSourceType; Used with Script2Game::InputEngineClass.
+*/
+enum inputSourceType
 {
-	ALT_NONE,		//!< No altitude modes are enabled.
-	ALT_FIXED,		//!< The autopilot keeps the aircraft at a constant altitude set by `AutopilotClass.adjustAltitude(int addedAltitude)`.
-	ALT_VS			//!< The autopilot keeps the aircraft at a constant rate of climb/descent set by `AutopilotClass.adjustVerticalSpeed(int addedVS)`.
-};
+    IST_ANY,        //!< Digital and analog devices
+    IST_DIGITAL,    //!< Only digital devices
+    IST_ANALOG      //!< Only analog devices
+}
 
 } // namespace Script2Game
 

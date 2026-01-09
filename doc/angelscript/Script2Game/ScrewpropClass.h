@@ -29,6 +29,11 @@ public:
     void setRudder(float rudderDeflection);
 
     /**
+     * @brief Sets the maximum force the screwprop can apply, in newtons.
+     */
+    void setMaxPower(float power);
+
+    /**
      * @return The current throttle value, from 0 to 1.
      */
     float getThrottle();

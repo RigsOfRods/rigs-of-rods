@@ -118,7 +118,6 @@ public:
     float             getAircraftAileron() { return ar_aileron; }
     float             getAircraftElevator() { return ar_elevator; }
     float             getAircraftRudder() { return ar_rudder; }
-    ActorControlTypeFlags getControlsLinkedToExternalInput() { return ar_controls_linked_to_ext_input; }
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords (pivot point is node 0).
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords (pivot point is node 0).
@@ -155,7 +154,6 @@ public:
     void              recalculateNodeMasses();
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
-    void              setControlsLinkedToExternalInput(ActorControlTypeFlags linkedControls);
     void              setSteeringAngle(float steeringAngle);
     void              setBrakingLevel(float braking);
     void              setAircraftAileron(float aileron);
@@ -207,6 +205,8 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
+    ActorControlTypeFlags getControlsLinkedToExternalInput() { return ar_controls_linked_to_ext_input; }
+    void              setControlsLinkedToExternalInput(ActorControlTypeFlags linkedControls);
     //! @}
 
     /// @name Vehicle lights
