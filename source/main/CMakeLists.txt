@@ -232,6 +232,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
             scripting/OgreScriptBuilder.{h,cpp}
+            scripting/ServerScriptEngine.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
             scripting/ScriptUtils.h
             scripting/bindings/AngelScriptBindings.h
