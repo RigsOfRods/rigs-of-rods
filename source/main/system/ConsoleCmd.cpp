@@ -478,6 +478,16 @@ public:
             reply_type = Console::CONSOLE_SYSTEM_ERROR;
             reply << _L("Missing parameter: ") << m_usage;
         }
+        else if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Not allowed while connected to network.");
+        }
+        else if (App::GetServerScriptEngine()->GetTimerThreadState() == ServerScriptEngine::ThreadState::RUNNING)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Server script is already running.");
+        }
         else
         {
             int result = App::GetServerScriptEngine()->loadScript(args[1]);
@@ -488,6 +498,7 @@ public:
             }
             else
             {
+                App::mp_state->setVal(MpState::LOCAL_SCRIPT);
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
                 reply << fmt::format(_L("Server script '{}' started"), args[1]);
             }
@@ -513,8 +524,7 @@ public:
         Console::MessageType reply_type;
 
 #ifdef USE_ANGELSCRIPT
-        ServerScriptEngine::ThreadState thread_state = App::GetServerScriptEngine()->GetTimerThreadState();
-        if (thread_state != ServerScriptEngine::ThreadState::RUNNING)
+        if (App::GetServerScriptEngine()->GetTimerThreadState() != ServerScriptEngine::ThreadState::RUNNING)
         {
             reply_type = Console::CONSOLE_SYSTEM_ERROR;
             reply << _L("Server script was not running.");
@@ -522,6 +532,7 @@ public:
         else
         {
             App::GetServerScriptEngine()->unloadScript();
+            App::mp_state->setVal(MpState::DISABLED);
             reply_type = Console::CONSOLE_SYSTEM_REPLY;
             reply << _L("Server script stopped.");
         }

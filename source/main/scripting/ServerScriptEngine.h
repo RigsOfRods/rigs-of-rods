@@ -220,6 +220,8 @@ protected:
     ThreadState m_timer_thread_state = ThreadState::NOT_RUNNING;
     std::mutex  m_timer_thread_mutex;
 
+    std::mutex m_clients_mutex;  //!< RIGSOFRODS: from `class Sequencer`, guards (among else) execution of script callbacks.
+
     /**
      * This function initialzies the engine and registeres all types
      */
