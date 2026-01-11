@@ -471,8 +471,12 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
             return;
         }
 
-        int handler_func_id = -1; // no function
-        if (eventhandler != "")
+        EvHandlerFuncID_t handler_func_id = EVHANDLERFUNCID_INVALID;
+        if (eventhandler == "!supress")
+        {
+            handler_func_id = EVHANDLERFUNCID_SUPRESS;
+        }
+        else if (eventhandler != "")
         {
             // Let script author know (via Angelscript.log) there's a better alternative.
             App::GetScriptEngine()->setForwardScriptLogToConsole(false);
