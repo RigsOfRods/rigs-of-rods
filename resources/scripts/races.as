@@ -54,76 +54,61 @@ void raceCancelPointHandler(int trigger_type, string inst, string box, int nodei
 // this class shouldn't be edited!
 // marked 'shared' so that other scripts can access the race data using `game.getScriptVariable()`
 shared class racesManager {
-// public properties
-	int raceCount;
-	int currentRace;
-	int currentLap;
-	int truckNum;
-	int lastCheckpoint;
-	bool obligatedFinish;
-	bool showTimeDiff;
-	bool showBestLap;
-	bool showBestRace;
-	bool submitScore;
-	bool showCheckPointInfoWhenNotInRace;
-	bool silentMode;
-	bool allowVehicleChanging;
-	bool abortOnVehicleExit;
-	bool restartRaceOnStart;
-	bool penaltyGiven;
-	int actionOnTruckExit;
-	int state;
-	int cancelPointCount;
-	double raceStartTime;
-	double lapStartTime;
-	string lastCheckpointInstance;
-	string lastRaceEventInstance;
-	double lastRaceEventTime;
-	string raceManagerVersion;
-	int arrowMethod;
-	LocalStorageClass@ raceDataFile;
-	array<int> penaltyTime;
+	// initialize the default settings
+	bool obligatedFinish   = false; // if true: if you drive through the start checkpoint of another race, while racing, it will be ignored
+	bool showTimeDiff      = true;  // if true: Show + or - <best time minus current time> when passing a checkpoint.
+	bool showBestLap       = true;  // if true: If a race is started or a new best lap is set, the best lap will be shown
+	bool showBestRace      = true;  // if true: If a race is started or a new best race is set, the best race will be shown
+	bool submitScore       = true; // if true: If the user has a new best lap or new best race, this is submitted to the master server.
+	bool silentMode        = false; // if true: No messages will be shown
+	bool allowVehicleChanging = false; // if false: if the user changes vehicle, the race will be aborted.
+	bool abortOnVehicleExit = false;  // if true: if the user exits his vehicle, the race will be aborted
+	bool showCheckPointInfoWhenNotInRace = false; // if true: if the user drives through a checkpoint of a race that isn't running, a message will be shown, saying "this is checkpoint xx of race myRaceName"
+	int arrowMethod       = this.ARROW_AUTO;
+	bool restartRaceOnStart = true; // if true: the race will be restarted when you pass the start line of the same race
+
+	// we initialize the other variables (do not edit these manually)
+	int state           = this.STATE_NotInRace;
+	int raceCount       = 0;
+	int currentRace     = -1;
+	int currentLap      = -1;
+	int lastCheckpoint  = -1;
+	double raceStartTime   = 0.0;
+	double lapStartTime    = 0.0;
+	int cancelPointCount = 0;
+	string lastCheckpointInstance = "";
+	string lastRaceEventInstance = ""; // we only use this to boost the FPS
+	string raceManagerVersion = "RoR_raceManager_v0.02";
+	bool penaltyGiven = true;
+	int actionOnTruckExit = ACTION_DoNothing;
 
 // public constants
-	int LAPS_Unlimited;
-	int LAPS_NoLaps;
-	int LAPS_One;
+	int LAPS_Unlimited = -1; // Race is an endless circuit
+	int LAPS_NoLaps = 0; // Race is not a circuit
+	int LAPS_One = 1; // Race is a circuit with one lap (any positive value can be used)
 
-	int ACTION_DoNothing;
-	int ACTION_SuspendRace;
-	int ACTION_StopRace;
-	int ACTION_RestartRace;
+	int ACTION_DoNothing   = 0;
+	int ACTION_SuspendRace = 1;
+	int ACTION_StopRace    = 2;
+	int ACTION_RestartRace = 3;
 
-	int STATE_NotInRace;
-	int STATE_Waiting;
-	int STATE_Racing;
+	int STATE_NotInRace = 0;
+	int STATE_Waiting   = 1;
+	int STATE_Racing    = 2;
 
-	int ARROW_AUTO;
+	int ARROW_AUTO = -1;
 
 // private properties
+	int truckNum = -1;
 	array<raceBuilder@> raceList;
 	dictionary callbacks;
+	LocalStorageClass@ raceDataFile;
+	array<int> penaltyTime;	
 
 // public functions
 
 	// constructor
 	racesManager() {
-
-		// We initialize our "constants"
-		this.LAPS_Unlimited = -1;
-		this.LAPS_NoLaps = 0;
-		this.LAPS_One = 1;
-
-		this.ACTION_DoNothing   = 0;
-		this.ACTION_SuspendRace = 1;
-		this.ACTION_StopRace    = 2;
-		this.ACTION_RestartRace = 3;
-
-		this.STATE_NotInRace = 0;
-		this.STATE_Waiting   = 1;	
-		this.STATE_Racing    = 2;
-
-		this.ARROW_AUTO = -1;
 
 		// we initialize the callbacks dictionary
 		this.callbacks.set("RaceFinish", null); // when a race was finished
@@ -137,32 +122,6 @@ shared class racesManager {
 		this.callbacks.set("RaceEvent", null); // When the user passes the start line of a locked race
 		this.callbacks.set("PenaltyEvent", null); // When the user gets in a race_penalty box, handled by the raceEvent method
 		this.callbacks.set("AbortEvent", null); // When the user gets in a race_abort box, handled by the raceEvent method
-
-		// initialize the default settings
-		this.obligatedFinish   = false; // if true: if you drive through the start checkpoint of another race, while racing, it will be ignored
-		this.showTimeDiff      = true;  // if true: Show + or - <best time minus current time> when passing a checkpoint.
-		this.showBestLap       = true;  // if true: If a race is started or a new best lap is set, the best lap will be shown
-		this.showBestRace      = true;  // if true: If a race is started or a new best race is set, the best race will be shown
-		this.submitScore       = true; // if true: If the user has a new best lap or new best race, this is submitted to the master server.
-		this.silentMode        = false; // if true: No messages will be shown
-		this.allowVehicleChanging = false; // if false: if the user changes vehicle, the race will be aborted.
-		this.abortOnVehicleExit = false;  // if true: if the user exits his vehicle, the race will be aborted
-		this.showCheckPointInfoWhenNotInRace = false; // if true: if the user drives through a checkpoint of a race that isn't running, a message will be shown, saying "this is checkpoint xx of race myRaceName"
-		this.arrowMethod       = this.ARROW_AUTO;
-		this.restartRaceOnStart = true; // if true: the race will be restarted when you pass the start line of the same race
-
-		// we initialize the other variables (do not edit these manually)
-		this.state           = this.STATE_NotInRace;
-		this.raceCount       = 0;
-		this.currentRace     = -1;
-		this.lastCheckpoint  = -1;
-		this.raceStartTime   = 0.0;
-		this.lapStartTime    = 0.0;
-		this.cancelPointCount= 0;
-		this.lastCheckpointInstance = "";
-		this.lastRaceEventInstance = ""; // we only use this to boost the FPS
-		this.raceManagerVersion = "RoR_raceManager_v0.02";
-		this.penaltyGiven = true;
 
 		// register the required callbacks
 		game.registerForEvent(SE_EVENTBOX_ENTER); // This replaces the `raceEvent()` and `raceCancelPointHandler()` callbacks and also provides `truckNum` ~ ohlidalp, 01/2026
