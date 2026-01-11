@@ -355,7 +355,7 @@ public:
     * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file)
     * @param uniquifyMaterials Set this to true if you need to uniquify the materials
     */
-    void spawnObject(const Ogre::String& objectName, const Ogre::String& instanceName, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& eventhandler, bool uniquifyMaterials);
+    void spawnObject(const Ogre::String& objectName, const Ogre::String& instanceName, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& eventhandler = "", bool uniquifyMaterials = false);
 
     /**
     * This moves an object to a new position
