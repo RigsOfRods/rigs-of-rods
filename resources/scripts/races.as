@@ -38,10 +38,14 @@ raceBuilder::raceBuilderVersion)
 funcdef void RACE_EVENT_CALLBACK(dictionary@);
 
 // called when a vehicle is in a checkpoint
+// Backwards compatibility only - internally we use `SE_EVENTBOX_ENTER` which also provides `truckNum`
+//  However, existing mods may be using `game.spawnObject()` with "raceEvent" as argument ~ ohlidalp, 01/2026
 void raceEvent(int trigger_type, string inst, string box, int nodeid) {
 	races.raceEvent(trigger_type, inst, box, nodeid);
 }
 
+// Backwards compatibility only - internally we use `SE_EVENTBOX_ENTER` which also provides `truckNum`
+//  However, existing mods may be using `game.spawnObject()` with "raceCancelPointHandler" as argument ~ ohlidalp, 01/2026
 void raceCancelPointHandler(int trigger_type, string inst, string box, int nodeid) {
 	races.raceCancelPointHandler(trigger_type, inst, box, nodeid);
 }
@@ -116,7 +120,7 @@ shared class racesManager {
 		this.ACTION_RestartRace = 3;
 
 		this.STATE_NotInRace = 0;
-		this.STATE_Waiting   = 1;
+		this.STATE_Waiting   = 1;	
 		this.STATE_Racing    = 2;
 
 		this.ARROW_AUTO = -1;
@@ -161,6 +165,7 @@ shared class racesManager {
 		this.penaltyGiven = true;
 
 		// register the required callbacks
+		game.registerForEvent(SE_EVENTBOX_ENTER); // This replaces the `raceEvent()` and `raceCancelPointHandler()` callbacks and also provides `truckNum` ~ ohlidalp, 01/2026
 		game.registerForEvent(SE_TRUCK_ENTER);
 		game.registerForEvent(SE_TRUCK_EXIT);
 		game.registerForEvent(SE_TRUCK_RESET);
@@ -175,9 +180,15 @@ shared class racesManager {
 		if (@scriptDetails != null
 			&& ScriptCategory(scriptDetails['scriptCategory']) == SCRIPT_CATEGORY_TERRAIN)
 		{
-			if( game.scriptFunctionExists("void eventCallback(int, int)")<0)
+			if( game.scriptFunctionExists("void eventCallbackEx(scriptEvents ev,  int,int,int,int,  string,string,string,string)")<0)
 			{
-				int res = game.addScriptFunction("void eventCallback(int key, int value) { races.eventCallback(key, value); }");
+				int res = game.addScriptFunction(
+					"""
+					void eventCallbackEx(scriptEvents ev,  int arg1,int arg2,int arg3,int arg4,  string arg5,string arg6,string arg7,string arg8)
+					{
+						races.eventCallback(ev,  arg1,arg2,arg3,arg4,  arg5,arg6,arg7,arg8);
+					}
+					""");
 				if (res < 0)
 				{
 					game.log("Error in racesManager: could not set up `eventCallback(int, int)` (error code:"+res+"), races will not work.");
@@ -932,11 +943,13 @@ shared class racesManager {
 			newBestRace = false;
 	}
 
-	void eventCallback(int eventnum, int value)
+    // Backwards compatible with former `eventCallback(int eventnum, int value)`
+    // see docs at https://developer.rigsofrods.org/d3/d68/namespace_script2_game.html#a366408518753189dc7895f392b6ce8e6 ~ ohlidalp, 01/2016
+	void eventCallback(int eventnum,  int value,int arg2=0,int arg3=0,int arg4=0,  string arg5="",string arg6="",string arg7="",string arg8="")
 	{
-		// debug: game.log("raceManager::eventCallback("+eventnum+", "+value+") called");
+		//debug: game.log("raceManager::eventCallback("+eventnum+",   "+value+", "+arg2+", "+arg3+", "+arg4+",   "+arg5+", "+arg6+", "+arg7+", "+arg8+") called");
 
-		if( this.state != this.STATE_Racing )
+		if( eventnum != SE_EVENTBOX_ENTER && this.state != this.STATE_Racing )
 			return;
 
 		// this never gets called
@@ -979,6 +992,22 @@ shared class racesManager {
 		{
 			this.cancelCurrentRace();
 			this.message("AngelScript injection is not allowed during races! Race aborted.", "stop.png");
+		}
+		else if( eventnum == SE_EVENTBOX_ENTER ) // This replaces the `raceEvent()` and `raceCancelPointHandler()` callbacks and also provides `truckNum` ~ ohlidalp, 01/2026
+		{
+			int trigger_type = value;
+			int truckNum = arg2; // For future reference.
+			int nodeID = arg3;
+			string instName = arg5;
+			string boxName = arg6;
+			if (instName.findFirst('checkpoint') == 0)
+			{
+				this.raceEvent(trigger_type, instName, boxName, nodeID);
+			}
+			else if (instName.findFirst('race_cancel_') == 0)
+			{
+				this.raceCancelPointHandler(trigger_type, instName, boxName, nodeID);
+			}
 		}
 	}
 
@@ -1127,7 +1156,8 @@ shared class racesManager {
 		// dict.set("rotation", vector3(rot));
 		dict.set("callback", @callback);
 		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "raceCancelPointHandler", false);
+		// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot);
 	}
 	void addCancelPoint(int raceID, const string &in objName, const double[] &in v, RACE_EVENT_CALLBACK @callback)
 	{
@@ -1142,7 +1172,8 @@ shared class racesManager {
 		// dict.set("rotation", vector3(rot));
 		dict.set("callback", null);
 		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "raceCancelPointHandler", false);
+		// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot);
 	}
 	void addCancelPoint(int raceID, const string &in objName, const double[] &in v)
 	{
@@ -1473,7 +1504,10 @@ shared class raceBuilder {
 		this.objNames[number].resize(this.chpInstances[number]+1);
 		this.objNames[number][this.chpInstances[number]] = objName;
 		if( not this.hidden )
-			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "raceEvent", false);
+		{
+			// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]));
+		}
 	}
 
 	void deleteCheckpoint(int number)
@@ -1600,7 +1634,8 @@ shared class raceBuilder {
 		{
 			for( int k = 0; k < this.chpInstances[i]; k++ )
 			{
-				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(this.checkpoints[i][k][0], this.checkpoints[i][k][1], this.checkpoints[i][k][2]), vector3(this.checkpoints[i][k][3], this.checkpoints[i][k][4], this.checkpoints[i][k][5]), "raceEvent", false);
+				// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(this.checkpoints[i][k][0], this.checkpoints[i][k][1], this.checkpoints[i][k][2]), vector3(this.checkpoints[i][k][3], this.checkpoints[i][k][4], this.checkpoints[i][k][5]));
 			}
 		}
 	}
