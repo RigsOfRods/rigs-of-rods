@@ -165,7 +165,7 @@ shared class racesManager {
 		game.registerForEvent(SE_TRUCK_EXIT);
 		game.registerForEvent(SE_TRUCK_RESET);
 		game.registerForEvent(SE_TRUCK_TELEPORT);
-        game.registerForEvent(SE_TRUCK_MOUSE_GRAB);
+		game.registerForEvent(SE_TRUCK_MOUSE_GRAB);
 		game.registerForEvent(SE_GENERIC_DELETED_TRUCK);
 		game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
 
@@ -177,7 +177,11 @@ shared class racesManager {
 		{
 			if( game.scriptFunctionExists("void eventCallback(int, int)")<0)
 			{
-				game.addScriptFunction("void eventCallback(int key, int value) { races.eventCallback(key, value); }");
+				int res = game.addScriptFunction("void eventCallback(int key, int value) { races.eventCallback(key, value); }");
+				if (res < 0)
+				{
+					game.log("Error in racesManager: could not set up `eventCallback(int, int)` (error code:"+res+"), races will not work.");
+				}
 			}
 		}
 
