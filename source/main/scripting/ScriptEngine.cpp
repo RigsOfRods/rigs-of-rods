@@ -583,7 +583,7 @@ ScriptRetCode_t ScriptEngine::functionExists(const String& arg, const ScriptUnit
     result = this->validateScriptModule(nid, /*[out]*/ mod);
     if (result == 0)
     {
-        if (mod->GetFunctionByDecl(arg.c_str()) != nullptr)
+        if (mod->GetFunctionByDecl(arg.c_str()) == nullptr)
             result = SCRIPTRETCODE_FUNCTION_NOT_EXISTS;
     }
     return result;
