@@ -99,6 +99,10 @@ namespace RoR
     typedef int RepoFileInstallRequestID_t; //!< Unique sequentially generated ID of a repository item installation request; use `GUI::RepositorySelector::GetNextInstallRequestId()`.
     static const RepoFileInstallRequestID_t REPOFILEINSTALLREQUESTID_INVALID = -1; //!< Invalid ID for repository item installation request.
 
+    typedef int EvHandlerFuncID_t; //!< AngelScript function ID (positive) a constant below.
+    static const EvHandlerFuncID_t EVHANDLERFUNCID_INVALID = -1; //!< Invalid ID, a fallback `defaultEventHandler()` will be used (backwards compatibility).
+    static const EvHandlerFuncID_t EVHANDLERFUNCID_SUPRESS = -2; //!< Invalid ID, no event handler will be invoked (standard scriptEvent `SE_EVENTBOX_ENTER/EXIT` can be used instead).
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;
