@@ -390,6 +390,11 @@ bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitID_t nid, int asFunct
 
 ScriptRetCode_t ScriptEngine::validateScriptModule(ScriptUnitID_t nid, asIScriptModule*& out_mod)
 {
+    if (nid == SCRIPTUNITID_DEFAULT)
+    {
+        nid = m_terrain_script_unit;
+    }
+
     if (!engine)
         return SCRIPTRETCODE_ENGINE_NOT_CREATED;
 
