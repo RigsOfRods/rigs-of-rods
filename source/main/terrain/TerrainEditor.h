@@ -50,7 +50,7 @@ public:
     std::vector<int> static_collision_boxes;
     std::vector<int> static_collision_tris;
     bool enable_collisions = true;
-    int script_handler = -1;
+    EvHandlerFuncID_t script_handler = EVHANDLERFUNCID_INVALID;
     // ~ only for preloaded actors:
     TObjSpecialObject special_object_type = TObjSpecialObject::NONE;
     ActorInstanceID_t actor_instance_id = ACTORINSTANCEID_INVALID;

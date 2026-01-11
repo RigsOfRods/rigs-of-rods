@@ -441,7 +441,7 @@ public:
 	 * @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
 	 * @param pos The position where the object should be spawned
 	 * @param rot The rotation in which the object should be spawned
-	 * @param eventhandler (Optional, default empty string) A name of a function that should be called when an eventbox is triggered (see .ODEF file format). <br> If empty, a function `defaultEventHandler()` is executed instead, see /resources/scripts/base.as. <br>OBSOLETE - Use `SE_EVENTBOX_ENTER` instead - it provides the same info plus ActorID.
+	 * @param eventhandler (Optional, default empty string) A name of a function that should be called when an eventbox is triggered (see .ODEF file format). <br> If empty, a function `defaultEventHandler()` is executed instead, see /resources/scripts/base.as. <br>A special value "!supress" prevents running the fallback handler ~ recommended if you rely on `SE_EVENTBOX_ENTER/EXIT` <br>THIS IS DEPRECATED - Use `SE_EVENTBOX_ENTER` instead - it provides the same info plus ActorID.
 	 * @param uniquifyMaterials (Optional, default false) Set this to true if you need to uniquify the materials
 	 */
 	void spawnObject(const string objectName, const string instanceName, vector3 pos, vector3 rot, const string &in eventhandler = "", bool uniquifyMaterials = false);
