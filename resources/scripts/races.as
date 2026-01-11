@@ -1115,8 +1115,8 @@ shared class racesManager {
 		// dict.set("rotation", vector3(rot));
 		dict.set("callback", @callback);
 		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot);
+		// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "!supress");
 	}
 	void addCancelPoint(int raceID, const string &in objName, const double[] &in v, RACE_EVENT_CALLBACK @callback)
 	{
@@ -1131,8 +1131,8 @@ shared class racesManager {
 		// dict.set("rotation", vector3(rot));
 		dict.set("callback", null);
 		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot);
+		// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "!supress");
 	}
 	void addCancelPoint(int raceID, const string &in objName, const double[] &in v)
 	{
@@ -1464,8 +1464,8 @@ shared class raceBuilder {
 		this.objNames[number][this.chpInstances[number]] = objName;
 		if( not this.hidden )
 		{
-			// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
-			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]));
+			// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "!supress");
 		}
 	}
 
@@ -1593,8 +1593,9 @@ shared class raceBuilder {
 		{
 			for( int k = 0; k < this.chpInstances[i]; k++ )
 			{
-				// Note: Param 'event handler' intentionally omitted - we now use `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
-				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(this.checkpoints[i][k][0], this.checkpoints[i][k][1], this.checkpoints[i][k][2]), vector3(this.checkpoints[i][k][3], this.checkpoints[i][k][4], this.checkpoints[i][k][5]));
+				array<double>@ v = this.checkpoints[i][k];
+				// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "!supress");
 			}
 		}
 	}

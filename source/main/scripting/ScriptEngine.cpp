@@ -470,19 +470,21 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type)
+void ScriptEngine::envokeCallback(EvHandlerFuncID_t functionId, eventsource_t *source, NodeNum_t nodenum, int type)
 {
-    // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
-    // ################
+    // THIS IS DEPRECATED - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
+    // ##################
     // Legacy eventbox handler, specified by name in .TOBJ file or in call to `game.spawnObject()`
     // ===========================================================================================
     if (!engine || !context)
         return;
 
+    if (functionId == EVHANDLERFUNCID_SUPRESS)
+        return;
+
     for (auto& pair: m_script_units)
     {
         ScriptUnitID_t id = pair.first;
-        int functionId = _functionId;
         if (functionId <= 0 && (m_script_units[id].defaultEventCallbackFunctionPtr != nullptr))
         {
             // use the default event handler instead then
