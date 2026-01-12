@@ -184,6 +184,14 @@ public:
     void              clearForcedCinecam();
     bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
     int               getNumCinecams() { return ar_num_cinecams; }
+    float             getEventValue(int eventID, bool pure = false, InputSourceType valueSource = InputSourceType::IST_ANY);
+    bool              getEventBoolValue(int eventID);
+    bool              getEventBoolValueBounce(int eventID, float time = 0.2f);
+    void              clearEventSimulatedValues();
+    bool              hasEventSimulatedValue(int eventID);
+    float             getEventSimulatedValue(int eventID);
+    void              setEventSimulatedValue(int eventID, float value);
+    void              removeEventSimulatedValue(int eventID);
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
@@ -205,8 +213,9 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
-    ActorControlTypeFlags getControlsLinkedToExternalInput() { return ar_controls_linked_to_ext_input; }
-    void              setControlsLinkedToExternalInput(ActorControlTypeFlags linkedControls);
+    bool              isEventAnalog(int eventID);
+    bool              isEventDefined(int eventID);
+    float             getEventBounceTime(int eventID);
     //! @}
 
     /// @name Vehicle lights
@@ -462,7 +471,13 @@ public:
     
     float             ar_posnode_spawn_height = 0.f;
     VehicleAIPtr      ar_vehicle_ai;
-    ActorControlTypeFlags ar_controls_linked_to_ext_input = ACT_ALL_CONTROLS; //!< Bit flags indicating which controls are affected by external inputs (keyboard, controller, etc.)
+
+    // Overrides the input event values from InputEngine with custom values
+    // for this actor.
+    // As soon as an event-value pair is added to this map, values from the
+    // InputEngine are ignored.
+    std::map<int, float> ar_actor_event_simulated_values;
+
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
     float             ar_wheel_speed = 0.f;         //!< Physics state; wheel speed in m/s

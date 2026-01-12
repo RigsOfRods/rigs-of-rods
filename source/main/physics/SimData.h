@@ -969,19 +969,4 @@ enum ActorSimAttr
 };
 const char* ActorSimAttrToString(ActorSimAttr attr);
 
-// Types of controls for an actor.
-// Also used as flags for Actor::(get/set)ControlsLinkedToExternalInput.
-enum ActorControlTypeFlags : int
-{
-    ACT_NO_CONTROLS         = 0,
-    ACT_THROTTLE            = BITMASK(1),
-    ACT_CLUTCH              = BITMASK(2),
-    ACT_BRAKE               = BITMASK(3),
-    ACT_STEERING            = BITMASK(4),
-    ACT_AILERON             = BITMASK(5),
-    ACT_ELEVATOR            = BITMASK(6),
-    ACT_RUDDER              = BITMASK(7),
-    ACT_ALL_CONTROLS        = BITMASK(8) - 1
-};
-
 } // namespace RoR

@@ -1259,44 +1259,37 @@ float Engine::getPrimeMixture()
 
 void Engine::UpdateInputEvents(float dt)
 {
-    float accl = App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
-    float brake = App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
+    float accl = m_actor->getEventValue(EV_TRUCK_ACCELERATE);
+    float brake = m_actor->getEventValue(EV_TRUCK_BRAKE);
 
-    ActorControlTypeFlags linked_controls = m_actor->ar_controls_linked_to_ext_input;
-    if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
+    if (m_actor->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
+        m_actor->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
     {
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
-            App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+        float acclModifier = 0.0f;
+        if (m_actor->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
         {
-            float acclModifier = 0.0f;
-            if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
-            {
-                acclModifier += 0.25f;
-            }
-            if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
-            {
-                acclModifier += 0.50f;
-            }
-            accl *= acclModifier;
+            acclModifier += 0.25f;
         }
+        if (m_actor->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+        {
+            acclModifier += 0.50f;
+        }
+        accl *= acclModifier;
     }
 
-    if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
+    if (m_actor->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25) ||
+        m_actor->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
     {
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25) ||
-            App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+        float brakeModifier = 0.0f;
+        if (m_actor->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
         {
-            float brakeModifier = 0.0f;
-            if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
-            {
-                brakeModifier += 0.25f;
-            }
-            if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
-            {
-                brakeModifier += 0.50f;
-            }
-            brake *= brakeModifier;
+            brakeModifier += 0.25f;
         }
+        if (m_actor->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+        {
+            brakeModifier += 0.50f;
+        }
+        brake *= brakeModifier;
     }
 
     
@@ -1304,10 +1297,8 @@ void Engine::UpdateInputEvents(float dt)
     if (!App::io_arcade_controls->getBool() || (this->getAutoMode() >= SimGearboxMode::MANUAL))
     {
         // classic mode, realistic
-        if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
-            this->autoSetAcc(accl);
-        if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
-            m_actor->ar_brake = brake;
+        this->autoSetAcc(accl);
+        m_actor->ar_brake = brake;
     }
     else
     {
@@ -1321,18 +1312,14 @@ void Engine::UpdateInputEvents(float dt)
         if (this->getGear() >= 0)
         {
             // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
-            if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
-                this->autoSetAcc(accl);
-            if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
-                m_actor->ar_brake = brake;
+            this->autoSetAcc(accl);
+            m_actor->ar_brake = brake;
         }
         else
         {
             // reverse gear, reverse controls: brake is accel. and accel. is brake.
-            if (BITMASK_IS_1(linked_controls, ACT_THROTTLE))
-                this->autoSetAcc(brake);
-            if (BITMASK_IS_1(linked_controls, ACT_BRAKE))
-                m_actor->ar_brake = accl;
+            this->autoSetAcc(brake);
+            m_actor->ar_brake = accl;
         }
 
         // only when the truck really is not moving anymore
@@ -1372,22 +1359,22 @@ void Engine::UpdateInputEvents(float dt)
     // gear management
     if (this->getAutoMode() == SimGearboxMode::AUTO)
     {
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
+        if (m_actor->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
         {
             this->autoShiftUp();
         }
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_DOWN))
+        if (m_actor->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_DOWN))
         {
             this->autoShiftDown();
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT))
+    if (m_actor->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT))
     {
         this->toggleContact();
     }
 
-    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->hasContact() && !this->isRunning())
+    if (m_actor->getEventBoolValue(EV_TRUCK_STARTER) && this->hasContact() && !this->isRunning())
     {
         m_starter = true;
         if (!m_engine_is_electric)
@@ -1399,7 +1386,7 @@ void Engine::UpdateInputEvents(float dt)
         SOUND_STOP(m_actor, SS_TRIG_STARTER);
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SWITCH_SHIFT_MODES))
+    if (m_actor->getEventBoolValueBounce(EV_TRUCK_SWITCH_SHIFT_MODES))
     {
         // toggle Auto shift
         this->toggleAutoMode();
@@ -1411,37 +1398,34 @@ void Engine::UpdateInputEvents(float dt)
             ToLocalizedString(this->getAutoMode()), "cog.png");
     }
 
-    if (BITMASK_IS_1(linked_controls, ACT_CLUTCH))
+    // joy clutch
+    float clutch = m_actor->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
+    if (m_actor->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25) ||
+        m_actor->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
     {
-        // joy clutch
-        float clutch = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
-        if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25) ||
-            App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
+        float clutchModifier = 0.0f;
+        if (m_actor->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25))
         {
-            float clutchModifier = 0.0f;
-            if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25))
-            {
-                clutchModifier += 0.25f;
-            }
-            if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
-            {
-                clutchModifier += 0.50f;
-            }
-            clutch *= clutchModifier;
+            clutchModifier += 0.25f;
         }
-        this->setManualClutch(clutch);
+        if (m_actor->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
+        {
+            clutchModifier += 0.50f;
+        }
+        clutch *= clutchModifier;
     }
+    this->setManualClutch(clutch);
 
 
     SimGearboxMode shiftmode = this->getAutoMode();
 
     if (shiftmode <= SimGearboxMode::MANUAL) // auto, semi auto and sequential shifting
     {
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
+        if (m_actor->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
         {
             this->shift(1);
         }
-        else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
+        else if (m_actor->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
         {
             if (shiftmode > SimGearboxMode::SEMI_AUTO ||
                 shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->getBool()) ||
@@ -1453,11 +1437,11 @@ void Engine::UpdateInputEvents(float dt)
         }
         else if (shiftmode != SimGearboxMode::AUTO)
         {
-            if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
+            if (m_actor->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
             {
                 this->shiftTo(0);
             }
-            else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
+            else if (m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
             {
                 this->shiftTo(-1);
             }
@@ -1465,7 +1449,7 @@ void Engine::UpdateInputEvents(float dt)
             {
                 for (int i = 1; i < 19; i++)
                 {
-                    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
+                    if (m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
                     {
                         this->shiftTo(i);
                     }
@@ -1484,22 +1468,22 @@ void Engine::UpdateInputEvents(float dt)
         // one can select range only if in neutral
         if (shiftmode == SimGearboxMode::MANUAL_RANGES && curgear == 0)
         {
-            if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
+            if (m_actor->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
             {
                 this->setGearRange(0);
                 gear_changed = true;
             }
-            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && this->getNumGearsRanges() > 1)
+            else if (m_actor->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && this->getNumGearsRanges() > 1)
             {
                 this->setGearRange(1);
                 gear_changed = true;
             }
-            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && this->getNumGearsRanges() > 2)
+            else if (m_actor->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && this->getNumGearsRanges() > 2)
             {
                 this->setGearRange(2);
                 gear_changed = true;
             }
-            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CYCLE_GEAR_RANGES))
+            else if (m_actor->getEventBoolValueBounce(EV_TRUCK_CYCLE_GEAR_RANGES))
             {
                 this->setGearRange((curgearrange + 1) % this->getNumGearsRanges());
                 gear_changed = true;
@@ -1529,21 +1513,21 @@ void Engine::UpdateInputEvents(float dt)
         //zaxxon
         if (curgear == -1)
         {
-            gear_changed = !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE);
+            gear_changed = !m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE);
         }
         else if (curgear > 0 && curgear < 19)
         {
-            gear_changed = !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
+            gear_changed = !m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
         }
 
         if (gear_changed || curgear == 0)
         {
-            if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
+            if (m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
             {
                 this->shiftTo(-1);
                 found = true;
             }
-            else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_NEUTRAL))
+            else if (m_actor->getEventBoolValue(EV_TRUCK_SHIFT_NEUTRAL))
             {
                 this->shiftTo(0);
                 found = true;
@@ -1554,7 +1538,7 @@ void Engine::UpdateInputEvents(float dt)
                 {
                     for (int i = 1; i < 19 && !found; i++)
                     {
-                        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
+                        if (m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
                         {
                             this->shiftTo(i);
                             found = true;
@@ -1565,7 +1549,7 @@ void Engine::UpdateInputEvents(float dt)
                 {
                     for (int i = 1; i < 7 && !found; i++)
                     {
-                        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
+                        if (m_actor->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
                         {
                             this->shiftTo(i + curgearrange * 6);
                             found = true;
