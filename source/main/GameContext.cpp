@@ -187,6 +187,26 @@ void GameContext::UnloadTerrain()
     }
 }
 
+bool GameContext::LoadRace(std::string const& filename_part)
+{
+    // Find terrain in modcache
+    CacheEntryPtr race_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Race, /*partial=*/true, filename_part);
+    if (!race_entry)
+    {
+        Str<200> msg; msg << _L("Race not found: ") << filename_part;
+        RoR::Log(msg.ToCStr());
+        return false;
+    }
+
+    // Init resources
+    App::GetCacheSystem()->LoadResource(race_entry);
+
+    // Request race system to load the race
+    TRIGGER_EVENT_ASYNC(SE_GENERIC_GAMESTATE_NOTIFICATION,
+        GAMESTATE_RACE_LOAD_REQUESTED, 0, 0, 0, race_entry->fname, race_entry->resource_group);
+    return true;
+}
+
 // --------------------------------
 // Actors (physics and netcode)
 
