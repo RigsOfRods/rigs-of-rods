@@ -33,6 +33,7 @@ raceBuilder::raceBuilderVersion)
 */
 
 #include "genericdoc_utils.as"
+#include "road_utils.as"
 
 /*
 Following are dev notes from 2023's mission system project.
@@ -75,7 +76,7 @@ shared class racesManager {
 	bool showTimeDiff      = true;  // if true: Show + or - <best time minus current time> when passing a checkpoint.
 	bool showBestLap       = true;  // if true: If a race is started or a new best lap is set, the best lap will be shown
 	bool showBestRace      = true;  // if true: If a race is started or a new best race is set, the best race will be shown
-	bool submitScore       = true; // if true: If the user has a new best lap or new best race, this is submitted to the master server.
+	bool submitScore       = true;  // if true: If the user has a new best lap or new best race, this is submitted to the master server.
 	bool silentMode        = false; // if true: No messages will be shown
 	bool allowVehicleChanging = false; // if false: if the user changes vehicle, the race will be aborted.
 	bool abortOnVehicleExit = false;  // if true: if the user exits his vehicle, the race will be aborted
@@ -119,7 +120,7 @@ shared class racesManager {
 	array<raceBuilder@> raceList;
 	dictionary callbacks;
 	LocalStorageClass@ raceDataFile;
-	array<int> penaltyTime;	
+	array<int> penaltyTime;
 
 // public functions
 
@@ -148,6 +149,7 @@ shared class racesManager {
 		game.registerForEvent(SE_TRUCK_MOUSE_GRAB);
 		game.registerForEvent(SE_GENERIC_DELETED_TRUCK);
 		game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
+		game.registerForEvent(SE_GENERIC_GAMESTATE_NOTIFICATION);
 
 		// add the eventcallback method if it doesn't exist
 		// ^ but only if loaded from terrain script, not i.e. terrain_project_importer
@@ -189,6 +191,7 @@ shared class racesManager {
 
 		GenericDocContextClass@ ctx = GenericDocContextClass(doc);
 		bool inCheckpoints = false;
+		bool inProceduralRoad = false;
 		array<uint> checkpointTokPositions; // We must pre-count checkpoints to pick finish-obj correctly.
 		int highestCheckpointNum = 0; // Multiple finish lines are supported!
 		while (!ctx.endOfFile())
@@ -224,6 +227,22 @@ shared class racesManager {
 				else if (ctx.getTokKeyword() == "end_checkpoints")
 				{
 					inCheckpoints = false;
+				}
+				else if (ctx.getTokKeyword() == "begin_procedural_roads")
+				{
+					inProceduralRoad = true;
+				}
+				else if (ctx.getTokKeyword() == "end_procedural_roads")
+				{
+					inProceduralRoad = false;
+				}
+			}
+			else if (inProceduralRoad)
+			{
+				ProceduralObjectClass@ road = road_utils::ParseProceduralRoadFromFile(ctx);
+				if (@road != null) // Errors already logged
+				{
+					this.raceList[raceID].proceduralRoads.insertLast(road);
 				}
 			}
 			else if (inCheckpoints)
@@ -281,6 +300,9 @@ shared class racesManager {
 			const double[] v = { ctx.getTokFloat(2), ctx.getTokFloat(3), ctx.getTokFloat(4), ctx.getTokFloat(5), ctx.getTokFloat(6), ctx.getTokFloat(7) };
 			this.raceList[raceID].addCheckpoint(ctx.getTokInt(0)-1, objName, v);
 		}
+
+		// Build procedural roads
+		this.raceList[raceID].buildProceduralRoads();
 
 		return highestCheckpointNum;
 	}
@@ -839,6 +861,7 @@ shared class racesManager {
 	{
 		this.raceList[raceID].bestLapTime = time;
 	}
+
 	void setBestRaceTime(int raceID, double time)
 	{
 		this.raceList[raceID].bestRaceTime = time;
@@ -923,11 +946,20 @@ shared class racesManager {
 	void eventCallback(int eventnum,  int value,int arg2=0,int arg3=0,int arg4=0,  string arg5="",string arg6="",string arg7="",string arg8="")
 	{
 		//debug: game.log("raceManager::eventCallback("+eventnum+",   "+value+", "+arg2+", "+arg3+", "+arg4+",   "+arg5+", "+arg6+", "+arg7+", "+arg8+") called");
-
 		if( eventnum != SE_EVENTBOX_ENTER && this.state != this.STATE_Racing )
+		{
+			if( eventnum == SE_GENERIC_GAMESTATE_NOTIFICATION && value == GAMESTATE_RACE_LOAD_REQUESTED )
+			{
+				game.log("[Race system] Loading mission '" + arg5 + "'");
+				this.addRaceFromDefinitionFile(arg5, arg6);
+			}
+			else if( eventnum == SE_GENERIC_GAMESTATE_NOTIFICATION && value == GAMESTATE_RACE_UNLOAD_REQUESTED )
+			{
+				this.deleteRace(arg2);
+			}
 			return;
+		}
 
-		// this never gets called
 		if( eventnum == SE_TRUCK_EXIT )
 		{
 			if( this.abortOnVehicleExit )
@@ -1286,6 +1318,7 @@ shared class raceBuilder {
 	string raceName;
 	double[][][] checkpoints;
 	array<array<string>> objNames;
+	array<ProceduralObjectClass@> proceduralRoads;
 	int checkPointsCount;
 	int id;
 	double bestLapTime;
@@ -1661,6 +1694,16 @@ shared class raceBuilder {
 			p2 = tmp.findFirst(";", p1+1);
 			bestTimeTillPoint[i] = parseFloat(tmp.substr(p1+1, p2-p1-1));
 			p1 = p2;
+		}
+	}
+	
+	void buildProceduralRoads()
+	{
+		TerrainClass@ terrain = game.getTerrain();
+		ProceduralManagerClass@ roadManager = terrain.getProceduralManager();
+		for (uint i = 0; i < this.proceduralRoads.length(); i++)
+		{
+			roadManager.addObject(this.proceduralRoads[i]);
 		}
 	}
 }

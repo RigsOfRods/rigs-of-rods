@@ -66,6 +66,7 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MODCACHE_ACTIVITY", SE_GENERIC_MODCACHE_ACTIVITY); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_TRUCK_LINKING_CHANGED", SE_GENERIC_TRUCK_LINKING_CHANGED); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_FREEFORCES_ACTIVITY", SE_GENERIC_FREEFORCES_ACTIVITY); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_GAMESTATE_NOTIFICATION", SE_GENERIC_GAMESTATE_NOTIFICATION); ROR_ASSERT(result >= 0);
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_ALL_EVENTS", SE_ALL_EVENTS); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_NO_EVENTS", SE_NO_EVENTS); ROR_ASSERT(result>=0);
@@ -78,6 +79,13 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_LOAD_FAILED", ASMANIP_SCRIPT_LOAD_FAILED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_UNLOADING", ASMANIP_SCRIPT_UNLOADING); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_ACTORSIMATTR_SET", ASMANIP_ACTORSIMATTR_SET); ROR_ASSERT(result >= 0);
+
+    // enum genericGamestateNotificationType
+    result = engine->RegisterEnum("genericGamestateNotificationType"); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterEnumValue("genericGamestateNotificationType", "GAMESTATE_NOTIFICATION_NONE", GAMESTATE_NOTIFICATION_NONE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("genericGamestateNotificationType", "GAMESTATE_RACE_LOAD_REQUESTED", GAMESTATE_RACE_LOAD_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("genericGamestateNotificationType", "GAMESTATE_RACE_UNLOAD_REQUESTED", GAMESTATE_RACE_UNLOAD_REQUESTED); ROR_ASSERT(result >= 0);
 
     // enum angelScriptThreadStatus
     result = engine->RegisterEnum("angelScriptThreadStatus"); ROR_ASSERT(result>=0);
