@@ -158,6 +158,7 @@ CVar* diag_terrn_log_roads;
 CVar* diag_actor_dump;
 CVar* diag_allow_window_resize;
 CVar* diag_use_mygui_logfile;
+CVar* diag_load_devel_scripts;
 
 // System
 CVar* sys_process_dir;
