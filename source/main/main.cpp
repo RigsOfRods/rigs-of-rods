@@ -1334,7 +1334,7 @@ int main(int argc, char *argv[])
                     ScriptCallbackArgs* args = static_cast<ScriptCallbackArgs*>(m.payload);
                     try
                     {
-                        App::GetScriptEngine()->envokeCallback(args->eventsource->es_script_handler, args->eventsource, args->node);
+                        App::GetScriptEngine()->envokeCallback(args->eventsource->es_script_handler, args->eventsource, args->node, 0, args->actorID);
                     }
                     catch (...) 
                     {

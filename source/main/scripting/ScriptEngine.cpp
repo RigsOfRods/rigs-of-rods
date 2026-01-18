@@ -465,7 +465,7 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type)
+void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type, int actorID)
 {
     // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
     // ################
@@ -494,6 +494,14 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNu
                 context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(nodenum));
             else
                 context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(-1));
+
+            if (this->engine->GetFunctionById(functionId)->GetParamCount() > 4)
+            {
+                if (actorID != ACTORINSTANCEID_INVALID)
+                    context->SetArgDWord (4, static_cast<AngelScript::asDWORD>(actorID));
+                else
+                    context->SetArgDWord (4, static_cast<AngelScript::asDWORD>(-1));
+            }
 
             this->executeContextAndHandleErrors(id);
         }
