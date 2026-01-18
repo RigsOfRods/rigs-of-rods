@@ -33,15 +33,36 @@ raceBuilder::raceBuilderVersion)
 */
 
 #include "genericdoc_utils.as"
+#include "road_utils.as"
+
+/*
+Following are dev notes from 2023's mission system project.
+This involved thorough study of the existing logic, as original devs are no longer on the project.
+
+Terminology:
+- Instance name = unique label assigned to whole object in .TOBJ file or `game.spawnObject()` call.
+- Box name = desired operation type specified as `event <boxname> [<filter>]` for each box in .ODEF file.
+
+Instance name schemes = their meaning:
+- "checkpoint|$RaceID|$ChpNumber|$SplitTrailNumber"   = Start/Checkpoint/Finish. Use `races.addCheckpoint()` to create.
+- "race_abort|$RaceID(-1 = any race)|$ChpNumber(??)"  = Abort point (box name must be 'race_abort'). Cannot be added via `races` :(
+- "race_cancel|$RaceID(-1 = any race)|$UniqueNum"     = Abort point (box name doesn't matter). Use `races.addCancelPoint()` to create.
+- "race_penalty|$RaceID(-1 = any race)|$ChpNumber(??) = Time penalization. Cannot be added via `races` :(
+
+*/
 
 // Define a function signature for the callback pointers
 funcdef void RACE_EVENT_CALLBACK(dictionary@);
 
 // called when a vehicle is in a checkpoint
+// Backwards compatibility only - internally we use `SE_EVENTBOX_ENTER` which also provides `truckNum`
+//  However, existing mods may be using `game.spawnObject()` with "raceEvent" as argument ~ ohlidalp, 01/2026
 void raceEvent(int trigger_type, string inst, string box, int nodeid) {
 	races.raceEvent(trigger_type, inst, box, nodeid);
 }
 
+// Backwards compatibility only - internally we use `SE_EVENTBOX_ENTER` which also provides `truckNum`
+//  However, existing mods may be using `game.spawnObject()` with "raceCancelPointHandler" as argument ~ ohlidalp, 01/2026
 void raceCancelPointHandler(int trigger_type, string inst, string box, int nodeid) {
 	races.raceCancelPointHandler(trigger_type, inst, box, nodeid);
 }
@@ -50,80 +71,65 @@ void raceCancelPointHandler(int trigger_type, string inst, string box, int nodei
 // this class shouldn't be edited!
 // marked 'shared' so that other scripts can access the race data using `game.getScriptVariable()`
 shared class racesManager {
-// public properties
-	int raceCount;
-	int currentRace;
-	int currentLap;
-	int truckNum;
-	int lastCheckpoint;
-	bool obligatedFinish;
-	bool showTimeDiff;
-	bool showBestLap;
-	bool showBestRace;
-	bool submitScore;
-	bool showCheckPointInfoWhenNotInRace;
-	bool silentMode;
-	bool allowVehicleChanging;
-	bool abortOnVehicleExit;
-	bool restartRaceOnStart;
-	bool penaltyGiven;
-	int actionOnTruckExit;
-	int state;
-	int cancelPointCount;
-	double raceStartTime;
-	double lapStartTime;
-	string lastCheckpointInstance;
-	string lastRaceEventInstance;
-	double lastRaceEventTime;
-	string raceManagerVersion;
-	int arrowMethod;
-	LocalStorageClass@ raceDataFile;
-	array<int> penaltyTime;
+	// initialize the default settings
+	bool obligatedFinish   = false; // if true: if you drive through the start checkpoint of another race, while racing, it will be ignored
+	bool showTimeDiff      = true;  // if true: Show + or - <best time minus current time> when passing a checkpoint.
+	bool showBestLap       = true;  // if true: If a race is started or a new best lap is set, the best lap will be shown
+	bool showBestRace      = true;  // if true: If a race is started or a new best race is set, the best race will be shown
+	bool submitScore       = true;  // if true: If the user has a new best lap or new best race, this is submitted to the master server.
+	bool silentMode        = false; // if true: No messages will be shown
+	bool allowVehicleChanging = false; // if false: if the user changes vehicle, the race will be aborted.
+	bool abortOnVehicleExit = false;  // if true: if the user exits his vehicle, the race will be aborted
+	bool showCheckPointInfoWhenNotInRace = false; // if true: if the user drives through a checkpoint of a race that isn't running, a message will be shown, saying "this is checkpoint xx of race myRaceName"
+	int arrowMethod       = this.ARROW_AUTO;
+	bool restartRaceOnStart = true; // if true: the race will be restarted when you pass the start line of the same race
+
+	// we initialize the other variables (do not edit these manually)
+	int state           = this.STATE_NotInRace;
+	int raceCount       = 0;
+	int currentRace     = -1;
+	int currentLap      = -1;
+	int lastCheckpoint  = -1;
+	double raceStartTime   = 0.0;
+	double lapStartTime    = 0.0;
+	int cancelPointCount = 0;
+	string lastCheckpointInstance = "";
+	string lastRaceEventInstance = ""; // we only use this to boost the FPS
+	string raceManagerVersion = "RoR_raceManager_v0.02";
+	bool penaltyGiven = true;
+	int actionOnTruckExit = ACTION_DoNothing;
 
 // public constants
-	int LAPS_Unlimited;
-	int LAPS_NoLaps;
-	int LAPS_One;
+	int LAPS_Unlimited = -1; // Race is an endless circuit
+	int LAPS_NoLaps = 0; // Race is not a circuit
+	int LAPS_One = 1; // Race is a circuit with one lap (any positive value can be used)
 
-	int ACTION_DoNothing;
-	int ACTION_SuspendRace;
-	int ACTION_StopRace;
-	int ACTION_RestartRace;
+	int ACTION_DoNothing   = 0;
+	int ACTION_SuspendRace = 1;
+	int ACTION_StopRace    = 2;
+	int ACTION_RestartRace = 3;
 
-	int STATE_NotInRace;
-	int STATE_Waiting;
-	int STATE_Racing;
+	int STATE_NotInRace = 0;
+	int STATE_Waiting   = 1;
+	int STATE_Racing    = 2;
 
-	int ARROW_AUTO;
+	int ARROW_AUTO = -1;
 
 // private properties
+	int truckNum = -1;
 	array<raceBuilder@> raceList;
 	dictionary callbacks;
+	LocalStorageClass@ raceDataFile;
+	array<int> penaltyTime;
 
 // public functions
 
 	// constructor
 	racesManager() {
 
-		// We initialize our "constants"
-		this.LAPS_Unlimited = -1;
-		this.LAPS_NoLaps = 0;
-		this.LAPS_One = 1;
-
-		this.ACTION_DoNothing   = 0;
-		this.ACTION_SuspendRace = 1;
-		this.ACTION_StopRace    = 2;
-		this.ACTION_RestartRace = 3;
-
-		this.STATE_NotInRace = 0;
-		this.STATE_Waiting   = 1;
-		this.STATE_Racing    = 2;
-
-		this.ARROW_AUTO = -1;
-
 		// we initialize the callbacks dictionary
 		this.callbacks.set("RaceFinish", null); // when a race was finished
-		this.callbacks.set("RaceCancel", null); // when a race was canceled
+		this.callbacks.set("RaceCancel", null); // when a race was canceled by any means (race_abort box or forbidden user action)
 		this.callbacks.set("RaceStart",  null); // when a race starts
 		this.callbacks.set("AdvanceLap", null); // when a lap is done, but not when the race is done
 		this.callbacks.set("Checkpoint", null); // when a checkpoint is taken (excluding start and finish)
@@ -134,40 +140,16 @@ shared class racesManager {
 		this.callbacks.set("PenaltyEvent", null); // When the user gets in a race_penalty box, handled by the raceEvent method
 		this.callbacks.set("AbortEvent", null); // When the user gets in a race_abort box, handled by the raceEvent method
 
-		// initialize the default settings
-		this.obligatedFinish   = false; // if true: if you drive through the start checkpoint of another race, while racing, it will be ignored
-		this.showTimeDiff      = true;  // if true: Show + or - <best time minus current time> when passing a checkpoint.
-		this.showBestLap       = true;  // if true: If a race is started or a new best lap is set, the best lap will be shown
-		this.showBestRace      = true;  // if true: If a race is started or a new best race is set, the best race will be shown
-		this.submitScore       = true; // if true: If the user has a new best lap or new best race, this is submitted to the master server.
-		this.silentMode        = false; // if true: No messages will be shown
-		this.allowVehicleChanging = false; // if false: if the user changes vehicle, the race will be aborted.
-		this.abortOnVehicleExit = false;  // if true: if the user exits his vehicle, the race will be aborted
-		this.showCheckPointInfoWhenNotInRace = false; // if true: if the user drives through a checkpoint of a race that isn't running, a message will be shown, saying "this is checkpoint xx of race myRaceName"
-		this.arrowMethod       = this.ARROW_AUTO;
-		this.restartRaceOnStart = true; // if true: the race will be restarted when you pass the start line of the same race
-
-		// we initialize the other variables (do not edit these manually)
-		this.state           = this.STATE_NotInRace;
-		this.raceCount       = 0;
-		this.currentRace     = -1;
-		this.lastCheckpoint  = -1;
-		this.raceStartTime   = 0.0;
-		this.lapStartTime    = 0.0;
-		this.cancelPointCount= 0;
-		this.lastCheckpointInstance = "";
-		this.lastRaceEventInstance = ""; // we only use this to boost the FPS
-		this.raceManagerVersion = "RoR_raceManager_v0.02";
-		this.penaltyGiven = true;
-
 		// register the required callbacks
+		game.registerForEvent(SE_EVENTBOX_ENTER); // This replaces the `raceEvent()` and `raceCancelPointHandler()` callbacks and also provides `truckNum` ~ ohlidalp, 01/2026
 		game.registerForEvent(SE_TRUCK_ENTER);
 		game.registerForEvent(SE_TRUCK_EXIT);
 		game.registerForEvent(SE_TRUCK_RESET);
 		game.registerForEvent(SE_TRUCK_TELEPORT);
-        game.registerForEvent(SE_TRUCK_MOUSE_GRAB);
+		game.registerForEvent(SE_TRUCK_MOUSE_GRAB);
 		game.registerForEvent(SE_GENERIC_DELETED_TRUCK);
 		game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
+		game.registerForEvent(SE_GENERIC_GAMESTATE_NOTIFICATION);
 
 		// add the eventcallback method if it doesn't exist
 		// ^ but only if loaded from terrain script, not i.e. terrain_project_importer
@@ -175,9 +157,19 @@ shared class racesManager {
 		if (@scriptDetails != null
 			&& ScriptCategory(scriptDetails['scriptCategory']) == SCRIPT_CATEGORY_TERRAIN)
 		{
-			if( game.scriptFunctionExists("void eventCallback(int, int)")<0)
+			if( game.scriptFunctionExists("void eventCallbackEx(scriptEvents ev,  int,int,int,int,  string,string,string,string)")<0)
 			{
-				game.addScriptFunction("void eventCallback(int key, int value) { races.eventCallback(key, value); }");
+				int res = game.addScriptFunction(
+					"""
+					void eventCallbackEx(scriptEvents ev,  int arg1,int arg2,int arg3,int arg4,  string arg5,string arg6,string arg7,string arg8)
+					{
+						races.eventCallback(ev,  arg1,arg2,arg3,arg4,  arg5,arg6,arg7,arg8);
+					}
+					""");
+				if (res < 0)
+				{
+					game.log("Error in racesManager: could not set up `eventCallback(int, int)` (error code:"+res+"), races will not work.");
+				}
 			}
 		}
 
@@ -199,6 +191,7 @@ shared class racesManager {
 
 		GenericDocContextClass@ ctx = GenericDocContextClass(doc);
 		bool inCheckpoints = false;
+		bool inProceduralRoad = false;
 		array<uint> checkpointTokPositions; // We must pre-count checkpoints to pick finish-obj correctly.
 		int highestCheckpointNum = 0; // Multiple finish lines are supported!
 		while (!ctx.endOfFile())
@@ -234,6 +227,22 @@ shared class racesManager {
 				else if (ctx.getTokKeyword() == "end_checkpoints")
 				{
 					inCheckpoints = false;
+				}
+				else if (ctx.getTokKeyword() == "begin_procedural_roads")
+				{
+					inProceduralRoad = true;
+				}
+				else if (ctx.getTokKeyword() == "end_procedural_roads")
+				{
+					inProceduralRoad = false;
+				}
+			}
+			else if (inProceduralRoad)
+			{
+				ProceduralObjectClass@ road = road_utils::ParseProceduralRoadFromFile(ctx);
+				if (@road != null) // Errors already logged
+				{
+					this.raceList[raceID].proceduralRoads.insertLast(road);
 				}
 			}
 			else if (inCheckpoints)
@@ -291,6 +300,9 @@ shared class racesManager {
 			const double[] v = { ctx.getTokFloat(2), ctx.getTokFloat(3), ctx.getTokFloat(4), ctx.getTokFloat(5), ctx.getTokFloat(6), ctx.getTokFloat(7) };
 			this.raceList[raceID].addCheckpoint(ctx.getTokInt(0)-1, objName, v);
 		}
+
+		// Build procedural roads
+		this.raceList[raceID].buildProceduralRoads();
 
 		return highestCheckpointNum;
 	}
@@ -849,6 +861,7 @@ shared class racesManager {
 	{
 		this.raceList[raceID].bestLapTime = time;
 	}
+
 	void setBestRaceTime(int raceID, double time)
 	{
 		this.raceList[raceID].bestRaceTime = time;
@@ -928,14 +941,25 @@ shared class racesManager {
 			newBestRace = false;
 	}
 
-	void eventCallback(int eventnum, int value)
+	// Backwards compatible with former `eventCallback(int eventnum, int value)`
+	// see docs at https://developer.rigsofrods.org/d3/d68/namespace_script2_game.html#a366408518753189dc7895f392b6ce8e6 ~ ohlidalp, 01/2016
+	void eventCallback(int eventnum,  int value,int arg2=0,int arg3=0,int arg4=0,  string arg5="",string arg6="",string arg7="",string arg8="")
 	{
-		// debug: game.log("raceManager::eventCallback("+eventnum+", "+value+") called");
-
-		if( this.state != this.STATE_Racing )
+		//debug: game.log("raceManager::eventCallback("+eventnum+",   "+value+", "+arg2+", "+arg3+", "+arg4+",   "+arg5+", "+arg6+", "+arg7+", "+arg8+") called");
+		if( eventnum != SE_EVENTBOX_ENTER && this.state != this.STATE_Racing )
+		{
+			if( eventnum == SE_GENERIC_GAMESTATE_NOTIFICATION && value == GAMESTATE_RACE_LOAD_REQUESTED )
+			{
+				game.log("[Race system] Loading mission '" + arg5 + "'");
+				this.addRaceFromDefinitionFile(arg5, arg6);
+			}
+			else if( eventnum == SE_GENERIC_GAMESTATE_NOTIFICATION && value == GAMESTATE_RACE_UNLOAD_REQUESTED )
+			{
+				this.deleteRace(arg2);
+			}
 			return;
+		}
 
-		// this never gets called
 		if( eventnum == SE_TRUCK_EXIT )
 		{
 			if( this.abortOnVehicleExit )
@@ -975,6 +999,26 @@ shared class racesManager {
 		{
 			this.cancelCurrentRace();
 			this.message("AngelScript injection is not allowed during races! Race aborted.", "stop.png");
+		}
+		else if( eventnum == SE_EVENTBOX_ENTER ) // This replaces the `raceEvent()` and `raceCancelPointHandler()` callbacks and also provides `truckNum` ~ ohlidalp, 01/2026
+		{
+			int trigger_type = value;
+			int truckNum = arg2; // For future reference.
+			int nodeID = arg3;
+			string instName = arg5;
+			string boxName = arg6;
+			if (instName.findFirst('checkpoint') == 0)
+			{
+				this.raceEvent(trigger_type, instName, boxName, nodeID);
+			}
+			else if (instName.findFirst('race_cancel_') == 0)
+			{
+				// We've hit an event box added via `races.addCancelPoint()`.
+				// It works exactly like a "race_abort" event box, except the box name (specified as `event` in .ODEF file) can be anything.
+				// This is required for backwards compatibility with older terrains.
+				// (For example: Auriga Proving Grounds uses event box named "checkpoint", see '31-trigger10x10.odef').
+				this.raceCancelPointHandler(trigger_type, instName, "race_abort", nodeID);
+			}
 		}
 	}
 
@@ -1111,69 +1155,34 @@ shared class racesManager {
 		this.raceList[raceID].deleteCheckpoint(number, instance);
 	}
 
-	// if the user comes in this event box, the current race will be cancelled
-	// example usage: if the users drives off the track
-	// (race will be stopped)
-	void addCancelPoint(int raceID, const string &in objName, const vector3 &in pos, const vector3 &in rot, RACE_EVENT_CALLBACK @callback)
+	// if the user comes in this event box, the current race will be cancelled.
+	// The `raceID` parameter can be -1 to abort any race or an existing raceID to abort only that.
+	// The optional callback parameter will be set as "AbortEvent" callback.
+	void addCancelPoint(int raceID, const string &in objName, const vector3 &in pos, const vector3 &in rot, RACE_EVENT_CALLBACK @callback = null)
 	{
-		dictionary dict;
-		dict.set("raceID", raceID);
-		dict.set("oname", ""+objName);
-		// dict.set("position", vector3(pos));
-		// dict.set("rotation", vector3(rot));
-		dict.set("callback", @callback);
-		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "raceCancelPointHandler", false);
+		if (@callback != null)
+			this.setCallback("AbortEvent", callback);
+
+		// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2026
+		game.spawnObject(objName, "race_cancel|"+raceID+"|-1|"+cancelPointCount++, pos, rot, "!supress");
+
 	}
-	void addCancelPoint(int raceID, const string &in objName, const double[] &in v, RACE_EVENT_CALLBACK @callback)
+
+	// Convenience overload with pos+rot specified as double[]
+	void addCancelPoint(int raceID, const string &in objName, const double[] &in v, RACE_EVENT_CALLBACK @callback = null)
 	{
 		addCancelPoint(raceID, objName, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), @callback);
 	}
-	void addCancelPoint(int raceID, const string &in objName, const vector3 &in pos, const vector3 &in rot)
-	{
-		dictionary dict;
-		dict.set("raceID", raceID);
-		dict.set("oname", ""+objName);
-		// dict.set("position", vector3(pos));
-		// dict.set("rotation", vector3(rot));
-		dict.set("callback", null);
-		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "raceCancelPointHandler", false);
-	}
-	void addCancelPoint(int raceID, const string &in objName, const double[] &in v)
-	{
-		addCancelPoint(raceID, objName, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]));
-	}
 
+
+	// Special callback, invoked from event boxes added via `races.addCancelPoint()`.
+	// It works exactly like a "race_abort" event box, except the box name (specified as `event` in .ODEF file) can be anything.
+	// This is required for backwards compatibility with older terrains.
+	// (For example: Auriga Proving Grounds uses event box named "checkpoint", see '31-trigger10x10.odef').
 	void raceCancelPointHandler(int trigger_type, const string &in inst, const string &in box, int nodeid)
 	{
-		if( this.state == this.STATE_NotInRace )
-			return;
-
-		dictionary dict;
-		if( not this.callbacks.get(inst, dict) )
-			return;
-
-		int raceID;
-		dict.get("raceID", raceID);
-		if( raceID != -1 and this.currentRace != raceID )
-			return;
-
-		this.cancelCurrentRace();
-
-		// call the callback function
-		RACE_EVENT_CALLBACK @handle;
-		if( dict.get("callback", @handle) and not (handle is null) )
-		{
-			dictionary args;
-			args.set("event", "cancel_point");
-			args.set("raceID", this.currentRace);
-			args.set("inst", ""+inst);
-			args.set("trigger_type", trigger_type);
-			args.set("box", ""+box);
-			args.set("nodeid", nodeid);
-			handle(args);
-		}
+		game.log("DBG raceManager.raceCancelPointHandler() called; trigger:"+trigger_type+", inst:"+inst+", box:"+box+", nodeid:"+nodeid);
+		this.raceEvent(trigger_type, inst, "race_abort", nodeid);
 	}
 
 	void recalcArrow()
@@ -1309,6 +1318,7 @@ shared class raceBuilder {
 	string raceName;
 	double[][][] checkpoints;
 	array<array<string>> objNames;
+	array<ProceduralObjectClass@> proceduralRoads;
 	int checkPointsCount;
 	int id;
 	double bestLapTime;
@@ -1469,7 +1479,10 @@ shared class raceBuilder {
 		this.objNames[number].resize(this.chpInstances[number]+1);
 		this.objNames[number][this.chpInstances[number]] = objName;
 		if( not this.hidden )
-			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "raceEvent", false);
+		{
+			// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "!supress");
+		}
 	}
 
 	void deleteCheckpoint(int number)
@@ -1596,7 +1609,9 @@ shared class raceBuilder {
 		{
 			for( int k = 0; k < this.chpInstances[i]; k++ )
 			{
-				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(this.checkpoints[i][k][0], this.checkpoints[i][k][1], this.checkpoints[i][k][2]), vector3(this.checkpoints[i][k][3], this.checkpoints[i][k][4], this.checkpoints[i][k][5]), "raceEvent", false);
+				array<double>@ v = this.checkpoints[i][k];
+				// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "!supress");
 			}
 		}
 	}
@@ -1679,6 +1694,16 @@ shared class raceBuilder {
 			p2 = tmp.findFirst(";", p1+1);
 			bestTimeTillPoint[i] = parseFloat(tmp.substr(p1+1, p2-p1-1));
 			p1 = p2;
+		}
+	}
+	
+	void buildProceduralRoads()
+	{
+		TerrainClass@ terrain = game.getTerrain();
+		ProceduralManagerClass@ roadManager = terrain.getProceduralManager();
+		for (uint i = 0; i < this.proceduralRoads.length(); i++)
+		{
+			roadManager.addObject(this.proceduralRoads[i]);
 		}
 	}
 }

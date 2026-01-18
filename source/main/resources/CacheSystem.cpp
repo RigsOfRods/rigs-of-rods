@@ -136,6 +136,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
+    m_known_extensions.push_back("race");
     m_known_extensions.push_back("addonpart");
     m_known_extensions.push_back("tuneup");
     m_known_extensions.push_back("assetpack");
@@ -310,6 +311,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr &
     out_entry->uniqueid =               j_entry["uniqueid"].GetString();
     out_entry->version =                j_entry["version"].GetInt();
     out_entry->filecachename =          j_entry["filecachename"].GetString();
+    out_entry->description =            j_entry["description"].GetString();
 
     out_entry->guid = j_entry["guid"].GetString();
     Ogre::StringUtil::trim(out_entry->guid);
@@ -338,7 +340,6 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr &
     }
 
     // Vehicle details
-    out_entry->description =       j_entry["description"].GetString();
     out_entry->tags =              j_entry["tags"].GetString();
     out_entry->default_skin =      j_entry["default_skin"].GetString();
     out_entry->fileformatversion = j_entry["fileformatversion"].GetInt();
@@ -600,6 +601,7 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("guid",                 rapidjson::StringRef(entry->guid.c_str()),                    j_doc.GetAllocator());
     j_entry.AddMember("version",              entry->version,                                               j_doc.GetAllocator());
     j_entry.AddMember("filecachename",        rapidjson::StringRef(entry->filecachename.c_str()),           j_doc.GetAllocator());
+    j_entry.AddMember("description",          rapidjson::StringRef(entry->description.c_str()),             j_doc.GetAllocator());
 
     // Common - Authors
     rapidjson::Value j_authors(rapidjson::kArrayType);
@@ -617,7 +619,6 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("authors", j_authors, j_doc.GetAllocator());
 
     // Vehicle details
-    j_entry.AddMember("description",         rapidjson::StringRef(entry->description.c_str()),       j_doc.GetAllocator());
     j_entry.AddMember("tags",                rapidjson::StringRef(entry->tags.c_str()),              j_doc.GetAllocator());
     j_entry.AddMember("default_skin",        rapidjson::StringRef(entry->default_skin.c_str()),      j_doc.GetAllocator());
     j_entry.AddMember("fileformatversion",   entry->fileformatversion, j_doc.GetAllocator());
@@ -806,6 +807,12 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
         {
             CacheEntryPtr entry = new CacheEntry();
             FillGadgetDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
+        else if (ext == "race")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillRaceDetailInfo(entry, ds);
             new_entries.push_back(entry);
         }
         else
@@ -1217,6 +1224,31 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPt
     entry->version    = def->version;
 }
 
+void CacheSystem::FillRaceDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    doc->loadFromDataStream(ds, GenericDocument::OPTION_ALLOW_NAKED_STRINGS);
+    GenericDocContextPtr reader = new GenericDocContext(doc);
+    while (!reader->endOfFile())
+    {
+        if (reader->tokenType() == TokenType::KEYWORD)
+        {
+            std::string keyword = reader->getTokKeyword();
+
+            if (keyword == "race_name")
+                entry->dname = reader->getTokString(1);
+            else if (keyword == "race_description")
+                entry->description = reader->getTokString(1);
+            else if (keyword == "race_terrain_guid")
+                entry->guid = reader->getTokString(1);
+        }
+
+        reader->seekNextLine();
+    }
+    entry->fname = ds->getName();
+    entry->fext = "race";
+}
+
 void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def)
 {
     if (!skin_def->author_name.empty())
@@ -1562,6 +1594,13 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
         if (entry->fext == "terrn2")
         {
             // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+        }
+        else if (entry->fext == "race")
+        {
+            // This is a race bundle - use `inGlobalPool=true` to allow terrain script (race handler) to access it.
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
@@ -2333,6 +2372,8 @@ size_t CacheSystem::Query(CacheQuery& query)
         bool add = false;
         if (entry->fext == "terrn2")
             add = (query.cqy_filter_type == LT_Terrain);
+        if (entry->fext == "race")
+            add = (query.cqy_filter_type == LT_Race);
         if (entry->fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
         else if (entry->fext == "addonpart")
