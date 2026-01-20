@@ -20,6 +20,7 @@
 */
 
 #include "SkyXManager.h"
+#include "BasicController.h"
 
 #include "Actor.h"
 #include "AppContext.h"
@@ -37,9 +38,7 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 {
 	InitLight();
 
-	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("..\\resource\\SkyX\\","FileSystem", "SkyX",true); //Temp
-
-	mBasicController = new SkyX::BasicController();
+	mBasicController = new SkyX::BasicController(/* deleteBySkyX: */false);
 	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
 
 	mCfgFileManager = new SkyX::CfgFileManager(mSkyX, mBasicController, App::GetCameraManager()->GetCamera());
@@ -49,17 +48,30 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 	RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(mSkyX);
 	RoR::App::GetAppContext()->GetRenderWindow()->addListener(mSkyX);
+
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->attachViewport(RoR::App::GetAppContext()->GetViewport());
 }
 
 SkyXManager::~SkyXManager()
 {
-    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
-    mSkyX->remove();
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->detachViewport(RoR::App::GetAppContext()->GetViewport());
 
+    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
+
+    mSkyX->remove();
+    delete mSkyX;
     mSkyX = nullptr;
 
     delete mBasicController;
     mBasicController = nullptr;
+
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight0);
+    mLight0 = nullptr;
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight1);
+    mLight1 = nullptr;
 }
 
 Vector3 SkyXManager::getMainLightDirection()
@@ -96,7 +108,6 @@ bool SkyXManager::UpdateSkyLight()
         App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
         App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
     }
-		
 
 	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
 	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
@@ -171,8 +182,6 @@ bool SkyXManager::InitLight()
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.1, 0.35f));
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.05, 0.0f));
 
-	App::GetGfxScene()->GetSceneManager()->setAmbientLight(ColourValue(0.35,0.35,0.35)); //Not needed because terrn2 has ambientlight settings
-
 	// Light
 	mLight0 = App::GetGfxScene()->GetSceneManager()->createLight("Light0");
 	mLight0->setDiffuseColour(1, 1, 1);
@@ -193,4 +202,41 @@ size_t SkyXManager::getMemoryUsage()
 void SkyXManager::freeResources()
 {
 	//TODO
+}
+
+// SkyX stores time data as Vector3 :/
+//  x = time-of-day in [0, 24]h range
+//  y = sunrise hour in [0, 24]h range
+//  z = sunset hour in [0, 24] range
+
+void SkyXManager::setTimeOfDay24Hour(float timeOfDay24Hour)
+{
+    Ogre::Vector3 skyxTime = mBasicController->getTime();
+    skyxTime.x = timeOfDay24Hour;
+    mBasicController->setTime(skyxTime);
+}
+
+float SkyXManager::getTimeOfDay24Hour()
+{
+    return mBasicController->getTime().x;
+}
+
+void SkyXManager::setLatitudeDeg(float latitudeDeg)
+{
+    mBasicController->setLatitudeDeg(latitudeDeg);
+}
+
+float SkyXManager::getLatitudeDeg()
+{
+    return mBasicController->getLatitudeDeg();
+}
+
+void SkyXManager::setDayOfYear(int dayOfYear)
+{
+    mBasicController->setDayOfYear(static_cast<Ogre::Real>(dayOfYear));
+}
+
+int SkyXManager::getDayOfYear()
+{
+    return static_cast<int>(mBasicController->getDayOfYear());
 }

@@ -29,6 +29,9 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
+static const std::string SKYX_DEFAULT_CONFIG_FILE = "SkyXDefault.skx"; // fallback, in game resources.
+static const std::string SKYX_USER_CONFIG_FILE = "skyx.cfg"; // primary, in user's /config dir.
+
 class SkyXManager
 {
 public:
@@ -50,6 +53,16 @@ public:
 	bool UpdateSkyLight();
 
 	SkyX::SkyX* GetSkyX() { return mSkyX; }
+
+    // Time settings
+    void setTimeOfDay24Hour(float timeOfDay24Hour);
+    float getTimeOfDay24Hour();
+
+    void setLatitudeDeg(float latitudeDeg);
+    float getLatitudeDeg();
+
+    void setDayOfYear(int dayOfYear);
+    int getDayOfYear();
 
 protected:
 	Ogre::Light *mLight0 = nullptr;

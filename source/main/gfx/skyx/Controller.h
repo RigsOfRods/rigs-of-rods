@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier VerguÌn Gonz·lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Vergu√≠n Gonz√°lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -51,6 +51,10 @@ namespace SkyX
 		 */
 		inline virtual void update(const Ogre::Real& simDeltaTime){}
 
+        virtual void setLatitudeDeg(Ogre::Real latitudeDeg) = 0;
+
+        virtual Ogre::Real getLatitudeDeg() const = 0;
+
 		/** Get sun direction
 		    @return Sun direction, the Earth-to-Sun direction
 		 */
@@ -65,6 +69,11 @@ namespace SkyX
 		    @return Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
 		 */
 		virtual Ogre::Real getMoonPhase() = 0;
+
+		/** Set moon phase
+		    @param phase Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
+		 */
+		virtual void setMoonPhase(Ogre::Real phase) = 0;
 
 		/** Must the controller be destroyed by SkyX?
 		    @return true if yes, false if not

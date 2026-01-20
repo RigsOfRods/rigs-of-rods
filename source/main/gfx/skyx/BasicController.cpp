@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier Vergu�n Gonz�lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Verguín González <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -22,6 +22,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "BasicController.h"
+#include <Ogre.h>
 
 namespace SkyX
 {
@@ -30,102 +31,100 @@ namespace SkyX
 		, mTime(Ogre::Vector3(14.0f, 7.50f, 20.50f))
 		, mSunDirection(Ogre::Vector3(0,1,0))
 		, mMoonDirection(Ogre::Vector3(0,-1,0))
-		, mEastDirection(Ogre::Vector2(0,1))
 		, mMoonPhase(0)
+		, mLatitudeDeg(45.f)
+		, mDayOfYear(172.f)          // ~June solstice
 	{
 	}
 
 	void BasicController::update(const Ogre::Real& simDeltaTime)
 	{
+		// Advance time of day (x component)
 		mTime.x += simDeltaTime;
+		if (mTime.x > 24.f)      mTime.x -= 24.f;
+		else if (mTime.x < 0.f)  mTime.x += 24.f;
 
-		if (mTime.x > 24)
-		{
-			mTime.x -= 24;
-		} 
-		else if (mTime.x < 0)
-		{
-			mTime.x += 24;
-		}
+		// Realistic-ish solar position (simplified)
+		// Variables:
+		// t = local solar time hours [0,24)
+		// latitude φ (deg), declination δ (deg), hour angle H (deg)
+		// δ approximation: -23.44° * cos( 360°/365 * (N + 10) )  (N = day-of-year)
+		const Ogre::Real t = mTime.x;
+		const Ogre::Real latitudeDeg = Ogre::Math::Clamp(mLatitudeDeg, -90.f, 90.f);
+		const Ogre::Real N = Ogre::Math::Clamp(mDayOfYear, 0.f, 365.f);
 
-		// 24h day: 
-		// 0______A(Sunrise)_______B(Sunset)______24
-		//                     
+		// Solar declination (radians)
+		const Ogre::Real declDeg = -23.44f * Ogre::Math::Cos(Ogre::Degree((360.f/365.f) * (N + 10.f)).valueRadians());
+		const Ogre::Radian decl = Ogre::Degree(declDeg);
+		const Ogre::Radian lat  = Ogre::Degree(latitudeDeg);
 
-		float y,
-			X = mTime.x,
-			A = mTime.y,
-			B = mTime.z,
-			AB  = A+24-B,
-			AB_ = B-A,
-			XB  = X+24-B;
+        this->recalculateSunriseSunsetTime(decl, lat);
 
-		if (X<A || X>B)
-		{
-			if (X<A)
-			{
-                y = -XB / AB;
-			}
-			else
-			{
-				y = -(X-B) / AB;
-			}
-            
-			if (y > -0.5f)
-			{
-				y *= 2;
-			}
-			else
-			{
-				y = -(1 + y)*2;
-			}
-		}
-		else
-		{
-			y = (X-A)/(B-A);
+		// Hour angle: 0 at solar noon, negative morning, positive afternoon
+		const Ogre::Radian H = Ogre::Degree(15.f * (t - 12.f));
 
-			if (y < 0.5f)
-			{
-				y *= 2;
-			}
-			else
-			{
-				y = (1 - y)*2;
-			}
-		}
+		// Solar elevation
+		const Ogre::Real sinElev =
+			Ogre::Math::Sin(lat) * Ogre::Math::Sin(decl) +
+			Ogre::Math::Cos(lat) * Ogre::Math::Cos(decl) * Ogre::Math::Cos(H);
+		Ogre::Radian elev = Ogre::Math::ASin(Ogre::Math::Clamp(sinElev, -1.f, 1.f));
 
-		Ogre::Vector2 East = mEastDirection;
+		// Solar azimuth (mathematically from south; we adapt to world axes)
+		// Using standard formula with atan2
+		const Ogre::Real sinAz = -Ogre::Math::Sin(H);
+		const Ogre::Real cosAz = (Ogre::Math::Sin(decl) - Ogre::Math::Sin(elev)*Ogre::Math::Sin(lat)) /
+			(Ogre::Math::Cos(elev) * Ogre::Math::Cos(lat));
+		Ogre::Radian az = Ogre::Math::ATan2(sinAz, cosAz); // Range [-pi,pi]
 
-		if (X > A && X < B)
-		{
-			if (X > (A + AB_/2))
-			{
-				East = -East;
-			}
-		}
-		else
-		{
-			if (X<=A)
-			{
-				if (XB < (24-AB_)/2)
-				{
-					East = -East;
-				}
-			}
-			else
-			{
-				if ((X-B) < (24-AB_)/2)
-				{
-					East = -East;
-				}
-			}
-		}
+		// Build horizontal basis:
+		// East given, North derived (X east, Z south => north = -south = -Z)
+		Ogre::Vector2 East = mEastDirection.normalisedCopy(); // (1,0) in current map
+		Ogre::Vector2 North(-East.y, East.x); // rotate East left (CW) to get North (since Z positive is south)
 
-		float ydeg = (Ogre::Math::PI/2)*y,
-		      sn = Ogre::Math::Sin(ydeg),
-		      cs = Ogre::Math::Cos(ydeg);
+		// We want azimuth 0 at south, +90 at west, -90 at east (common solar convention).
+		// Convert to our basis: south = -North
+		Ogre::Vector2 South = -North;
 
-		mSunDirection = Ogre::Vector3(East.x*cs, sn, East.y*cs);
+		// Horizontal projection direction
+		Ogre::Real cosAzAdj = Ogre::Math::Cos(az);
+		Ogre::Real sinAzAdj = Ogre::Math::Sin(az);
+		Ogre::Vector2 horiz2D = South * cosAzAdj + East * (-sinAzAdj); // signs adjusted so sunrise at East
+
+		// Final 3D direction
+		Ogre::Real cosElev = Ogre::Math::Cos(elev);
+		mSunDirection = Ogre::Vector3(horiz2D.x * cosElev,
+			Ogre::Math::Sin(elev),
+			horiz2D.y * cosElev);
+
+		// If sun below horizon (elev < 0), keep direction; shaders may decide lighting strength.
 		mMoonDirection = -mSunDirection;
 	}
+
+void BasicController::recalculateSunriseSunsetTime(Ogre::Radian decl, Ogre::Radian lat)
+{
+	const Ogre::Real cosH0 = -Ogre::Math::Tan(lat) * Ogre::Math::Tan(decl);
+		
+	if (cosH0 >= -1.f && cosH0 <= 1.f)
+	{
+		// Normal day with sunrise and sunset
+		const Ogre::Radian H0 = Ogre::Math::ACos(Ogre::Math::Clamp(cosH0, -1.f, 1.f));
+		const Ogre::Real H0_hours = Ogre::Degree(H0).valueDegrees() / 15.f;
+			
+		mTime.y = 12.f - H0_hours;  // Sunrise time (hours)
+		mTime.z = 12.f + H0_hours;  // Sunset time (hours)
+	}
+	else if (cosH0 < -1.f)
+	{
+		// Polar day (sun never sets)
+		mTime.y = 0.f;
+		mTime.z = 24.f;
+	}
+	else // cosH0 > 1.f
+	{
+		// Polar night (sun never rises)
+		mTime.y = 12.f;
+		mTime.z = 12.f;
+	}
 }
+
+} // namespace SkyX
