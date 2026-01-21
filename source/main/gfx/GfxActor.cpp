@@ -758,6 +758,15 @@ void RoR::GfxActor::UpdateDebugView()
         }
     }
 
+    // Nodes are drawn directly using RelPosition, so that the debugview is accurate even in great distances.
+    // To do that, we need a custom modelview matrix.
+    Ogre::Affine3 nodes_modelmatrix(m_actor->ar_origin, Ogre::Quaternion::IDENTITY);
+    World2ScreenConverter nodes2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true) * nodes_modelmatrix,
+        App::GetCameraManager()->GetCamera()->getProjectionMatrix(),
+        Ogre::Vector2(screen_size.x, screen_size.y)
+        );
+
     // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
     if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
         (m_debug_view == DebugViewType::DEBUGVIEW_NODES) ||
@@ -773,8 +782,8 @@ void RoR::GfxActor::UpdateDebugView()
                      beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
                 continue;
 
-            Ogre::Vector3 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
-            Ogre::Vector3 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
+            Ogre::Vector3 pos1 = nodes2screen.Convert(beams[i].p1->RelPosition);
+            Ogre::Vector3 pos2 = nodes2screen.Convert(beams[i].p2->RelPosition);
 
             if ((pos1.z < 0.f) && (pos2.z < 0.f))
             {
@@ -828,7 +837,7 @@ void RoR::GfxActor::UpdateDebugView()
                 if (App::diag_hide_wheels->getBool() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                     continue;
 
-                Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[i].AbsPosition);
+                Ogre::Vector3 pos_xyz = nodes2screen.Convert(nodes[i].RelPosition);
 
                 if (pos_xyz.z < 0.f)
                 {
@@ -853,7 +862,7 @@ void RoR::GfxActor::UpdateDebugView()
                             (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                         continue;
 
-                    Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+                    Ogre::Vector3 pos = nodes2screen.Convert(nodes[i].RelPosition);
 
                     if (pos.z < 0.f)
                     {
@@ -885,8 +894,8 @@ void RoR::GfxActor::UpdateDebugView()
                     continue;
 
                 // Position
-                Ogre::Vector3 world_pos = (beams[i].p1->AbsPosition + beams[i].p2->AbsPosition) / 2.f;
-                Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+                Ogre::Vector3 rel_pos = (beams[i].p1->RelPosition + beams[i].p2->RelPosition) / 2.f;
+                Ogre::Vector3 pos_xyz = nodes2screen.Convert(rel_pos);
                 if (pos_xyz.z >= 0.f)
                 {
                     continue; // Behind the camera
@@ -1938,7 +1947,8 @@ void RoR::GfxActor::UpdateCabMesh()
 {
     if ((m_cab_entity != nullptr) && (m_cab_mesh != nullptr))
     {
-        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
+        m_cab_scene_node->setPosition(m_simbuf.simbuf_origin);
+        m_cab_mesh->UpdateFlexObj();
     }
 }
 
