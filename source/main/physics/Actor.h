@@ -179,6 +179,7 @@ public:
     void              toggleSlideNodeLock();
     bool              getParkingBrake() { return ar_parking_brake; }
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
+    void              cruisecontrolResume();
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
     int               getAxleDiffMode() { return m_num_axle_diffs; }
@@ -285,7 +286,8 @@ public:
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
-    void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
+    void UpdateCruiseControl(float dt); //!< Defined in 'gameplay/CruiseControl.cpp'
+    void NewFunction();
     bool              Intersects(ActorPtr actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
@@ -418,6 +420,7 @@ public:
     bool              cc_can_brake = false;       //!< Cruise Control
     float             cc_target_rpm = 0.f;      //!< Cruise Control
     float             cc_target_speed = 0.f;    //!< Cruise Control
+    float             cc_last_speed = 0.f;      //!< Cruise Control
     float             cc_target_speed_lower_limit = 0.f; //!< Cruise Control
     std::deque<float> cc_accs;            //!< Cruise Control
     bool              sl_enabled = false;         //!< Speed limiter;
