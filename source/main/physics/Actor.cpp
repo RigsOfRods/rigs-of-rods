@@ -2995,56 +2995,6 @@ void Actor::setAircraftFlaps(int flapsLevel)
     ar_aerial_flap = flapsLevel;
 }
 
-void Actor::setSteeringAngle(float steeringAngle)
-{
-    if (steeringAngle <= -1)
-        steeringAngle = -1;
-    else if (steeringAngle >= 1)
-        steeringAngle = 1;
-
-    ar_hydro_dir_command = steeringAngle;
-}
-
-void Actor::setBrakingLevel(float braking)
-{
-    if (braking <= 0)
-        braking = 0;
-    else if (braking >= 1)
-        braking = 1;
-
-    ar_brake = braking;
-}
-
-void Actor::setAircraftAileron(float aileron)
-{
-    if (aileron <= -1)
-        aileron = -1;
-    else if (aileron >= 1)
-        aileron = 1;
-
-    ar_aileron = aileron;
-}
-
-void Actor::setAircraftElevator(float elevator)
-{
-    if (elevator <= -1)
-        elevator = -1;
-    else if (elevator >= 1)
-        elevator = 1;
-
-    ar_elevator = elevator;
-}
-
-void Actor::setAircraftRudder(float rudder)
-{
-    if (rudder <= -1)
-        rudder = -1;
-    else if (rudder >= 1)
-        rudder = 1;
-
-    ar_rudder = rudder;
-}
-
 float Actor::getEventValue(int eventID, bool pure, InputSourceType valueSource)
 {
     std::map<int, float>::const_iterator simulated_value_info =
@@ -4641,11 +4591,6 @@ Actor::Actor(
 {
 }
 
-float Actor::getSteeringAngle()
-{
-    return ar_hydro_dir_command;
-}
-
 std::vector<authorinfo_t> Actor::getAuthors()
 {
     return authors;
@@ -5110,8 +5055,6 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
         return;
     }
 
-    LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
-
     TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, 0, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
 
     // PLEASE maintain the same order as in `enum ActorSimAttr`
@@ -5157,6 +5100,17 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_rand_chance = val; } return;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_min_rpm = val; } return;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_power_factor = val; } return;
+
+    // Truck controls
+    case ACTORSIMATTR_TRUCK_STEERING:   ar_hydro_dir_command = val; return;
+    case ACTORSIMATTR_TRUCK_BRAKE:      ar_brake = val; return;
+
+    // Aircraft control surfaces
+    case ACTORSIMATTR_AIRCRAFT_AIRBRAKES:   setAirbrakeIntensity(val); return;
+    case ACTORSIMATTR_AIRCRAFT_FLAPS:       ar_aerial_flap = val; return;
+    case ACTORSIMATTR_AIRCRAFT_AILERON:     ar_aileron = val; return;
+    case ACTORSIMATTR_AIRCRAFT_ELEVATOR:    ar_elevator = val; return;
+    case ACTORSIMATTR_AIRCRAFT_RUDDER:      ar_rudder = val; return;
 
     default: return;
     }
@@ -5207,6 +5161,17 @@ float Actor::getSimAttribute(ActorSimAttr attr)
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_rand_chance; } return 0.f;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:       if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_min_rpm; } return 0.f;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:         if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_power_factor; } return 0.f;
+
+    // Truck controls
+    case ACTORSIMATTR_TRUCK_STEERING:   return ar_hydro_dir_command;
+    case ACTORSIMATTR_TRUCK_BRAKE:      return ar_brake;
+
+    // Aircraft control surfaces
+    case ACTORSIMATTR_AIRCRAFT_AIRBRAKES:   return getAirbrakeIntensity();
+    case ACTORSIMATTR_AIRCRAFT_FLAPS:       return ar_aerial_flap;
+    case ACTORSIMATTR_AIRCRAFT_AILERON:     return ar_aileron;
+    case ACTORSIMATTR_AIRCRAFT_ELEVATOR:    return ar_elevator;
+    case ACTORSIMATTR_AIRCRAFT_RUDDER:      return ar_rudder;
 
     default: return 0.f;
     }

@@ -113,11 +113,6 @@ public:
     int               getShockNode2(int shock_number);
     float             getAirbrakeIntensity() { return ar_airbrake_intensity; }
     int               getAircraftFlaps() { return ar_aerial_flap; }
-    float             getSteeringAngle();
-    float             getBrakingLevel() { return ar_brake; }
-    float             getAircraftAileron() { return ar_aileron; }
-    float             getAircraftElevator() { return ar_elevator; }
-    float             getAircraftRudder() { return ar_rudder; }
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords (pivot point is node 0).
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords (pivot point is node 0).
@@ -154,11 +149,6 @@ public:
     void              recalculateNodeMasses();
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
-    void              setSteeringAngle(float steeringAngle);
-    void              setBrakingLevel(float braking);
-    void              setAircraftAileron(float aileron);
-    void              setAircraftElevator(float elevator);
-    void              setAircraftRudder(float rudder);
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults

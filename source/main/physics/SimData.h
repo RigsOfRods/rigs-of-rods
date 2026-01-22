@@ -966,6 +966,16 @@ enum ActorSimAttr
     ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!<  - Param #13 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  - Param #14 of 'engturbo2'
 
+    // Truck controls
+    ACTORSIMATTR_TRUCK_STEERING, //!< Steering angle. Safe values: [-1, 1]
+    ACTORSIMATTR_TRUCK_BRAKE, //!< Braking level. Safe values: [0, 1]
+
+    // Aircraft control surfaces
+    ACTORSIMATTR_AIRCRAFT_AIRBRAKES, //!< Air braking level for aircraft. Safe values: [0, 5]
+    ACTORSIMATTR_AIRCRAFT_FLAPS, //!< Flaps level for aircraft. Safe values: [0, 5]
+    ACTORSIMATTR_AIRCRAFT_AILERON, //!< Aircraft aileron. Safe values: [-1, 1]
+    ACTORSIMATTR_AIRCRAFT_ELEVATOR, //!< Aircraft elevator. Safe values: [-1, 1]
+    ACTORSIMATTR_AIRCRAFT_RUDDER, //!< Aircraft rudder. Safe values: [-1, 1]
 };
 const char* ActorSimAttrToString(ActorSimAttr attr);
 
