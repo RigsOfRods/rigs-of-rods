@@ -43,7 +43,7 @@ Autopilot::Autopilot(int actor_id):
 
 void Autopilot::reset()
 {
-    operate_controls = true;
+    custom_autopilot_mode = false;
     mode_heading = HEADING_NONE;
     mode_alt = ALT_NONE;
     mode_ias = false;
@@ -80,9 +80,9 @@ void Autopilot::disconnect()
     }
 }
 
-void Autopilot::setOperateControls(bool operateControls)
+void Autopilot::setCustomAutopilotMode(bool customAP)
 {
-    operate_controls = operateControls;
+    custom_autopilot_mode = customAP;
 }
 
 void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc)
@@ -96,7 +96,7 @@ void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, 
 
 float Autopilot::getAilerons()
 {
-    if (operate_controls)
+    if (!custom_autopilot_mode)
     {
         float val = 0;
         if (ref_l && ref_r)
@@ -176,7 +176,7 @@ float Autopilot::getAilerons()
 float Autopilot::getElevator()
 {
     float val = 0;
-    if (ref_l && ref_r && ref_b && operate_controls)
+    if (ref_l && ref_r && ref_b && !custom_autopilot_mode)
     {
         float wanted_vs = (float)vs / 196.87;
         float current_vs = (ref_l->Velocity.y + ref_r->Velocity.y) / 2.0;
@@ -237,7 +237,7 @@ float Autopilot::getRudder()
 
 float Autopilot::getThrottle(float thrtl, float dt)
 {
-    if (!mode_ias || !operate_controls) { return thrtl; };
+    if (!mode_ias || custom_autopilot_mode) { return thrtl; };
 
     float val = thrtl;
     if (ref_l && ref_r)
@@ -452,11 +452,9 @@ void Autopilot::UpdateIls()
 
     last_closest_hdist = closest_hdist;
 
-    // If we aren't allowed to operate the controls, we won't check
-    // if the A/P has to be disconnected.
-    // This allows custom autopilot scripts to have their own NAV mode
-    // engagement/disengagement logic.
-    if (mode_heading == HEADING_NAV && operate_controls)
+    // We let custom autopilot scripts to have their own NAV mode
+    // engagement/disengagement logic when custom_autopilot is true.
+    if (mode_heading == HEADING_NAV && !custom_autopilot_mode)
     {
         // disconnect if close to runway or no locators are available
         if (closest_hdist < 20.0 || closest_vdist < 20.0)

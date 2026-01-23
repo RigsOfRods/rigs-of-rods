@@ -22,18 +22,21 @@ public:
     void disconnect();
 
     /**
-     * @brief Returns whether the autopilot can operate the controls.
-     * @returns `true` if the autopilot can operate the controls, `false` otherwise.
+     * @brief Returns whether the autopilot is in "custom autopilot mode".
+     * @returns `true` if the mode is enabled, `false` otherwise.
      */
-    bool getOperateControls();
+    bool getCustomAutopilotMode();
 
     /**
-     * @brief Sets whether the autopilot can operate the controls.
+     * @brief Sets whether the autopilot is in "custom autopilot mode".
      * 
-     * You can use this method to replace the default autopilot
-     * with your own implementation.
+     * When enabled, this mode prevents the default A/P from controlling the aircraft
+     * and disables the default logic (such as the A/P disengaging when NAV is engaged
+     * and no ILS is available).
+     * 
+     * You can use this method to replace the default autopilot with your own implementation.
      */
-    void setOperateControls(bool operateControls);
+    void setCustomAutopilotMode(bool customAP);
 
     /**
      * @brief Sets or toggles the heading modes.
