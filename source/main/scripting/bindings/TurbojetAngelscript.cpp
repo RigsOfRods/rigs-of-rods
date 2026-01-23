@@ -20,4 +20,6 @@ void RoR::RegisterTurbojet(asIScriptEngine* engine)
         return self->getAfterburner() != 0; }, (Turbojet*), bool), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TurbojetClass", "float getAfterburnerThrust()", asMETHOD(Turbojet, getAfterburnThrust), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TurbojetClass", "float getExhaustVelocity()", asMETHOD(Turbojet, getExhaustVelocity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbojetClass", "void setMaxDryThrust(float)", asMETHOD(Turbojet, setMaxDryThrust), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbojetClass", "void setAfterburnerThrust(float)", asMETHOD(Turbojet, setAfterburnThrust), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

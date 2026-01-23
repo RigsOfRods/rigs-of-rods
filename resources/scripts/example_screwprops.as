@@ -7,6 +7,8 @@
 
 // Window [X] button handler
 imgui_utils::CloseWindowPrompt closeBtnHandler;
+array<float> originalScrewpropPowers;
+int lastTruckNum;
 
 string YesOrNo(bool b)
 {
@@ -23,6 +25,11 @@ string RudderDeflection(float rudderDefl)
     return formatFloat(rudderDefl * 100, '', 0, 1) + " %% (" + direction + ")";
 }
 
+void main()
+{
+    lastTruckNum = game.getCurrentTruckNumber();
+}
+
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(440, 520));
@@ -30,6 +37,18 @@ void frameStep(float dt)
     {
         closeBtnHandler.draw();
         BeamClass@ truck = game.getCurrentTruck();
+        int currentTruckID = -1;
+        if (@truck != null)
+            currentTruckID = truck.getInstanceId();
+
+        if (lastTruckNum != currentTruckID)
+        {
+            // The current truck has changed. Empty the list to add the new power values afterwards.
+            lastTruckNum = currentTruckID;
+            while (originalScrewpropPowers.length() > 0)
+                originalScrewpropPowers.removeLast();
+        }
+
         if (@truck != null)
         {
             ImGui::Text("Vehicle: " + truck.getTruckName());
@@ -43,6 +62,9 @@ void frameStep(float dt)
                     ImGui::Separator();
                     ScrewpropClass@ screwprop = truck.getScrewprop(i);
 
+                    if (int(originalScrewpropPowers.length()) < screwpropCount)
+                        originalScrewpropPowers.insertLast(screwprop.getMaxPower());
+
                     ImGui::Text("Screwprop #" + formatInt(i + 1) + ":");
                     ImGui::BulletText("Throttle: " + formatFloat(screwprop.getThrottle() * 100, '', 0, 1) + " %%");
                     ImGui::BulletText("Rudder deflection: " + RudderDeflection(screwprop.getRudder()));
@@ -53,12 +75,18 @@ void frameStep(float dt)
                     ImGui::BulletText("Up node: " + formatInt(screwprop.getUpNode()));
 
                     float throttle = screwprop.getThrottle() * 100;
+                    float maxForce = screwprop.getMaxPower();
                     float rudder = screwprop.getRudder() * 100;
                     bool reverse = screwprop.getReverse();
 
                     ImGui::PushID("THR" + formatInt(i));
                     if (ImGui::SliderFloat("Set throttle", throttle, -100, 100))
                         screwprop.setThrottle(throttle / 100);
+                    ImGui::PopID();
+
+                    ImGui::PushID("MAXPWR" + formatInt(i));
+                    if (ImGui::SliderFloat("Set max force", maxForce, 0, originalScrewpropPowers[i] * 2))
+                        screwprop.setMaxPower(maxForce);
                     ImGui::PopID();
 
                     ImGui::PushID("RUDD" + formatInt(i));

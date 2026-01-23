@@ -2995,6 +2995,103 @@ void Actor::setAircraftFlaps(int flapsLevel)
     ar_aerial_flap = flapsLevel;
 }
 
+float Actor::getEventValue(int eventID, bool pure, InputSourceType valueSource)
+{
+    std::map<int, float>::const_iterator simulated_value_info =
+        ar_actor_event_simulated_values.find(eventID);
+
+    float value = 0;
+    if (simulated_value_info != ar_actor_event_simulated_values.end())
+        value = simulated_value_info->second;
+    else
+        value = App::GetInputEngine()->getEventValue(eventID, pure, valueSource);
+
+    return value;
+}
+
+bool Actor::getEventBoolValue(int eventID)
+{
+    return (getEventValue(eventID) > 0.5f);
+}
+
+bool Actor::getEventBoolValueBounce(int eventID, float time)
+{
+    std::map<int, float>::const_iterator simulated_value_info =
+        ar_actor_event_simulated_values.find(eventID);
+
+    float value = 0;
+    if (simulated_value_info != ar_actor_event_simulated_values.end())
+        value = simulated_value_info->second > 0.5f;
+    else
+        value = App::GetInputEngine()->getEventBoolValueBounce(eventID, time);
+
+    return value;
+}
+
+void Actor::clearEventSimulatedValues()
+{
+    ar_actor_event_simulated_values.clear();
+}
+
+bool Actor::hasEventSimulatedValue(int eventID)
+{
+    std::map<int, float>::const_iterator simulated_value_info =
+        ar_actor_event_simulated_values.find(eventID);
+
+    return simulated_value_info != ar_actor_event_simulated_values.end();
+}
+
+float Actor::getEventSimulatedValue(int eventID)
+{
+    std::map<int, float>::const_iterator simulated_value_info =
+        ar_actor_event_simulated_values.find(eventID);
+
+    float simulated = 0;
+    if (simulated_value_info != ar_actor_event_simulated_values.end())
+        simulated = simulated_value_info->second;
+
+    return simulated;
+}
+
+void Actor::setEventSimulatedValue(int eventID, float value)
+{
+    ar_actor_event_simulated_values[eventID] = value;
+}
+
+void Actor::removeEventSimulatedValue(int eventID)
+{
+    std::map<int, float>::const_iterator simulated_value_info =
+        ar_actor_event_simulated_values.find(eventID);
+
+    if (simulated_value_info != ar_actor_event_simulated_values.end())
+        ar_actor_event_simulated_values.erase(simulated_value_info);
+}
+
+bool Actor::isEventAnalog(int eventID)
+{
+    // Simulated values are analog, so we'll return true.
+    bool is_analog = true;
+    if (!hasEventSimulatedValue(eventID))
+        is_analog = App::GetInputEngine()->isEventAnalog(eventID);
+
+    return is_analog;
+}
+
+bool Actor::isEventDefined(int eventID)
+{
+    return hasEventSimulatedValue(eventID) || App::GetInputEngine()->isEventDefined(eventID);
+}
+
+float Actor::getEventBounceTime(int eventID)
+{
+    float bounce_time = 0;
+    // Simulated values don't have bounce times.
+    if (!hasEventSimulatedValue(eventID))
+        bounce_time = App::GetInputEngine()->getEventBounceTime(eventID);
+
+    return bounce_time;
+}
+
 // call this once per frame in order to update the skidmarks
 void Actor::updateSkidmarks()
 {
@@ -4494,11 +4591,6 @@ Actor::Actor(
 {
 }
 
-float Actor::getSteeringAngle()
-{
-    return ar_hydro_dir_command;
-}
-
 std::vector<authorinfo_t> Actor::getAuthors()
 {
     return authors;
@@ -4847,7 +4939,7 @@ void Actor::UpdatePropAnimInputEvents()
 {
     for (PropAnimKeyState& state : m_prop_anim_key_states)
     {
-        bool ev_active = App::GetInputEngine()->getEventValue(state.event_id);
+        bool ev_active = getEventValue(state.event_id);
         if (state.eventlock_present)
         {
             // Toggle-mode
@@ -4963,8 +5055,6 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
         return;
     }
 
-    LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
-
     TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, 0, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
 
     // PLEASE maintain the same order as in `enum ActorSimAttr`
@@ -5010,6 +5100,17 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_rand_chance = val; } return;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_min_rpm = val; } return;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_power_factor = val; } return;
+
+    // Truck controls
+    case ACTORSIMATTR_TRUCK_STEERING:   ar_hydro_dir_command = val; return;
+    case ACTORSIMATTR_TRUCK_BRAKE:      ar_brake = val; return;
+
+    // Aircraft control surfaces
+    case ACTORSIMATTR_AIRCRAFT_AIRBRAKES:   setAirbrakeIntensity(val); return;
+    case ACTORSIMATTR_AIRCRAFT_FLAPS:       ar_aerial_flap = val; return;
+    case ACTORSIMATTR_AIRCRAFT_AILERON:     ar_aileron = val; return;
+    case ACTORSIMATTR_AIRCRAFT_ELEVATOR:    ar_elevator = val; return;
+    case ACTORSIMATTR_AIRCRAFT_RUDDER:      ar_rudder = val; return;
 
     default: return;
     }
@@ -5060,6 +5161,17 @@ float Actor::getSimAttribute(ActorSimAttr attr)
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_rand_chance; } return 0.f;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:       if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_min_rpm; } return 0.f;
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:         if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_power_factor; } return 0.f;
+
+    // Truck controls
+    case ACTORSIMATTR_TRUCK_STEERING:   return ar_hydro_dir_command;
+    case ACTORSIMATTR_TRUCK_BRAKE:      return ar_brake;
+
+    // Aircraft control surfaces
+    case ACTORSIMATTR_AIRCRAFT_AIRBRAKES:   return getAirbrakeIntensity();
+    case ACTORSIMATTR_AIRCRAFT_FLAPS:       return ar_aerial_flap;
+    case ACTORSIMATTR_AIRCRAFT_AILERON:     return ar_aileron;
+    case ACTORSIMATTR_AIRCRAFT_ELEVATOR:    return ar_elevator;
+    case ACTORSIMATTR_AIRCRAFT_RUDDER:      return ar_rudder;
 
     default: return 0.f;
     }

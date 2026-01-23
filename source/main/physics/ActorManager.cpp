@@ -1560,7 +1560,8 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
 
     if (engine && engine->hasContact() &&
         engine->getAutoMode() == SimGearboxMode::AUTO &&
-        engine->getAutoShift() != Engine::NEUTRAL)
+        engine->getAutoShift() != Engine::NEUTRAL &&
+        !vehicle->hasEventSimulatedValue(EV_TRUCK_BRAKE))
     {
         Ogre::Vector3 dirDiff = vehicle->getDirection();
         Ogre::Degree pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));

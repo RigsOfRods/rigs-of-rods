@@ -305,6 +305,22 @@ void Turbojet::setRPM(float _rpm)
     m_rpm_percent = _rpm;
 }
 
+void Turbojet::setMaxDryThrust(float thrust)
+{
+    if (thrust >= 0 && thrust <= m_afterburn_thrust)
+    {
+        m_max_dry_thrust = thrust;
+    }
+}
+
+void Turbojet::setAfterburnThrust(float afterburnThrust)
+{
+    if (afterburnThrust >= m_max_dry_thrust)
+    {
+        m_afterburn_thrust = afterburnThrust;
+    }
+}
+
 void Turbojet::reset()
 {
     m_rpm_percent = 0;
