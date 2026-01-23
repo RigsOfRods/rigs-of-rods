@@ -8,18 +8,6 @@
 // Window [X] button handler
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
-void ShowActorControlTypeFlag(ActorControlTypeFlags&inout flags, string flagName, ActorControlTypeFlags value)
-{
-    bool enableFlag = (flags & value) > 0;
-    if (ImGui::Checkbox(flagName, enableFlag))
-    {
-        if (enableFlag)
-            flags = ActorControlTypeFlags(flags | value);
-        else
-            flags = ActorControlTypeFlags(flags & ~value);
-    }
-}
-
 float engineThrottle = 0;
 void ShowThrottleControl(BeamClass@ vehicle)
 {
@@ -90,16 +78,16 @@ void ShowClutchControl(BeamClass@ vehicle)
 
 void ShowBrakeControl(BeamClass@ vehicle)
 {
-    float brake = vehicle.getBrakingLevel() * 100;
+    float brake = vehicle.getSimAttribute(ACTORSIMATTR_TRUCK_BRAKE) * 100;
     if (ImGui::SliderFloat("Brake", brake, 0, 100))
-        vehicle.setBrakingLevel(brake / 100);
+        vehicle.setSimAttribute(ACTORSIMATTR_TRUCK_BRAKE, brake / 100);
 }
 
 void ShowSteeringControl(BeamClass@ vehicle)
 {
-    float steering = vehicle.getSteeringAngle();
+    float steering = vehicle.getSimAttribute(ACTORSIMATTR_TRUCK_STEERING);
     if (ImGui::SliderFloat("Steering", steering, -1, 1))
-        vehicle.setSteeringAngle(steering);
+        vehicle.setSimAttribute(ACTORSIMATTR_TRUCK_STEERING, steering);
 }
 
 void ShowRudderControl(BeamClass@ vehicle)
@@ -107,9 +95,9 @@ void ShowRudderControl(BeamClass@ vehicle)
     int truckType = vehicle.getTruckType();
     if (truckType == TT_AIRPLANE)
     {
-        float rudder = vehicle.getAircraftRudder();
+        float rudder = vehicle.getSimAttribute(ACTORSIMATTR_AIRCRAFT_RUDDER);
         if (ImGui::SliderFloat("Rudder", rudder, -1, 1))
-            vehicle.setAircraftRudder(rudder);
+            vehicle.setSimAttribute(ACTORSIMATTR_AIRCRAFT_RUDDER, rudder);
     }
     else if (truckType == TT_BOAT)
     {
@@ -135,13 +123,13 @@ void ShowRudderControl(BeamClass@ vehicle)
 
 void ShowAircraftControls(BeamClass@ vehicle)
 {
-    float aileron = vehicle.getAircraftAileron();
+    float aileron = vehicle.getSimAttribute(ACTORSIMATTR_AIRCRAFT_AILERON);
     if (ImGui::SliderFloat("Aileron", aileron, -1, 1))
-        vehicle.setAircraftAileron(aileron);
+        vehicle.setSimAttribute(ACTORSIMATTR_AIRCRAFT_AILERON, aileron);
 
-    float elevator = vehicle.getAircraftElevator();
+    float elevator = vehicle.getSimAttribute(ACTORSIMATTR_AIRCRAFT_ELEVATOR);
     if (ImGui::SliderFloat("Elevator", elevator, -1, 1))
-        vehicle.setAircraftElevator(elevator);
+        vehicle.setSimAttribute(ACTORSIMATTR_AIRCRAFT_ELEVATOR, elevator);
 
     ImGui::Text("Flaps: " + formatInt(vehicle.getAircraftFlaps()));
     if (ImGui::Button("More flaps"))
@@ -280,21 +268,6 @@ void frameStep(float dt)
         if (@vehicle != null)
         {
             ImGui::Text("Vehicle: " + vehicle.getTruckName());
-
-            ImGui::Separator();
-
-            ActorControlTypeFlags linkedControls = vehicle.getControlsLinkedToExternalInput();
-            ImGui::Text("Controls linked to external inputs (i.e. keyboard, controller, autopilot, etc.)");
-            ShowActorControlTypeFlag(linkedControls, "ACT_THROTTLE", ACT_THROTTLE);
-            ShowActorControlTypeFlag(linkedControls, "ACT_CLUTCH", ACT_CLUTCH);
-            ShowActorControlTypeFlag(linkedControls, "ACT_BRAKE", ACT_BRAKE);
-            ShowActorControlTypeFlag(linkedControls, "ACT_STEERING", ACT_STEERING);
-            ShowActorControlTypeFlag(linkedControls, "ACT_AILERON", ACT_AILERON);
-            ShowActorControlTypeFlag(linkedControls, "ACT_ELEVATOR", ACT_ELEVATOR);
-            ShowActorControlTypeFlag(linkedControls, "ACT_RUDDER", ACT_RUDDER);
-            ShowActorControlTypeFlag(linkedControls, "ACT_ALL_CONTROLS", ACT_ALL_CONTROLS);
-            vehicle.setControlsLinkedToExternalInput(linkedControls);
-
             ImGui::Text("Controls");
 
             ShowThrottleControl(vehicle);
