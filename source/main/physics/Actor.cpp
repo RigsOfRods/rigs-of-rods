@@ -3003,7 +3003,7 @@ float Actor::getEventValue(int eventID, bool pure, InputSourceType valueSource)
     float value = 0;
     if (simulated_value_info != ar_actor_event_simulated_values.end())
         value = simulated_value_info->second;
-    else
+    else if (!ar_force_simulated_values)
         value = App::GetInputEngine()->getEventValue(eventID, pure, valueSource);
 
     return value;
@@ -3022,7 +3022,7 @@ bool Actor::getEventBoolValueBounce(int eventID, float time)
     float value = 0;
     if (simulated_value_info != ar_actor_event_simulated_values.end())
         value = simulated_value_info->second > 0.5f;
-    else
+    else if (!ar_force_simulated_values)
         value = App::GetInputEngine()->getEventBoolValueBounce(eventID, time);
 
     return value;
@@ -3071,7 +3071,7 @@ bool Actor::isEventAnalog(int eventID)
 {
     // Simulated values are analog, so we'll return true.
     bool is_analog = true;
-    if (!hasEventSimulatedValue(eventID))
+    if (!hasEventSimulatedValue(eventID) && !!ar_force_simulated_values)
         is_analog = App::GetInputEngine()->isEventAnalog(eventID);
 
     return is_analog;
@@ -3079,14 +3079,14 @@ bool Actor::isEventAnalog(int eventID)
 
 bool Actor::isEventDefined(int eventID)
 {
-    return hasEventSimulatedValue(eventID) || App::GetInputEngine()->isEventDefined(eventID);
+    return hasEventSimulatedValue(eventID) || (!ar_force_simulated_values && App::GetInputEngine()->isEventDefined(eventID));
 }
 
 float Actor::getEventBounceTime(int eventID)
 {
     float bounce_time = 0;
     // Simulated values don't have bounce times.
-    if (!hasEventSimulatedValue(eventID))
+    if (!hasEventSimulatedValue(eventID) && !!ar_force_simulated_values)
         bounce_time = App::GetInputEngine()->getEventBounceTime(eventID);
 
     return bounce_time;

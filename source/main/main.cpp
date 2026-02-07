@@ -2040,36 +2040,44 @@ int main(int argc, char *argv[])
                             if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                             {
                                 App::GetGameContext()->UpdateSimInputEvents(dt);
-                                App::GetGameContext()->UpdateSkyInputEvents(dt);
-                                if (App::GetGameContext()->GetPlayerActor() &&
-                                    App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::NETWORKED_OK) // we are in a vehicle
+                            }
+
+                            App::GetGameContext()->UpdateSkyInputEvents(dt);
+                            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_state != ActorState::NETWORKED_OK)
                                 {
-                                    App::GetGameContext()->UpdateCommonInputEvents(dt);
-                                    if (App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::LOCAL_REPLAY)
+                                    // If this actor is not the player actor, it must not receive
+                                    // inputs from the InputEngine.
+                                    if (actor != App::GetGameContext()->GetPlayerActor())
+                                        actor->ar_force_simulated_values = true;
+
+                                    App::GetGameContext()->UpdateCommonInputEvents(dt, actor);
+                                    if (actor->ar_state != ActorState::LOCAL_REPLAY)
                                     {
-                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
+                                        if (actor->ar_driveable == TRUCK)
                                         {
-                                            App::GetGameContext()->UpdateTruckInputEvents(dt);
+                                            App::GetGameContext()->UpdateTruckInputEvents(dt, actor);
                                         }
-                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
+                                        if (actor->ar_driveable == AIRPLANE)
                                         {
-                                            App::GetGameContext()->UpdateAirplaneInputEvents(dt);
+                                            App::GetGameContext()->UpdateAirplaneInputEvents(dt, actor);
                                         }
-                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
+                                        if (actor->ar_driveable == BOAT)
                                         {
-                                            App::GetGameContext()->UpdateBoatInputEvents(dt);
+                                            App::GetGameContext()->UpdateBoatInputEvents(dt, actor);
                                         }
                                     }
-                                    App::GetGameContext()->GetPlayerActor()->UpdatePropAnimInputEvents();
-                                    for (ActorPtr linked_actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
+
+                                    actor->UpdatePropAnimInputEvents();
+                                    for (ActorPtr linked_actor : actor->ar_linked_actors)
                                     {
                                         linked_actor->UpdatePropAnimInputEvents();
                                     }
+
+                                    // Go back to normal conditions.
+                                    actor->ar_force_simulated_values = false;
                                 }
-                            }
-                            else // free cam mode
-                            {
-                                App::GetGameContext()->UpdateSkyInputEvents(dt);
                             }
                         }
                     } // app state SIMULATION
