@@ -1920,11 +1920,11 @@ void GameContext::UpdateTruckInputEvents(float dt, ActorPtr truck)
 
     if (truck->ar_brake > 1.0f / 6.0f)
     {
-        SOUND_START(m_player_actor, SS_TRIG_BRAKE);
+        SOUND_START(truck, SS_TRIG_BRAKE);
     }
     else
     {
-        SOUND_STOP(m_player_actor, SS_TRIG_BRAKE);
+        SOUND_STOP(truck, SS_TRIG_BRAKE);
     }
 
     if (truck->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
@@ -1955,7 +1955,7 @@ void GameContext::UpdateTruckInputEvents(float dt, ActorPtr truck)
     {
         if (truck->getEventBoolValueBounce(EV_TRUCK_HORN))
         {
-            SOUND_TOGGLE(m_player_actor, SS_TRIG_HORN); // Police siren
+            SOUND_TOGGLE(truck, SS_TRIG_HORN); // Police siren
         }
     }
     else
@@ -1963,11 +1963,11 @@ void GameContext::UpdateTruckInputEvents(float dt, ActorPtr truck)
         if (truck->getEventBoolValue(EV_TRUCK_HORN)
             || App::GetGuiManager()->VehicleInfoTPanel.IsHornButtonActive())
         {
-            SOUND_START(m_player_actor, SS_TRIG_HORN);
+            SOUND_START(truck, SS_TRIG_HORN);
         }
         else
         {
-            SOUND_STOP(m_player_actor, SS_TRIG_HORN);
+            SOUND_STOP(truck, SS_TRIG_HORN);
         }
     }
 
