@@ -94,6 +94,7 @@ enum DashData
     DD_ENGINE_SPEEDO_MPH,      /// speedo in miles per hour
     DD_ENGINE_TURBO,           /// turbo gauge
     DD_ENGINE_IGNITION,
+    DD_ENGINE_RUNNING,
     DD_ENGINE_BATTERY,         /// battery lamp
     DD_ENGINE_CLUTCH_WARNING,  /// clutch warning lamp
 
