@@ -3999,6 +3999,10 @@ void Actor::updateDashBoards(float dt)
         float rpm = ar_engine->getRPM();
         ar_dashboard->setFloat(DD_ENGINE_RPM, rpm);
 
+        // engine running
+        bool engRun = ar_engine->isRunning();
+        ar_dashboard->setBool(DD_ENGINE_RUNNING, engRun);
+
         // turbo
         float turbo = ar_engine->getTurboPSI() * 3.34f; // MAGIC :/
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
