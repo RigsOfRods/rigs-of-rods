@@ -1277,6 +1277,7 @@ void AeroDashOverlay::SetupMouseHovers()
 
 void AeroDashOverlay::UpdateMouseHovers()
 {
+    hovered_widget = nullptr;
     for (auto elem : aero_widgets)
     {
         if (elem->UpdateMouseHover())
@@ -1285,4 +1286,5 @@ void AeroDashOverlay::UpdateMouseHovers()
         }
     }
 }
+
 
