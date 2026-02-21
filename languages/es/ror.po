@@ -11,13 +11,14 @@
 # Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>, 2022.
 # gallegonovato <fran-carro@hotmail.es>, 2023, 2024.
 # Santiago Perez <ambulanciaperez0091@gmail.com>, 2024.
+# Karlos XD <carlos.a.olivares.a@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-01 14:51+0100\n"
-"PO-Revision-Date: 2024-04-07 08:01+0000\n"
-"Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
+"PO-Revision-Date: 2026-02-22 11:09+0000\n"
+"Last-Translator: Karlos XD <carlos.a.olivares.a@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -25,7 +26,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 
 #: AppContext.cpp:258 AppContext.cpp:280 AppContext.cpp:474 AppContext.cpp:492
 #: AppContext.cpp:543 AppContext.cpp:557 AppContext.cpp:568
@@ -39,6 +40,10 @@ msgid ""
 "\n"
 "Detailed info: {}"
 msgstr ""
+"No se pudo cargar el archivo '{}' - asegúrese de que el juego esté instalado "
+"correctamente.\n"
+"\n"
+"Información detallada: {}"
 
 #: AppContext.cpp:280
 msgid "No render system plugin available. Check your plugins.cfg"
@@ -48,7 +53,7 @@ msgstr ""
 
 #: AppContext.cpp:287
 msgid "Error restoring settings from 'ogre.cfg'"
-msgstr ""
+msgstr "Error restaurando configuración de 'ogre.cfg'"
 
 #: AppContext.cpp:444
 msgid "Screenshot: "
@@ -280,22 +285,22 @@ msgstr "Suave"
 #: Application.cpp:591
 msgctxt "UiPreset"
 msgid "Novice"
-msgstr ""
+msgstr "Novato"
 
 #: Application.cpp:592
 msgctxt "UiPreset"
 msgid "Regular"
-msgstr ""
+msgstr "Regular"
 
 #: Application.cpp:593
 msgctxt "UiPreset"
 msgid "Expert"
-msgstr ""
+msgstr "Experto"
 
 #: Application.cpp:594
 msgctxt "UiPreset"
 msgid "Minimallist"
-msgstr ""
+msgstr "Minimalista"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -1476,7 +1481,7 @@ msgstr "Sonido crujiente"
 #: gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
 msgid "Enable advanced sound effects via OpenAL EFX"
-msgstr ""
+msgstr "Activar efectos de sonidos avanzados via OpenAL EFX"
 
 #: gui/panels/GUI_GameSettings.cpp:337
 msgctxt "GameSettings"
@@ -1486,17 +1491,17 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:338
 msgctxt "GameSettings"
 msgid "Sound obstruction"
-msgstr ""
+msgstr "Obstrucción de sonido"
 
 #: gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
 msgid "Force obstruction inside vehicles"
-msgstr ""
+msgstr "Forzar obstrucción dentro de vehículos"
 
 #: gui/panels/GUI_GameSettings.cpp:343
 msgctxt "GameSettings"
 msgid "Sound occlusion"
-msgstr ""
+msgstr "Oclución de sonido"
 
 #: gui/panels/GUI_GameSettings.cpp:344
 msgctxt "GameSettings"
@@ -1536,15 +1541,12 @@ msgstr "Volumen general"
 #: gui/panels/GUI_GameSettings.cpp:361
 msgctxt "GameSettings"
 msgid "Doppler factor"
-msgstr ""
+msgstr "Factor de Doppler"
 
 #: gui/panels/GUI_GameSettings.cpp:367
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Game settings"
 msgctxt "GameSettings"
 msgid "UI settings"
-msgstr "Ajustes del juego"
+msgstr "Ajustes de la interfaz de usuario"
 
 #: gui/panels/GUI_GameSettings.cpp:371
 #, fuzzy
@@ -1565,7 +1567,7 @@ msgstr "Contraseña del servidor por defecto"
 #: gui/panels/GUI_GameSettings.cpp:374
 msgctxt "GameSettings"
 msgid "Imperial units"
-msgstr ""
+msgstr "Unidad Imperial"
 
 #: gui/panels/GUI_GameSettings.cpp:376
 msgctxt "GameSettings"
@@ -1665,7 +1667,7 @@ msgstr "Activar marcas de neumáticos"
 #: gui/panels/GUI_GameSettings.cpp:442
 msgctxt "GameSettings"
 msgid "Enable automatic mesh LOD generator (Increases loading times)"
-msgstr ""
+msgstr "Activar generador automático de malla LOD (Aumenta tiempos de carga)"
 
 #: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
@@ -1823,9 +1825,10 @@ msgid "Log beam triggers"
 msgstr "Registro de activadores de viga"
 
 #: gui/panels/GUI_GameSettings.cpp:489
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Allow game window resizing"
-msgstr ""
+msgstr "Permitir el cambio de tamaño de la ventana"
 
 #: gui/panels/GUI_GameSettings.cpp:490
 msgctxt "GameSettings"
@@ -1850,7 +1853,7 @@ msgstr "Modo de captura de entrada"
 #: gui/panels/GUI_GameSettings.cpp:511
 msgctxt "GameSettings"
 msgid "Restarting input subsystem, please wait..."
-msgstr ""
+msgstr "Reiniciando el subsistema de entrada, por favor espere..."
 
 #: gui/panels/GUI_GameSettings.cpp:514
 msgctxt "GameSettings"
@@ -1928,12 +1931,9 @@ msgid "OutGauge delay"
 msgstr "Retraso OutGauge"
 
 #: gui/panels/GUI_GameSettings.cpp:656
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Presets"
 msgctxt "TopMenubar"
 msgid "UI Preset"
-msgstr "Preajustes"
+msgstr "Preajustes de la interfaz de usuario"
 
 #: gui/panels/GUI_LoadingWindow.cpp:76
 msgctxt "LoadingWindow"
@@ -2250,52 +2250,37 @@ msgstr "Descarga lenta de red"
 #: gui/panels/GUI_MultiplayerClientList.cpp:330
 msgctxt "MultiplayerClientList"
 msgid "Local actions"
-msgstr ""
+msgstr "Acciónes locales"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:331
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Net chat"
 msgctxt "MultiplayerClientList"
 msgid "Mute chat"
-msgstr "Chat en red"
+msgstr "Silenciar chat"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:332
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "Tractors"
 msgctxt "MultiplayerClientList"
 msgid "Mute actors"
-msgstr "Tractores"
+msgstr "Silenciar actores"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:333
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Hide nodes"
 msgctxt "MultiplayerClientList"
 msgid "Hide actors"
-msgstr "Ocultar nodos"
+msgstr "Ocultar actores"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:335
-#, fuzzy
-#| msgctxt "MultiplayerSelector"
-#| msgid "Server host"
 msgctxt "MultiplayerClientList"
 msgid "Server commands"
-msgstr "Host del servidor"
+msgstr "Comandos del servidor"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:336
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Export"
 msgctxt "MultiplayerClientList"
 msgid "Report"
-msgstr "Exportar"
+msgstr "Reportar"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:340
 msgctxt "MultiplayerClientList"
 msgid "Kick"
-msgstr ""
+msgstr "Expulsar"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:341
 #, fuzzy
@@ -2389,7 +2374,7 @@ msgstr "Token de usuario"
 #: gui/panels/GUI_MultiplayerSelector.cpp:213
 msgctxt "MultiplayerSelector"
 msgid "(Get token online)"
-msgstr ""
+msgstr "(Conseguir token en línea)"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:214
 msgctxt "MultiplayerSelector"
@@ -2397,6 +2382,7 @@ msgid ""
 "Never share your user token, even if someone is claiming to be an "
 "administrator."
 msgstr ""
+"Nunca compartas tu token, incluso si alguien pretende ser un administrador."
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:225
 msgctxt "MultiplayerSelector"
@@ -2461,12 +2447,9 @@ msgid "Node/Beam Utils"
 msgstr "Utilidad de nodo/viga"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:63
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Mass: "
 msgctxt "NodeBeamUtils"
 msgid "Mass"
-msgstr "Masa: "
+msgstr "Masa:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:68
 msgctxt "NodeBeamUtils"
@@ -2573,20 +2556,17 @@ msgstr "Yitter"
 #: gui/panels/GUI_NodeBeamUtils.cpp:267
 msgctxt "NodeBeamUtils"
 msgid "This mod is read only (ZIP archive)"
-msgstr ""
+msgstr "Este mod es solo lectura (Archivo ZIP)"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:269
 msgctxt "NodeBeamUtils"
 msgid "Create writable project (if not existing)"
-msgstr ""
+msgstr "Crear projecto escribible (si no existe)"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:282
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "Projects"
 msgctxt "NodeBeamUtils"
 msgid "Project created"
-msgstr "Proyectos"
+msgstr "Proyecto creado"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:283
 #, c++-format
@@ -2597,27 +2577,26 @@ msgid ""
 "\n"
 "Please load it and open the N/B utility again"
 msgstr ""
+"Projecto creado exitosamente con el nombre\n"
+"\"{}\"\n"
+"\n"
+"Por favor cárguelo y abra la utilidad N/B otra vez"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:299
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "Projects"
 msgctxt "NodeBeamUtils"
 msgid "Project:"
-msgstr "Proyectos"
+msgstr "Proyecto:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:303
-#, fuzzy
-#| msgid "Save and Play"
 msgctxt "NodeBeamUtils"
 msgid "Save and reload"
-msgstr "Guardar y Jugar"
+msgstr "Guardar y Recargar"
 
 #. To disambiguate the 'reset' buttons.
 #: gui/panels/GUI_NodeBeamUtils.cpp:318
 msgctxt "NodeBeamUtils"
 msgid "User-defined values:"
-msgstr ""
+msgstr "Valores definidos por el usuario:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:319
 msgctxt "NodeBeamUtils"
@@ -2635,26 +2614,20 @@ msgstr "Reiniciar"
 
 #. To disambiguate the 'reset' buttons.
 #: gui/panels/GUI_NodeBeamUtils.cpp:333
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Load Mass: "
 msgctxt "NodeBeamUtils"
 msgid "Load mass"
-msgstr "Masa de carga: "
+msgstr "Masa de carga"
 
 #. To disambiguate the 'reset' buttons.
 #: gui/panels/GUI_NodeBeamUtils.cpp:347
 msgctxt "NodeBeamUtils"
 msgid "Minimum node mass scale"
-msgstr ""
+msgstr "Escala mínima de nodos"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:368
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "<All active values>"
 msgctxt "NodeBeamUtils"
 msgid "Calculated values:"
-msgstr "<Todos los valores activos>"
+msgstr "Valores calculados:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:369
 msgctxt "NodeBeamUtils"
@@ -2662,20 +2635,14 @@ msgid "Total mass"
 msgstr "Masa total"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:370
-#, fuzzy
-#| msgctxt "NodeBeamUtils"
-#| msgid "Total mass"
 msgctxt "NodeBeamUtils"
 msgid "Total nodes"
-msgstr "Masa total"
+msgstr "Nodos totales"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:371
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Hide nodes"
 msgctxt "NodeBeamUtils"
 msgid "Loaded nodes"
-msgstr "Ocultar nodos"
+msgstr "Nodos cargados"
 
 #: gui/panels/GUI_RepositorySelector.cpp:206
 msgctxt "RepositorySelector"
@@ -2786,31 +2753,25 @@ msgid "times"
 msgstr "veces"
 
 #: gui/panels/GUI_RepositorySelector.cpp:991
-#, fuzzy
-#| msgctxt "RepositorySelector"
-#| msgid "Downloaded"
 msgctxt "RepositorySelector"
 msgid "No downloads queued."
-msgstr "Descargado"
+msgstr "No hay descargas en fila."
 
 #: gui/panels/GUI_RepositorySelector.cpp:1000
 msgctxt "RepositorySelector"
 msgid "Num. queued downloads:"
-msgstr ""
+msgstr "Número de descargas en fila:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1001
-#, fuzzy
-#| msgctxt "SimActorStats"
-#| msgid "Total mass: "
 msgctxt "RepositorySelector"
 msgid "Total Size:"
-msgstr "Masa total: "
+msgstr "Tamaño total:"
 
 #. Far right - "view in browser" hyperlink.
 #: gui/panels/GUI_RepositorySelector.cpp:1075
 msgctxt "RepositorySelector"
 msgid "View in web browser"
-msgstr ""
+msgstr "Visualizar en navegador de web"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1105
 msgctxt "RepositorySelector"
@@ -3103,12 +3064,9 @@ msgid "Reload current terrain"
 msgstr "Recargar terreno actual"
 
 #: gui/panels/GUI_TopMenubar.cpp:443
-#, fuzzy
-#| msgctxt "GameControls"
-#| msgid "Save changes"
 msgctxt "TopMenubar"
 msgid "Save changes to terrain"
-msgstr "Guardar los cambios"
+msgstr "Guardar los cambios al terreno"
 
 #: gui/panels/GUI_TopMenubar.cpp:452
 msgctxt "TopMenubar"
@@ -3303,14 +3261,15 @@ msgid "FlexBody debug"
 msgstr "Depuración de cuerpo flexible"
 
 #: gui/panels/GUI_TopMenubar.cpp:748
+#, fuzzy
 msgctxt "TopMenubar"
 msgid "Browse gadgets ..."
-msgstr ""
+msgstr "Navegar aparatos ..."
 
 #: gui/panels/GUI_TopMenubar.cpp:754
 msgctxt "TopMenubar"
 msgid "Browse repository ..."
-msgstr ""
+msgstr "Navegar repositorio ..."
 
 #: gui/panels/GUI_TopMenubar.cpp:761
 msgctxt "TopMenubar"
@@ -3531,12 +3490,12 @@ msgstr "Preajustes"
 #: gui/panels/GUI_TopMenubar.cpp:1324
 msgctxt "TopMenubar"
 msgid "Failed to fetch external presets."
-msgstr ""
+msgstr "No se pudieron buscar preajustes externos."
 
 #: gui/panels/GUI_TopMenubar.cpp:1325
 msgctxt "TopMenubar"
 msgid "Retry"
-msgstr ""
+msgstr "Reintentar"
 
 #: gui/panels/GUI_TopMenubar.cpp:1339
 msgctxt "TopMenubar"
@@ -3689,39 +3648,33 @@ msgid "Wheels ({})"
 msgstr "Ruedas ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1848
-#, fuzzy, c++-format
-#| msgctxt "MainSelector"
-#| msgid "Flares: "
+#, c++-format
 msgctxt "Tuning"
 msgid "Flares ({})"
-msgstr "Bengalas: "
+msgstr "Bengalas ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1897
-#, fuzzy, c++-format
-#| msgctxt "MainSelector"
-#| msgid "Exhausts: "
+#, c++-format
 msgctxt "Tuning"
 msgid "Exhausts ({})"
-msgstr "Tubos de escape "
+msgstr "Tubos de escape ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1928
-#, fuzzy, c++-format
-#| msgid "Materials: "
+#, c++-format
 msgctxt "Tuning"
 msgid "Managed Materials ({})"
-msgstr "Materiales: "
+msgstr "Materiales Administrados ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1959
-#, fuzzy, c++-format
-#| msgid "Debug VideoCameras"
+#, c++-format
 msgctxt "Tuning"
 msgid "Videocameras ({})"
-msgstr "Depurar VideoCámaras y retrovisores"
+msgstr "Videocámaras ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1996
 msgctxt "Tuning"
 msgid "Flipped"
-msgstr ""
+msgstr "Volteado"
 
 #: gui/panels/GUI_TopMenubar.cpp:2012
 msgctxt "Tuning"
@@ -3734,11 +3687,9 @@ msgid "(Mirror prop - Right)"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:2014
-#, fuzzy
-#| msgid "Debug VideoCameras"
 msgctxt "Tuning"
 msgid "(Videocamera)"
-msgstr "Depurar VideoCámaras y retrovisores"
+msgstr "(Videocámara)"
 
 #: gui/panels/GUI_TopMenubar.cpp:2205
 msgctxt "TopMenubar"
@@ -3785,12 +3736,10 @@ msgid "meter"
 msgstr "metro"
 
 #: gui/panels/GUI_TopMenubar.cpp:2356 gui/panels/GUI_TopMenubar.cpp:2367
-#, fuzzy, c++-format
-#| msgctxt "TopMenubar"
-#| msgid "Terrain editing mode, press {} to save and exit"
+#, c++-format
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to exit"
-msgstr "Modo de edición del terreno, pulse {} para guardar y salir"
+msgstr "Modo de edición del terreno, pulse {} para salir"
 
 #: gui/panels/GUI_TopMenubar.cpp:2418
 msgctxt "TopMenubar"
@@ -3885,25 +3834,20 @@ msgstr "Cambiar el modo de restablecimiento"
 
 #. notice text
 #: gui/panels/GUI_TopMenubar.cpp:2503
-#, fuzzy
-#| msgid "This terrain does not have water."
 msgctxt "TopMenubar"
 msgid "This terrain is read only."
-msgstr "Este terreno no tiene agua."
+msgstr "Este terreno es solo lectura."
 
 #: gui/panels/GUI_TopMenubar.cpp:2509
 msgctxt "TopMenubar"
 msgid "Import as editable project."
-msgstr ""
+msgstr "Importar como projecto editable."
 
 #. Info text
 #: gui/panels/GUI_TopMenubar.cpp:2525
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Use [Simulation] menu"
 msgctxt "TopMenubar"
 msgid "Use 'Simulation' menu to save changes."
-msgstr "Utilizar el menú [Simulación]"
+msgstr "Usar el menú 'Simulación' para guardar cambios."
 
 #: gui/panels/GUI_TopMenubar.cpp:2717
 msgctxt "Tuning"
@@ -3924,12 +3868,9 @@ msgid "Basics"
 msgstr "Básico"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:186
-#, fuzzy
-#| msgctxt "GfxExtCamMode"
-#| msgid "Static"
 msgctxt "TPanel"
 msgid "Stats"
-msgstr "Estático"
+msgstr "Estadísticas"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:193
 #, fuzzy
@@ -3945,34 +3886,25 @@ msgid "Diag"
 msgstr ""
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:222
-#, fuzzy
-#| msgctxt "RepositorySelector"
-#| msgid "Description:"
 msgctxt "VehicleDescription"
 msgid "Description text:"
-msgstr "Descripción:"
+msgstr "Texto de la descripción:"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:233
 msgctxt "VehicleDescription"
 msgid "Help image:"
-msgstr ""
+msgstr "Imagen de ayuda:"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:237
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:238
-#, fuzzy
-#| msgctxt "GfxVegetation"
-#| msgid "Full"
 msgctxt "VehicleDescription"
 msgid "Full size"
-msgstr "Lleno"
+msgstr "Tamaño completo"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:264
-#, fuzzy
-#| msgctxt "LiveRepair"
-#| msgid "Show controls"
 msgctxt "VehicleDescription"
 msgid "Command controls:"
-msgstr "Mostrar controles"
+msgstr "Controles de comando"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:266
 msgctxt "VehicleDescription"
@@ -3982,7 +3914,7 @@ msgstr ""
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:278
 msgctxt "VehicleDescription"
 msgid "~unlabeled~"
-msgstr ""
+msgstr "~sin etiquetar~"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:397
 msgctxt "SimActorStats"
@@ -4204,12 +4136,9 @@ msgid "Submesh details"
 msgstr "Detalles de Submesh"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:606
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Beam details"
 msgctxt "TopMenubar"
 msgid "Buoyancy details"
-msgstr "Detalles de la viga"
+msgstr "Detalles de la flotabilidad"
 
 #: gui/panels/GUI_VehicleInfoTPanel.cpp:617
 msgctxt "TopMenubar"
@@ -4267,7 +4196,7 @@ msgstr "Multijugador: fallo de conexión"
 #, c++-format
 msgctxt "RepositorySelector"
 msgid "Repo file installation requested: {}"
-msgstr ""
+msgstr "Instalación de archivo del repositorio solicitada: {}"
 
 #: main.cpp:967
 msgid "Loading resources"
@@ -4304,7 +4233,7 @@ msgstr "Saliendo del modo Edición de terrenos"
 
 #: main.cpp:1676
 msgid "Terrain files have been updated"
-msgstr ""
+msgstr "Archivos del terreno han sido actualizados"
 
 #: main.cpp:2191
 msgid "An exception has occured!"
@@ -4416,11 +4345,10 @@ msgstr ""
 "Estableciendo sesión de red: lo sentimos, ¡versión del protocolo incorrecta!"
 
 #: network/Network.cpp:543
-#, fuzzy
-#| msgid "Establishing network session: sorry, unknown server response"
 msgid "Establishing network session: sorry, this server requires a user token!"
 msgstr ""
-"Estableciendo sesión de red: Lo sentimos, respuesta del servidor desconocida"
+"Estableciendo sesión de red: Lo sentimos, ¡Este servidor requiere una ficha "
+"de usuario!"
 
 #: network/Network.cpp:551
 msgid "Establishing network session: sorry, unknown server response"
@@ -4523,12 +4451,11 @@ msgid "Mod not installed: "
 msgstr "Mod no instalado: "
 
 #: physics/ActorManager.cpp:1444
-#, fuzzy, c++-format
-#| msgctxt "CacheSystem"
-#| msgid "Could not copy file '{}' to project '{}', message: {}."
+#, c++-format
 msgctxt "Truck"
 msgid "Failed to export truck '{}' to resource group '{}', message: {}"
-msgstr "No se pudo copiar el archivo '{}' al proyecto '{}', mensaje: {}."
+msgstr ""
+"No se pudo exportar el camión '{}' al grupo de recursos '{}', mensaje: {}"
 
 #: physics/ActorManager.cpp:1470 physics/ActorManager.cpp:1479
 #: physics/ActorManager.cpp:1497
@@ -4643,6 +4570,7 @@ msgstr ""
 msgctxt "CacheSystem"
 msgid "Mod '{}' was not found in cache; candidates ({}) are:"
 msgstr ""
+"La modificación '{}' no se encontró en el cache; los candidatos ({}) son:"
 
 #: resources/CacheSystem.cpp:252
 #, c++-format
@@ -4722,18 +4650,16 @@ msgid "Could not copy file '{}' to project '{}', message: {}."
 msgstr "No se pudo copiar el archivo '{}' al proyecto '{}', mensaje: {}."
 
 #: resources/CacheSystem.cpp:1960
-#, fuzzy, c++-format
-#| msgid "Could not load file '{}'"
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Could not load project file '{}' to perform fixups."
-msgstr "No se pudo cargar el archivo '{}'"
+msgstr "No se pudo cargar el archivo de proyecto '{}' para realizar arreglos"
 
 #: resources/CacheSystem.cpp:1993
-#, fuzzy, c++-format
-#| msgid "Could not load file '{}'"
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Could not save fixed-up project file '{}'."
-msgstr "No se pudo cargar el archivo '{}'"
+msgstr "No se pudo cargar el archivo arreglado '{}'"
 
 #: resources/CacheSystem.cpp:2031
 #, c++-format
@@ -4755,18 +4681,17 @@ msgstr ""
 "Sintonización de carga de error: archivo '{}', no se encuentra en mod cache"
 
 #: resources/CacheSystem.cpp:2219
-#, fuzzy
-#| msgctxt "CacheSystem"
-#| msgid "Error loading tuneup: file '{}', not found in mod cache"
 msgctxt "CacheSystem"
 msgid "Error updating truck file: actor not found or disposed"
 msgstr ""
-"Sintonización de carga de error: archivo '{}', no se encuentra en mod cache"
+"Error para actualizar el archivo del camión: actor no encontrado o desechado"
 
 #: resources/CacheSystem.cpp:2227
 msgctxt "CacheSystem"
 msgid "Error updating truck file: cache entry missing or not a project"
 msgstr ""
+"Error al actualizar el archivo del camión: entrada de cache faltante o no es "
+"un proyecto"
 
 #: resources/CacheSystem.cpp:2276
 #, c++-format
@@ -4797,21 +4722,19 @@ msgstr ""
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Deleted {} '{}' because bundle {} is being removed."
-msgstr ""
+msgstr "Borrado {} '{}' porque el paquere {} está siendo eliminado."
 
 #: resources/CacheSystem.cpp:2500
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Could not delete resource bundle file '{}' from disk."
-msgstr ""
+msgstr "No se pudo borrar el paquete de recursos '{}' del disco."
 
 #: resources/CacheSystem.cpp:2510
-#, fuzzy, c++-format
-#| msgctxt "CacheSystem"
-#| msgid "Could not copy file '{}' to project '{}', message: {}."
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Could not delete resource bundle '{}', message: {}."
-msgstr "No se pudo copiar el archivo '{}' al proyecto '{}', mensaje: {}."
+msgstr "No se pudo borrar el paquete de recursos '{}', mensaje: {}."
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
