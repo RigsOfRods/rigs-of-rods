@@ -12,13 +12,14 @@
 # gallegonovato <fran-carro@hotmail.es>, 2023, 2024.
 # Santiago Perez <ambulanciaperez0091@gmail.com>, 2024.
 # Karlos XD <carlos.a.olivares.a@gmail.com>, 2026.
+# Daniel Lopez <danyboys0610@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-01 14:51+0100\n"
-"PO-Revision-Date: 2026-02-22 11:09+0000\n"
-"Last-Translator: Karlos XD <carlos.a.olivares.a@gmail.com>\n"
+"PO-Revision-Date: 2026-02-26 11:09+0000\n"
+"Last-Translator: Daniel Lopez <danyboys0610@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -87,7 +88,7 @@ msgstr "Cambio automático"
 #: Application.cpp:464
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Cambio manual con embrague automático"
+msgstr "Cambio manual - Embrague automático"
 
 #: Application.cpp:465
 msgctxt "SimGearboxMode"
@@ -255,12 +256,9 @@ msgid "Dynamic"
 msgstr "Dinámico"
 
 #: Application.cpp:570
-#, fuzzy
-#| msgctxt "GfxFlaresMode"
-#| msgid "None (fastest)"
 msgctxt "EfxReverbEngine"
 msgid "None (no reverb, fastest)"
-msgstr "Ninguno (más rápido)"
+msgstr "Ninguno (Sin Reverbación‐más rápido)"
 
 #: Application.cpp:571
 msgctxt "EfxReverbEngine"
@@ -1348,7 +1346,7 @@ msgstr "Sistema de renderizado (los cambios requieren reinicio)"
 #| msgid "You must save and restart the program to activate the new language!"
 msgctxt "GameSettings"
 msgid "You must restart the game to make changes effective."
-msgstr "Debe guardar y reiniciar el programa para activar el nuevo idioma"
+msgstr "Debes guardar y reiniciar el programa para activar el nuevo idioma"
 
 #: gui/panels/GUI_GameSettings.cpp:204
 msgctxt "GameSettings"
@@ -1484,9 +1482,10 @@ msgid "Enable advanced sound effects via OpenAL EFX"
 msgstr "Activar efectos de sonidos avanzados via OpenAL EFX"
 
 #: gui/panels/GUI_GameSettings.cpp:337
+#, fuzzy
 msgctxt "GameSettings"
 msgid "OpenAL Reverb engine"
-msgstr ""
+msgstr "Motor de Reverbación OpenAL"
 
 #: gui/panels/GUI_GameSettings.cpp:338
 msgctxt "GameSettings"
@@ -4878,7 +4877,7 @@ msgstr ""
 #: resources/CacheSystem.h:436
 msgctxt "ModCategory"
 msgid "Dashboards - Boat"
-msgstr ""
+msgstr "Panel-Barco"
 
 #. gadgets
 #: resources/CacheSystem.h:439
@@ -4956,13 +4955,13 @@ msgstr "No se pudo cargar la parte del complemento '{}' (archivo '{}')"
 #, c++-format
 msgctxt "Tuning"
 msgid "Total conflicts: {}."
-msgstr ""
+msgstr "Conflictos en total: {}."
 
 #: resources/addonpart_fileformat/AddonPartFileFormat.cpp:984
 #, c++-format
 msgctxt "Tuning"
 msgid "[{}/{}] '{}' (file '{}') conflicts with '{}' #{}."
-msgstr ""
+msgstr "[{}/{}] '{}' (archivo '{}') conflictos con '{}' #{}."
 
 #: resources/addonpart_fileformat/AddonPartFileFormat.cpp:992
 #, fuzzy
@@ -5114,7 +5113,7 @@ msgstr "pos - muestra la posición actual"
 
 #: system/ConsoleCmd.cpp:374
 msgid "unable to get sound manager"
-msgstr ""
+msgstr "Imposible obtener el administrador de sonido"
 
 #: system/ConsoleCmd.cpp:378
 #, fuzzy
