@@ -18,7 +18,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-01 14:51+0100\n"
-"PO-Revision-Date: 2026-02-26 11:09+0000\n"
+"PO-Revision-Date: 2026-03-01 05:09+0000\n"
 "Last-Translator: Daniel Lopez <danyboys0610@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
@@ -263,12 +263,12 @@ msgstr "Ninguno (Sin Reverbación‐más rápido)"
 #: Application.cpp:571
 msgctxt "EfxReverbEngine"
 msgid "REVERB"
-msgstr ""
+msgstr "REVERBERACIÓN"
 
 #: Application.cpp:572
 msgctxt "EfxReverbEngine"
 msgid "EAXREVERB (more realistic effects, slower)"
-msgstr ""
+msgstr "EAXREVERB (Efectos mas realistas, mas lento)"
 
 #: Application.cpp:581
 msgctxt "SimResetMode"
@@ -309,10 +309,12 @@ msgid "Terrain loading error"
 msgstr "Error cargando el Terreno"
 
 #: GameContext.cpp:405
-#, c++-format
+#, c++-format, fuzzy
 msgctxt "GameContext"
 msgid "Cannot reload '{}' ({}) - the associated modcache entry was deleted."
 msgstr ""
+"No se puede recargar '{}' ({}) - la entrada del modcache asociado fue "
+"eliminado"
 
 #: GameContext.cpp:672
 msgid "Please clear the place first"
@@ -1314,7 +1316,7 @@ msgstr "Jugabilidad"
 #: gui/panels/GUI_GameSettings.cpp:77
 msgctxt "GameSettings"
 msgid "UI"
-msgstr ""
+msgstr "Interfaz"
 
 #: gui/panels/GUI_GameSettings.cpp:84
 msgctxt "GameSettings"
@@ -1342,11 +1344,9 @@ msgid "Render system (changes require a restart)"
 msgstr "Sistema de renderizado (los cambios requieren reinicio)"
 
 #: gui/panels/GUI_GameSettings.cpp:131
-#, fuzzy
-#| msgid "You must save and restart the program to activate the new language!"
 msgctxt "GameSettings"
 msgid "You must restart the game to make changes effective."
-msgstr "Debes guardar y reiniciar el programa para activar el nuevo idioma"
+msgstr "Debes guardar y reiniciar el programa para aplicar los cambios"
 
 #: gui/panels/GUI_GameSettings.cpp:204
 msgctxt "GameSettings"
@@ -1482,10 +1482,9 @@ msgid "Enable advanced sound effects via OpenAL EFX"
 msgstr "Activar efectos de sonidos avanzados via OpenAL EFX"
 
 #: gui/panels/GUI_GameSettings.cpp:337
-#, fuzzy
 msgctxt "GameSettings"
 msgid "OpenAL Reverb engine"
-msgstr "Motor de Reverbación OpenAL"
+msgstr "Motor de Reverberación OpenAL"
 
 #: gui/panels/GUI_GameSettings.cpp:338
 msgctxt "GameSettings"
@@ -1505,12 +1504,13 @@ msgstr "Oclución de sonido"
 #: gui/panels/GUI_GameSettings.cpp:344
 msgctxt "GameSettings"
 msgid "Directed sounds (exhausts etc.)"
-msgstr ""
+msgstr "Sonidos dirigidos (escapes etc.)"
 
 #: gui/panels/GUI_GameSettings.cpp:347
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Early reflections panning (experimental)"
-msgstr ""
+msgstr "Paneo de reflexiones tempranas (experimental)"
 
 #: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
@@ -1520,12 +1520,13 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
 msgid "Default EFX Reverb Preset"
-msgstr ""
+msgstr "Preestablecido Reverberación EFX por defecto"
 
 #: gui/panels/GUI_GameSettings.cpp:355
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Force EFX Reverb Preset"
-msgstr ""
+msgstr "Forzar preestablecido Reverberación EFX"
 
 #: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
