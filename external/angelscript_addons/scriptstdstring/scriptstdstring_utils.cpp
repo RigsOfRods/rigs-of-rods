@@ -34,8 +34,9 @@ static CScriptArray *StringSplit(const string &delim, const string &str)
 	CScriptArray *array = CScriptArray::Create(arrayType);
 
 	// Find the existence of the delimiter in the input string
-	int pos = 0, prev = 0, count = 0;
-	while( (pos = (int)str.find(delim, prev)) != (int)string::npos )
+	size_t pos = 0, prev = 0;
+	asUINT count = 0;
+	while( (pos = str.find(delim, prev)) != string::npos )
 	{
 		// Add the part to the array
 		array->Resize(array->GetSize()+1);
@@ -43,7 +44,7 @@ static CScriptArray *StringSplit(const string &delim, const string &str)
 
 		// Find the next part
 		count++;
-		prev = pos + (int)delim.length();
+		prev = pos + delim.length();
 	}
 
 	// Add the remaining part
@@ -87,12 +88,12 @@ static string StringJoin(const CScriptArray &array, const string &delim)
 		int n;
 		for( n = 0; n < (int)array.GetSize() - 1; n++ )
 		{
-			str += *(string*)array.At(n);
+			str += *(const string*)array.At(n);
 			str += delim;
 		}
 
 		// Add the last part
-		str += *(string*)array.At(n);
+		str += *(const string*)array.At(n);
 	}
 
 	return str;
