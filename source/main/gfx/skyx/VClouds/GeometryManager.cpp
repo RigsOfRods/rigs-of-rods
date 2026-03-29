@@ -76,6 +76,7 @@ namespace SkyX { namespace VClouds
 			return;
 		}
 
+        mSceneNode->removeAndDestroyAllChildren();
 		mSceneNode->detachAllObjects();
 		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode);
 		mSceneNode = 0;
@@ -201,4 +202,16 @@ namespace SkyX { namespace VClouds
 			mGeometryBlocks.at(k)->updateGeometry(c, currentCameraData.geometryDisplacement, mCurrentDistance);
 		}
 	}
-}}
+
+    void GeometryManager::changeHeightParams(const Ogre::Vector2& Height)
+    {
+        // Params: x = Field altitude, y: Field height (both in world coordinates)
+        mHeight = Height;
+        // X is processed per render in `updateGeometry()`, Y must be propagated to geometry blocks
+        for (int k = 0; k < mNumberOfBlocks; k++)
+        {
+            mGeometryBlocks.at(k)->changeHeight(mHeight.y);
+        }
+    }
+
+}} // namespace SkyX::VClouds

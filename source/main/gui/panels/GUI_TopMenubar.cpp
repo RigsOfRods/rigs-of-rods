@@ -2849,23 +2849,19 @@ void TopMenubar::DrawSettingsMenuWeatherControls()
 
         if (skyx_mgr->GetSkyX()->getVCloudsManager())
         {
-            // vHeight: x = Cloud field y-coord start, y: Field height (both in world coordinates)
+            // vHeight: x = Cloud field altitude, y: Cloud field height (both in meters)
             Ogre::Vector2 vHeight = skyx_mgr->GetSkyX()->getVCloudsManager()->getHeight();
             float height_val = vHeight.x;
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Height"), &height_val, 100.0f, 2000.0f, "%.1f"))
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Altitude"), &height_val, 100.0f, 2000.0f, "%.1f"))
             {
                 vHeight.x = height_val;
                 skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
-                skyx_mgr->GetSkyX()->getVCloudsManager()->remove();
-                skyx_mgr->GetSkyX()->getVCloudsManager()->create();
             }
             float thickness_val = vHeight.y;
             if (ImGui::SliderFloat(_LC("TopMenubar", "Thickness"), &thickness_val, 1000.0f, 6000.0f, "%.1f"))
             {
                 vHeight.y = thickness_val;
                 skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
-                skyx_mgr->GetSkyX()->getVCloudsManager()->remove();
-                skyx_mgr->GetSkyX()->getVCloudsManager()->create();
             }
 
             // wind speed (float)

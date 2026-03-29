@@ -89,13 +89,17 @@ namespace SkyX { namespace VClouds{
 			return mSceneNode;
 		}
 
-		/** Get height (x = Altitude over the camera, y: Field height (both in world coordinates))
-		    @return Height (x = Altitude over the camera, y: Field height (both in world coordinates))
+		/** Get height; x = Field altitude, y: Field height (both in world coordinates)
+		    @return Height (x = Field altitude, y: Field height (both in world coordinates))
 		 */
 		inline const Ogre::Vector2 getHeight() const
 		{
 			return mHeight;
 		}
+
+        /// RIGSOFRODS: Dynamically change cloud height params without recreating the whole system.
+        /// Params: x = Field altitude, y: Field height (both in world coordinates)
+        void changeHeightParams(const Ogre::Vector2& Height);
 
 		/** Set material name
 		    @param mn Material name
@@ -132,7 +136,7 @@ namespace SkyX { namespace VClouds{
 		/// Has been create() already called?
 		bool mCreated;
 
-		/// Height: x = Altitude over the camera, y: Field height (both in world coordinates)
+		/// Height: x = Field altitude, y: Field height (both in world coordinates)
 		Ogre::Vector2 mHeight;
 		/// Angles
 		Ogre::Radian mAlpha, mBeta;

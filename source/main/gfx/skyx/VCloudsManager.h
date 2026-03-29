@@ -99,17 +99,13 @@ namespace SkyX
 		}
 
 		/** Set height parameters
-		    @param Height x = Cloud field y-coord start, y: Field height (both in world coordinates)
-			@remarks Call it before create(), for now...
-			         For autocalculated height based on the radius length set (-1,-1) as height params
+		    @param Height x = Field altitude, y: Field height (both in world coordinates)
+			@remarks RIGSOFRODS: this now works dynamically without recreating the geometry.
 		 */
-		inline void setHeight(const Ogre::Vector2& Height)
-		{
-			mHeight = Height;
-		}
+		void setHeight(const Ogre::Vector2& Height);
 
 		/** Get height parameters
-		    @return Height: x = Cloud field y-coord start, y: Field height (both in world coordinates)
+		    @return Height: x = Field altitude, y: Field height (both in world coordinates)
 		 */
 		inline const Ogre::Vector2& getHeight() const
 		{
@@ -182,7 +178,7 @@ namespace SkyX
 		/// VClouds pointer
 		VClouds::VClouds* mVClouds;
 
-		/// Height parameters, x = Cloud field y-coord start, y: Field height (both in world coordinates)
+		/// Height parameters, x = Field base altitude, y: Field height (both in world coordinates)
 		Ogre::Vector2 mHeight;
 
 		/// Autoupdate wind speed depending of skyx time multiplier?

@@ -159,4 +159,10 @@ namespace SkyX
 			mVClouds->setWindSpeed(mWindSpeed);
 		}
 	}
+
+    void VCloudsManager::setHeight(const Ogre::Vector2& Height)
+    {
+        mHeight = Height;
+        mVClouds->getGeometryManager()->changeHeightParams(mHeight);
+    }
 }

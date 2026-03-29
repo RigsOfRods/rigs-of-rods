@@ -147,6 +147,13 @@ namespace SkyX { namespace VClouds{
 		 */
 		const bool isInFrustum(Ogre::Camera *c) const;
 
+        /// RIGSOFRODS: Added for dynamic height change
+        void changeHeight(float newHeight)
+        {
+            mHeight = newHeight;
+            // Processed every frame in `_UpdateZone[ABC]Slice()`
+        }
+
 	private:
 		/** Build axis aligned box
 		    @param fd Falling distance (Positive values for falling geometry, negative for reverse falling geometry)
