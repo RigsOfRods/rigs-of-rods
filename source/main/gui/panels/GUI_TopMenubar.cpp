@@ -2849,6 +2849,16 @@ void TopMenubar::DrawSettingsMenuWeatherControls()
 
         if (skyx_mgr->GetSkyX()->getVCloudsManager())
         {
+            SkyX::VClouds::VClouds* vclouds = skyx_mgr->GetSkyX()->getVCloudsManager()->getVClouds();
+
+            // X = humidity, meaning cloud density, Y = avg.cloud size (both 0-1)
+            Ogre::Vector2 wheater = vclouds->getWheater();
+            float cloud_coverage = wheater.x; // best effect is archieved by updating both at once
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Coverage"), &cloud_coverage, 0.0f, 1.0f, "%.2f"))
+            {
+                vclouds->setWheater(cloud_coverage, cloud_coverage, /* DelayedResponse = */ true);
+            }
+
             // vHeight: x = Cloud field altitude, y: Cloud field height (both in meters)
             Ogre::Vector2 vHeight = skyx_mgr->GetSkyX()->getVCloudsManager()->getHeight();
             float height_val = vHeight.x;
@@ -2870,8 +2880,6 @@ void TopMenubar::DrawSettingsMenuWeatherControls()
             {
                 skyx_mgr->GetSkyX()->getVCloudsManager()->setWindSpeed(windspd);
             }
-
-            SkyX::VClouds::VClouds* vclouds = skyx_mgr->GetSkyX()->getVCloudsManager()->getVClouds();
 
             // wind direction (degree)
             Ogre::Degree winddir = vclouds->getWindDirection();
