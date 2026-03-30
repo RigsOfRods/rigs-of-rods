@@ -2964,16 +2964,6 @@ void TopMenubar::DrawSettingsMenuWeatherControls()
                 }
             }
 
-            // Wind speed (xyz)
-            {
-                Ogre::Vector3 wind = pc->getWindSpeed();
-                float wind3[3] = { wind.x, wind.y, wind.z };
-                if (ImGui::DragFloat3(_LC("TopMenubar", "Wind speed (xyz)"), wind3, 0.1f))
-                {
-                    pc->setWindSpeed(Ogre::Vector3(wind3[0], wind3[1], wind3[2]));
-                }
-            }
-
             // Camera influence (uniform scale)
             {
                 Ogre::Vector3 css = pc->getCameraSpeedScale();

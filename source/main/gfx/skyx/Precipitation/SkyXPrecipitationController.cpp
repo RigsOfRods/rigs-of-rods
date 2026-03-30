@@ -4,6 +4,7 @@
 
 #include "Application.h" // RIGSOFRODS
 #include "SkyXPrecipitationController.h"
+#include "SkyX.h"
 
 using namespace Ogre;
 
@@ -39,17 +40,15 @@ namespace SkyX // Ported to SkyX by ohlidalp
         return comp;
     }
 
-	PrecipitationController::PrecipitationController(
-            Ogre::SceneManager *sceneMgr)
+	PrecipitationController::PrecipitationController(SkyX *s):
+        mSkyX(s)
     {
 		std::string uniqueId = Ogre::StringConverter::toString((size_t)this);
-		mSceneMgr = sceneMgr;
-
+		mSkyX = s;
         setAutoDisableThreshold (0.001);
         mCameraSpeedScale = Ogre::Vector3::UNIT_SCALE;
 
         setIntensity (0);
-		setWindSpeed (Ogre::Vector3(0, 0, 0));
 		mInternalTime = 0;
 		mSecondsSinceLastFrame = 0;
 
@@ -112,14 +111,6 @@ namespace SkyX // Ported to SkyX by ohlidalp
 
 	PrecipitationType PrecipitationController::getPresetType () const {
         return mPresetType;
-	}
-
-	void PrecipitationController::setWindSpeed (const Ogre::Vector3& value) {
-		mWindSpeed = value;
-	}
-
-	const Ogre::Vector3 PrecipitationController::getWindSpeed () const {
-		return mWindSpeed;
 	}
 
 	void PrecipitationController::setIntensity (float intensity) {
@@ -286,9 +277,14 @@ namespace SkyX // Ported to SkyX by ohlidalp
 		corner3 = cam->getCameraToViewportRay(0, 1).getDirection();
 		corner4 = cam->getCameraToViewportRay(1, 1).getDirection();
 
+        //RIGSOFRODS: Wind speed and direction is tied to SkyX's VClouds
+        VClouds::VClouds* vClouds = mParent->mSkyX->getVCloudsManager()->getVClouds();
+        const Ogre::Vector3 windspeedV3 = (vClouds->getPrecipitationWindDirectionV3() * -1.f)
+            * (vClouds->getWindSpeed() * mParent->mWindSpeedMultiplier);
+
 		Ogre::Vector3 precDir =
                 mParent->mSpeed * mParent->mFallingDirection +
-                mParent->mWindSpeed -
+                windspeedV3 -
                 camSpeed * mParent->mCameraSpeedScale;
 		Ogre::Quaternion quat = precDir.getRotationTo(Ogre::Vector3(0, -1, 0));
 

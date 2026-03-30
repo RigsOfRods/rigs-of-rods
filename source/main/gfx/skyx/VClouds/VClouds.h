@@ -279,11 +279,17 @@ namespace SkyX { namespace VClouds{
 		}
 
 		/** Get wind direction as a Vector2
-		    @return Wind direction
 		 */
 		inline const Ogre::Vector2 getWindDirectionV2() const
 		{
 			return Ogre::Vector2(Ogre::Math::Cos(mWindDirection), Ogre::Math::Sin(mWindDirection));
+		}
+
+		/** Get wind direction as a Vector3. Remember Y=up.
+		 */
+		inline const Ogre::Vector3 getPrecipitationWindDirectionV3() const
+		{
+			return Ogre::Vector3(Ogre::Math::Cos(mWindDirection), 0.0f, Ogre::Math::Sin(mWindDirection));
 		}
 
 		/** Set wind speed
@@ -515,7 +521,7 @@ namespace SkyX { namespace VClouds{
 		/// Render queue groups
 		RenderQueueGroups mRenderQueueGroups;
 
-		/// Wind direction
+        /// Wind direction (0 = east direction [-X], then clockwise...)
 		Ogre::Radian mWindDirection;
 		/// Wind speed
 		float mWindSpeed;

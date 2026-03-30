@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SkyXFastGpuParamRef.h"
+#include "ForwardDeclarations.h"
 
 namespace SkyX // Ported to SkyX by ohlidalp
 {
@@ -40,8 +41,10 @@ namespace SkyX // Ported to SkyX by ohlidalp
 	private:
         friend class PrecipitationInstance;
 
-		Ogre::SceneManager *mSceneMgr;
-		Ogre::Vector3 mWindSpeed;
+        //RIGSOFRODS: Wind speed and direction is tied to SkyX's VClouds
+		SkyX *mSkyX = nullptr;
+        float mWindSpeedMultiplier = 0.02f;
+
 		float mIntensity;
 		float mSpeed;
 		Ogre::ColourValue mColour;
@@ -64,6 +67,9 @@ namespace SkyX // Ported to SkyX by ohlidalp
 	public:
         static const std::string COMPOSITOR_NAME; // resource name
         static const std::string MATERIAL_NAME;
+
+		PrecipitationController(SkyX *s);
+		~PrecipitationController();
 
 		static bool isPresetTypeValid (PrecipitationType value);
 		static const PrecipitationPresetParams& getPresetParams (PrecipitationType value);
@@ -90,9 +96,6 @@ namespace SkyX // Ported to SkyX by ohlidalp
 
 		void setIntensity(float value);
 		float getIntensity() const;
-
-		void setWindSpeed(const Ogre::Vector3 &value);
-		const Ogre::Vector3 getWindSpeed() const;
 
 		/// Set manual camera speed for all viewports.
 		void setManualCameraSpeed(const Ogre::Vector3 &value);
@@ -137,10 +140,6 @@ namespace SkyX // Ported to SkyX by ohlidalp
          *  @param secondsSinceLastFrame Number of secods since the last frame.
          */
 		void update(float secondsSinceLastFrame, Ogre::ColourValue colour);
-
-		PrecipitationController(
-				Ogre::SceneManager *sceneMgr);
-		~PrecipitationController();
 
     public:
         typedef std::map<Ogre::Viewport*, PrecipitationInstance*> ViewportInstanceMap;

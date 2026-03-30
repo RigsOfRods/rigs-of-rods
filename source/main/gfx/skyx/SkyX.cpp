@@ -51,7 +51,7 @@ namespace SkyX
 	{
 		// Need to be instanced here, when SkyX::mSceneManager is valid
 		mVCloudsManager = new VCloudsManager(this);
-        mPrecipitationController = new PrecipitationController(sm);
+        mPrecipitationController = new PrecipitationController(this);
 	}
 
 	SkyX::~SkyX()

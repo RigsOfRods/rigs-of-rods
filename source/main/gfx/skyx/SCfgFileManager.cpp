@@ -360,13 +360,13 @@ namespace SkyX
 	}
 
     // Precipitation system ported from Caelum
+    // note: wind speed is tied to the VClouds wind speed
     // =================================================================================
     // Names in Caelum script   | names in SkyX script                       | Descriptions
     // ---------------------------------------------------------------------------------
     // "texture"                | "PrecipitationTextureName"                 | 'precipitation_X.png', where X is: 'drizzle/icecrystals/icepellets/smallhail/hail/snow/snowgrains'
     // "precipitation_colour"   | "<color>PrecipitationColor"                | 
     // "falling_speed"          | "<float>PrecipitationFallingSpeed"         |
-    // "wind_speed"             | "<vector3>PrecipitationWindSpeed"          | Wind speed and direction
     // "camera_speed_scale"     | "<vector3>PrecipitationCameraSpeedScale"   | Controls how much of an effect moving the camera has on rain drop directions.
     // "intensity"              | "<float>PrecipitationIntensity"            |
     // "auto_disable_intensity" | "<float>PrecipitationAutoDisableThreshold" | Auto-disable compositors when intensity is below threshold (expensive switch!). Use negative value to always keep enabled.
@@ -376,7 +376,6 @@ void CfgFileManager::loadPrecipitationParams(Ogre::ConfigFile &CfgFile) const
     mSkyX->getPrecipitationController()->setTextureName(CfgFile.getSetting("PrecipitationTextureName"));
     mSkyX->getPrecipitationController()->setColour(_getColourValue(CfgFile, "PrecipitationColor"));
     mSkyX->getPrecipitationController()->setSpeed(_getFloatValue(CfgFile, "PrecipitationFallingSpeed"));
-    mSkyX->getPrecipitationController()->setWindSpeed(_getVector3Value(CfgFile, "PrecipitationWindSpeed"));
     mSkyX->getPrecipitationController()->setCameraSpeedScale(_getVector3Value(CfgFile, "PrecipitationCameraSpeedScale"));
     mSkyX->getPrecipitationController()->setIntensity(_getFloatValue(CfgFile, "PrecipitationIntensity"));
     mSkyX->getPrecipitationController()->setAutoDisableThreshold(_getFloatValue(CfgFile, "PrecipitationAutoDisableThreshold"));
