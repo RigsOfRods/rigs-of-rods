@@ -1294,25 +1294,30 @@ void GameContext::UpdateSkyInputEvents(float dt)
     if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX &&
         m_terrain->getSkyXManager())
     {
+        float daytime24h = m_terrain->getSkyXManager()->getTimeOfDay24Hour();
+        
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
+            daytime24h += 0.5f*dt;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
+            daytime24h += 1.5f*dt;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
+            daytime24h -=0.5f*dt;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
+            daytime24h -= 1.5f*dt;
         }
-        else
+
+        if (daytime24h != m_terrain->getSkyXManager()->getTimeOfDay24Hour())
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
+            m_terrain->getSkyXManager()->setTimeOfDay24Hour(daytime24h);
+            Str<200> msg; msg << _L("Time set to ") << m_terrain->getSkyXManager()->getPrettyTimeHMS();
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
         }
     }
 }

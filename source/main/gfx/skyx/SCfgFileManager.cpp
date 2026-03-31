@@ -53,10 +53,12 @@ namespace SkyX
 			return false;
 		}
 
-
-		mSkyX->setTimeMultiplier(_getFloatValue(CfgFile, "TimeMultiplier"));
 		mController->setTime(_getVector3Value(CfgFile, "Time"));
 		mController->setMoonPhase(_getFloatValue(CfgFile, "MoonPhase"));
+
+        // RIGSOFRODS: new sun and moon config
+        mController->setLatitudeDeg(_getFloatValue(CfgFile, "Latitude"));
+        mController->setDayOfYear(_getIntValue(CfgFile, "DayOfYear"));
 
 		mSkyX->getAtmosphereManager()->setOptions(
 			AtmosphereManager::Options(

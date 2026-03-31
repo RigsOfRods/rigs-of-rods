@@ -2763,7 +2763,14 @@ void TopMenubar::DrawSettingsMenuSkyControls()
     }
 
     const bool sky_reinit_combo = DrawGCombo(App::gfx_sky_mode, _LC("TopMenubar", "Mode"), sky_mode_combostring.c_str());
-    const bool sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
+    bool sky_reinit_btn = false;
+    if (sky_show_advanced)
+    { 
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f,0.1f,0.1f,1.f));
+        sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
+        ImGui::PopStyleColor(); // ImGuiCol_Button
+    }
     if (sky_reinit_combo || sky_reinit_btn)
     {
         App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_SKY_REQUESTED));
@@ -2773,35 +2780,19 @@ void TopMenubar::DrawSettingsMenuSkyControls()
     {
         auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
 
+        ImGui::Separator();
         ImGui::TextDisabled("%s", _LC("TopMenubar", "Time:"));
+
+        // time slider with current time text on the left
         float timeofday = skyx_mgr->getTimeOfDay24Hour();
-        if (ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, "%.2f"))
+        std::string prettytime = skyx_mgr->getPrettyTimeHMS();
+        if (ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, prettytime.c_str()))
         {
             skyx_mgr->setTimeOfDay24Hour(timeofday);
         }
 
-        { // sunrise/sunset sliders have custom style
-            const float EDGE = 5.f;
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
-            ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH-EDGE*2);
-
-            float lattitude = skyx_mgr->getLatitudeDeg();
-            ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(EDGE, 0));
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Lattitude"), &lattitude, 0.f, 90.f, "%.2f"))
-            {
-                skyx_mgr->setLatitudeDeg(lattitude);
-            }
-
-            ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(EDGE, -2));
-            int day = skyx_mgr->getDayOfYear();
-            if (ImGui::SliderInt(_LC("TopMenubar", "Day of Year"), &day, 1, 365))
-            {
-                skyx_mgr->setDayOfYear(day);
-            }
-
-            ImGui::PopStyleVar(); // FramePadding
-            ImGui::PopItemWidth();
-        }
+        // sub-sliders have custom style
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
 
         float moonphase = skyx_mgr->GetSkyX()->getController()->getMoonPhase();
         if (ImGui::SliderFloat(_LC("TopMenubar", "Moon phase"), &moonphase, -1.f, 1.f, "%.2f"))
@@ -2809,10 +2800,110 @@ void TopMenubar::DrawSettingsMenuSkyControls()
             skyx_mgr->GetSkyX()->getController()->setMoonPhase(moonphase);
         }
 
-        float timefactor = skyx_mgr->GetSkyX()->getTimeMultiplier();
-        if (ImGui::SliderFloat(_LC("TopMenubar", "Time factor"), &timefactor, 0.001, 0.11, "%.2f"))
+        if (sky_show_advanced)
+        { 
+            float lattitude = skyx_mgr->getLatitudeDeg();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Lattitude"), &lattitude, 0.f, 90.f, "%.2f"))
+            {
+                skyx_mgr->setLatitudeDeg(lattitude);
+            }
+
+            int day = skyx_mgr->getDayOfYear();
+            if (ImGui::SliderInt(_LC("TopMenubar", "Day of Year"), &day, 1, 365))
+            {
+                skyx_mgr->setDayOfYear(day);
+            }
+
+            float timefactor = skyx_mgr->GetSkyX()->getTimeMultiplier();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Time factor"), &timefactor, 0.001, 0.05, "%.3f"))
+            {
+                skyx_mgr->GetSkyX()->setTimeMultiplier(timefactor);
+            }
+        }
+        // reset sub-slider style
+        ImGui::PopStyleVar(); // FramePadding
+
+        // SkyX volumetric clouds
+        ImGui::Separator();
+        ImGui::TextDisabled("%s", _LC("TopMenubar", "Clouds:"));
+        if (skyx_mgr->GetSkyX()->getVCloudsManager())
         {
-            skyx_mgr->GetSkyX()->setTimeMultiplier(timefactor);
+            SkyX::VClouds::VClouds* vclouds = skyx_mgr->GetSkyX()->getVCloudsManager()->getVClouds();
+
+            // X = humidity, meaning cloud density, Y = avg.cloud size (both 0-1)
+            Ogre::Vector2 wheater = vclouds->getWheater();
+            float cloud_coverage = wheater.x; // best effect is archieved by updating both at once
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Coverage"), &cloud_coverage, 0.0f, 1.0f, "%.2f"))
+            {
+                vclouds->setWheater(cloud_coverage, cloud_coverage, /* DelayedResponse = */ true);
+            }
+            ImGui::SameLine();
+            ImGui::TextDisabled("%s", _LC("TopMenubar", "(has delay)"));
+
+            // sub-sliders have custom style
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+
+            // wind speed (float)
+            float windspd = skyx_mgr->GetSkyX()->getVCloudsManager()->getWindSpeed();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind speed"), &windspd, 0.0f, 150.0f, "%.1f"))
+            {
+                skyx_mgr->GetSkyX()->getVCloudsManager()->setWindSpeed(windspd);
+            }
+
+            // wind direction (degree)
+            Ogre::Degree winddir = vclouds->getWindDirection();
+            float winddir_deg = winddir.valueDegrees();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind direction"), &winddir_deg, 0.0f, 360.0f, "%.1f"))
+            {
+                vclouds->setWindDirection(Ogre::Degree(winddir_deg));
+            }
+            ImGui::SameLine();
+            const char* wind_hint = "(?)";
+            ImGui::TextDisabled(wind_hint);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled("%s", _LC("TopMenubar", "Wind direction"));
+                ImGui::Text("0 = West");
+                ImGui::Text("90 = North");
+                ImGui::Text("180 = East");
+                ImGui::Text("270 = South");
+                ImGui::EndTooltip();
+            }
+
+            if (sky_show_advanced)
+            {
+                // vHeight: x = Cloud field altitude, y: Cloud field height (both in meters)
+                Ogre::Vector2 vHeight = skyx_mgr->GetSkyX()->getVCloudsManager()->getHeight();
+                float height_val = vHeight.x;
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Altitude"), &height_val, 100.0f, 2000.0f, "%.1f"))
+                {
+                    vHeight.x = height_val;
+                    skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
+                }
+                float thickness_val = vHeight.y;
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Thickness"), &thickness_val, 1000.0f, 6000.0f, "%.1f"))
+                {
+                    vHeight.y = thickness_val;
+                    skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
+                }
+
+                // light response (vector4)
+                Ogre::Vector4 lightresp = vclouds->getLightResponse();
+                if (ImGui::DragFloat4(_LC("TopMenubar", "Light response"), (float*)&lightresp, 0.01f))
+                {
+                    vclouds->setLightResponse(lightresp);
+                }
+
+                // ambient factors (vector4)
+                Ogre::Vector4 ambfactors = vclouds->getAmbientFactors();
+                if (ImGui::DragFloat4(_LC("TopMenubar", "Ambient factors"), (float*)&ambfactors, 0.01f))
+                {
+                    vclouds->setAmbientFactors(ambfactors);
+                }
+            }
+            // reset sub-slider style
+            ImGui::PopStyleVar(); // FramePadding
         }
     }
 #ifdef USE_CAELUM
@@ -2833,6 +2924,12 @@ void TopMenubar::DrawSettingsMenuSkyControls()
         }
     }
 #endif // USE_CAELUM
+
+    // advanced controls checkbox
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+    ImGui::Checkbox(_LC("TopMenubar", "Advanced"), &sky_show_advanced);
+    ImGui::PopStyleVar(); // FramePadding
+
     ImGui::PopID(); // "sky"
 }
 
@@ -2844,65 +2941,6 @@ void TopMenubar::DrawSettingsMenuWeatherControls()
 
     if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
     {
-        // SkyX volumetric clouds
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Clouds:"));
-
-        if (skyx_mgr->GetSkyX()->getVCloudsManager())
-        {
-            SkyX::VClouds::VClouds* vclouds = skyx_mgr->GetSkyX()->getVCloudsManager()->getVClouds();
-
-            // X = humidity, meaning cloud density, Y = avg.cloud size (both 0-1)
-            Ogre::Vector2 wheater = vclouds->getWheater();
-            float cloud_coverage = wheater.x; // best effect is archieved by updating both at once
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Coverage"), &cloud_coverage, 0.0f, 1.0f, "%.2f"))
-            {
-                vclouds->setWheater(cloud_coverage, cloud_coverage, /* DelayedResponse = */ true);
-            }
-
-            // vHeight: x = Cloud field altitude, y: Cloud field height (both in meters)
-            Ogre::Vector2 vHeight = skyx_mgr->GetSkyX()->getVCloudsManager()->getHeight();
-            float height_val = vHeight.x;
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Altitude"), &height_val, 100.0f, 2000.0f, "%.1f"))
-            {
-                vHeight.x = height_val;
-                skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
-            }
-            float thickness_val = vHeight.y;
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Thickness"), &thickness_val, 1000.0f, 6000.0f, "%.1f"))
-            {
-                vHeight.y = thickness_val;
-                skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
-            }
-
-            // wind speed (float)
-            float windspd = skyx_mgr->GetSkyX()->getVCloudsManager()->getWindSpeed();
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind speed"), &windspd, 0.0f, 250.0f, "%.1f"))
-            {
-                skyx_mgr->GetSkyX()->getVCloudsManager()->setWindSpeed(windspd);
-            }
-
-            // wind direction (degree)
-            Ogre::Degree winddir = vclouds->getWindDirection();
-            float winddir_deg = winddir.valueDegrees();
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind direction"), &winddir_deg, 0.0f, 360.0f, "%.1f"))
-            {
-                vclouds->setWindDirection(Ogre::Degree(winddir_deg));
-            }
-
-            // light response (vector4)
-            Ogre::Vector4 lightresp = vclouds->getLightResponse();
-            if (ImGui::DragFloat4(_LC("TopMenubar", "Light response"), (float*)&lightresp, 0.01f))
-            {
-                vclouds->setLightResponse(lightresp);
-            }
-
-            // ambient factors (vector4)
-            Ogre::Vector4 ambfactors = vclouds->getAmbientFactors();
-            if (ImGui::DragFloat4(_LC("TopMenubar", "Ambient factors"), (float*)&ambfactors, 0.01f))
-            {
-                vclouds->setAmbientFactors(ambfactors);
-            }
-        }
 
         // Weather controls (precipitation system ported from caelum)
         ImGui::Separator();

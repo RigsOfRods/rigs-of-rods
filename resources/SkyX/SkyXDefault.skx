@@ -4,9 +4,13 @@
 SkyXVersion=0.4.0
 
 #Main options field
-<float>TimeMultiplier=0.01
-<vector3>Time=12.00x7.5x20.5 ; current-time 'x' sunrise time 'x' sunset time
+; RIGSOFRODS:  param 'TimeMultiplier' is set in game via top menubar, menu Settings, tab Sky, 'advanced' checkbox
+<vector3>Time=12.00x7.5x20.5 ; current-time 'x' unused 'x' unused
 <float>MoonPhase=0
+
+# RIGSOFRODS: new sun/moon trajectory config
+<float>Latitude = 45
+<int>DayOfYear = 150
 
 #Atmoshperic options
 <float>_InnerRadius=9.77501
@@ -34,7 +38,7 @@ SkyXVersion=0.4.0
 #Volumetric clouds
 <bool>volClouds=true 
 <vector2>vHeight=825x3500
-<float>WindSpeed=80.0
+<float>WindSpeed=25.0
 <bool>AutoUpdate=false
 <degree>WindDirection=0
 <vector3>AmbientColor=0.63x0.63x0.7

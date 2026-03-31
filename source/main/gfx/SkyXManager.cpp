@@ -31,6 +31,8 @@
 #include "Terrain.h"
 #include "TerrainGeometryManager.h"
 
+#include <fmt/format.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -239,4 +241,14 @@ void SkyXManager::setDayOfYear(int dayOfYear)
 int SkyXManager::getDayOfYear()
 {
     return static_cast<int>(mBasicController->getDayOfYear());
+}
+
+std::string SkyXManager::getPrettyTimeHMS()
+{
+    const float timeOfDay = mBasicController->getTime().x;
+    return fmt::format("{}:{:02}:{:02}",
+        static_cast<int>(timeOfDay),
+        static_cast<int>((timeOfDay - static_cast<int>(timeOfDay)) * 60),
+        static_cast<int>(static_cast<int>((timeOfDay * 3600) - (static_cast<int>(timeOfDay) * 3600)) % 60)
+    );
 }

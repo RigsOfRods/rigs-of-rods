@@ -35,7 +35,7 @@ namespace SkyX { namespace VClouds
 		, mDistanceFallingParams(Ogre::Vector2(1,-1))
 		, mRenderQueueGroups(RenderQueueGroups(Ogre::RENDER_QUEUE_MAIN, Ogre::RENDER_QUEUE_9, Ogre::RENDER_QUEUE_4))
 		, mWindDirection(Ogre::Degree(0))
-		, mWindSpeed(80.0f)
+		, mWindSpeed(25.0f)
 		, mWheater(Ogre::Vector2(0.5f, 1.0f))
 		, mDelayedResponse(false)
 		, mSunDirection(Ogre::Vector3(0,-1,0))

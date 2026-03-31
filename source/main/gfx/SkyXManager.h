@@ -64,6 +64,8 @@ public:
     void setDayOfYear(int dayOfYear);
     int getDayOfYear();
 
+    std::string getPrettyTimeHMS();
+
 protected:
 	Ogre::Light *mLight0 = nullptr;
 	Ogre::Light *mLight1 = nullptr;

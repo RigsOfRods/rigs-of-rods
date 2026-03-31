@@ -46,7 +46,7 @@ namespace SkyX
 		, mVisible(true)
 		, mLightingMode(LM_LDR)
 		, mStarfield(true)
-		, mTimeMultiplier(0.1f)
+		, mTimeMultiplier(0.004f)
 		, mTimeOffset(0.0f)
 	{
 		// Need to be instanced here, when SkyX::mSceneManager is valid

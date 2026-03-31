@@ -129,6 +129,7 @@ public:
 
     // Sky settings menu
     std::string sky_mode_combostring;
+    bool sky_show_advanced = false;
 
 private:
     bool IsMenuEnabled(TopMenu which);
