@@ -91,6 +91,7 @@ Light *SkyXManager::getMainLight()
 bool SkyXManager::update(float dt)
 {
 	UpdateSkyLight();
+    DetectPlayerMovement(dt);
 	mSkyX->update(dt);
 	return true;
 }
@@ -195,17 +196,6 @@ bool SkyXManager::InitLight()
 	return true;
 }
 
-size_t SkyXManager::getMemoryUsage()
-{
-	//TODO
-	return 0;
-}
-
-void SkyXManager::freeResources()
-{
-	//TODO
-}
-
 // SkyX stores time data as Vector3 :/
 //  x = time-of-day in [0, 24]h range
 //  y = sunrise hour in [0, 24]h range
@@ -251,4 +241,33 @@ std::string SkyXManager::getPrettyTimeHMS()
         static_cast<int>((timeOfDay - static_cast<int>(timeOfDay)) * 60),
         static_cast<int>(static_cast<int>((timeOfDay * 3600) - (static_cast<int>(timeOfDay) * 3600)) % 60)
     );
+}
+
+
+void SkyXManager::DetectPlayerMovement(float dt)
+{
+    // We only want precipitation to react to player movement, not camera orbiting/zooming.
+    // ------------------------------------------------------------------------------------
+
+    const ActorPtr currentPlayerActor = App::GetGameContext()->GetPlayerActor();
+    if (currentPlayerActor == mLastPlayerActor
+        && App::GetCameraManager()->GetCurrentBehavior() == mLastCameraBehavior
+        && mLastCameraBehavior != CameraManager::CAMERA_BEHAVIOR_FREE
+        && mLastCameraBehavior != CameraManager::CAMERA_BEHAVIOR_FIXED)
+    {
+        const Ogre::Vector3 playerPos = (currentPlayerActor) 
+            ? currentPlayerActor->getPosition()
+            : App::GetGameContext()->GetCharacterFactory()->GetLocalCharacter()->getPosition();
+        
+        mSkyX->getPrecipitationController()->setManualCameraSpeed(playerPos - mLastPlayerPosition);
+        mLastPlayerPosition = playerPos;
+    }
+    else
+    {
+        mSkyX->getPrecipitationController()->setManualCameraSpeed(Ogre::Vector3::ZERO);
+    }
+
+    // Update last known player and camera state for next time.
+    mLastPlayerActor = currentPlayerActor;
+    mLastCameraBehavior = App::GetCameraManager()->GetCurrentBehavior();
 }

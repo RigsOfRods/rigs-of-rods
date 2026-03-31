@@ -147,7 +147,6 @@ private:
     bool DrawSettingsMenuBeginTabItem(const char* title);
     bool DrawSettingsMenuBeginTabBar();
     void DrawSettingsMenuSkyControls();
-    void DrawSettingsMenuWeatherControls(); //!< SkyX clouds and precipitation
     void DrawSettingsMenuWaterControls();
     void DrawSettingsMenuGeneralControls();
 

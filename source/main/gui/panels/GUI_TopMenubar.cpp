@@ -587,14 +587,9 @@ void TopMenubar::Draw(float dt)
                     this->DrawSettingsMenuGeneralControls();
                     ImGui::EndTabItem();
                 }
-                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Sky")))
+                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Sky & Weather")))
                 {
                     this->DrawSettingsMenuSkyControls();
-                    ImGui::EndTabItem();
-                }
-                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Weather")))
-                {
-                    this->DrawSettingsMenuWeatherControls();
                     ImGui::EndTabItem();
                 }
                 if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
@@ -2905,46 +2900,11 @@ void TopMenubar::DrawSettingsMenuSkyControls()
             // reset sub-slider style
             ImGui::PopStyleVar(); // FramePadding
         }
-    }
-#ifdef USE_CAELUM
-    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
-    {
-        ImGui::Separator();
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
-        float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
-        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
-        {
-            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
-        }
-        ImGui::SameLine();
-        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
-        if (App::gfx_sky_time_cycle->getBool())
-        {
-            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
-        }
-    }
-#endif // USE_CAELUM
 
-    // advanced controls checkbox
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
-    ImGui::Checkbox(_LC("TopMenubar", "Advanced"), &sky_show_advanced);
-    ImGui::PopStyleVar(); // FramePadding
-
-    ImGui::PopID(); // "sky"
-}
-
-void TopMenubar::DrawSettingsMenuWeatherControls()
-{
-    ImGui::PushID("weather");
-    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH);
-    auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
-
-    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
-    {
 
         // Weather controls (precipitation system ported from caelum)
         ImGui::Separator();
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Precipitation:"));
+        ImGui::TextDisabled("%s", _LC("TopMenubar", "Weather:"));
 
         if (skyx_mgr->GetSkyX()->getPrecipitationController())
         {
@@ -2978,88 +2938,69 @@ void TopMenubar::DrawSettingsMenuWeatherControls()
 
             // Intensity
             float intensity = pc->getIntensity();
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Intensity"), &intensity, 0.0f, 1.0f, "%.3f"))
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Intensity"), &intensity, 0.0f, 1.0f, "%.2f"))
             {
                 pc->setIntensity(intensity);
             }
-
-            // Color (RGBA)
+            
+            if (sky_show_advanced)
             {
-                Ogre::ColourValue col = pc->getColour();
-                float col4[4] = { col.r, col.g, col.b, col.a };
-                if (ImGui::ColorEdit4(_LC("TopMenubar", "Color"), col4, ImGuiColorEditFlags_Float))
+                // Color (RGBA)
                 {
-                    pc->setColour(Ogre::ColourValue(col4[0], col4[1], col4[2], col4[3]));
-                }
-            }
-
-            // Falling speed
-            {
-                float spd = pc->getSpeed();
-                if (ImGui::SliderFloat(_LC("TopMenubar", "Falling speed"), &spd, 0.0f, 2.0f, "%.3f"))
-                {
-                    pc->setSpeed(spd);
-                }
-            }
-
-            // Camera influence (uniform scale)
-            {
-                Ogre::Vector3 css = pc->getCameraSpeedScale();
-                float camInfluence = css.x; // assume uniform
-                if (ImGui::SliderFloat(_LC("TopMenubar", "Camera influence"), &camInfluence, 0.0f, 0.7f, "%.2f"))
-                {
-                    pc->setCameraSpeedScale(camInfluence);
-                }
-            }
-
-            // Auto/manual camera speed
-            {
-                bool autoCam = true;
-                Ogre::Vector3 manualCam = Ogre::Vector3::ZERO;
-                if (!pc->mViewportInstanceMap.empty())
-                {
-                    auto* inst = pc->mViewportInstanceMap.begin()->second;
-                    autoCam = inst->getAutoCameraSpeed();
-                    manualCam = inst->getCameraSpeed();
-                }
-
-                if (ImGui::Checkbox(_LC("TopMenubar", "Auto camera speed"), &autoCam))
-                {
-                    if (autoCam)
-                        pc->setAutoCameraSpeed();
-                    else
-                        pc->setManualCameraSpeed(Ogre::Vector3::ZERO);
-                }
-
-                if (!autoCam)
-                {
-                    float cam3[3] = { manualCam.x, manualCam.y, manualCam.z };
-                    if (ImGui::DragFloat3(_LC("TopMenubar", "Manual camera speed (xyz)"), cam3, 1.0f))
+                    Ogre::ColourValue col = pc->getColour();
+                    float col4[4] = { col.r, col.g, col.b, col.a };
+                    if (ImGui::ColorEdit4(_LC("TopMenubar", "Color"), col4, ImGuiColorEditFlags_Float))
                     {
-                        pc->setManualCameraSpeed(Ogre::Vector3(cam3[0], cam3[1], cam3[2]));
+                        pc->setColour(Ogre::ColourValue(col4[0], col4[1], col4[2], col4[3]));
                     }
                 }
-            }
 
-            // Auto-disable threshold
-            {
-                float th = pc->getAutoDisableThreshold();
-                if (ImGui::SliderFloat(_LC("TopMenubar", "Auto-disable threshold"), &th, -1.0f, 0.1f, "%.3f"))
+                // Falling speed
                 {
-                    pc->setAutoDisableThreshold(th);
+                    float spd = pc->getSpeed();
+                    if (ImGui::SliderFloat(_LC("TopMenubar", "Falling speed"), &spd, 0.0f, 2.0f, "%.3f"))
+                    {
+                        pc->setSpeed(spd);
+                    }
                 }
-                if (ImGui::IsItemHovered())
+
+                // Camera influence (uniform scale)
                 {
-                    ImGui::BeginTooltip();
-                    ImGui::Text("%s", _LC("TopMenubar", "Negative = compositor always enabled. Non-negative disables when below intensity."));
-                    ImGui::EndTooltip();
+                    Ogre::Vector3 css = pc->getCameraSpeedScale();
+                    float camInfluence = css.x; // assume uniform
+                    if (ImGui::SliderFloat(_LC("TopMenubar", "Camera influence"), &camInfluence, 0.0f, 0.7f, "%.2f"))
+                    {
+                        pc->setCameraSpeedScale(camInfluence);
+                    }
                 }
             }
         }
     }
+#ifdef USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
+        float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
+        }
+        ImGui::SameLine();
+        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+        if (App::gfx_sky_time_cycle->getBool())
+        {
+            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+        }
+    }
+#endif // USE_CAELUM
 
-    ImGui::PopItemWidth();
-    ImGui::PopID();
+    // advanced controls checkbox
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+    ImGui::Checkbox(_LC("TopMenubar", "Advanced"), &sky_show_advanced);
+    ImGui::PopStyleVar(); // FramePadding
+
+    ImGui::PopID(); // "sky"
 }
 
 void TopMenubar::DrawSettingsMenuWaterControls()

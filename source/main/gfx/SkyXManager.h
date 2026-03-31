@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "Application.h"
+#include "CameraManager.h"
 
 #include "gfx/skyx/SkyX.h"
 
@@ -46,12 +47,6 @@ public:
 
 	bool InitLight();
 
-	size_t getMemoryUsage();
-
-	void freeResources();
-
-	bool UpdateSkyLight();
-
 	SkyX::SkyX* GetSkyX() { return mSkyX; }
 
     // Time settings
@@ -67,6 +62,9 @@ public:
     std::string getPrettyTimeHMS();
 
 protected:
+    bool UpdateSkyLight();
+    void DetectPlayerMovement(float dt);
+
 	Ogre::Light *mLight0 = nullptr;
 	Ogre::Light *mLight1 = nullptr;
 	
@@ -80,6 +78,9 @@ protected:
 	SkyX::CfgFileManager* mCfgFileManager = nullptr;
 
     int mLastHour = 0;
+    ActorPtr mLastPlayerActor;
+    CameraManager::CameraBehaviors mLastCameraBehavior = CameraManager::CAMERA_BEHAVIOR_INVALID;
+    Ogre::Vector3 mLastPlayerPosition = Ogre::Vector3::ZERO;
 };
 
 /// @} // addtogroup Gfx

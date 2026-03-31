@@ -52,3 +52,23 @@ SkyXVersion=0.4.0
 <float>AverageLightningApparitionTime=1.5
 <vector3>LightningColor=1x0.925x0.85
 <float>LightningTimeMultiplier=2.0
+
+# Precipitation system ported from Caelum
+# note: wind speed is tied to the VClouds wind speed
+# =================================================================================
+# Names in Caelum script   | names in SkyX script                       | Descriptions
+# ---------------------------------------------------------------------------------
+# "texture"                | "PrecipitationTextureName"                 | 'precipitation_X.png', where X is: 'drizzle/icecrystals/icepellets/smallhail/hail/snow/snowgrains'
+# "precipitation_colour"   | "<color>PrecipitationColor"                | 
+# "falling_speed"          | "<float>PrecipitationFallingSpeed"         |
+# "camera_speed_scale"     | "<vector3>PrecipitationCameraSpeedScale"   | Controls how much of an effect moving the camera has on rain drop directions.
+# "intensity"              | "<float>PrecipitationIntensity"            | Controlled via UI
+# "auto_disable_intensity" | "<float>PrecipitationAutoDisableThreshold" | Auto-disable compositors when intensity is below threshold (expensive switch!). Use negative value to always keep enabled.
+
+; Values of 'rain' preset
+PrecipitationTextureName=precipitation_rain.png
+<color>PrecipitationColor=0.7x0.7x0.7
+<float>PrecipitationFallingSpeed=0.85
+<vector3>PrecipitationCameraSpeedScale=1x1x1
+<float>PrecipitationIntensity=0           
+<float>PrecipitationAutoDisableThreshold=0.001

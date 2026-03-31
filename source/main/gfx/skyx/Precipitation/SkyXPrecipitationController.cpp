@@ -163,7 +163,7 @@ namespace SkyX // Ported to SkyX by ohlidalp
         mLastCamera(0),
         mLastCameraPosition(Vector3::ZERO),
         mCameraSpeed(Vector3::ZERO),
-        mAutoCameraSpeed(true)
+        mAutoCameraSpeed(false)
     {
         createCompositor ();
     }
