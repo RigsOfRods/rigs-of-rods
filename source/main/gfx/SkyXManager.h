@@ -36,14 +36,14 @@ static const std::string SKYX_USER_CONFIG_FILE = "skyx.cfg"; // primary, in user
 class SkyXManager
 {
 public:
-	SkyXManager(Ogre::String configFile);
-	~SkyXManager();
+    SkyXManager(Ogre::String configFile);
+    ~SkyXManager();
 
-	Ogre::Light* getMainLight();
+    Ogre::Light* getMainLight();
 
-	bool update( float dt );
+    bool update( float dt );
 
-	SkyX::SkyX* GetSkyX() { return mSkyX; }
+    SkyX::SkyX* GetSkyX() { return mSkyX; }
 
     // Time settings
     void setTimeOfDay24Hour(float timeOfDay24Hour);
@@ -67,16 +67,16 @@ protected:
     Ogre::SceneNode* mSunLightNode = nullptr;
     Ogre::Light *mMoonLight = nullptr;
     Ogre::SceneNode* mMoonLightNode = nullptr;
-	
-	SkyX::SkyX* mSkyX = nullptr;
-	SkyX::BasicController* mBasicController = nullptr;
+    
+    SkyX::SkyX* mSkyX = nullptr;
+    SkyX::BasicController* mBasicController = nullptr;
 
-	SkyX::ColorGradient mWaterGradient;
-	SkyX::ColorGradient mSunGradient;
-	SkyX::ColorGradient mDayAmbientGradient;
+    SkyX::ColorGradient mWaterGradient;
+    SkyX::ColorGradient mSunGradient;
+    SkyX::ColorGradient mDayAmbientGradient;
     SkyX::ColorGradient mNightAmbientGradient;
 
-	SkyX::CfgFileManager* mCfgFileManager = nullptr;
+    SkyX::CfgFileManager* mCfgFileManager = nullptr;
 
     int mLastHour = 0;
     ActorPtr mLastPlayerActor;

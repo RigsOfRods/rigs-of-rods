@@ -27,345 +27,345 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX
 {
-	MeshManager::MeshManager(SkyX *s)
-		: mSkyX(s)
-		, mCreated(false)
-		, mMesh(static_cast<Ogre::Mesh*>(0))
+    MeshManager::MeshManager(SkyX *s)
+        : mSkyX(s)
+        , mCreated(false)
+        , mMesh(static_cast<Ogre::Mesh*>(0))
         , mSubMesh(0)
         , mEntity(0)
         , mVertexBuffer()
-		, mVertices(0)
+        , mVertices(0)
         , mIndexBuffer()
-	    , mSceneNode(0)
-		, mSteps(70)
-		, mCircles(95)
-		, mUnderHorizonCircles(12)
-		, mUnderHorizonFading(true)
-		, mUnderHorizonFadingExponent(0.75)
-		, mUnderHorizonFadingMultiplier(2)
-		, mRadiusMultiplier(0.75f)
+        , mSceneNode(0)
+        , mSteps(70)
+        , mCircles(95)
+        , mUnderHorizonCircles(12)
+        , mUnderHorizonFading(true)
+        , mUnderHorizonFadingExponent(0.75)
+        , mUnderHorizonFadingMultiplier(2)
+        , mRadiusMultiplier(0.75f)
         , mMaterialName("_NULL_")
-	{
-	}
+    {
+    }
 
-	MeshManager::~MeshManager()
-	{
-		remove();
-	}
+    MeshManager::~MeshManager()
+    {
+        remove();
+    }
 
-	void MeshManager::remove()
-	{
-		if (!mCreated)
-		{
-			return;
-		}
+    void MeshManager::remove()
+    {
+        if (!mCreated)
+        {
+            return;
+        }
 
-		mSceneNode->detachAllObjects();
-		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode);
-		mSceneNode = 0;
+        mSceneNode->detachAllObjects();
+        mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode);
+        mSceneNode = 0;
 
-		Ogre::MeshManager::getSingleton().remove("SkyXMesh");
-		mSkyX->getSceneManager()->destroyEntity(mEntity);
+        Ogre::MeshManager::getSingleton().remove("SkyXMesh");
+        mSkyX->getSceneManager()->destroyEntity(mEntity);
 
-		mMesh.reset();
-		mSubMesh = 0;
-		mEntity = 0;
-		mVertexBuffer.reset();
-		mIndexBuffer.reset();
-		mMaterialName = "_NULL_";
+        mMesh.reset();
+        mSubMesh = 0;
+        mEntity = 0;
+        mVertexBuffer.reset();
+        mIndexBuffer.reset();
+        mMaterialName = "_NULL_";
 
-		delete [] mVertices;
+        delete [] mVertices;
 
-		mCreated = false;
-	}
+        mCreated = false;
+    }
 
-	void MeshManager::create()
-	{
-		if (mCreated)
-		{
-			return;
-		}
+    void MeshManager::create()
+    {
+        if (mCreated)
+        {
+            return;
+        }
 
-		// Create mesh and submesh
+        // Create mesh and submesh
         mMesh = Ogre::MeshManager::getSingleton().createManual("SkyXMesh",
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         mSubMesh = mMesh->createSubMesh();
         mSubMesh->useSharedVertices = false;
 
-		// Create mesh geometry
-		_createGeometry();
+        // Create mesh geometry
+        _createGeometry();
 
-		// Build edge list
-		mMesh->buildEdgeList();
+        // Build edge list
+        mMesh->buildEdgeList();
 
-		// End mesh creation
+        // End mesh creation
         mMesh->load();
         mMesh->touch();
 
         mEntity = mSkyX->getSceneManager()->createEntity("SkyXMeshEnt", "SkyXMesh");
         mEntity->setMaterialName(mMaterialName);
-		mEntity->setCastShadows(false);
-		mEntity->setRenderQueueGroup(mSkyX->getRenderQueueGroups().skydome);
+        mEntity->setCastShadows(false);
+        mEntity->setRenderQueueGroup(mSkyX->getRenderQueueGroups().skydome);
 
-		mSceneNode = mSkyX->getSkyXGroupingNode()->createChildSceneNode();
-		mSceneNode->showBoundingBox(false);
+        mSceneNode = mSkyX->getSkyXGroupingNode()->createChildSceneNode();
+        mSceneNode->showBoundingBox(false);
         mSceneNode->attachObject(mEntity);
 
-		mCreated = true;
-	}
+        mCreated = true;
+    }
 
-	void MeshManager::updateGeometry(Ogre::Camera* cam)
-	{
-		if (!mCreated)
-		{
-			return;
-		}
+    void MeshManager::updateGeometry(Ogre::Camera* cam)
+    {
+        if (!mCreated)
+        {
+            return;
+        }
 
-		float Radius = getSkydomeRadius(cam);
+        float Radius = getSkydomeRadius(cam);
 
-		mVertices[0].x = 0; mVertices[0].z = 0;	mVertices[0].y = Radius;
-		mVertices[0].nx = 0; mVertices[0].nz = 0; mVertices[0].ny = 1; 
-		mVertices[0].u = 4; mVertices[0].v = 4;
-		mVertices[0].o = 1;
+        mVertices[0].x = 0; mVertices[0].z = 0;	mVertices[0].y = Radius;
+        mVertices[0].nx = 0; mVertices[0].nz = 0; mVertices[0].ny = 1; 
+        mVertices[0].u = 4; mVertices[0].v = 4;
+        mVertices[0].o = 1;
 
-		float AngleStep = (Ogre::Math::PI/2) / (mCircles-mUnderHorizonCircles);
+        float AngleStep = (Ogre::Math::PI/2) / (mCircles-mUnderHorizonCircles);
 
-		float r, uvr, c, s, h;
-		float currentPhiAngle, currentTethaAngle;
-		int x, y;
+        float r, uvr, c, s, h;
+        float currentPhiAngle, currentTethaAngle;
+        int x, y;
 
-		// Above-horizon
-		for(y=0;y<mCircles-mUnderHorizonCircles;y++) 
-		{
-			currentTethaAngle = Ogre::Math::PI/2 - AngleStep*(y+1);
+        // Above-horizon
+        for(y=0;y<mCircles-mUnderHorizonCircles;y++) 
+        {
+            currentTethaAngle = Ogre::Math::PI/2 - AngleStep*(y+1);
 
-			r = Ogre::Math::Cos(currentTethaAngle);
-			h = Ogre::Math::Sin(currentTethaAngle);
+            r = Ogre::Math::Cos(currentTethaAngle);
+            h = Ogre::Math::Sin(currentTethaAngle);
 
-			uvr = static_cast<float>(y+1)/(mCircles-mUnderHorizonCircles);
+            uvr = static_cast<float>(y+1)/(mCircles-mUnderHorizonCircles);
 
-			for(x=0;x<mSteps;x++) 
-			{
-				currentPhiAngle = Ogre::Math::TWO_PI * x / mSteps;
+            for(x=0;x<mSteps;x++) 
+            {
+                currentPhiAngle = Ogre::Math::TWO_PI * x / mSteps;
 
-				c = Ogre::Math::Cos(currentPhiAngle) * r;
-				s = Ogre::Math::Sin(currentPhiAngle) * r;
+                c = Ogre::Math::Cos(currentPhiAngle) * r;
+                s = Ogre::Math::Sin(currentPhiAngle) * r;
 
-				mVertices[1+y*mSteps + x].x = c * Radius;
-				mVertices[1+y*mSteps + x].z = s * Radius;
-				mVertices[1+y*mSteps + x].y = h * Radius;
+                mVertices[1+y*mSteps + x].x = c * Radius;
+                mVertices[1+y*mSteps + x].z = s * Radius;
+                mVertices[1+y*mSteps + x].y = h * Radius;
 
-				mVertices[1+y*mSteps + x].nx = c;
-				mVertices[1+y*mSteps + x].nz = s;
-				mVertices[1+y*mSteps + x].ny = h;
+                mVertices[1+y*mSteps + x].nx = c;
+                mVertices[1+y*mSteps + x].nz = s;
+                mVertices[1+y*mSteps + x].ny = h;
 
-				mVertices[1+y*mSteps + x].u = (1 + c*uvr/r)*4;
-				mVertices[1+y*mSteps + x].v = (1 + s*uvr/r)*4;
+                mVertices[1+y*mSteps + x].u = (1 + c*uvr/r)*4;
+                mVertices[1+y*mSteps + x].v = (1 + s*uvr/r)*4;
 
-				mVertices[1+y*mSteps + x].o = 1;
-			}
-		}
+                mVertices[1+y*mSteps + x].o = 1;
+            }
+        }
 
-		float op; // Opacity
+        float op; // Opacity
 
-		// Under-horizon
-		for(y=mCircles-mUnderHorizonCircles;y<mCircles;y++) 
-		{
-			currentTethaAngle = Ogre::Math::PI/2 - AngleStep*(y+1);
+        // Under-horizon
+        for(y=mCircles-mUnderHorizonCircles;y<mCircles;y++) 
+        {
+            currentTethaAngle = Ogre::Math::PI/2 - AngleStep*(y+1);
 
-			r = Ogre::Math::Cos(currentTethaAngle);
-			h = Ogre::Math::Sin(currentTethaAngle);
+            r = Ogre::Math::Cos(currentTethaAngle);
+            h = Ogre::Math::Sin(currentTethaAngle);
 
-			uvr = static_cast<float>(y+1)/(mCircles-mUnderHorizonCircles);
+            uvr = static_cast<float>(y+1)/(mCircles-mUnderHorizonCircles);
 
-			op = Ogre::Math::Clamp<Ogre::Real>(Ogre::Math::Pow(static_cast<Ogre::Real>(mCircles-y-1) / mUnderHorizonCircles, mUnderHorizonFadingExponent)*mUnderHorizonFadingMultiplier, 0, 1);
+            op = Ogre::Math::Clamp<Ogre::Real>(Ogre::Math::Pow(static_cast<Ogre::Real>(mCircles-y-1) / mUnderHorizonCircles, mUnderHorizonFadingExponent)*mUnderHorizonFadingMultiplier, 0, 1);
 
-			for(x=0;x<mSteps;x++) 
-			{
-				currentPhiAngle = Ogre::Math::TWO_PI * x / mSteps;
+            for(x=0;x<mSteps;x++) 
+            {
+                currentPhiAngle = Ogre::Math::TWO_PI * x / mSteps;
 
-				c = Ogre::Math::Cos(currentPhiAngle) * r;
-				s = Ogre::Math::Sin(currentPhiAngle) * r;
+                c = Ogre::Math::Cos(currentPhiAngle) * r;
+                s = Ogre::Math::Sin(currentPhiAngle) * r;
 
-				mVertices[1+y*mSteps + x].x = c * Radius;
-				mVertices[1+y*mSteps + x].z = s * Radius;
-				mVertices[1+y*mSteps + x].y = h * Radius;
+                mVertices[1+y*mSteps + x].x = c * Radius;
+                mVertices[1+y*mSteps + x].z = s * Radius;
+                mVertices[1+y*mSteps + x].y = h * Radius;
 
-				mVertices[1+y*mSteps + x].nx = c;
-				mVertices[1+y*mSteps + x].nz = s;
-				mVertices[1+y*mSteps + x].ny = h;
+                mVertices[1+y*mSteps + x].nx = c;
+                mVertices[1+y*mSteps + x].nz = s;
+                mVertices[1+y*mSteps + x].ny = h;
 
-				mVertices[1+y*mSteps + x].u = (1 + c*uvr/r)*4;
-				mVertices[1+y*mSteps + x].v = (1 + s*uvr/r)*4;
+                mVertices[1+y*mSteps + x].u = (1 + c*uvr/r)*4;
+                mVertices[1+y*mSteps + x].v = (1 + s*uvr/r)*4;
 
-				mVertices[1+y*mSteps + x].o = op;
-			}
-		}
+                mVertices[1+y*mSteps + x].o = op;
+            }
+        }
 
-		// Update data
-		mVertexBuffer->
-				writeData(0,
-		                  mVertexBuffer->getSizeInBytes(),
-	                      mVertices,
-		                  true);
-	
-		// Update bounds
-	    Ogre::AxisAlignedBox meshBounds =
-			Ogre::AxisAlignedBox(-Radius, 0,     -Radius,
-			                      Radius, Radius, Radius);
+        // Update data
+        mVertexBuffer->
+                writeData(0,
+                          mVertexBuffer->getSizeInBytes(),
+                          mVertices,
+                          true);
+    
+        // Update bounds
+        Ogre::AxisAlignedBox meshBounds =
+            Ogre::AxisAlignedBox(-Radius, 0,     -Radius,
+                                  Radius, Radius, Radius);
 
-		mMesh->_setBounds(meshBounds);
-		mSceneNode->_updateBounds();
-	}
+        mMesh->_setBounds(meshBounds);
+        mSceneNode->_updateBounds();
+    }
 
-	void MeshManager::_createGeometry()
-	{
-		int numVertices = mSteps * mCircles + 1;
-		int numEle = 6 * mSteps * (mCircles-1) + 3 * mSteps;
+    void MeshManager::_createGeometry()
+    {
+        int numVertices = mSteps * mCircles + 1;
+        int numEle = 6 * mSteps * (mCircles-1) + 3 * mSteps;
 
-		// Vertex buffers
-		mSubMesh->vertexData = new Ogre::VertexData();
-		mSubMesh->vertexData->vertexStart = 0;
-		mSubMesh->vertexData->vertexCount = numVertices;
+        // Vertex buffers
+        mSubMesh->vertexData = new Ogre::VertexData();
+        mSubMesh->vertexData->vertexStart = 0;
+        mSubMesh->vertexData->vertexCount = numVertices;
 
-		Ogre::VertexDeclaration* vdecl = mSubMesh->vertexData->vertexDeclaration;
-		Ogre::VertexBufferBinding* vbind = mSubMesh->vertexData->vertexBufferBinding;
+        Ogre::VertexDeclaration* vdecl = mSubMesh->vertexData->vertexDeclaration;
+        Ogre::VertexBufferBinding* vbind = mSubMesh->vertexData->vertexBufferBinding;
 
-		size_t offset = 0;
-		vdecl->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
-		vdecl->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_TEXTURE_COORDINATES, 0);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
-		vdecl->addElement(0, offset, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT2);
-		vdecl->addElement(0, offset, Ogre::VET_FLOAT1, Ogre::VES_TEXTURE_COORDINATES, 2);
+        size_t offset = 0;
+        vdecl->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+        offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
+        vdecl->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_TEXTURE_COORDINATES, 0);
+        offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
+        vdecl->addElement(0, offset, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1);
+        offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT2);
+        vdecl->addElement(0, offset, Ogre::VET_FLOAT1, Ogre::VES_TEXTURE_COORDINATES, 2);
 
-		mVertexBuffer = Ogre::HardwareBufferManager::getSingleton().
-			createVertexBuffer(sizeof(VERTEX),
-			                   numVertices,
-			                   Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+        mVertexBuffer = Ogre::HardwareBufferManager::getSingleton().
+            createVertexBuffer(sizeof(VERTEX),
+                               numVertices,
+                               Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
 
-		vbind->setBinding(0, mVertexBuffer);
+        vbind->setBinding(0, mVertexBuffer);
 
-		unsigned short *indexbuffer = new unsigned short[numEle];
+        unsigned short *indexbuffer = new unsigned short[numEle];
 
-		for (int k = 0; k < mSteps; k++)
-		{
-			indexbuffer[k*3] = 0;
-			indexbuffer[k*3+1] = k+1;
+        for (int k = 0; k < mSteps; k++)
+        {
+            indexbuffer[k*3] = 0;
+            indexbuffer[k*3+1] = k+1;
 
-			if (k != mSteps-1)
-			{
-			    indexbuffer[k*3+2] = k+2;
-			}
-			else
-			{
-				indexbuffer[k*3+2] = 1;
-			}
-		}
+            if (k != mSteps-1)
+            {
+                indexbuffer[k*3+2] = k+2;
+            }
+            else
+            {
+                indexbuffer[k*3+2] = 1;
+            }
+        }
 
-		unsigned short *twoface;
+        unsigned short *twoface;
 
-		for(int y=0; y<mCircles-1; y++) 
-		{
-		    for(int x=0; x<mSteps; x++) 
-			{
-			    twoface = indexbuffer + (y*mSteps+x)*6 + 3 * mSteps;
+        for(int y=0; y<mCircles-1; y++) 
+        {
+            for(int x=0; x<mSteps; x++) 
+            {
+                twoface = indexbuffer + (y*mSteps+x)*6 + 3 * mSteps;
 
-			    int p0 = 1+y * mSteps + x ;
-			    int p1 = 1+y * mSteps + x + 1 ;
-			    int p2 = 1+(y+1)* mSteps + x ;
-			    int p3 = 1+(y+1)* mSteps + x + 1 ;
+                int p0 = 1+y * mSteps + x ;
+                int p1 = 1+y * mSteps + x + 1 ;
+                int p2 = 1+(y+1)* mSteps + x ;
+                int p3 = 1+(y+1)* mSteps + x + 1 ;
 
-				if (x == mSteps-1)
-				{
-					p1 -= x+1;
-					p3 -= x+1;
-				}
+                if (x == mSteps-1)
+                {
+                    p1 -= x+1;
+                    p3 -= x+1;
+                }
 
-				// First triangle
-			    twoface[2]=p0;
-			    twoface[1]=p1;
-			    twoface[0]=p2;
+                // First triangle
+                twoface[2]=p0;
+                twoface[1]=p1;
+                twoface[0]=p2;
 
-				// Second triangle
-			    twoface[5]=p1;
-			    twoface[4]=p3;
-			    twoface[3]=p2;
-		    }
-	    }
+                // Second triangle
+                twoface[5]=p1;
+                twoface[4]=p3;
+                twoface[3]=p2;
+            }
+        }
 
-		// Prepare buffer for indices
-		mIndexBuffer =
-			Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
-			Ogre::HardwareIndexBuffer::IT_16BIT,
-			numEle,
-			Ogre::HardwareBuffer::HBU_STATIC, true);
+        // Prepare buffer for indices
+        mIndexBuffer =
+            Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
+            Ogre::HardwareIndexBuffer::IT_16BIT,
+            numEle,
+            Ogre::HardwareBuffer::HBU_STATIC, true);
 
-		mIndexBuffer->
-			writeData(0,
-			          mIndexBuffer->getSizeInBytes(),
-			          indexbuffer,
-			          true);
+        mIndexBuffer->
+            writeData(0,
+                      mIndexBuffer->getSizeInBytes(),
+                      indexbuffer,
+                      true);
 
-		delete []indexbuffer;
+        delete []indexbuffer;
 
-		// Set index buffer for this submesh
-		mSubMesh->indexData->indexBuffer = mIndexBuffer;
-		mSubMesh->indexData->indexStart = 0;
-		mSubMesh->indexData->indexCount = numEle;
+        // Set index buffer for this submesh
+        mSubMesh->indexData->indexBuffer = mIndexBuffer;
+        mSubMesh->indexData->indexStart = 0;
+        mSubMesh->indexData->indexCount = numEle;
 
-	    // Create our internal buffer for manipulations
-		mVertices = new VERTEX[1+mSteps * mCircles];
-	}
+        // Create our internal buffer for manipulations
+        mVertices = new VERTEX[1+mSteps * mCircles];
+    }
 
-	void MeshManager::setGeometryParameters(const int &Steps, const int &Circles)
-	{
-		mSteps = Steps;
-		mCircles = Circles;
+    void MeshManager::setGeometryParameters(const int &Steps, const int &Circles)
+    {
+        mSteps = Steps;
+        mCircles = Circles;
 
-		if (mCreated)
-		{
-		    remove();
-		    create();
-		}
-	}
+        if (mCreated)
+        {
+            remove();
+            create();
+        }
+    }
 
-	void MeshManager::setUnderHorizonParams(const int& UnderHorizonCircles, const bool& UnderHorizonFading, const Ogre::Real& UnderHorizonFadingExponent, const Ogre::Real& UnderHorizonFadingMultiplier)
-	{
-		bool needToRecreate = (mUnderHorizonCircles != UnderHorizonCircles);
+    void MeshManager::setUnderHorizonParams(const int& UnderHorizonCircles, const bool& UnderHorizonFading, const Ogre::Real& UnderHorizonFadingExponent, const Ogre::Real& UnderHorizonFadingMultiplier)
+    {
+        bool needToRecreate = (mUnderHorizonCircles != UnderHorizonCircles);
 
-		mUnderHorizonCircles = UnderHorizonCircles;
-		mUnderHorizonFading = UnderHorizonFading;
-		mUnderHorizonFadingExponent = UnderHorizonFadingExponent;
-		mUnderHorizonFadingMultiplier = UnderHorizonFadingMultiplier;
+        mUnderHorizonCircles = UnderHorizonCircles;
+        mUnderHorizonFading = UnderHorizonFading;
+        mUnderHorizonFadingExponent = UnderHorizonFadingExponent;
+        mUnderHorizonFadingMultiplier = UnderHorizonFadingMultiplier;
 
-		if (needToRecreate)
-		{
-		    remove();
-		    create();
-		}
-	}
+        if (needToRecreate)
+        {
+            remove();
+            create();
+        }
+    }
 
-	void MeshManager::setMaterialName(const Ogre::String& MaterialName)
-	{
-		mMaterialName = MaterialName;
+    void MeshManager::setMaterialName(const Ogre::String& MaterialName)
+    {
+        mMaterialName = MaterialName;
 
-		if (mCreated)
-		{
-			mEntity->setMaterialName(MaterialName);
-		}
-	}
+        if (mCreated)
+        {
+            mEntity->setMaterialName(MaterialName);
+        }
+    }
 
-	const float MeshManager::getSkydomeRadius(Ogre::Camera* c) const
-	{
-		float cameraFarClipDistance = c->getFarClipDistance();
+    const float MeshManager::getSkydomeRadius(Ogre::Camera* c) const
+    {
+        float cameraFarClipDistance = c->getFarClipDistance();
 
-		if (!cameraFarClipDistance)
-		{
-			cameraFarClipDistance = mSkyX->getInfiniteCameraFarClipDistance();
-		}
+        if (!cameraFarClipDistance)
+        {
+            cameraFarClipDistance = mSkyX->getInfiniteCameraFarClipDistance();
+        }
 
-		return cameraFarClipDistance*mRadiusMultiplier;
-	}
+        return cameraFarClipDistance*mRadiusMultiplier;
+    }
 }
