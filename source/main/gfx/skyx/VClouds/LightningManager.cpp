@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "VClouds.h"
 #include "skyx/Prerequisites.h"
+#include "SkyX.h"
 
 namespace SkyX { namespace VClouds
 {
@@ -206,7 +207,7 @@ namespace SkyX { namespace VClouds
 			return static_cast<Lightning*>(NULL);
 		}
 
-		Ogre::SceneNode* sn = mVClouds->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+		Ogre::SceneNode* sn = mVClouds->getSkyX()->getSkyXGroupingNode()->createChildSceneNode();
 		sn->setPosition(p);
 
 		Lightning* lightning = new Lightning(mVClouds->getSceneManager(), sn, Ogre::Vector3(0,0,0), d, l, div, 3, mLightningTimeMultiplier, mVClouds->getGeometrySettings().Radius/9500);

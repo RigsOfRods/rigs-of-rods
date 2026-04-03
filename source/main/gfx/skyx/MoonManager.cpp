@@ -59,7 +59,7 @@ namespace SkyX
 			return;
 		}
 
-		mMoonSceneNode = mSkyX->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+		mMoonSceneNode = mSkyX->getSkyXGroupingNode()->createChildSceneNode();
 
 		mMoonBillboard = mSkyX->getSceneManager()->createBillboardSet("SkyXMoonBillboardSet", 1);
         mMoonBillboard->setMaterialName(mSkyX->getGPUManager()->getMoonMaterialName());

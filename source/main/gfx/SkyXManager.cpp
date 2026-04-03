@@ -38,10 +38,10 @@ using namespace RoR;
 
 SkyXManager::SkyXManager(Ogre::String configFile)
 {
-	InitLight();
-
 	mBasicController = new SkyX::BasicController(/* deleteBySkyX: */false);
 	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
+
+    InitSkyLight();
 
 	mCfgFileManager = new SkyX::CfgFileManager(mSkyX, mBasicController, App::GetCameraManager()->GetCamera());
 	mCfgFileManager->load(configFile);
@@ -63,29 +63,19 @@ SkyXManager::~SkyXManager()
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
     RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
 
+    DestroySkyLight();
+
     mSkyX->remove();
     delete mSkyX;
     mSkyX = nullptr;
 
     delete mBasicController;
     mBasicController = nullptr;
-
-    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight0);
-    mLight0 = nullptr;
-    App::GetGfxScene()->GetSceneManager()->destroyLight(mLight1);
-    mLight1 = nullptr;
-}
-
-Vector3 SkyXManager::getMainLightDirection()
-{
-	if (mBasicController != nullptr)
-		return mBasicController->getSunDirection();
-	return Ogre::Vector3(0.0,0.0,0.0);
 }
 
 Light *SkyXManager::getMainLight()
 {
-	return mLight1;
+	return mSunLight;
 }
 
 bool SkyXManager::update(float dt)
@@ -99,52 +89,44 @@ bool SkyXManager::update(float dt)
 
 bool SkyXManager::UpdateSkyLight()
 {
-	Ogre::Vector3 lightDir = -getMainLightDirection();
+    Ogre::Vector3 lightDir = -mBasicController->getSunDirection();
 	const Ogre::Vector3 camPos = App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
 	Ogre::Vector3 sunPos = camPos - lightDir*mSkyX->getMeshManager()->getSkydomeRadius(App::GetCameraManager()->GetCamera());
+    Ogre::Vector3 moonPos = camPos - (-lightDir)*mSkyX->getMeshManager()->getSkydomeRadius(App::GetCameraManager()->GetCamera());
 
 	// Calculate current color gradients point
-	float point = (-lightDir.y + 1.0f) / 2.0f;
+	const float point = -lightDir.y;
+    const Ogre::Vector3 sunCol = mSunGradient.getColor(point+0.1f);
+    const Ogre::Vector3 waterCol = mWaterGradient.getColor(point);
+    const Ogre::Vector3 ambientColDay = (point > -0.3f) ? mDayAmbientGradient.getColor(point+0.3f) : Ogre::Vector3::ZERO;
+    const Ogre::Vector3 ambientColNight = (point < 0) ? mNightAmbientGradient.getColor(-point) : Ogre::Vector3::ZERO;
+    const Ogre::Vector3 ambientCol = ambientColDay + ambientColNight;
 
-    if (App::GetGameContext()->GetTerrain()->getHydraxManager ()) 
-    {
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
-    }
-
-	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
-	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
-
-	mLight0->setPosition(sunPos*0.02);
-	mLight1->setDirection(lightDir);
     if (App::GetGameContext()->GetTerrain()->getWater())
     {
         App::GetGameContext()->GetTerrain()->getGfxWater()->WaterSetSunPosition(sunPos*0.1);
+        if (App::GetGameContext()->GetTerrain()->getHydraxManager ()) 
+        {
+            App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (waterCol);
+            App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunColor (sunCol);
+        }
     }
 
-	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459
-/*	Ogre::Vector3 sunCol = mSunGradient.getColor(point);
-	mLight0->setSpecularColour(sunCol.x, sunCol.y, sunCol.z);
-	if (App::GetGameContext()->GetTerrain()->getWater()) App::GetGameContext()->GetTerrain()->getWater()->setFadeColour(Ogre::ColourValue(sunCol.x, sunCol.y, sunCol.z));
-	*/
-	Ogre::Vector3 ambientCol = mAmbientGradient.getColor(point);
-	mLight1->setDiffuseColour(ambientCol.x, ambientCol.y, ambientCol.z);
-	mLight1->setPosition(100,100,100);
+    // Update sun light position and color
+    const float SUN_Y_THRESHOLD = 0.1f;
+    mSunLightNode->setDirection(lightDir, Ogre::Node::TS_WORLD);
+    mSunLight->setDiffuseColour(Ogre::ColourValue(sunCol.x, sunCol.y, sunCol.z));
+    mSunLight->setSpecularColour(Ogre::ColourValue(sunCol.x, sunCol.y, sunCol.z));
+    mSunLight->setVisible(lightDir.y < SUN_Y_THRESHOLD); // Only show sun light when sun is above horizon
 
-	if (mBasicController->getTime().x > 12)
-	{
-		if (mBasicController->getTime().x > mBasicController->getTime().z)
-			mLight0->setVisible(false);
-		else
-			mLight0->setVisible(true);
-	} 
-    else
-    {
-        if (mBasicController->getTime ().x < mBasicController->getTime ().z)
-            mLight0->setVisible (false);
-        else
-            mLight0->setVisible (true);
-    }
+    // Update moon light position and color
+    mMoonLightNode->setDirection(-lightDir, Ogre::Node::TS_WORLD);
+    mMoonLight->setVisible(lightDir.y > SUN_Y_THRESHOLD); // Only show moon light when sun is below horizon
+
+    // Update ambient light color
+    
+    
+    App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(ambientCol.x, ambientCol.y, ambientCol.z));
 	
     if (round (mBasicController->getTime ().x) != mLastHour)
     {
@@ -155,10 +137,16 @@ bool SkyXManager::UpdateSkyLight()
         mLastHour = round (mBasicController->getTime ().x);
     }
 
+    ImGui::Text("lightDir.y: %.2f", lightDir.y);
+    ImGui::Text("point: %.2f", point);
+    ImGui::ColorEdit3("sunCol", (float*)&sunCol.x); ImGui::SameLine(); ImGui::Text("visible:%d", (int)mSunLight->isVisible());
+    ImGui::ColorEdit3("ambientColDay", (float*)&ambientColDay.x);
+    ImGui::ColorEdit3("ambientColNight", (float*)&ambientColNight.x);
+    ImGui::ColorEdit3("ambientCol", (float*)&ambientCol.x);
 	return true;
 }
 
-bool SkyXManager::InitLight()
+void SkyXManager::InitSkyLight()
 {
 	// Water
 	mWaterGradient = SkyX::ColorGradient();
@@ -169,31 +157,61 @@ bool SkyXManager::InitLight()
 	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.679105)*0.1, 0.45));
 	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.679105)*0.025, 0));
 	// Sun
+    const float SUN_FACTOR = 1.1f;
 	mSunGradient = SkyX::ColorGradient();
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.8,0.75,0.55)*1.5, 1.0f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.8,0.75,0.55)*1.4, 0.75f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.8,0.75,0.55)*1.3, 0.5625f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.6,0.5,0.2)*1.5, 0.5f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.5,0.5,0.5)*0.25, 0.45f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.5,0.5,0.5)*0.01, 0.0f));
-	// Ambient
-	mAmbientGradient = SkyX::ColorGradient();
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*1, 1.0f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*1, 0.6f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.6, 0.5f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.3, 0.45f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.1, 0.35f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.05, 0.0f));
+	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.8,0.79,0.77)*1.5, 1.0f));
+	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.8,0.79,0.77)*1.4, 0.75f));
+	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.8,0.79,0.75)*1.3, 0.5625f));
+	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.6,0.58,0.4)*1.5, 0.4f));
+	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.5,0.45,0.3)*1.2, 0.15f));
+    mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.5,0.3,0.2)*1.1, 0.05f));
+	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(SUN_FACTOR * Ogre::Vector3(0.0,0.0,0.0), 0.0f));
+	// Ambient - day
+    const float DAY_FACTOR = 0.6f;
+	mDayAmbientGradient = SkyX::ColorGradient();
+	mDayAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(DAY_FACTOR * Ogre::Vector3(1,1,1)*0.3, 1.0f));
+	mDayAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(DAY_FACTOR * Ogre::Vector3(1,1,1)*0.35, 0.6f));
+	mDayAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(DAY_FACTOR * Ogre::Vector3(1,1,1)*0.37, 0.5f));
+	mDayAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(DAY_FACTOR * Ogre::Vector3(1,1,1)*0.4, 0.25f));
+	mDayAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(DAY_FACTOR * Ogre::Vector3(1,1,1)*0.2, 0.05f));
+	mDayAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(DAY_FACTOR * Ogre::Vector3(1,1,1)*0.05, 0.0f));
+    // Ambient - night
+    const float NIGHT_FACTOR = 0.5f;
+    mNightAmbientGradient = SkyX::ColorGradient();
+    mNightAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(NIGHT_FACTOR * Ogre::Vector3(0.30, 0.35, 0.48) * 1.5, 1.0f));
+    mNightAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(NIGHT_FACTOR * Ogre::Vector3(0.27, 0.3, 0.45) * 1.4, 0.35f));
+    mNightAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(NIGHT_FACTOR * Ogre::Vector3(0.23, 0.25, 0.35) * 1.3, 0.25f));
+    mNightAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(NIGHT_FACTOR * Ogre::Vector3(0.2, 0.2, 0.22) * 1.2, 0.05f));
+    mNightAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(NIGHT_FACTOR * Ogre::Vector3(0.0, 0.0, 0.0), 0.f));
 
-	// Light
-	mLight0 = App::GetGfxScene()->GetSceneManager()->createLight("Light0");
-	mLight0->setDiffuseColour(1, 1, 1);
-	mLight0->setCastShadows(false);
+    // Sun
+    mSunLight = App::GetGfxScene()->GetSceneManager()->createLight("SkyX/SunLight");
+    mSunLight->setType(Light::LT_DIRECTIONAL);
+    mSunLight->setDiffuseColour(1, 1, 1);
+    mSunLight->setSpecularColour(1, 1, 1);
+    mSunLight->setCastShadows(true);
 
-	mLight1 = App::GetGfxScene()->GetSceneManager()->createLight("Light1");
-	mLight1->setType(Ogre::Light::LT_DIRECTIONAL);
+    mSunLightNode = mSkyX->getSkyXGroupingNode()->createChildSceneNode("SkyX/SunLightNode");
+    mSunLightNode->attachObject(mSunLight);
 
-	return true;
+    // Moon
+    mMoonLight = App::GetGfxScene()->GetSceneManager()->createLight("SkyX/MoonLight");
+    mMoonLight->setType(Light::LT_DIRECTIONAL);
+    mMoonLight->setDiffuseColour(0.2, 0.2, 0.25);
+    mMoonLight->setSpecularColour(0.4, 0.4, 0.45);
+    mMoonLight->setCastShadows(true);
+
+    mMoonLightNode = mSkyX->getSkyXGroupingNode()->createChildSceneNode("SkyX/MoonLightNode");
+    mMoonLightNode->attachObject(mMoonLight);
+}
+
+void SkyXManager::DestroySkyLight()
+{
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mSunLight);
+    mSunLight = nullptr;
+
+    App::GetGfxScene()->GetSceneManager()->destroyLight(mMoonLight);
+    mMoonLight = nullptr;
 }
 
 // SkyX stores time data as Vector3 :/

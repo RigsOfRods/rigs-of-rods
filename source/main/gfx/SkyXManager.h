@@ -39,13 +39,9 @@ public:
 	SkyXManager(Ogre::String configFile);
 	~SkyXManager();
 
-	Ogre::Vector3 getMainLightDirection();
-
 	Ogre::Light* getMainLight();
 
 	bool update( float dt );
-
-	bool InitLight();
 
 	SkyX::SkyX* GetSkyX() { return mSkyX; }
 
@@ -62,18 +58,23 @@ public:
     std::string getPrettyTimeHMS();
 
 protected:
+    void InitSkyLight();
+    void DestroySkyLight();
     bool UpdateSkyLight();
     void DetectPlayerMovement(float dt);
 
-	Ogre::Light *mLight0 = nullptr;
-	Ogre::Light *mLight1 = nullptr;
+    Ogre::Light *mSunLight = nullptr;
+    Ogre::SceneNode* mSunLightNode = nullptr;
+    Ogre::Light *mMoonLight = nullptr;
+    Ogre::SceneNode* mMoonLightNode = nullptr;
 	
 	SkyX::SkyX* mSkyX = nullptr;
 	SkyX::BasicController* mBasicController = nullptr;
 
-	SkyX::ColorGradient mWaterGradient, 
-		                mSunGradient, 
-						mAmbientGradient;
+	SkyX::ColorGradient mWaterGradient;
+	SkyX::ColorGradient mSunGradient;
+	SkyX::ColorGradient mDayAmbientGradient;
+    SkyX::ColorGradient mNightAmbientGradient;
 
 	SkyX::CfgFileManager* mCfgFileManager = nullptr;
 

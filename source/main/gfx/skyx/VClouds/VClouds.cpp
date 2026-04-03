@@ -27,8 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX { namespace VClouds
 {
-	VClouds::VClouds(Ogre::SceneManager *sm)
-		: mSceneManager(sm)
+	VClouds::VClouds(SkyX* skyX)
+		: mSkyX(skyX)
 		, mCamera(0)
 		, mCreated(false)
 		, mGeometrySettings(GeometrySettings())
@@ -326,5 +326,10 @@ namespace SkyX { namespace VClouds
 
 		mDataManager->setWheater(mWheater.x, mWheater.y, mDelayedResponse);
 	}
+
+    Ogre::SceneManager* VClouds::getSceneManager()
+    {
+        return mSkyX->getSceneManager();
+    }
 
 }}

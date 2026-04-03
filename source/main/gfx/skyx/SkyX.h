@@ -326,6 +326,11 @@ namespace SkyX
 			return mSceneManager;
 		}
 
+        inline Ogre::SceneNode* getSkyXGroupingNode()
+        {
+            return mSkyXGroupingNode;
+        }
+
 		/** Get current rendering camera
 		    @return Current rendering camera
 		 */
@@ -420,6 +425,9 @@ namespace SkyX
 		Ogre::Real mTimeOffset;
 
 		CfgFileManager *mCfgFileManager = nullptr;
+
+        /// Root node for all SkyX objects, for nicer inspector view
+        Ogre::SceneNode* mSkyXGroupingNode = nullptr;
 	};
 }
 

@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "GeometryManager.h"
 #include "LightningManager.h"
 
+#include "ForwardDeclarations.h"
+
 namespace SkyX { namespace VClouds{
 
 	class VClouds
@@ -144,7 +146,7 @@ namespace SkyX { namespace VClouds{
 		/** Simple constructor
 			@param sm Scene manager 
 		 */
-		VClouds(Ogre::SceneManager *sm);
+		VClouds(SkyX* skyX);
 
 		/** Destructor
 		 */
@@ -462,10 +464,12 @@ namespace SkyX { namespace VClouds{
 		/** Get scene manager
 		    @return Ogre::SceneManager pointer
 		 */
-		inline Ogre::SceneManager* getSceneManager()
-		{
-			return mSceneManager;
-		}
+		Ogre::SceneManager* getSceneManager();
+
+        SkyX* getSkyX()
+        {
+            return mSkyX;
+        }
 
 		/** Get current rendering camera
 		    @return Current rendering camera
@@ -569,8 +573,6 @@ namespace SkyX { namespace VClouds{
 		/// Lightning manager
 		LightningManager *mLightningManager;
 
-		/// Ogre::SceneManager pointer
-        Ogre::SceneManager *mSceneManager;
 		/// Current rendering camera
 		Ogre::Camera* mCamera;
 
@@ -581,6 +583,8 @@ namespace SkyX { namespace VClouds{
 
 		/// Cameras data
 		std::vector<CameraData> mCamerasData;
+
+        SkyX* mSkyX = nullptr;
 	};
 
 }}

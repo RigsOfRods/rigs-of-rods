@@ -107,7 +107,7 @@ namespace SkyX
 		mEntity->setCastShadows(false);
 		mEntity->setRenderQueueGroup(mSkyX->getRenderQueueGroups().skydome);
 
-		mSceneNode = mSkyX->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+		mSceneNode = mSkyX->getSkyXGroupingNode()->createChildSceneNode();
 		mSceneNode->showBoundingBox(false);
         mSceneNode->attachObject(mEntity);
 

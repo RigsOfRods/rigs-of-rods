@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "GeometryManager.h"
 
 #include "VClouds.h"
+#include "SkyX.h"
 
 namespace SkyX { namespace VClouds
 {
@@ -63,7 +64,7 @@ namespace SkyX { namespace VClouds
 		mNumberOfBlocks = NumberOfBlocks;
 		mNa = Na; mNb = Nb; mNc = Nc;
 
-		mSceneNode = mVClouds->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+		mSceneNode = mVClouds->getSkyX()->getSkyXGroupingNode()->createChildSceneNode();
 		_createGeometry();
 
 		mCreated = true;

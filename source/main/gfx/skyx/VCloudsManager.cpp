@@ -36,7 +36,7 @@ namespace SkyX
 		, mCreated(false)
 		, mCurrentTimeSinceLastFrame(0)
 	{
-		mVClouds = new VClouds::VClouds(mSkyX->getSceneManager());
+		mVClouds = new VClouds::VClouds(mSkyX);
 		mVClouds->setRenderQueueGroups(
 			VClouds::VClouds::RenderQueueGroups(mSkyX->getRenderQueueGroups().vclouds, mSkyX->getRenderQueueGroups().vcloudsLightningsUnder, mSkyX->getRenderQueueGroups().vcloudsLightningsOver));
 
