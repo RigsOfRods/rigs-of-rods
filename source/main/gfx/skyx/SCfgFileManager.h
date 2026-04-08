@@ -42,7 +42,7 @@ namespace SkyX
     public:
         /** Constructor
          */
-        CfgFileManager(SkyX *s, BasicController *c, Ogre::Camera* d);
+        CfgFileManager(SkyX *s, Ogre::Camera* d);
 
         /** Destructor
          */
@@ -119,7 +119,6 @@ namespace SkyX
         void loadPrecipitationParams(Ogre::ConfigFile &CfgFile) const;
 
         SkyX* mSkyX;
-        BasicController* mController;
         Ogre::Camera *mCamera;
     };
 };

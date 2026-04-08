@@ -293,9 +293,9 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
 #endif // USE_CAELUM
     if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
     {
-        if (j_doc.HasMember("daytime_24hr"))
+        if (j_doc.HasMember("daytime"))
         {
-            App::GetGameContext()->GetTerrain()->getSkyXManager()->setTimeOfDay24Hour(j_doc["daytime_24hr"].GetFloat());
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->SetCaelumPortTime(j_doc["daytime"].GetDouble());
         }
     }
 
@@ -460,7 +460,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 #endif // USE_CAELUM
     if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
     {
-        j_doc.AddMember("daytime_24hr", App::GetGameContext()->GetTerrain()->getSkyXManager()->getTimeOfDay24Hour(), j_doc.GetAllocator());
+        j_doc.AddMember("daytime", App::GetGameContext()->GetTerrain()->getSkyXManager()->GetCaelumPortTime(), j_doc.GetAllocator());
     }
 
     j_doc.AddMember("forced_awake", m_forced_awake, j_doc.GetAllocator());

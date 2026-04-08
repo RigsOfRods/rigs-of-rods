@@ -2775,43 +2775,41 @@ void TopMenubar::DrawSettingsMenuSkyControls()
     {
         auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
 
-        ImGui::Separator();
-        ImGui::TextDisabled("%s", _LC("TopMenubar", "Time:"));
-
-        // time slider with current time text on the left
-        float timeofday = skyx_mgr->getTimeOfDay24Hour();
-        std::string prettytime = skyx_mgr->getPrettyTimeHMS();
-        if (ImGui::SliderFloat(_LC("TopMenubar", "Time of day"), &timeofday, 0.f, 24.f, prettytime.c_str()))
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time:"));
+        float time = App::GetGameContext()->GetTerrain()->getSkyXManager()->GetCaelumPortTime();
+        std::string prettytime = skyx_mgr->GetCaelumPortPrettyTime();
+        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, prettytime.c_str()))
         {
-            skyx_mgr->setTimeOfDay24Hour(timeofday);
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->SetCaelumPortTime(time);
+        }
+        ImGui::SameLine();
+        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+        if (App::gfx_sky_time_cycle->getBool())
+        {
+            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
         }
 
         // sub-sliders have custom style
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
 
-        float moonphase = skyx_mgr->GetSkyX()->getController()->getMoonPhase();
-        if (ImGui::SliderFloat(_LC("TopMenubar", "Moon phase"), &moonphase, -1.f, 1.f, "%.2f"))
-        {
-            skyx_mgr->GetSkyX()->getController()->setMoonPhase(moonphase);
-        }
-
         if (sky_show_advanced)
         { 
-            float lattitude = skyx_mgr->getLatitudeDeg();
+            float lattitude = skyx_mgr->GetSkyX()->getCaelumPort()->getObserverLatitude().valueDegrees();
             if (ImGui::SliderFloat(_LC("TopMenubar", "Lattitude"), &lattitude, 0.f, 90.f, "%.2f"))
             {
-                skyx_mgr->setLatitudeDeg(lattitude);
+                skyx_mgr->GetSkyX()->getCaelumPort()->setObserverLatitude(Ogre::Degree(lattitude));
             }
 
-            int day = skyx_mgr->getDayOfYear();
-            if (ImGui::SliderInt(_LC("TopMenubar", "Day of Year"), &day, 1, 365))
+            float longitude = skyx_mgr->GetSkyX()->getCaelumPort()->getObserverLongitude().valueDegrees();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Longitude"), &longitude, -180.f, 180.f, "%.2f"))
             {
-                skyx_mgr->setDayOfYear(day);
+                skyx_mgr->GetSkyX()->getCaelumPort()->setObserverLongitude(Ogre::Degree(longitude));
             }
 
             float timefactor = skyx_mgr->GetSkyX()->getTimeMultiplier();
             if (ImGui::SliderFloat(_LC("TopMenubar", "Time factor"), &timefactor, 0.001, 0.05, "%.3f"))
             {
+                // this sets CaelumPort's time factor
                 skyx_mgr->GetSkyX()->setTimeMultiplier(timefactor);
             }
         }

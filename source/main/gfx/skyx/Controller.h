@@ -34,10 +34,8 @@ namespace SkyX
     {
     public:
         /** Constructor
-            @param deleteBySkyX true to automatically destroy the controller by SkyX, false otherwise
          */
-        inline Controller(const bool& deleteBySkyX)
-            : mDeleteBySkyX(deleteBySkyX)
+        inline Controller()
         {
         }
 
@@ -45,47 +43,21 @@ namespace SkyX
          */
         inline virtual ~Controller(){}
 
-        /** Update controller
-            @param simDeltaTime Simulation delta time (It's not the time since last frame, it's the delta simulation time, one
-                                time the time since last frame has been multiplied by the time multiplier)
-         */
-        inline virtual void update(const Ogre::Real& simDeltaTime){}
-
-        virtual void setLatitudeDeg(Ogre::Real latitudeDeg) = 0;
-
-        virtual Ogre::Real getLatitudeDeg() const = 0;
-
         /** Get sun direction
             @return Sun direction, the Earth-to-Sun direction
          */
-        virtual Ogre::Vector3 getSunDirection() = 0;
+        virtual Ogre::Vector3 getSunDirection() const = 0;
 
         /** Get moon direction
             @return Moon direction, Earth-to-Moon direction
          */
-        virtual Ogre::Vector3 getMoonDirection() = 0;
+        virtual Ogre::Vector3 getMoonDirection() const = 0;
 
         /** Get moon phase
             @return Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
          */
-        virtual Ogre::Real getMoonPhase() = 0;
+        virtual Ogre::Real getMoonPhase() const = 0;
 
-        /** Set moon phase
-            @param phase Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
-         */
-        virtual void setMoonPhase(Ogre::Real phase) = 0;
-
-        /** Must the controller be destroyed by SkyX?
-            @return true if yes, false if not
-         */
-        inline const bool& getDeleteBySkyX() const
-        {
-            return mDeleteBySkyX;
-        }
-
-    private:
-        /// Must the controller be destroyed by SkyX?
-        bool mDeleteBySkyX;
     };
 }
 

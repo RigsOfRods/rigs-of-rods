@@ -27,8 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX
 {
-    CfgFileManager::CfgFileManager(SkyX* s, BasicController *c, Ogre::Camera *d)
-        : mSkyX(s), mController(c), mCamera(d)
+    CfgFileManager::CfgFileManager(SkyX* s, Ogre::Camera *d)
+        : mSkyX(s),  mCamera(d)
     {
     }
 
@@ -53,12 +53,11 @@ namespace SkyX
             return false;
         }
 
-        mController->setTime(_getVector3Value(CfgFile, "Time"));
-        mController->setMoonPhase(_getFloatValue(CfgFile, "MoonPhase"));
+
 
         // RIGSOFRODS: new sun and moon config
-        mController->setLatitudeDeg(_getFloatValue(CfgFile, "Latitude"));
-        mController->setDayOfYear(_getIntValue(CfgFile, "DayOfYear"));
+        mSkyX->getCaelumPort()->setObserverLatitude(_getDegreeValue(CfgFile, "Latitude"));
+        mSkyX->getCaelumPort()->setObserverLongitude(_getDegreeValue(CfgFile, "Longitude"));
 
         mSkyX->getAtmosphereManager()->setOptions(
             AtmosphereManager::Options(

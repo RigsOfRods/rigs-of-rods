@@ -45,40 +45,23 @@ public:
 
     SkyX::SkyX* GetSkyX() { return mSkyX; }
 
-    // Time settings
-    void setTimeOfDay24Hour(float timeOfDay24Hour);
-    float getTimeOfDay24Hour();
-
-    void setLatitudeDeg(float latitudeDeg);
-    float getLatitudeDeg();
-
-    void setDayOfYear(int dayOfYear);
-    int getDayOfYear();
-
-    std::string getPrettyTimeHMS();
+    // CaelumPort updates ported from `SkyManager`
+    void NotifyCaelumPortCameraChanged(Ogre::Camera* newCamera);
+    void DetectTerrainLightmapUpdateFromCaelumPort();
+    std::string GetCaelumPortPrettyTime();
+    double GetCaelumPortTime();
+    void SetCaelumPortTime(double time);
+    Ogre::Light* GetCaelumPortMainLight();
 
 protected:
-    void InitSkyLight();
-    void DestroySkyLight();
-    bool UpdateSkyLight();
     void DetectPlayerMovement(float dt);
 
-    Ogre::Light *mSunLight = nullptr;
-    Ogre::SceneNode* mSunLightNode = nullptr;
-    Ogre::Light *mMoonLight = nullptr;
-    Ogre::SceneNode* mMoonLightNode = nullptr;
-    
     SkyX::SkyX* mSkyX = nullptr;
-    SkyX::BasicController* mBasicController = nullptr;
-
-    SkyX::ColorGradient mWaterGradient;
-    SkyX::ColorGradient mSunGradient;
-    SkyX::ColorGradient mDayAmbientGradient;
-    SkyX::ColorGradient mNightAmbientGradient;
+    Ogre::SceneNode* mGroupingSceneNode = nullptr;
 
     SkyX::CfgFileManager* mCfgFileManager = nullptr;
 
-    int mLastHour = 0;
+    CaelumPort::LongReal mLastLightmapUpdateCaelumClock = 0.0;
     ActorPtr mLastPlayerActor;
     CameraManager::CameraBehaviors mLastCameraBehavior = CameraManager::CAMERA_BEHAVIOR_INVALID;
     Ogre::Vector3 mLastPlayerPosition = Ogre::Vector3::ZERO;

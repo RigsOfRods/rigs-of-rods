@@ -33,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "CloudsManager.h"
 #include "ColorGradient.h"
 #include "Controller.h"
-#include "BasicController.h"
 #include "Precipitation/SkyXPrecipitationController.h"
 #include "VCloudsManager.h"
 #include "VClouds/VClouds.h"
@@ -43,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "VClouds/Ellipsoid.h"
 #include "VClouds/DataManager.h"
 #include "SCfgFileManager.h"
+#include "CaelumPort/CaelumSystem.h"
 
 namespace SkyX
 {
@@ -102,14 +102,7 @@ namespace SkyX
             LM_HDR = 1
         };
 
-        /** Contructor 
-            @param sm Ogre Scene manager
-            @param c SkyX controller
-         */
-        SkyX(Ogre::SceneManager* sm, Controller* c);
-
-        /** Destructor 
-         */
+        SkyX(Ogre::SceneManager* sm, Ogre::SceneNode* groupingNode, CaelumPort::CaelumSystem* caelumPort);
         ~SkyX();
 
         /** Create SkyX
@@ -160,23 +153,14 @@ namespace SkyX
         }
 
         /** Set time multiplier
-            @param TimeMultiplier Time multiplier
-            @remarks The time multiplier can be a negative number, 0 will disable auto-updating
-                     For setting a custom time of day, check: AtmosphereManager::Options::Time
+            RIGSOFRODS: This sets CaelumPort's UniversalClock time scale.
          */
-        inline void setTimeMultiplier(const Ogre::Real& TimeMultiplier)
-        {
-            mTimeMultiplier = TimeMultiplier;
-            mVCloudsManager->_updateWindSpeedConfig();
-        }
+        void setTimeMultiplier(const Ogre::Real& TimeMultiplier);
 
         /** Get time multiplier
-            @return Time multiplier
+            RIGSOFRODS: This gets CaelumPort's UniversalClock time scale.
          */
-        inline const Ogre::Real& getTimeMultiplier() const
-        {
-            return mTimeMultiplier;
-        }
+        const Ogre::Real getTimeMultiplier() const;
 
         /** Get mesh manager
             @return Mesh manager pointer
@@ -232,19 +216,6 @@ namespace SkyX
         PrecipitationController* getPrecipitationController()
         {
             return mPrecipitationController;
-        }
-
-        /** Set controller
-            @param c Controller
-         */
-        inline void setController(Controller* c)
-        {
-            if (mController->getDeleteBySkyX())
-            {
-                delete mController;
-            }
-
-            mController = c;
         }
 
         /** Get current controller
@@ -372,6 +343,11 @@ namespace SkyX
         void attachViewport(Ogre::Viewport* viewport);
         void detachViewport(Ogre::Viewport* viewport);
 
+        CaelumPort::CaelumSystem* getCaelumPort()
+        {
+            return mCaelumPort;
+        }
+
     private:
         /// Is SkyX created?
         bool mCreated;
@@ -392,6 +368,8 @@ namespace SkyX
         PrecipitationController* mPrecipitationController = nullptr;
         /// Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
         std::set<Ogre::Viewport*> mAttachedViewports;
+        /// CaelumPort - astronomical calc and scene lighting
+        CaelumPort::CaelumSystem* mCaelumPort;
 
         /// Controller
         Controller* mController;
@@ -419,8 +397,6 @@ namespace SkyX
         /// Enable starfield?
         bool mStarfield;
 
-        /// Time multiplier
-        Ogre::Real mTimeMultiplier;
         /// Time offset
         Ogre::Real mTimeOffset;
 

@@ -310,7 +310,7 @@ void RoR::Terrain::CreateSky()
         SkyX_manager = new SkyXManager(configfile);
 
         // initLight()
-        m_main_light = SkyX_manager->getMainLight();
+        m_main_light = SkyX_manager->GetCaelumPortMainLight();
         App::GetGfxScene()->GetSceneManager()->setAmbientLight(SKYMODE_SKYX_AMBIENT_LIGHT);
     }
     else if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SANDSTORM)

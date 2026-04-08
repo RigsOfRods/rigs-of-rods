@@ -27,11 +27,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX
 {
-    SkyX::SkyX(Ogre::SceneManager* sm, Controller* c)
+    SkyX::SkyX(Ogre::SceneManager* sm, Ogre::SceneNode* groupingNode, CaelumPort::CaelumSystem* caelumPort)
         : Ogre::FrameListener()
         , Ogre::RenderTargetListener()
         , mSceneManager(sm)
-        , mController(c)
+        , mCaelumPort(caelumPort)
+        , mController(caelumPort)
         , mCamera(0)
         , mMeshManager(new MeshManager(this))
         , mAtmosphereManager(new AtmosphereManager(this))
@@ -46,11 +47,9 @@ namespace SkyX
         , mVisible(true)
         , mLightingMode(LM_LDR)
         , mStarfield(true)
-        , mTimeMultiplier(0.004f)
         , mTimeOffset(0.0f)
+        , mSkyXGroupingNode(groupingNode)
     {
-        mSkyXGroupingNode = mSceneManager->getRootSceneNode()->createChildSceneNode("SkyX");
-
         mVCloudsManager = new VCloudsManager(this);
         mPrecipitationController = new PrecipitationController(this);
     }
@@ -69,13 +68,6 @@ namespace SkyX
 
         if (mCfgFileManager)
             delete mCfgFileManager;
-
-        if (mController->getDeleteBySkyX())
-        {
-            delete mController;
-        }
-
-        mSceneManager->destroySceneNode(mSkyXGroupingNode);
     }
 
     void SkyX::create()
@@ -134,13 +126,13 @@ namespace SkyX
             return;
         }
 
+        float mTimeMultiplier = mCaelumPort->getUniversalClock()->getTimeScale() * 0.004f;
+
         if (mTimeMultiplier != 0)
         {
             float timemultiplied = timeSinceLastFrame * mTimeMultiplier;
 
             mTimeOffset += timemultiplied;
-
-            mController->update(timemultiplied);
 
             if (mStarfield)
             {
@@ -290,5 +282,22 @@ namespace SkyX
     { 
         mAttachedViewports.erase(viewport);
         mPrecipitationController->destroyViewportInstance(viewport);
+    }
+
+    /** Set time multiplier
+        RIGSOFRODS: This sets CaelumPort's UniversalClock time scale.
+        */
+    void SkyX::setTimeMultiplier(const Ogre::Real& TimeMultiplier)
+    {
+        mCaelumPort->getUniversalClock()->setTimeScale(TimeMultiplier);
+        mVCloudsManager->_updateWindSpeedConfig();
+    }
+
+    /** Get time multiplier
+        RIGSOFRODS: This gets CaelumPort's UniversalClock time scale.
+        */
+    const Ogre::Real SkyX::getTimeMultiplier() const
+    {
+        return mCaelumPort->getUniversalClock()->getTimeScale();
     }
 }
