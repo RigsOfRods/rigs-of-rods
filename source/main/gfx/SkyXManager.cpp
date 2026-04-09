@@ -48,6 +48,8 @@ SkyXManager::SkyXManager(Ogre::String configFile)
     caelumPort->attachViewport(RoR::App::GetAppContext()->GetViewport());
     RoR::App::GetAppContext()->GetRenderWindow()->addListener(caelumPort);
     RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(caelumPort);
+    // Make CaelumPort play nice with OgreTerrain's single-light limitation (will go away after OGRE14+ port)
+    caelumPort->getMoon()->setForceDisable(true);
 
     mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mGroupingSceneNode, caelumPort);
 
