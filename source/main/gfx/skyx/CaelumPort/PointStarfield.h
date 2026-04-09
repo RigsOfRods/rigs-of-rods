@@ -151,6 +151,9 @@ namespace CaelumPort
         /// Material used to draw all the points.
 	    static const Ogre::String STARFIELD_MATERIAL_NAME;
 
+        /// Mesh with all the points.
+	    static const Ogre::String STARFIELD_MANUALOBJECT_NAME;
+
 	    /// Handle camera change.
 	    virtual void notifyCameraChanged (Ogre::Camera *cam);
 

@@ -32,15 +32,7 @@ namespace CaelumPort
         mCaelumCameraNode = groupingSceneNode->createChildSceneNode("CaelumCameraNode");
         mUniversalClock.reset(new UniversalClock ());
 
-        // If the "Caelum" resource group does not exist; create it.
-        // This resource group is never released; which may be bad.
-        // What does ogre do for it's own runtime resources?
-        Ogre::StringVector groups = ResourceGroupManager::getSingleton ().getResourceGroups ();
-        if (std::find (groups.begin(), groups.end(), CaelumPort::RESOURCE_GROUP_NAME) == groups.end()) {
-            LogManager::getSingleton ().logMessage (
-                    "CaelumPort: Creating required internal resource group \'" + RESOURCE_GROUP_NAME + "\'");
-            ResourceGroupManager::getSingleton ().createResourceGroup (CaelumPort::RESOURCE_GROUP_NAME);
-        }
+        // RIGSOFRODS: Resources are loaded by `ContentManager`
 
         // Autoconfigure. Calls clear first to set defaults.
         autoConfigure ();

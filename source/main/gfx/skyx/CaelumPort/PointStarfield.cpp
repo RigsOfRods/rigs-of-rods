@@ -12,7 +12,9 @@ using namespace Ogre;
 
 namespace CaelumPort
 {
-    const Ogre::String PointStarfield::STARFIELD_MATERIAL_NAME = "Caelum/StarPoint";
+    const Ogre::String PointStarfield::STARFIELD_MATERIAL_NAME = "CaelumPort/StarPoint";
+
+    const Ogre::String PointStarfield::STARFIELD_MANUALOBJECT_NAME = "CaelumPort/PointStarfield";
 
     PointStarfield::PointStarfield (
             Ogre::SceneManager *sceneMgr,
@@ -37,7 +39,7 @@ namespace CaelumPort
         mParams.setup(mMaterial->getTechnique(0)->getPass(0)->getVertexProgramParameters());
 
         // We use a separate data source.
-        Ogre::String objName = "Caelum/PointStarfield" + uniqueSuffix;
+        Ogre::String objName = STARFIELD_MANUALOBJECT_NAME + uniqueSuffix;
         mManualObj= (sceneMgr->createManualObject (objName));
         mManualObj->setDynamic(false);
         mManualObj->setRenderQueueGroup (CAELUM_RENDER_QUEUE_STARFIELD);

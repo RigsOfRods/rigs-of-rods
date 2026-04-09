@@ -39,7 +39,8 @@ namespace CaelumPort
     using Ogre::String;
 
     /// Resource group name for caelum resources.
-    static const String RESOURCE_GROUP_NAME = "CaelumPort";
+    // RIGSOFRODS: Resources are loaded by `ContentManager`, name must match.
+    static const String RESOURCE_GROUP_NAME = "SkyXRG";
 
     // Render group for caelum stuff
     // It's best to have them all together

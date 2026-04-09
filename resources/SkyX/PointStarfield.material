@@ -1,0 +1,121 @@
+//
+//This file is part of Caelum.
+//See http://www.ogre3d.org/wiki/index.php/Caelum 
+//
+//Copyright (c) 2008 Caelum team. See Contributors.txt for details.
+//
+//Caelum is free software: you can redistribute it and/or modify
+//it under the terms of the GNU Lesser General Public License as published
+//by the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//Caelum is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU Lesser General Public License for more details.
+//
+//You should have received a copy of the GNU Lesser General Public License
+//along with Caelum. If not, see <http://www.gnu.org/licenses/>.
+//
+
+vertex_program CaelumPort/StarPointVP_glsl glsl
+{
+	source PointStarfield_vp.glsl
+	target vp30
+
+	default_params
+	{
+	    param_named_auto worldviewproj_matrix worldviewproj_matrix
+        param_named_auto render_target_flipping render_target_flipping
+	    
+	    // Default parameters only here to quiet ogre.
+	    param_named mag_scale float -1
+        param_named mag0_size float -1
+        param_named min_size float -1
+        param_named max_size float -1 
+        param_named aspect_ratio float -1
+	}
+}
+
+vertex_program CaelumPort/StarPointVP_hlsl hlsl
+{
+	source PointStarfield.hlsl
+	entry_point StarPointVP
+	target vs_2_0
+
+	default_params
+	{
+	    param_named_auto worldviewproj_matrix worldviewproj_matrix
+        param_named_auto render_target_flipping render_target_flipping
+	    
+	    // Default parameters only here to quiet ogre.
+	    param_named mag_scale float -1
+        param_named mag0_size float -1
+        param_named min_size float -1
+        param_named max_size float -1 
+        param_named aspect_ratio float -1
+	}
+}
+
+vertex_program CaelumPort/StarPointVP unified
+{
+    delegate CaelumPort/StarPointVP_hlsl
+    delegate CaelumPort/StarPointVP_glsl
+}
+
+fragment_program CaelumPort/StarPointFP_glsl
+{
+	source PointStarfield_fp.glsl
+	profiles fp30
+
+	default_params
+	{
+	}
+}
+
+fragment_program CaelumPort/StarPointFP_hlsl
+{
+	source PointStarfield.hlsl
+	entry_point StarPointFP
+	target ps_2_0
+
+	default_params
+	{
+	}
+}
+
+fragment_program CaelumPort/StarPointFP
+{
+    delegate CaelumPort/StarPointFP_glsl
+    delegate CaelumPort/StarPointFP_hlsl
+}
+
+material CaelumPort/StarPoint
+{
+	receive_shadows off
+	
+	technique
+	{
+		pass
+		{
+			depth_check off
+			depth_write off
+
+            vertex_program_ref CaelumPort/StarPointVP
+            {
+            }
+            			
+            fragment_program_ref CaelumPort/StarPointFP
+            {
+            }
+            
+            scene_blend alpha_blend
+            
+            // Works with default culling:
+            cull_hardware clockwise
+            
+            // Override Direct3D shader fog.
+            fog_override true none
+        }
+	}
+}
