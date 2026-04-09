@@ -22,8 +22,7 @@ namespace CaelumPort
                 Ogre::SceneNode* groupingSceneNode
     ):
         mOgreRoot (root),
-        mSceneMgr (sceneMgr),
-        mCleanup (false)
+        mSceneMgr (sceneMgr)
     {
         LogManager::getSingleton().logMessage ("CaelumPort: Initialising Caelum system...");
         //LogManager::getSingleton().logMessage ("CaelumPort: CaelumSystem* at d" +
@@ -66,6 +65,7 @@ namespace CaelumPort
     }
 
     CaelumSystem::~CaelumSystem () {
+        LogManager::getSingleton ().logMessage ("CaelumPort: Shutting down Caelum system...");
         destroySubcomponents (true);
         LogManager::getSingleton ().logMessage ("CaelumPort: CaelumSystem destroyed.");
     }
@@ -150,21 +150,6 @@ namespace CaelumPort
         }
 
         LogManager::getSingleton ().logMessage ("CaelumPort: DONE initializing");
-    }
-
-    void CaelumSystem::shutdown (const bool cleanup) {
-        LogManager::getSingleton ().logMessage ("CaelumPort: Shutting down Caelum system...");
-
-        destroySubcomponents (true);
-
-        if (cleanup) {
-            mOgreRoot->removeFrameListener (this);
-            delete this;
-        } else {
-            // We'll delete later. Make sure we're registered as a frame listener, or we'd leak.
-            mOgreRoot->addFrameListener(this);
-            mCleanup = true;
-        }
     }
 
     void CaelumSystem::attachViewportImpl (Ogre::Viewport* vp)
@@ -265,12 +250,6 @@ namespace CaelumPort
     }
 
     bool CaelumSystem::frameStarted (const Ogre::FrameEvent &e) {
-        if (mCleanup) {
-            // Delayed destruction.
-            mOgreRoot->removeFrameListener (this);
-            delete this;
-            return true;
-        }
 
         updateSubcomponents(e.timeSinceLastFrame);
 

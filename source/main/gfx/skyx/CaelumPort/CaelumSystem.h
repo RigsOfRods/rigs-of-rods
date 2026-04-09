@@ -43,9 +43,6 @@ namespace CaelumPort
         /// RIGSOFRODS: CaelumPort's topmost scene node for nicer inspector view
         Ogre::SceneNode* mCaelumportGroupingNode = nullptr;
 
-        /// Cleanup requested flag.
-        bool mCleanup;
-
         /// Automatically move the camera node.
         bool mAutoMoveCameraNode;
 
@@ -150,17 +147,6 @@ namespace CaelumPort
         /** Destructor.
          */
         ~CaelumSystem ();
-
-        /** Shuts down the system and detaches itself from the Ogre engine.
-         *
-         *  shutdown(true) is equivalent to deleting CaelumSystem yourself.
-         *  shutdown(false) delays destruction to the next time caelum is called as
-         *  a frame listener. This makes it safe to shutdown Caelum from inside
-         *  another frame listener.
-         *
-         *  @param cleanup If this is true then detach and destroy the CaelumSystem instantly.
-         */
-        void shutdown (bool cleanup);
 
         /** Update the whole system manually.
          *  You have to call this yourself if you don't register CaelumSystem

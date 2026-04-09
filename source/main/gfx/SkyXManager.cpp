@@ -69,7 +69,6 @@ SkyXManager::~SkyXManager()
     CaelumPort::CaelumSystem* caelumPort = mSkyX->getCaelumPort();
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(caelumPort);
     RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(caelumPort);
-    caelumPort->shutdown(/*cleanup:*/true);
     delete caelumPort;
 
     // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
