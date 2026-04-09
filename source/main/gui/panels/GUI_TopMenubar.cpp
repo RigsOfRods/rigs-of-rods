@@ -301,6 +301,10 @@ void TopMenubar::Draw(float dt)
             m_daytime = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
         }
 #endif // USE_CAELUM
+        if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+        {
+            m_daytime = App::GetGameContext()->GetTerrain()->getSkyXManager()->GetCaelumPortTime();
+        }
     }
 
     ImGui::SameLine();
