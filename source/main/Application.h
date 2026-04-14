@@ -419,6 +419,13 @@ enum class GfxSkyMode
 };
 std::string ToLocalizedString(GfxSkyMode e);
 
+enum class GfxParticlesMode
+{
+    OFF = 0,
+    GLOBAL_POOL = 1,
+    PER_ACTOR_POOLS = 2, // Experimental, not in GUI yet, may cause performance issues with many actors emitting particles
+};
+
 enum class EfxReverbEngine
 {
     NONE,
