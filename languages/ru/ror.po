@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-01 14:51+0100\n"
-"PO-Revision-Date: 2026-04-21 09:09+0000\n"
+"PO-Revision-Date: 2026-04-21 22:09+0000\n"
 "Last-Translator: Егор Печенька <jaz644088@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -1671,6 +1671,8 @@ msgstr "Включить следы от шин"
 msgctxt "GameSettings"
 msgid "Enable automatic mesh LOD generator (Increases loading times)"
 msgstr ""
+"Автоматическая генерация упрощённой сетки для оптимизации автомобилей на "
+"расстоянии (дольше загрузка)"
 
 #: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
@@ -1830,12 +1832,12 @@ msgstr "Регистрировать балки-триггеры"
 #: gui/panels/GUI_GameSettings.cpp:489
 msgctxt "GameSettings"
 msgid "Allow game window resizing"
-msgstr ""
+msgstr "Разрешить изменение размера окна игры"
 
 #: gui/panels/GUI_GameSettings.cpp:490
 msgctxt "GameSettings"
 msgid "Enable MyGUI.log (needs restart)"
-msgstr ""
+msgstr "Включить лог MyGUI.log (нужен перезапуск)"
 
 #: gui/panels/GUI_GameSettings.cpp:491
 msgctxt "GameSettings"
@@ -1855,7 +1857,7 @@ msgstr "Режим захвата управления"
 #: gui/panels/GUI_GameSettings.cpp:511
 msgctxt "GameSettings"
 msgid "Restarting input subsystem, please wait..."
-msgstr ""
+msgstr "Перезапуск подсистемы управления, подождите..."
 
 #: gui/panels/GUI_GameSettings.cpp:514
 msgctxt "GameSettings"
@@ -2255,7 +2257,7 @@ msgstr "Медленное  скачивание  по сети"
 #: gui/panels/GUI_MultiplayerClientList.cpp:330
 msgctxt "MultiplayerClientList"
 msgid "Local actions"
-msgstr ""
+msgstr "Локальные действия"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:331
 #, fuzzy
@@ -2300,7 +2302,7 @@ msgstr "Экспорт"
 #: gui/panels/GUI_MultiplayerClientList.cpp:340
 msgctxt "MultiplayerClientList"
 msgid "Kick"
-msgstr ""
+msgstr "Кик"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:341
 #, fuzzy
@@ -2395,7 +2397,7 @@ msgstr "Токен пользователя"
 #: gui/panels/GUI_MultiplayerSelector.cpp:213
 msgctxt "MultiplayerSelector"
 msgid "(Get token online)"
-msgstr ""
+msgstr "(Получите токен на сайте)"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:214
 msgctxt "MultiplayerSelector"
@@ -2403,6 +2405,8 @@ msgid ""
 "Never share your user token, even if someone is claiming to be an "
 "administrator."
 msgstr ""
+"НИКОГДА не передавайте никому свой токен, даже, если его просит сам "
+"создатель игры."
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:225
 msgctxt "MultiplayerSelector"
@@ -2477,7 +2481,7 @@ msgstr "Масса: "
 #: gui/panels/GUI_NodeBeamUtils.cpp:68
 msgctxt "NodeBeamUtils"
 msgid "Spring/Damp"
-msgstr ""
+msgstr "Упругость / Гашение колебаний"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_NodeBeamUtils.cpp:95
@@ -2579,12 +2583,12 @@ msgstr "Вибрация"
 #: gui/panels/GUI_NodeBeamUtils.cpp:267
 msgctxt "NodeBeamUtils"
 msgid "This mod is read only (ZIP archive)"
-msgstr ""
+msgstr "Этот мод только для чтения (ZIP архив)"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:269
 msgctxt "NodeBeamUtils"
 msgid "Create writable project (if not existing)"
-msgstr ""
+msgstr "Создать перезаписываемый проект (если не существует)"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:282
 #, fuzzy
