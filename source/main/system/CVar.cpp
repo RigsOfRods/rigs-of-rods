@@ -106,6 +106,8 @@ void Console::cVarSetupBuiltins()
     App::diag_allow_window_resize= this->cVarCreate("diag_allow_window_resize","",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_use_mygui_logfile  = this->cVarCreate("diag_use_mygui_logfile",  "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_load_devel_scripts = this->cVarCreate("diag_load_devel_scripts", "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_profiler_enabled   = this->cVarCreate("diag_profiler_enabled",   "",                           CVAR_TYPE_BOOL,                   "false");
+    App::diag_profiler_rate      = this->cVarCreate("diag_profiler_rate",      "",                           CVAR_ARCHIVE | CVAR_TYPE_INT,     "10");
 
     App::sys_process_dir         = this->cVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->cVarCreate("sys_user_dir",            "",                           0);
