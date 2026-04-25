@@ -7,7 +7,8 @@ class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
     default_options = {
-        "ogre3d*:resourcemanager_strict": "off"
+        "ogre3d*:resourcemanager_strict": "off",
+        "ogre3d*:profiling": "True"
     }
 
     def layout(self):

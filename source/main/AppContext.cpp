@@ -460,6 +460,31 @@ void AppContext::ActivateFullscreen(bool val)
 }
 
 // --------------------------
+// Profiling
+
+void AppContext::PrepareProfiler()
+{
+#if OGRE_PROFILING == 1 // Singleton is null otherwise
+
+    // WORKAROUND for OGRE v14.5.2 bug - repeated `setEnabled()` true causes shutdown-reinit cycle.
+    // See https://github.com/OGRECave/ogre/commit/05dd52dc7c9abfc3a15734dab59deede7288404a
+    if (App::diag_profiler_enabled->getBool() != m_profiler_enabled)
+    {
+        m_profiler_enabled = App::diag_profiler_enabled->getBool();
+        Ogre::Profiler::getSingleton().setEnabled(m_profiler_enabled);
+    }
+
+    if (App::diag_profiler_rate->getInt() < 1) // Check valid uint & Avoid division by zero in OGRE
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(_L("Invalid profiler update rate ({}), resetting to default"), App::diag_profiler_rate->getInt()));
+        App::diag_profiler_rate->setVal(10); // Default in OGRE
+    }
+    Ogre::Profiler::getSingleton().setUpdateDisplayFrequency((Ogre::uint)App::diag_profiler_rate->getInt());
+#endif
+}
+
+// --------------------------
 // Program paths and logging
 
 bool AppContext::SetUpProgramPaths()

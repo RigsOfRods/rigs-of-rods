@@ -333,6 +333,7 @@ int main(int argc, char *argv[])
 
         while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN)
         {
+            App::GetAppContext()->PrepareProfiler();
             OgreBites::WindowEventUtilities::messagePump();
 
             // Halt physics (wait for async tasks to finish)
@@ -1987,6 +1988,7 @@ int main(int argc, char *argv[])
                 }
             } // Check FPS limit block
 
+            OgreProfile("RoR Main Loop");
             // Calculate delta time
             const auto now = std::chrono::high_resolution_clock::now();
             const float dt = std::chrono::duration<float>(now - start_time).count();
