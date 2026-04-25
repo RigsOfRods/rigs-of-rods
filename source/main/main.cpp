@@ -327,6 +327,7 @@ int main(int argc, char *argv[])
 
         while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN)
         {
+            App::GetAppContext()->PrepareProfiler();
             OgreBites::WindowEventUtilities::messagePump();
 
             // Halt physics (wait for async tasks to finish)
@@ -336,6 +337,7 @@ int main(int argc, char *argv[])
             }
 
             // Game events
+            OgreProfileBegin("RoR message queue");
             while (App::GetGameContext()->HasMessages())
             {
                 Message m = App::GetGameContext()->PopMessage();
@@ -1969,10 +1971,12 @@ int main(int argc, char *argv[])
                 }
 
             } // Game events block
+            OgreProfileEnd("RoR message queue");
 
             // Check FPS limit
             if (App::gfx_fps_limit->getInt() > 0)
             {
+                OgreProfile("RoR FPS limiter");
                 const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit->getInt(), 5, 240);
                 float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
                 while (dt < min_frame_time)
@@ -1981,6 +1985,7 @@ int main(int argc, char *argv[])
                 }
             } // Check FPS limit block
 
+            OgreProfileBegin("RoR Main Loop");
             // Calculate delta time
             const auto now = std::chrono::high_resolution_clock::now();
             const float dt = std::chrono::duration<float>(now - start_time).count();
@@ -2004,6 +2009,7 @@ int main(int argc, char *argv[])
 #endif // USE_SOCKETW
 
             // Process input events
+            OgreProfileBegin("Input processing");
             if (dt != 0.f)
             {
                 App::GetInputEngine()->Capture();
@@ -2075,10 +2081,12 @@ int main(int argc, char *argv[])
                     } // app state SIMULATION
                 } // interactive key binding mode
             } // dt != 0
+            OgreProfileEnd("Input processing");
 
             // Update OutGauge device
             if (App::io_outgauge_mode->getInt() > 0)
             {
+                OgreProfile("OutGauge");
                 App::GetOutGauge()->Update(dt, App::GetGameContext()->GetPlayerActor());
             }
 
@@ -2086,6 +2094,7 @@ int main(int argc, char *argv[])
             App::GetGuiManager()->NewImGuiFrame(dt);
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
+                OgreProfile("Scene and GUI");
                 App::GetGuiManager()->DrawSimulationGui(dt);
                 for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
@@ -2104,24 +2113,31 @@ int main(int argc, char *argv[])
 #ifdef USE_MUMBLE
             if (App::GetMumble())
             {
+                OgreProfile("Mumble");
                 App::GetMumble()->Update(); // 3d voice over network
             }
 #endif // USE_MUMBLE
 
 #ifdef USE_OPENAL
+            OgreProfileBegin("3D audio");
             App::GetSoundScriptManager()->update(dt); // update 3d audio listener position
+            OgreProfileEnd("3D audio");
 #endif // USE_OPENAL
 
 #ifdef USE_ANGELSCRIPT
+            OgreProfileBegin("Scripting");
             App::GetScriptEngine()->framestep(dt);
+            OgreProfileEnd("Scripting");
 #endif // USE_ANGELSCRIPT
 
             if (App::io_ffb_enabled->getBool() &&
                 App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
+                OgreProfile("Force Feedback");
                 App::GetAppContext()->GetForceFeedback().Update();
             }
 
+            OgreProfileBegin("Simulation");
             if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
                 App::GetGameContext()->GetSceneMouse().UpdateSimulation();
@@ -2151,8 +2167,10 @@ int main(int argc, char *argv[])
                 }
                 App::GetGameContext()->UpdateActors(); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
             }
+            OgreProfileEnd("Simulation");
 
             // Scene and GUI updates
+            OgreProfileBegin("Scene and GUI"); // Adds up to existing profile
             if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
             {
                 App::GetGuiManager()->DrawMainMenuGui();
@@ -2161,6 +2179,9 @@ int main(int argc, char *argv[])
             {
                 App::GetGfxScene()->UpdateScene(dt_sim); // Draws GUI as well
             }
+            OgreProfileEnd("Scene and GUI");
+
+            OgreProfileEnd("RoR Main Loop");
 
             // Render!
             Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();
