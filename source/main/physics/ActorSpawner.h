@@ -71,6 +71,7 @@ namespace RoR {
 class ActorSpawner
 {
     friend class RoR::FlexFactory; // Needs to use `ComposeName()` and `SetupNewEntity()`
+    friend class RoR::GfxActor; // Needs to use `ComposeName()`
 
 public:
 
