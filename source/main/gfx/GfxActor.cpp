@@ -63,12 +63,12 @@ RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_
     m_custom_resource_group(ogre_resource_group)
 {
     // Setup particles
-    m_particles_drip   = App::GetGfxScene()->GetDustPool("drip");
-    m_particles_dust   = App::GetGfxScene()->GetDustPool("dust"); // Dust, water vapour, tyre smoke
-    m_particles_splash = App::GetGfxScene()->GetDustPool("splash");
-    m_particles_ripple = App::GetGfxScene()->GetDustPool("ripple");
-    m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
-    m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
+    m_particles_drip   = new DustPool(App::GetGfxScene()->GetSceneManager(), "tracks/Drip",   50, spawner->ComposeName("Drip"));
+    m_particles_dust   = new DustPool(App::GetGfxScene()->GetSceneManager(), "tracks/Dust",   20, spawner->ComposeName("Dust"));
+    m_particles_splash = new DustPool(App::GetGfxScene()->GetSceneManager(), "tracks/Splash", 20, spawner->ComposeName("Splash"));
+    m_particles_ripple = new DustPool(App::GetGfxScene()->GetSceneManager(), "tracks/Ripple", 20, spawner->ComposeName("Ripple"));
+    m_particles_sparks = new DustPool(App::GetGfxScene()->GetSceneManager(), "tracks/Sparks", 10, spawner->ComposeName("Sparks"));
+    m_particles_clump  = new DustPool(App::GetGfxScene()->GetSceneManager(), "tracks/Clump",  20, spawner->ComposeName("Clump"));
 }
 
 std::string WhereFrom(GfxActor* gfx_actor, const std::string& doing_what)
@@ -316,6 +316,19 @@ RoR::GfxActor::~GfxActor()
                 m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, i, m_cparticles.size()), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
+        try
+        {
+            m_particles_drip->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_drip;
+            m_particles_dust->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_dust;
+            m_particles_splash->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_splash;
+            m_particles_ripple->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_ripple;
+            m_particles_sparks->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_sparks;
+            m_particles_clump->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_clump;
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, "deleting per-actor particle pools (spawned with 'gfx_particles_mode=2')"), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
 }
 
 ActorPtr RoR::GfxActor::GetActor()
@@ -686,6 +699,19 @@ void RoR::GfxActor::UpdateParticles(float dt)
 
         nfx.nx_under_water_prev = n.nd_under_water;
     }
+        m_particles_drip->AdjustDustPoolSpeedFactor(this);
+        m_particles_dust->AdjustDustPoolSpeedFactor(this);
+        m_particles_splash->AdjustDustPoolSpeedFactor(this);
+        m_particles_ripple->AdjustDustPoolSpeedFactor(this);
+        m_particles_sparks->AdjustDustPoolSpeedFactor(this);
+        m_particles_clump->AdjustDustPoolSpeedFactor(this);
+
+        m_particles_drip->update();
+        m_particles_dust->update();
+        m_particles_splash->update();
+        m_particles_ripple->update();
+        m_particles_sparks->update();
+        m_particles_clump->update();
 }
 
 const ImU32 BEAM_COLOR               (0xff556633); // All colors are in ABGR format (alpha, blue, green, red)
@@ -2011,7 +2037,7 @@ void RoR::GfxActor::UpdateCParticles()
 {
     for (CParticle& cparticle: m_cparticles)
     {
-        App::GetGfxScene()->AdjustParticleSystemTimeFactor(cparticle.psys);
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(cparticle.psys, this);
         const Ogre::Vector3 pos = m_simbuf.simbuf_nodes[cparticle.emitterNode].AbsPosition;
         const Ogre::Vector3 dir = fast_normalise(pos - m_simbuf.simbuf_nodes[cparticle.directionNode].AbsPosition);
         cparticle.snode->setPosition(pos);
@@ -2034,7 +2060,7 @@ void RoR::GfxActor::UpdateExhausts()
         if (!exhaust.smoker) // This remains `nullptr` if removed via `addonpart_unwanted_exhaust` or Tuning UI.
             continue;
 
-        App::GetGfxScene()->AdjustParticleSystemTimeFactor(exhaust.smoker);
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(exhaust.smoker, this);
         const Ogre::Vector3 pos = m_simbuf.simbuf_nodes[exhaust.emitterNode].AbsPosition;
         const Ogre::Vector3 dir = pos - m_simbuf.simbuf_nodes[exhaust.directionNode].AbsPosition;
         exhaust.smokeNode->setPosition(pos);
