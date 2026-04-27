@@ -705,6 +705,8 @@ extern CVar* diag_actor_dump;
 extern CVar* diag_allow_window_resize;
 extern CVar* diag_use_mygui_logfile;
 extern CVar* diag_load_devel_scripts;
+extern CVar* diag_profiler_enabled;
+extern CVar* diag_profiler_rate;
 
 // System
 extern CVar* sys_process_dir;
