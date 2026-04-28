@@ -70,7 +70,7 @@ void ScriptMonitor::Draw()
         switch (unit.scriptCategory)
         {
         case ScriptCategory::ACTOR:
-            ImGui::Text("({} [%u] '%s')", _LC("ScriptMonitor", "actor"), unit.associatedActor->ar_vector_index, unit.associatedActor->getTruckName().c_str());
+            ImGui::Text("[%u] '%s' (%s)", unit.associatedActor->ar_vector_index, unit.associatedActor->getTruckName().c_str(), _LC("ScriptMonitor", "actor"));
             break;
 
         case ScriptCategory::TERRAIN:
