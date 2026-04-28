@@ -154,6 +154,8 @@ void ContentManager::InitContentManager()
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_scripts_dir->getStr(), "FileSystem", RGN_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_server_scripts_dir->getStr(), "FileSystem", RGN_SERVER_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_logs_dir->getStr(), "FileSystem", RGN_LOGS, /*recursive:*/false, /*readonly:*/false);
 
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);

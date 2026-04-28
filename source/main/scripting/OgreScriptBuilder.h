@@ -31,6 +31,8 @@
 
 #include <angelscript.h>
 
+#include <OgreResourceGroupManager.h>
+
 /// @addtogroup Scripting
 /// @{
 
@@ -40,8 +42,10 @@ class OgreScriptBuilder : public AngelScript::CScriptBuilder
 {
 public:
     Ogre::String GetHash() { return hash; };
+    void SetResourceGroup(const Ogre::String& rg) { resourceGroup = rg; }
 protected:
     Ogre::String hash;
+    Ogre::String resourceGroup = Ogre::RGN_AUTODETECT; // Overridable to acommodate server scripts which must load from restricted location to avoid mixups with client scripts.
     int LoadScriptSection(const char* filename);
 };
 

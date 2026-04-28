@@ -52,6 +52,7 @@
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
         App::sys_savegames_dir ->setStr(PathCombine(App::sys_user_dir->getStr(), "savegames"));
         App::sys_screenshot_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "screenshots"));
         App::sys_scripts_dir   ->setStr(PathCombine(App::sys_user_dir->getStr(), "scripts"));
+        App::sys_server_scripts_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "server_scripts"));
         App::sys_projects_dir  ->setStr(PathCombine(App::sys_user_dir->getStr(), "projects"));
         App::sys_repo_attachments_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "repo_attachments"));
 
@@ -200,8 +202,10 @@ int main(int argc, char *argv[])
         App::GetAppContext()->SetUpInput();
 
 #ifdef USE_ANGELSCRIPT
-        App::CreateScriptEngine();
         CreateFolder(App::sys_scripts_dir->getStr());
+        App::CreateScriptEngine();
+        CreateFolder(App::sys_server_scripts_dir->getStr());
+        App::CreateServerScriptEngine();
         CreateFolder(App::sys_projects_dir->getStr());
 #endif
 
@@ -542,6 +546,13 @@ int main(int argc, char *argv[])
 #if USE_SOCKETW
                     try
                     {
+                        if (App::GetServerScriptEngine()->GetTimerThreadState() == ServerScriptEngine::ThreadState::RUNNING)
+                        {
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                _L("Stopping local server script engine before connecting to remote server."));
+                            App::GetServerScriptEngine()->StopTimerThread();
+                            App::mp_state->setVal((int)MpState::DISABLED);
+                        }
                         App::GetNetwork()->StartConnecting();
                     }
                     catch (...) 

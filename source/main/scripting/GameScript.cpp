@@ -20,7 +20,6 @@
 */
 
 #include "GameScript.h"
-#include "ScriptUtils.h"
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -54,6 +53,7 @@
 #include "Network.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "ScriptUtils.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
@@ -1020,6 +1020,11 @@ int GameScript::sendGameCmd(const String& message)
         return 0;
     }
 #endif // USE_SOCKETW
+    if (RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::LOCAL_SCRIPT)
+    {
+        App::GetServerScriptEngine()->gameCmd(-1, message);
+        return 0;
+    }
 
     return -11;
 }

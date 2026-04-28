@@ -29,6 +29,7 @@
 #include "GUIUtils.h"
 #include "Language.h"
 #include "InputEngine.h"
+#include "ServerScriptEngine.h"
 
 #include <cstring> // strtok, strncmp
 #include <fmt/format.h>
@@ -160,6 +161,10 @@ void GameChatBox::Draw()
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 this->SubmitMessage();
+            }
+            else if (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
+            {
+                App::GetServerScriptEngine()->playerChat(-1, m_msg_buffer.GetBuffer());
             }
             m_msg_buffer.Clear();
             this->SetVisible(false);
