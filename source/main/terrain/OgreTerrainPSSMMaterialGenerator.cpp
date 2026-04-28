@@ -41,37 +41,7 @@ THE SOFTWARE.
 namespace Ogre {
 //---------------------------------------------------------------------
 TerrainPSSMMaterialGenerator::TerrainPSSMMaterialGenerator()
-{
-    // define the layers
-    // We expect terrain textures to have no alpha, so we use the alpha channel
-    // in the albedo texture to store specular reflection
-    // similarly we double-up the normal and height (for parallax)
-    mLayerDecl.samplers.push_back(TerrainLayerSampler("albedo_specular", PF_BYTE_RGBA));
-    mLayerDecl.samplers.push_back(TerrainLayerSampler("normal_height", PF_BYTE_RGBA));
-
-    mLayerDecl.elements.push_back(
-                  TerrainLayerSamplerElement(0, TLSS_ALBEDO, 0, 3));
-    mLayerDecl.elements.push_back(
-                  TerrainLayerSamplerElement(0, TLSS_SPECULAR, 3, 1));
-    mLayerDecl.elements.push_back(
-                  TerrainLayerSamplerElement(1, TLSS_NORMAL, 0, 3));
-    mLayerDecl.elements.push_back(
-                  TerrainLayerSamplerElement(1, TLSS_HEIGHT, 3, 1));
-
-    mProfiles.push_back(OGRE_NEW SM2Profile(this, "SM2", "Profile for rendering on Shader Model 2 capable cards"));
-    // TODO - check hardware capabilities & use fallbacks if required (more profiles needed)
-    setActiveProfile("SM2");
-}
-
-//---------------------------------------------------------------------
-TerrainPSSMMaterialGenerator::~TerrainPSSMMaterialGenerator()
-{
-}
-
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-TerrainPSSMMaterialGenerator::SM2Profile::SM2Profile(TerrainMaterialGenerator* parent, const String& name, const String& desc)
-    : Profile(parent, name, desc)
+    : TerrainMaterialGenerator()
     , mShaderGen(0)
     , mLayerNormalMappingEnabled(true)
     , mLayerParallaxMappingEnabled(true)
@@ -84,16 +54,22 @@ TerrainPSSMMaterialGenerator::SM2Profile::SM2Profile(TerrainMaterialGenerator* p
     , mDepthShadows(false)
     , mLowLodShadows(false)
 {
+    // define the layers
+    // We expect terrain textures to have no alpha, so we use the alpha channel
+    // in the albedo texture to store specular reflection
+    // similarly we double-up the normal and height (for parallax)
+    mLayerDecl.push_back(TerrainLayerSampler("albedo_specular", PF_BYTE_RGBA));
+    mLayerDecl.push_back(TerrainLayerSampler("normal_height", PF_BYTE_RGBA));
+
 }
 
 //---------------------------------------------------------------------
-TerrainPSSMMaterialGenerator::SM2Profile::~SM2Profile()
+TerrainPSSMMaterialGenerator::~TerrainPSSMMaterialGenerator()
 {
-    OGRE_DELETE mShaderGen;
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::requestOptions(Terrain* terrain)
+void TerrainPSSMMaterialGenerator::requestOptions(Terrain* terrain)
 {
     terrain->_setMorphRequired(true);
     terrain->_setNormalMapRequired(true);
@@ -102,113 +78,113 @@ void TerrainPSSMMaterialGenerator::SM2Profile::requestOptions(Terrain* terrain)
 }
 
 //---------------------------------------------------------------------
-bool TerrainPSSMMaterialGenerator::SM2Profile::isVertexCompressionSupported() const
+bool TerrainPSSMMaterialGenerator::isVertexCompressionSupported() const
 {
     return true;
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setLayerNormalMappingEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setLayerNormalMappingEnabled(bool enabled)
 {
     if (enabled != mLayerNormalMappingEnabled)
     {
         mLayerNormalMappingEnabled = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setLayerParallaxMappingEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setLayerParallaxMappingEnabled(bool enabled)
 {
     if (enabled != mLayerParallaxMappingEnabled)
     {
         mLayerParallaxMappingEnabled = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setLayerSpecularMappingEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setLayerSpecularMappingEnabled(bool enabled)
 {
     if (enabled != mLayerSpecularMappingEnabled)
     {
         mLayerSpecularMappingEnabled = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setGlobalColourMapEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setGlobalColourMapEnabled(bool enabled)
 {
     if (enabled != mGlobalColourMapEnabled)
     {
         mGlobalColourMapEnabled = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setLightmapEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setLightmapEnabled(bool enabled)
 {
     if (enabled != mLightmapEnabled)
     {
         mLightmapEnabled = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setCompositeMapEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setCompositeMapEnabled(bool enabled)
 {
     if (enabled != mCompositeMapEnabled)
     {
         mCompositeMapEnabled = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setReceiveDynamicShadowsEnabled(bool enabled)
+void TerrainPSSMMaterialGenerator::setReceiveDynamicShadowsEnabled(bool enabled)
 {
     if (enabled != mReceiveDynamicShadows)
     {
         mReceiveDynamicShadows = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setReceiveDynamicShadowsPSSM(PSSMShadowCameraSetup* pssmSettings)
+void TerrainPSSMMaterialGenerator::setReceiveDynamicShadowsPSSM(PSSMShadowCameraSetup* pssmSettings)
 {
     if (pssmSettings != mPSSM)
     {
         mPSSM = pssmSettings;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setReceiveDynamicShadowsDepth(bool enabled)
+void TerrainPSSMMaterialGenerator::setReceiveDynamicShadowsDepth(bool enabled)
 {
     if (enabled != mDepthShadows)
     {
         mDepthShadows = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::setReceiveDynamicShadowsLowLod(bool enabled)
+void TerrainPSSMMaterialGenerator::setReceiveDynamicShadowsLowLod(bool enabled)
 {
     if (enabled != mLowLodShadows)
     {
         mLowLodShadows = enabled;
-        mParent->_markChanged();
+        _markChanged();
     }
 }
 
 //---------------------------------------------------------------------
-uint8 TerrainPSSMMaterialGenerator::SM2Profile::getMaxLayers(const Terrain* terrain) const
+uint8 TerrainPSSMMaterialGenerator::getMaxLayers(const Terrain* terrain) const
 {
     // count the texture units free
     uint8 freeTextureUnits = 16;
@@ -234,7 +210,7 @@ uint8 TerrainPSSMMaterialGenerator::SM2Profile::getMaxLayers(const Terrain* terr
 }
 
 //---------------------------------------------------------------------
-MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generate(const Terrain* terrain)
+MaterialPtr TerrainPSSMMaterialGenerator::generate(const Terrain* terrain)
 {
     // re-use old material if exists
     MaterialPtr mat = terrain->_getMaterial();
@@ -283,7 +259,7 @@ MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generate(const Terrain* te
 }
 
 //---------------------------------------------------------------------
-MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generateForCompositeMap(const Terrain* terrain)
+MaterialPtr TerrainPSSMMaterialGenerator::generateForCompositeMap(const Terrain* terrain)
 {
     // re-use old material if exists
     MaterialPtr mat = terrain->_getCompositeMapMaterial();
@@ -311,7 +287,7 @@ MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generateForCompositeMap(co
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::addTechnique(
+void TerrainPSSMMaterialGenerator::addTechnique(
     const MaterialPtr& mat, const Terrain* terrain, TechniqueType tt)
 {
     Technique* tech = mat->createTechnique();
@@ -420,7 +396,7 @@ void TerrainPSSMMaterialGenerator::SM2Profile::addTechnique(
 }
 
 //---------------------------------------------------------------------
-bool TerrainPSSMMaterialGenerator::SM2Profile::isShadowingEnabled(TechniqueType tt, const Terrain* terrain) const
+bool TerrainPSSMMaterialGenerator::isShadowingEnabled(TechniqueType tt, const Terrain* terrain) const
 {
     return getReceiveDynamicShadowsEnabled() && tt != RENDER_COMPOSITE_MAP &&
         (tt != LOW_LOD || mLowLodShadows) &&
@@ -428,13 +404,13 @@ bool TerrainPSSMMaterialGenerator::SM2Profile::isShadowingEnabled(TechniqueType 
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::updateParams(const MaterialPtr& mat, const Terrain* terrain)
+void TerrainPSSMMaterialGenerator::updateParams(const MaterialPtr& mat, const Terrain* terrain)
 {
     mShaderGen->updateParams(this, mat, terrain, false);
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::updateParamsForCompositeMap(const MaterialPtr& mat, const Terrain* terrain)
+void TerrainPSSMMaterialGenerator::updateParamsForCompositeMap(const MaterialPtr& mat, const Terrain* terrain)
 {
     mShaderGen->updateParams(this, mat, terrain, true);
 }
@@ -442,8 +418,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::updateParamsForCompositeMap(const
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateVertexProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelper::generateVertexProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramPtr ret = createVertexProgram(prof, terrain, tt);
 
@@ -462,8 +438,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateVertexProgram(
 
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateFragmentProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelper::generateFragmentProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramPtr ret = createFragmentProgram(prof, terrain, tt);
 
@@ -482,8 +458,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateFragmentProgram(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateVertexProgramSource(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelper::generateVertexProgramSource(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     generateVpHeader(prof, terrain, tt, outStream);
 
@@ -500,8 +476,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateVertexProgr
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateFragmentProgramSource(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelper::generateFragmentProgramSource(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     generateFpHeader(prof, terrain, tt, outStream);
 
@@ -518,8 +494,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateFragmentPro
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::defaultVpParams(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, const HighLevelGpuProgramPtr& prog)
+void TerrainPSSMMaterialGenerator::ShaderHelper::defaultVpParams(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, const HighLevelGpuProgramPtr& prog)
 {
     GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
     params->setIgnoreMissingParams(true);
@@ -550,15 +526,14 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::defaultVpParams(
 
     if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
     {
-        Matrix4 posIndexToObjectSpace;
-        terrain->getPointTransform(&posIndexToObjectSpace);
-        params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
+        Ogre::Affine3 posIndexToObjectSpaceAffine = terrain->getPointTransform();
+        params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpaceAffine);
     }
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::defaultFpParams(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, const HighLevelGpuProgramPtr& prog)
+void TerrainPSSMMaterialGenerator::ShaderHelper::defaultFpParams(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, const HighLevelGpuProgramPtr& prog)
 {
     GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
     params->setIgnoreMissingParams(true);
@@ -600,8 +575,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::defaultFpParams(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::updateParams(
-    const SM2Profile* prof, const MaterialPtr& mat, const Terrain* terrain, bool compositeMap)
+void TerrainPSSMMaterialGenerator::ShaderHelper::updateParams(
+    const TerrainPSSMMaterialGenerator* prof, const MaterialPtr& mat, const Terrain* terrain, bool compositeMap)
 {
     Pass* p = mat->getTechnique(0)->getPass(0);
     if (compositeMap)
@@ -626,8 +601,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::updateParams(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::updateVpParams(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, const GpuProgramParametersSharedPtr& params)
+void TerrainPSSMMaterialGenerator::ShaderHelper::updateVpParams(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, const GpuProgramParametersSharedPtr& params)
 {
     params->setIgnoreMissingParams(true);
     uint maxLayers = prof->getMaxLayers(terrain);
@@ -654,8 +629,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::updateVpParams(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::updateFpParams(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, const GpuProgramParametersSharedPtr& params)
+void TerrainPSSMMaterialGenerator::ShaderHelper::updateFpParams(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, const GpuProgramParametersSharedPtr& params)
 {
     params->setIgnoreMissingParams(true);
     // TODO - parameterise this?
@@ -664,7 +639,7 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::updateFpParams(
 }
 
 //---------------------------------------------------------------------
-String TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::getChannel(uint idx)
+String TerrainPSSMMaterialGenerator::ShaderHelper::getChannel(uint idx)
 {
     uint rem = idx % 4;
     switch (rem)
@@ -682,8 +657,8 @@ String TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::getChannel(uint i
 }
 
 //---------------------------------------------------------------------
-String TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::getVertexProgramName(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+String TerrainPSSMMaterialGenerator::ShaderHelper::getVertexProgramName(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     String progName = terrain->getMaterialName() + "/sm2/vp";
 
@@ -704,8 +679,8 @@ String TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::getVertexProgramN
 }
 
 //---------------------------------------------------------------------
-String TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::getFragmentProgramName(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+String TerrainPSSMMaterialGenerator::ShaderHelper::getFragmentProgramName(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     String progName = terrain->getMaterialName() + "/sm2/fp";
 
@@ -728,8 +703,8 @@ String TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::getFragmentProgra
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::createVertexProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperCg::createVertexProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getVertexProgramName(prof, terrain, tt);
@@ -752,8 +727,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::createVertexProgram(
 
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::createFragmentProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperCg::createFragmentProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getFragmentProgramName(prof, terrain, tt);
@@ -779,8 +754,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::createFragmentProgram(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpHeader(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateVpHeader(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     outStream <<
         "void main_vp(\n";
@@ -841,7 +816,7 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpHeader(
         }
     }
 
-    if (prof->getParent()->getDebugLevel() && tt != RENDER_COMPOSITE_MAP)
+    if (prof->getDebugLevel() && tt != RENDER_COMPOSITE_MAP)
     {
         outStream << ", out float2 lodInfo : TEXCOORD" << texCoordSet++ << "\n";
     }
@@ -895,7 +870,7 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpHeader(
         outStream <<
             "	float toMorph = -min(0, sign(delta.y - lodMorph.y));\n";
         // this will either be 1 (morph) or 0 (don't morph)
-        if (prof->getParent()->getDebugLevel())
+        if (prof->getDebugLevel())
         {
             // x == LOD level (-1 since value is target level, we want to display actual)
             outStream << "lodInfo.x = (lodMorph.y - 1) / " << terrain->getNumLodLevels() << ";\n";
@@ -935,8 +910,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpHeader(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpHeader(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateFpHeader(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     // Main header
     outStream <<
@@ -973,7 +948,7 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpHeader(
                 "float4 layerUV" << i << " : TEXCOORD" << texCoordSet++ << ", \n";
         }
     }
-    if (prof->getParent()->getDebugLevel() && tt != RENDER_COMPOSITE_MAP)
+    if (prof->getDebugLevel() && tt != RENDER_COMPOSITE_MAP)
     {
         outStream << "float2 lodInfo : TEXCOORD" << texCoordSet++ << ", \n";
     }
@@ -1135,15 +1110,15 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpHeader(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpLayer(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, uint layer, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateVpLayer(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, uint layer, Ogre::StringStream& outStream)
 {
     // nothing to do
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpLayer(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, uint layer, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateFpLayer(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, uint layer, Ogre::StringStream& outStream)
 {
     uint uvIdx = layer / 2;
     String uvChannels = (layer % 2) ? ".zw" : ".xy";
@@ -1210,8 +1185,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpLayer(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpFooter(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateVpFooter(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     outStream <<
         "	oPos = mul(viewProjMatrix, worldPos);\n"
@@ -1240,8 +1215,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpFooter(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpFooter(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateFpFooter(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     if (tt == LOW_LOD)
     {
@@ -1293,7 +1268,7 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpFooter(
             // Apply specular
             outStream << "	outputCol.rgb += litRes.z * lightSpecularColour * specular * shadow;\n";
 
-            if (prof->getParent()->getDebugLevel())
+            if (prof->getDebugLevel())
             {
                 outStream << "	outputCol.rg += lodInfo.xy;\n";
             }
@@ -1312,8 +1287,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpFooter(
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpDynamicShadowsHelpers(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateFpDynamicShadowsHelpers(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     // TODO make filtering configurable
     outStream <<
@@ -1429,8 +1404,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpDynamic
 }
 
 //---------------------------------------------------------------------
-uint TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpDynamicShadowsParams(
-    uint texCoord, const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+uint TerrainPSSMMaterialGenerator::ShaderHelperCg::generateVpDynamicShadowsParams(
+    uint texCoord, const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     // out semantics & params
     uint numTextures = 1;
@@ -1455,8 +1430,8 @@ uint TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpDynamic
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpDynamicShadows(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateVpDynamicShadows(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     uint numTextures = 1;
     if (prof->getReceiveDynamicShadowsPSSM())
@@ -1487,8 +1462,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateVpDynamic
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpDynamicShadowsParams(
-    uint* texCoord, uint* sampler, const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateFpDynamicShadowsParams(
+    uint* texCoord, uint* sampler, const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     if (tt == HIGH_LOD)
         mShadowSamplerStartHi = *sampler;
@@ -1519,8 +1494,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpDynamic
 }
 
 //---------------------------------------------------------------------
-void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpDynamicShadows(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
+void TerrainPSSMMaterialGenerator::ShaderHelperCg::generateFpDynamicShadows(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt, Ogre::StringStream& outStream)
 {
     if (prof->getReceiveDynamicShadowsPSSM())
     {
@@ -1574,8 +1549,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::generateFpDynamic
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperHLSL::createVertexProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperHLSL::createVertexProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getVertexProgramName(prof, terrain, tt);
@@ -1604,8 +1579,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperHLSL::createVertexProgram(
 
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperHLSL::createFragmentProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperHLSL::createFragmentProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getFragmentProgramName(prof, terrain, tt);
@@ -1635,8 +1610,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperHLSL::createFragmentProgra
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSL::createVertexProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperGLSL::createVertexProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getVertexProgramName(prof, terrain, tt);
@@ -1670,8 +1645,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSL::createVertexProgram(
 
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSL::createFragmentProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperGLSL::createFragmentProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getFragmentProgramName(prof, terrain, tt);
@@ -1693,8 +1668,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSL::createFragmentProgra
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSLES::createVertexProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperGLSLES::createVertexProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getVertexProgramName(prof, terrain, tt);
@@ -1728,8 +1703,8 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSLES::createVertexProgra
 
 //---------------------------------------------------------------------
 HighLevelGpuProgramPtr
-TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSLES::createFragmentProgram(
-    const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
+TerrainPSSMMaterialGenerator::ShaderHelperGLSLES::createFragmentProgram(
+    const TerrainPSSMMaterialGenerator* prof, const Terrain* terrain, TechniqueType tt)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getFragmentProgramName(prof, terrain, tt);

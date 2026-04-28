@@ -28,8 +28,6 @@ set(SOURCE_FILES
         gameplay/TyrePressure.{h,cpp}
         gameplay/VehicleAI.{h,cpp}
         gfx/AdvancedScreen.h
-        gfx/ColoredTextAreaOverlayElement.{h,cpp}
-        gfx/ColoredTextAreaOverlayElementFactory.h
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
@@ -75,7 +73,6 @@ set(SOURCE_FILES
         gfx/particle/ExtinguishableFireAffectorFactory.h
         gfx/particle/FireExtinguisherAffector.{h,cpp}
         gfx/particle/FireExtinguisherAffectorFactory.h
-        gfx/particle/OgreParticleCustomParam.h
         gfx/particle/OgreShaderParticleRenderer.{h,cpp}
         gfx/skyx/AtmosphereManager.{h,cpp}
         gfx/skyx/BasicController.{h,cpp}
@@ -480,14 +477,8 @@ extract_pot("${SOURCE_FILES}")
 # -----------------------
 if (NOT WIN32)
     set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
+    set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 endif ()
-
-if (WIN32)
-    set(CFG_COMMENT_RENDERSYSTEM_GL "# ")
-endif ()
-
-set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
-set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
 if (DEFINED OGRE_PLUGIN_DIR AND NOT WIN32)
     set(PLUGINS_FOLDER "${OGRE_PLUGIN_DIR}")
@@ -495,21 +486,7 @@ else ()
     set(PLUGINS_FOLDER ".")
 endif ()
 
-if (WIN32)
-    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
-    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
-else ()
-    if (ROR_USE_CAELUM STREQUAL "SYSTEM")
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
-    else ()
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=libCaelum_d.so")
-    endif ()
-endif ()
-
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
-configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
 # Copy resources to bin directory
 # -----------------------

@@ -1,0 +1,11 @@
+// OGRE script, see https://ogrecave.github.io/ogre/api/latest/_font-_definition-_scripts.html
+
+// This font name is hardcoded in OGRE profiler, see 'OgreOverlayProfileSessionListener.cpp' func `createTextArea()`
+font SdkTrays/Value
+{
+	type 		truetype
+	source 		Roboto-Medium.ttf
+    // see '/Media/packs/SdkTrays.zip' in OGRE repo.
+	size 		20
+    resolution  96
+}

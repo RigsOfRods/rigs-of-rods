@@ -59,7 +59,7 @@ public:
 
     void updatePSSM();
 
-    void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
+    void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator* matProfile);
 
 protected:
 
