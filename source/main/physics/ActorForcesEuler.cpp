@@ -1764,7 +1764,7 @@ void Actor::CalcEventBoxes()
                         eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
 
                         // The classic optional per-object script handler.
-                        ScriptCallbackArgs* args = new ScriptCallbackArgs( &eventsource, i );
+                        ScriptCallbackArgs* args = new ScriptCallbackArgs(&eventsource, i, this->getInstanceId());
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_SCRIPT_CALLBACK_QUEUED, (void*)args));
 
                         // The new EVENTBOX_ENTER event.
