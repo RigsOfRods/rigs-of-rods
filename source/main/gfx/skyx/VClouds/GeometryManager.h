@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier VerguÌn Gonz·lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Vergu√≠n Gonz√°lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -30,138 +30,142 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX { namespace VClouds{
 
-	class VClouds;
+    class VClouds;
 
-	class GeometryManager
-	{
-	public:
-		/** Constructor
-			@param vc VClouds pointer
-		 */
-		GeometryManager(VClouds* vc);
+    class GeometryManager
+    {
+    public:
+        /** Constructor
+            @param vc VClouds pointer
+         */
+        GeometryManager(VClouds* vc);
 
-		/** Destructor
-		 */
-		~GeometryManager();
+        /** Destructor
+         */
+        ~GeometryManager();
 
-		/** Create
-		    @param Height x = Field altitude, y: Field height (both in world coordinates)
-			@param Radius Radius
-			@param Alpha Alpha angle
-			@param Beta Beta angle
-			@param NumberOfBlocks Number of geometry blocks
-			@param Na Number of slices in A zone
-			@param Nb Number of slices in B zone
-			@param Nc Number of slices in C zone
-		 */
-		void create(const Ogre::Vector2& Height, const float& Radius,
-		    const Ogre::Radian& Alpha, const Ogre::Radian& Beta, 
+        /** Create
+            @param Height x = Field altitude, y: Field height (both in world coordinates)
+            @param Radius Radius
+            @param Alpha Alpha angle
+            @param Beta Beta angle
+            @param NumberOfBlocks Number of geometry blocks
+            @param Na Number of slices in A zone
+            @param Nb Number of slices in B zone
+            @param Nc Number of slices in C zone
+         */
+        void create(const Ogre::Vector2& Height, const float& Radius,
+            const Ogre::Radian& Alpha, const Ogre::Radian& Beta, 
             const int& NumberOfBlocks, const int& Na, const int& Nb, const int& Nc);
 
-		/** Remove
-		 */
-		void remove();
+        /** Remove
+         */
+        void remove();
 
-		/** Update, to be invoked per frame
-		    @param timeSinceLastFrame Time since last frame
+        /** Update, to be invoked per frame
+            @param timeSinceLastFrame Time since last frame
          */
         void update(const Ogre::Real& timeSinceLastFrame);
 
-		/** Update geoemtry
-		    @param c Camera
-		    @param timeSinceLastCameraFrame Time since last CAMERA frame
+        /** Update geoemtry
+            @param c Camera
+            @param timeSinceLastCameraFrame Time since last CAMERA frame
          */
-		void updateGeometry(Ogre::Camera* c, const Ogre::Real& timeSinceLastCameraFrame);
+        void updateGeometry(Ogre::Camera* c, const Ogre::Real& timeSinceLastCameraFrame);
 
-		/** Has been create() already called?
-		    @return true if created() have been already called, false if not
-		 */
-		inline const bool& isCreated() const
-		{
-			return mCreated;
-		}
+        /** Has been create() already called?
+            @return true if created() have been already called, false if not
+         */
+        inline const bool& isCreated() const
+        {
+            return mCreated;
+        }
 
-		/** Get scene node
-		    @return Scene node
-		 */
-		inline Ogre::SceneNode* getSceneNode()
-		{
-			return mSceneNode;
-		}
+        /** Get scene node
+            @return Scene node
+         */
+        inline Ogre::SceneNode* getSceneNode()
+        {
+            return mSceneNode;
+        }
 
-		/** Get height (x = Altitude over the camera, y: Field height (both in world coordinates))
-		    @return Height (x = Altitude over the camera, y: Field height (both in world coordinates))
-		 */
-		inline const Ogre::Vector2 getHeight() const
-		{
-			return mHeight;
-		}
+        /** Get height; x = Field altitude, y: Field height (both in world coordinates)
+            @return Height (x = Field altitude, y: Field height (both in world coordinates))
+         */
+        inline const Ogre::Vector2 getHeight() const
+        {
+            return mHeight;
+        }
 
-		/** Set material name
-		    @param mn Material name
-		    @remarks Only for internal use
-		 */
-		void _setMaterialName(const Ogre::String& mn);
+        /// RIGSOFRODS: Dynamically change cloud height params without recreating the whole system.
+        /// Params: x = Field altitude, y: Field height (both in world coordinates)
+        void changeHeightParams(const Ogre::Vector2& Height);
 
-		/** Update render queue group
-		    @param rqg Render queue group
-		    @remarks Only for internal use. Use VClouds::setRenderQueueGroups(...) instead.
-		 */
-		void _updateRenderQueueGroup(const Ogre::uint8& rqg);
+        /** Set material name
+            @param mn Material name
+            @remarks Only for internal use
+         */
+        void _setMaterialName(const Ogre::String& mn);
 
-		/** Get current camera to cloud field distance
-		    @return Current camera to cloud field distance
-			@remarks Only for internal use
-		 */
-		inline const Ogre::Vector3 _getCurrentDistance() const
-		{
-			return mCurrentDistance;
-		}
+        /** Update render queue group
+            @param rqg Render queue group
+            @remarks Only for internal use. Use VClouds::setRenderQueueGroups(...) instead.
+         */
+        void _updateRenderQueueGroup(const Ogre::uint8& rqg);
 
-	private:
-		/** Create geometry
-		 */
-		void _createGeometry();
+        /** Get current camera to cloud field distance
+            @return Current camera to cloud field distance
+            @remarks Only for internal use
+         */
+        inline const Ogre::Vector3 _getCurrentDistance() const
+        {
+            return mCurrentDistance;
+        }
 
-		/** Update geometry
-		    @param c Camera
-		    @param timeSinceLastFrame Time since last frame
-		 */
-		void _updateGeometry(Ogre::Camera* c, const Ogre::Real& timeSinceLastFrame);
+    private:
+        /** Create geometry
+         */
+        void _createGeometry();
 
-		/// Has been create() already called?
-		bool mCreated;
+        /** Update geometry
+            @param c Camera
+            @param timeSinceLastFrame Time since last frame
+         */
+        void _updateGeometry(Ogre::Camera* c, const Ogre::Real& timeSinceLastFrame);
 
-		/// Height: x = Altitude over the camera, y: Field height (both in world coordinates)
-		Ogre::Vector2 mHeight;
-		/// Angles
-		Ogre::Radian mAlpha, mBeta;
-		/// Radius
-		float mRadius;
-		/// Azimutal angle per block
-		Ogre::Radian mPhi;
-		/// Number of blocks
-		int mNumberOfBlocks;
-		/// Number of slices per geometry zone
-		int mNa, mNb, mNc;
-		/// A, B and C radius
-		float mA, mB, mC;
+        /// Has been create() already called?
+        bool mCreated;
 
-		/// World coords offset
-		Ogre::Vector2 mWorldOffset;
+        /// Height: x = Field altitude, y: Field height (both in world coordinates)
+        Ogre::Vector2 mHeight;
+        /// Angles
+        Ogre::Radian mAlpha, mBeta;
+        /// Radius
+        float mRadius;
+        /// Azimutal angle per block
+        Ogre::Radian mPhi;
+        /// Number of blocks
+        int mNumberOfBlocks;
+        /// Number of slices per geometry zone
+        int mNa, mNb, mNc;
+        /// A, B and C radius
+        float mA, mB, mC;
 
-		/// Geometry blocks
-		std::vector<GeometryBlock*> mGeometryBlocks;
+        /// World coords offset
+        Ogre::Vector2 mWorldOffset;
 
-		/// Scene node
-		Ogre::SceneNode *mSceneNode;
+        /// Geometry blocks
+        std::vector<GeometryBlock*> mGeometryBlocks;
 
-		/// Current camera-clouds distance
-		Ogre::Vector3 mCurrentDistance;
+        /// Scene node
+        Ogre::SceneNode *mSceneNode;
 
-		/// VClouds pointer
-		VClouds *mVClouds;
-	};
+        /// Current camera-clouds distance
+        Ogre::Vector3 mCurrentDistance;
+
+        /// VClouds pointer
+        VClouds *mVClouds;
+    };
 
 
 }}

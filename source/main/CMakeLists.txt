@@ -78,7 +78,6 @@ set(SOURCE_FILES
         gfx/particle/OgreParticleCustomParam.h
         gfx/particle/OgreShaderParticleRenderer.{h,cpp}
         gfx/skyx/AtmosphereManager.{h,cpp}
-        gfx/skyx/BasicController.{h,cpp}
         gfx/skyx/CloudsManager.{h,cpp}
         gfx/skyx/ColorGradient.{h,cpp}
         gfx/skyx/Controller.h
@@ -89,6 +88,19 @@ set(SOURCE_FILES
         gfx/skyx/SCfgFileManager.{h,cpp}
         gfx/skyx/SkyX.{h,cpp}
         gfx/skyx/VCloudsManager.{h,cpp}
+        gfx/skyx/CaelumPort/Astronomy.{h,cpp}
+        gfx/skyx/CaelumPort/BrightStarCatalogue.cpp
+        gfx/skyx/CaelumPort/CaelumSystem.{h,cpp}
+        gfx/skyx/CaelumPort/CameraBoundElement.{h,cpp}
+        gfx/skyx/CaelumPort/FastGpuParamRef.{h,cpp}
+        gfx/skyx/CaelumPort/InternalUtilities.{h,cpp}
+        gfx/skyx/CaelumPort/Moon.{h,cpp}
+        gfx/skyx/CaelumPort/PointStarfield.{h,cpp}
+        gfx/skyx/CaelumPort/SkyLight.{h,cpp}
+        gfx/skyx/CaelumPort/Sun.{h,cpp}
+        gfx/skyx/CaelumPort/UniversalClock.{h,cpp}
+        gfx/skyx/Precipitation/SkyXFastGpuParamRef.{h,cpp}
+        gfx/skyx/Precipitation/SkyXPrecipitationController.{h,cpp}
         gfx/skyx/VClouds/DataManager.{h,cpp}
         gfx/skyx/VClouds/Ellipsoid.{h,cpp}
         gfx/skyx/VClouds/FastFakeRandom.{h,cpp}

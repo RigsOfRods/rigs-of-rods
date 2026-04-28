@@ -47,6 +47,7 @@
 #include "ActorSpawner.h"
 #include "SlideNode.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "TurboJet.h"
@@ -483,6 +484,11 @@ void RoR::GfxActor::UpdateVideoCameras(float dt)
             sky->NotifySkyCameraChanged(vidcam.vcam_ogre_camera);
         }
 #endif // USE_CAELUM
+        SkyXManager* skyx = App::GetGameContext()->GetTerrain()->getSkyXManager();
+        if (skyx != nullptr)
+        {
+            skyx->NotifyCaelumPortCameraChanged(vidcam.vcam_ogre_camera);
+        }
 
         if ((vidcam.vcam_role == VCAM_ROLE_MIRROR_PROP_LEFT)
             || (vidcam.vcam_role == VCAM_ROLE_MIRROR_PROP_RIGHT))

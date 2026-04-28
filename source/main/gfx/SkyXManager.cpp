@@ -1,22 +1,22 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "SkyXManager.h"
@@ -30,167 +30,152 @@
 #include "Terrain.h"
 #include "TerrainGeometryManager.h"
 
+#include <fmt/format.h>
+
 using namespace Ogre;
 using namespace RoR;
 
 SkyXManager::SkyXManager(Ogre::String configFile)
 {
-	InitLight();
+    mGroupingSceneNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("SkyX");
 
-	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("..\\resource\\SkyX\\","FileSystem", "SkyX",true); //Temp
+    // Init CaelumPort
+    CaelumPort::CaelumSystem* caelumPort = new CaelumPort::CaelumSystem(
+        RoR::App::GetAppContext()->GetOgreRoot(),
+        App::GetGfxScene()->GetSceneManager(),
+        mGroupingSceneNode
+    );
+    caelumPort->attachViewport(RoR::App::GetAppContext()->GetViewport());
+    RoR::App::GetAppContext()->GetRenderWindow()->addListener(caelumPort);
+    RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(caelumPort);
+    // Make CaelumPort play nice with OgreTerrain's single-light limitation (will go away after OGRE14+ port)
+    caelumPort->getMoon()->setForceDisable(true);
 
-	mBasicController = new SkyX::BasicController();
-	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
+    mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mGroupingSceneNode, caelumPort);
 
-	mCfgFileManager = new SkyX::CfgFileManager(mSkyX, mBasicController, App::GetCameraManager()->GetCamera());
-	mCfgFileManager->load(configFile);
+    mCfgFileManager = new SkyX::CfgFileManager(mSkyX, App::GetCameraManager()->GetCamera());
+    mCfgFileManager->load(configFile);
 
-	mSkyX->create();
+    mSkyX->create();
 
-	RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(mSkyX);
-	RoR::App::GetAppContext()->GetRenderWindow()->addListener(mSkyX);
+    RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(mSkyX);
+    RoR::App::GetAppContext()->GetRenderWindow()->addListener(mSkyX);
+
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->attachViewport(RoR::App::GetAppContext()->GetViewport());
 }
 
 SkyXManager::~SkyXManager()
 {
-    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
-    mSkyX->remove();
+    // Destroy CaelumPort
+    CaelumPort::CaelumSystem* caelumPort = mSkyX->getCaelumPort();
+    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(caelumPort);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(caelumPort);
+    delete caelumPort;
 
+    // Needed for precipitation (ported from Caelum) to know which viewports to create compositor instances for.
+    mSkyX->detachViewport(RoR::App::GetAppContext()->GetViewport());
+
+    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(mSkyX);
+
+    mSkyX->remove();
+    delete mSkyX;
     mSkyX = nullptr;
 
-    delete mBasicController;
-    mBasicController = nullptr;
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(mGroupingSceneNode);
 }
 
-Vector3 SkyXManager::getMainLightDirection()
+Ogre::Light* SkyXManager::GetCaelumPortMainLight()
 {
-	if (mBasicController != nullptr)
-		return mBasicController->getSunDirection();
-	return Ogre::Vector3(0.0,0.0,0.0);
-}
-
-Light *SkyXManager::getMainLight()
-{
-	return mLight1;
+    CaelumPort::CaelumSystem* caelumPort = mSkyX->getCaelumPort();
+    if (caelumPort && caelumPort->getSun())
+    {
+        return caelumPort->getSun()->getMainLight();
+    }
+    return nullptr;
 }
 
 bool SkyXManager::update(float dt)
 {
-	UpdateSkyLight();
-	mSkyX->update(dt);
-	return true;
+    DetectPlayerMovement(dt);
+    mSkyX->update(dt);
+    DetectTerrainLightmapUpdateFromCaelumPort();
+    return true;
 }
 
-
-bool SkyXManager::UpdateSkyLight()
+void SkyXManager::DetectPlayerMovement(float dt)
 {
-	Ogre::Vector3 lightDir = -getMainLightDirection();
-	const Ogre::Vector3 camPos = App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
-	Ogre::Vector3 sunPos = camPos - lightDir*mSkyX->getMeshManager()->getSkydomeRadius(App::GetCameraManager()->GetCamera());
+    // We only want precipitation to react to player movement, not camera orbiting/zooming.
+    // ------------------------------------------------------------------------------------
 
-	// Calculate current color gradients point
-	float point = (-lightDir.y + 1.0f) / 2.0f;
-
-    if (App::GetGameContext()->GetTerrain()->getHydraxManager ()) 
+    const ActorPtr currentPlayerActor = App::GetGameContext()->GetPlayerActor();
+    if (currentPlayerActor == mLastPlayerActor
+        && App::GetCameraManager()->GetCurrentBehavior() == mLastCameraBehavior
+        && mLastCameraBehavior != CameraManager::CAMERA_BEHAVIOR_FREE
+        && mLastCameraBehavior != CameraManager::CAMERA_BEHAVIOR_FIXED)
     {
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
-        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
+        const Ogre::Vector3 playerPos = (currentPlayerActor) 
+            ? currentPlayerActor->getPosition()
+            : App::GetGameContext()->GetCharacterFactory()->GetLocalCharacter()->getPosition();
+        
+        mSkyX->getPrecipitationController()->setManualCameraSpeed(playerPos - mLastPlayerPosition);
+        mLastPlayerPosition = playerPos;
     }
-		
-
-	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
-	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
-
-	mLight0->setPosition(sunPos*0.02);
-	mLight1->setDirection(lightDir);
-    if (App::GetGameContext()->GetTerrain()->getWater())
-    {
-        App::GetGameContext()->GetTerrain()->getGfxWater()->WaterSetSunPosition(sunPos*0.1);
-    }
-
-	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459
-/*	Ogre::Vector3 sunCol = mSunGradient.getColor(point);
-	mLight0->setSpecularColour(sunCol.x, sunCol.y, sunCol.z);
-	if (App::GetGameContext()->GetTerrain()->getWater()) App::GetGameContext()->GetTerrain()->getWater()->setFadeColour(Ogre::ColourValue(sunCol.x, sunCol.y, sunCol.z));
-	*/
-	Ogre::Vector3 ambientCol = mAmbientGradient.getColor(point);
-	mLight1->setDiffuseColour(ambientCol.x, ambientCol.y, ambientCol.z);
-	mLight1->setPosition(100,100,100);
-
-	if (mBasicController->getTime().x > 12)
-	{
-		if (mBasicController->getTime().x > mBasicController->getTime().z)
-			mLight0->setVisible(false);
-		else
-			mLight0->setVisible(true);
-	} 
     else
     {
-        if (mBasicController->getTime ().x < mBasicController->getTime ().z)
-            mLight0->setVisible (false);
-        else
-            mLight0->setVisible (true);
+        mSkyX->getPrecipitationController()->setManualCameraSpeed(Ogre::Vector3::ZERO);
     }
-	
-    if (round (mBasicController->getTime ().x) != mLastHour)
+
+    // Update last known player and camera state for next time.
+    mLastPlayerActor = currentPlayerActor;
+    mLastCameraBehavior = App::GetCameraManager()->GetCurrentBehavior();
+}
+
+void SkyXManager::NotifyCaelumPortCameraChanged(Ogre::Camera* newCamera)
+{
+    mSkyX->getCaelumPort()->notifyCameraChanged(newCamera);
+}
+
+void SkyXManager::DetectTerrainLightmapUpdateFromCaelumPort()
+{
+    if (!App::GetGameContext()->GetTerrain())
     {
-        TerrainGeometryManager* gm = App::GetGameContext()->GetTerrain()->getGeometryManager ();
-        if (gm)
-            gm->updateLightMap ();
-
-        mLastHour = round (mBasicController->getTime ().x);
+        return;
     }
 
-	return true;
+    Caelum::LongReal c = mSkyX->getCaelumPort()->getUniversalClock()->getJulianDay();
+
+    if (c - mLastLightmapUpdateCaelumClock > 0.001f)
+    {
+        TerrainGeometryManager* gm = App::GetGameContext()->GetTerrain()->getGeometryManager();
+        if (gm)
+            gm->updateLightMap();
+    }
+
+    mLastLightmapUpdateCaelumClock = c;
 }
 
-bool SkyXManager::InitLight()
+std::string SkyXManager::GetCaelumPortPrettyTime()
 {
-	// Water
-	mWaterGradient = SkyX::ColorGradient();
-	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.779105)*0.4, 1));
-	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.729105)*0.3, 0.8));
-	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.679105)*0.25, 0.6));
-	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.679105)*0.2, 0.5));
-	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.679105)*0.1, 0.45));
-	mWaterGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.058209,0.535822,0.679105)*0.025, 0));
-	// Sun
-	mSunGradient = SkyX::ColorGradient();
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.8,0.75,0.55)*1.5, 1.0f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.8,0.75,0.55)*1.4, 0.75f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.8,0.75,0.55)*1.3, 0.5625f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.6,0.5,0.2)*1.5, 0.5f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.5,0.5,0.5)*0.25, 0.45f));
-	mSunGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(0.5,0.5,0.5)*0.01, 0.0f));
-	// Ambient
-	mAmbientGradient = SkyX::ColorGradient();
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*1, 1.0f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*1, 0.6f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.6, 0.5f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.3, 0.45f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.1, 0.35f));
-	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.05, 0.0f));
+    int ignore;
+    int hour;
+    int minute;
+    Caelum::LongReal second;
+    Caelum::Astronomy::getGregorianDateTimeFromJulianDay(mSkyX->getCaelumPort()->getUniversalClock()->getJulianDay()
+        , ignore, ignore, ignore, hour, minute, second);
 
-	App::GetGfxScene()->GetSceneManager()->setAmbientLight(ColourValue(0.35,0.35,0.35)); //Not needed because terrn2 has ambientlight settings
-
-	// Light
-	mLight0 = App::GetGfxScene()->GetSceneManager()->createLight("Light0");
-	mLight0->setDiffuseColour(1, 1, 1);
-	mLight0->setCastShadows(false);
-
-	mLight1 = App::GetGfxScene()->GetSceneManager()->createLight("Light1");
-	mLight1->setType(Ogre::Light::LT_DIRECTIONAL);
-
-	return true;
+    char buf[100];
+    snprintf(buf, 100, "%02d:%02d:%02d", hour, minute, static_cast<int>(second));
+    return buf;
 }
 
-size_t SkyXManager::getMemoryUsage()
+double SkyXManager::GetCaelumPortTime()
 {
-	//TODO
-	return 0;
+    return mSkyX->getCaelumPort()->getUniversalClock()->getJulianDay();
 }
 
-void SkyXManager::freeResources()
+void SkyXManager::SetCaelumPortTime(double time)
 {
-	//TODO
+    mSkyX->getCaelumPort()->getUniversalClock()->setJulianDay(time);
 }

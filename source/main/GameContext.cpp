@@ -1256,7 +1256,7 @@ void GameContext::UpdateSimInputEvents(float dt)
 void GameContext::UpdateSkyInputEvents(float dt)
 {
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM &&
         m_terrain->getSkyManager())
     {
         float time_factor = 1.0f;
@@ -1291,28 +1291,37 @@ void GameContext::UpdateSkyInputEvents(float dt)
     }
 
 #endif // USE_CAELUM
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX &&
         m_terrain->getSkyXManager())
     {
+        float time_factor = 1.0f;
+
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
+            time_factor = 1000.0f;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
+            time_factor = 10000.0f;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
+            time_factor = -1000.0f;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
+            time_factor = -10000.0f;
         }
-        else
+        else if (App::gfx_sky_time_cycle->getBool())
         {
-            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
+            time_factor = App::gfx_sky_time_speed->getInt();
+        }
+
+        if (m_terrain->getSkyXManager()->GetSkyX()->getTimeMultiplier() != time_factor)
+        {
+            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(time_factor);
+            Str<200> msg; msg << _L("Time set to ") << m_terrain->getSkyXManager()->GetCaelumPortPrettyTime();
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
         }
     }
 }
