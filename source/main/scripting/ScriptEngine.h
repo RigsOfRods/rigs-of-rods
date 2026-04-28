@@ -278,7 +278,7 @@ public:
 
     int fireEvent(std::string instanceName, float intensity);
 
-    void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0);
+    void envokeCallback(EvHandlerFuncID_t functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0);
 
     /**
     * Forwards useful info from C++ `try{}catch{}` exceptions to script in the form of game event.
