@@ -10,7 +10,7 @@
       ],
       "registryUrls": [
         "https://center2.conan.io",
-        "https://git.anotherfoxguy.com/api/packages/rorbot/conan"
+        "https://conan.cloudsmith.io/rigs-of-rods/deps/"
       ]
     }
   ],
