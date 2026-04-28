@@ -4494,7 +4494,6 @@ Actor::Actor(
     , m_beam_deform_debug_enabled(false)
     , m_trigger_debug_enabled(false)
     , m_disable_default_sounds(false)
-    , m_disable_smoke(false)
 {
 }
 
