@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-24 13:04+0100\n"
+"POT-Creation-Date: 2026-01-01 14:51+0100\n"
 "PO-Revision-Date: 2018-12-15 12:09+0000\n"
 "Last-Translator: Hiradur\n"
 "Language-Team: Bulgarian (http://www.transifex.com/rigsofrods/rigs-of-rods/"
@@ -18,297 +18,356 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
-#: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
+#: AppContext.cpp:258 AppContext.cpp:280 AppContext.cpp:474 AppContext.cpp:492
+#: AppContext.cpp:543 AppContext.cpp:557 AppContext.cpp:568
 msgid "Startup error"
 msgstr "Грешка при стартиране"
 
-#: AppContext.cpp:270
+#: AppContext.cpp:259
+#, c++-format
+msgid ""
+"Could not load file '{}' - make sure the game is installed correctly.\n"
+"\n"
+"Detailed info: {}"
+msgstr ""
+
+#: AppContext.cpp:280
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
 
-#: AppContext.cpp:378
+#: AppContext.cpp:287
+msgid "Error restoring settings from 'ogre.cfg'"
+msgstr ""
+
+#: AppContext.cpp:444
 #, fuzzy
 #| msgid "Screenshot Format:"
 msgid "Screenshot: "
 msgstr "Формат на скрийншотовете:"
 
-#: AppContext.cpp:408
+#: AppContext.cpp:474
 msgid "Error while retrieving program directory path"
 msgstr ""
 
-#: AppContext.cpp:426
+#: AppContext.cpp:492
 msgid "Error while retrieving user directory path"
 msgstr ""
 
-#: AppContext.cpp:477
+#: AppContext.cpp:543
 msgid "Resources folder not found. Check if correctly installed."
 msgstr ""
 
-#: AppContext.cpp:491 AppContext.cpp:502
+#: AppContext.cpp:557 AppContext.cpp:568
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
 
-#: Application.cpp:387
+#: Application.cpp:463
 #, fuzzy
 #| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Автоматична смяна"
 
-#: Application.cpp:388
+#: Application.cpp:464
 #, fuzzy
 #| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
 msgstr "Ръчна смяна - автоматичен съединител"
 
-#: Application.cpp:389
+#: Application.cpp:465
 #, fuzzy
 #| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
 msgstr "Изцяло ръчно: скоростен лост с улеи"
 
-#: Application.cpp:390
+#: Application.cpp:466
 #, fuzzy
 #| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
 msgstr "Изцяло ръчно: скоростен лост с улеи"
 
-#: Application.cpp:391
+#: Application.cpp:467
 #, fuzzy
 #| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
 msgstr "Изцяло ръчно: скоростен лост с улеи"
 
-#: Application.cpp:400
+#: Application.cpp:476
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr ""
 
-#: Application.cpp:401
+#: Application.cpp:477
 #, fuzzy
 #| msgid "Light source effects:"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
 msgstr "Източници на светлина:"
 
-#: Application.cpp:402
+#: Application.cpp:478
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
 msgstr ""
 
-#: Application.cpp:403
+#: Application.cpp:479
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
 msgstr ""
 
-#: Application.cpp:404
+#: Application.cpp:480
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr ""
 
-#: Application.cpp:413
+#: Application.cpp:489
 msgctxt "GfxShadowType"
 msgid "Disabled"
 msgstr ""
 
-#: Application.cpp:414
+#: Application.cpp:490
 msgctxt "GfxShadowType"
 msgid "PSSM"
 msgstr ""
 
-#: Application.cpp:423
+#: Application.cpp:499
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
 msgstr ""
 
-#: Application.cpp:424
+#: Application.cpp:500
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
 msgstr ""
 
-#: Application.cpp:425
+#: Application.cpp:501
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
 msgstr ""
 
-#: Application.cpp:434
+#: Application.cpp:510
 msgctxt "GfxTexFilter"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:435
+#: Application.cpp:511
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr ""
 
-#: Application.cpp:436
+#: Application.cpp:512
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr ""
 
-#: Application.cpp:437
+#: Application.cpp:513
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
 msgstr ""
 
-#: Application.cpp:446
+#: Application.cpp:522
 msgctxt "GfxVegetation"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:447
+#: Application.cpp:523
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr ""
 
-#: Application.cpp:448
+#: Application.cpp:524
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr ""
 
-#: Application.cpp:449
+#: Application.cpp:525
 msgctxt "GfxVegetation"
 msgid "Full"
 msgstr ""
 
-#: Application.cpp:458
+#: Application.cpp:534
 msgctxt "GfxWaterMode"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:459
+#: Application.cpp:535
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
 msgstr ""
 
-#: Application.cpp:460
+#: Application.cpp:536
 msgctxt "GfxWaterMode"
 msgid "Reflection"
 msgstr ""
 
-#: Application.cpp:461
+#: Application.cpp:537
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
 msgstr ""
 
-#: Application.cpp:462
+#: Application.cpp:538
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
 msgstr ""
 
-#: Application.cpp:463
+#: Application.cpp:539
 msgctxt "GfxWaterMode"
 msgid "HydraX"
 msgstr ""
 
-#: Application.cpp:472
+#: Application.cpp:548
 msgctxt "GfxExtCamMode"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:473
+#: Application.cpp:549
 msgctxt "GfxExtCamMode"
 msgid "Static"
 msgstr ""
 
-#: Application.cpp:474
+#: Application.cpp:550
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
 msgstr ""
 
-#: Application.cpp:483
+#: Application.cpp:559
 msgctxt "IoInputGrabMode"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:484
+#: Application.cpp:560
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr ""
 
-#: Application.cpp:485
+#: Application.cpp:561
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
 msgstr ""
 
-#: Application.cpp:494
+#: Application.cpp:570
+msgctxt "EfxReverbEngine"
+msgid "None (no reverb, fastest)"
+msgstr ""
+
+#: Application.cpp:571
+msgctxt "EfxReverbEngine"
+msgid "REVERB"
+msgstr ""
+
+#: Application.cpp:572
+msgctxt "EfxReverbEngine"
+msgid "EAXREVERB (more realistic effects, slower)"
+msgstr ""
+
+#: Application.cpp:581
 msgctxt "SimResetMode"
 msgid "Hard"
 msgstr ""
 
-#: Application.cpp:495
+#: Application.cpp:582
 msgctxt "SimResetMode"
 msgid "Soft"
+msgstr ""
+
+#: Application.cpp:591
+msgctxt "UiPreset"
+msgid "Novice"
+msgstr ""
+
+#: Application.cpp:592
+msgctxt "UiPreset"
+msgid "Regular"
+msgstr ""
+
+#: Application.cpp:593
+msgctxt "UiPreset"
+msgid "Expert"
+msgstr ""
+
+#: Application.cpp:594
+msgctxt "UiPreset"
+msgid "Minimallist"
 msgstr ""
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
 msgstr "Теренът не е намерен: "
 
-#: GameContext.cpp:122 GameContext.cpp:144
+#: GameContext.cpp:122 GameContext.cpp:145
 msgid "Terrain loading error"
 msgstr "Грешка при зареждане на терен"
 
-#: GameContext.cpp:658
+#: GameContext.cpp:405
+#, c++-format
+msgctxt "GameContext"
+msgid "Cannot reload '{}' ({}) - the associated modcache entry was deleted."
+msgstr ""
+
+#: GameContext.cpp:672
 msgid "Please clear the place first"
 msgstr "Моля, първо разчистете мястото"
 
-#: GameContext.cpp:762
+#: GameContext.cpp:776
+#, c++-format
 msgid "Default skin '{}' for actor '{}' not found!"
 msgstr ""
 
-#: GameContext.cpp:1036
+#: GameContext.cpp:1054
 #, fuzzy
 #| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
 msgstr "Вкл./Изкл. режим \\\"Повторение\\"
 
-#: GameContext.cpp:1036
+#: GameContext.cpp:1054
 msgid "Enabled soft reset mode"
 msgstr ""
 
-#: GameContext.cpp:1230
+#: GameContext.cpp:1288
 msgid "Time set to "
 msgstr ""
 
-#: GameContext.cpp:1417
+#: GameContext.cpp:1480
 msgid "No rescue truck found!"
 msgstr ""
 
-#: GameContext.cpp:1493
+#: GameContext.cpp:1557
 msgid "forwardcommands enabled"
 msgstr ""
 
-#: GameContext.cpp:1497
+#: GameContext.cpp:1561
 msgid "forwardcommands disabled"
 msgstr ""
 
-#: GameContext.cpp:1506
+#: GameContext.cpp:1570
 msgid "importcommands enabled"
 msgstr ""
 
-#: GameContext.cpp:1510
+#: GameContext.cpp:1574
 msgid "importcommands disabled"
 msgstr ""
 
-#: gameplay/ChatSystem.cpp:56
+#: gameplay/ChatSystem.cpp:64
 msgid " [whispered] "
 msgstr ""
 
-#: gameplay/EngineSim.cpp:1463
+#: gameplay/Engine.cpp:1489
+#, c++-format
+msgid "Range cycled (current: {}/available: {})"
+msgstr ""
+
+#: gameplay/Engine.cpp:1498
 msgid "Low range selected"
 msgstr "Малък обхват"
 
-#: gameplay/EngineSim.cpp:1469
+#: gameplay/Engine.cpp:1501
 msgid "Mid range selected"
 msgstr "Среден обхват"
 
-#: gameplay/EngineSim.cpp:1475
+#: gameplay/Engine.cpp:1504
 msgid "High range selected"
 msgstr "Голям обхват"
 
@@ -316,95 +375,95 @@ msgstr "Голям обхват"
 msgid "Error while loading landuse config"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:302
+#: gfx/camera/CameraManager.cpp:311
 msgid "FOV: Limit reached"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:314
+#: gfx/camera/CameraManager.cpp:323
 msgid "FOV: "
 msgstr "Зрителен ъгъл: "
 
-#: gfx/camera/CameraManager.cpp:384
+#: gfx/camera/CameraManager.cpp:393
 msgid "Free camera"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:389
+#: gfx/camera/CameraManager.cpp:398
 msgid "Fixed camera"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:870
+#: gfx/camera/CameraManager.cpp:885
 msgid "Limited camera movement enabled"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:874
+#: gfx/camera/CameraManager.cpp:889
 msgid "Limited camera movement disabled"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:1158
+#: gfx/camera/CameraManager.cpp:1177
 msgid "Auto tracking enabled"
 msgstr ""
 
-#: gfx/camera/CameraManager.cpp:1162
+#: gfx/camera/CameraManager.cpp:1181
 msgid "Auto tracking disabled"
 msgstr ""
 
-#: gui/GUIUtils.cpp:471
+#: gui/GUIUtils.cpp:543
 msgid "Hold to confirm"
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:428
+#: gui/OverlayWrapper.cpp:427
 msgid "Current FPS: "
 msgstr "Кадри/сек: "
 
-#: gui/OverlayWrapper.cpp:429
+#: gui/OverlayWrapper.cpp:428
 msgid "Average FPS: "
 msgstr "Средно кадри/сек : "
 
-#: gui/OverlayWrapper.cpp:430
+#: gui/OverlayWrapper.cpp:429
 msgid "Best FPS: "
 msgstr "Най-добри кадри/сек : "
 
-#: gui/OverlayWrapper.cpp:431
+#: gui/OverlayWrapper.cpp:430
 msgid "Worst FPS: "
 msgstr "Най-малък брой кадри/сек (FPS) : "
 
-#: gui/OverlayWrapper.cpp:432
+#: gui/OverlayWrapper.cpp:431
 msgid "Triangle Count: "
 msgstr "Брой триъгълници: "
 
-#: gui/OverlayWrapper.cpp:459
+#: gui/OverlayWrapper.cpp:458
 msgid "Textures: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:461
+#: gui/OverlayWrapper.cpp:460
 msgid "Compositors: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:463
+#: gui/OverlayWrapper.cpp:462
 msgid "Fonts: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:465
+#: gui/OverlayWrapper.cpp:464
 msgid "GPU Program: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:467
+#: gui/OverlayWrapper.cpp:466
 msgid "HL GPU Program: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:469 gui/OverlayWrapper.cpp:475
+#: gui/OverlayWrapper.cpp:468 gui/OverlayWrapper.cpp:474
 msgid "Materials: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:471
+#: gui/OverlayWrapper.cpp:470
 msgid "Meshes: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:473
+#: gui/OverlayWrapper.cpp:472
 msgid "Skeletons: "
 msgstr ""
 
-#: gui/OverlayWrapper.cpp:482
+#: gui/OverlayWrapper.cpp:481
 msgid "Memory (Ogre): "
 msgstr ""
 
@@ -611,7 +670,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: gui/panels/GUI_CollisionsDebug.cpp:48
+#: gui/panels/GUI_CollisionsDebug.cpp:49
 msgctxt "About"
 msgid "Static collision debug"
 msgstr ""
@@ -710,57 +769,57 @@ msgctxt "Console"
 msgid "Command"
 msgstr "Команда 1"
 
-#: gui/panels/GUI_FlexbodyDebug.cpp:44
+#: gui/panels/GUI_FlexbodyDebug.cpp:45
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
 msgstr ""
 
-#: gui/panels/GUI_FlexbodyDebug.cpp:49
+#: gui/panels/GUI_FlexbodyDebug.cpp:50
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
 msgstr ""
 
-#: gui/panels/GUI_FlexbodyDebug.cpp:57
+#: gui/panels/GUI_FlexbodyDebug.cpp:58
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
 msgstr ""
 
-#: gui/panels/GUI_FlexbodyDebug.cpp:62
+#: gui/panels/GUI_FlexbodyDebug.cpp:63
 msgctxt "FlexbodyDebug"
 msgid "Select element"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:46
+#: gui/panels/GUI_FrictionSettings.cpp:47
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:48
+#: gui/panels/GUI_FrictionSettings.cpp:49
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:55
+#: gui/panels/GUI_FrictionSettings.cpp:56
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:61
+#: gui/panels/GUI_FrictionSettings.cpp:62
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:63
+#: gui/panels/GUI_FrictionSettings.cpp:64
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:64
+#: gui/panels/GUI_FrictionSettings.cpp:65
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:64
+#: gui/panels/GUI_FrictionSettings.cpp:65
 msgctxt "FrictionSettings"
 msgid ""
 "With this you can define how deep the solid ground is. If it is 0 then the "
@@ -769,17 +828,17 @@ msgid ""
 "with fluid on top."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:66
+#: gui/panels/GUI_FrictionSettings.cpp:67
 msgctxt "FrictionSettings"
 msgid "Strength:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:67
+#: gui/panels/GUI_FrictionSettings.cpp:68
 msgctxt "FrictionSettings"
 msgid "Strength"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:67
+#: gui/panels/GUI_FrictionSettings.cpp:68
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter raises or diminishes surface friction in a generic way. It is "
@@ -788,17 +847,17 @@ msgid ""
 "back and play with this."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:69
+#: gui/panels/GUI_FrictionSettings.cpp:70
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:70
+#: gui/panels/GUI_FrictionSettings.cpp:71
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:70
+#: gui/panels/GUI_FrictionSettings.cpp:71
 msgctxt "FrictionSettings"
 msgid ""
 "Static friction keeps you in the same place when you are stopped on a hill. "
@@ -808,17 +867,17 @@ msgid ""
 "surface friction variables in the net, and then to fine tune via strength."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:72
+#: gui/panels/GUI_FrictionSettings.cpp:73
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:73
+#: gui/panels/GUI_FrictionSettings.cpp:74
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:73
+#: gui/panels/GUI_FrictionSettings.cpp:74
 msgctxt "FrictionSettings"
 msgid ""
 "Below this value static friction laws apply, above it dynamic friction laws "
@@ -827,17 +886,17 @@ msgid ""
 "NEVER set it to 0."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:75
+#: gui/panels/GUI_FrictionSettings.cpp:76
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:76
+#: gui/panels/GUI_FrictionSettings.cpp:77
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:76
+#: gui/panels/GUI_FrictionSettings.cpp:77
 msgctxt "FrictionSettings"
 msgid ""
 "Or sliding friction coef. It should be smaller than static friction coef. "
@@ -845,17 +904,17 @@ msgid ""
 "find some values for it from the net."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:78
+#: gui/panels/GUI_FrictionSettings.cpp:79
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:79
+#: gui/panels/GUI_FrictionSettings.cpp:80
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:79
+#: gui/panels/GUI_FrictionSettings.cpp:80
 msgctxt "FrictionSettings"
 msgid ""
 "This friction defines the added friction that you'll feel from a surface "
@@ -866,17 +925,17 @@ msgid ""
 "to 0."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:81
+#: gui/panels/GUI_FrictionSettings.cpp:82
 msgctxt "FrictionSettings"
 msgid "Stribeck velocity:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:82
+#: gui/panels/GUI_FrictionSettings.cpp:83
 msgctxt "FrictionSettings"
 msgid "Stribeck velocity"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:82
+#: gui/panels/GUI_FrictionSettings.cpp:83
 msgctxt "FrictionSettings"
 msgid ""
 "You'll either find stribeck velocity in the net, or the inverse (1/stribeck "
@@ -885,37 +944,37 @@ msgid ""
 "for it from the net."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:84
+#: gui/panels/GUI_FrictionSettings.cpp:85
 msgctxt "FrictionSettings"
 msgid "alpha:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:85
+#: gui/panels/GUI_FrictionSettings.cpp:86
 msgctxt "FrictionSettings"
 msgid "Alpha"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:85
+#: gui/panels/GUI_FrictionSettings.cpp:86
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:87
+#: gui/panels/GUI_FrictionSettings.cpp:88
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:89
+#: gui/panels/GUI_FrictionSettings.cpp:90
 msgctxt "FrictionSettings"
 msgid "Flow behavior index:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:90
+#: gui/panels/GUI_FrictionSettings.cpp:91
 msgctxt "FrictionSettings"
 msgid "Flow behavior index"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:90
+#: gui/panels/GUI_FrictionSettings.cpp:91
 msgctxt "FrictionSettings"
 msgid ""
 "If it is 1.0 then the fluid will behave like water. The lower you get from "
@@ -926,34 +985,34 @@ msgid ""
 "fluid (try to hit sand hard it'll feel like stone)."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:92
+#: gui/panels/GUI_FrictionSettings.cpp:93
 msgctxt "FrictionSettings"
 msgid "Flow consistency:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:93
+#: gui/panels/GUI_FrictionSettings.cpp:94
 msgctxt "FrictionSettings"
 msgid "Flow consistency"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:93
+#: gui/panels/GUI_FrictionSettings.cpp:94
 msgctxt "FrictionSettings"
 msgid ""
 "Think of it as default fluid resistance. Behavior index above changes it at "
 "real time. Useful values in practice are quite large."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:95
+#: gui/panels/GUI_FrictionSettings.cpp:96
 msgctxt "FrictionSettings"
 msgid "Fluid density:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:96
+#: gui/panels/GUI_FrictionSettings.cpp:97
 msgctxt "FrictionSettings"
 msgid "Fluid density"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:96
+#: gui/panels/GUI_FrictionSettings.cpp:97
 msgctxt "FrictionSettings"
 msgid ""
 "In mud (or sand) the resistance of the fluid described by the parameters "
@@ -966,17 +1025,17 @@ msgid ""
 "behavior index <1 it'll behave like you are in mud."
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:98
+#: gui/panels/GUI_FrictionSettings.cpp:99
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy:"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:99
+#: gui/panels/GUI_FrictionSettings.cpp:100
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy"
 msgstr ""
 
-#: gui/panels/GUI_FrictionSettings.cpp:99
+#: gui/panels/GUI_FrictionSettings.cpp:100
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter is for making it easier(cheating) to get out from mud. To get "
@@ -1027,47 +1086,49 @@ msgctxt "About"
 msgid "Code Contributors"
 msgstr ""
 
-#: gui/panels/GUI_GameAbout.cpp:107
+#: gui/panels/GUI_GameAbout.cpp:108
 msgctxt "About"
 msgid "Core Content Contributors"
 msgstr ""
 
-#: gui/panels/GUI_GameAbout.cpp:113
+#: gui/panels/GUI_GameAbout.cpp:114
 msgctxt "About"
 msgid "Mod Contributors"
 msgstr ""
 
-#: gui/panels/GUI_GameAbout.cpp:117
+#: gui/panels/GUI_GameAbout.cpp:118
 msgctxt "About"
 msgid "Testers"
 msgstr ""
 
-#: gui/panels/GUI_GameAbout.cpp:121
+#: gui/panels/GUI_GameAbout.cpp:122
 msgctxt "About"
 msgid "Used Libs"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:81
+#: gui/panels/GUI_GameChatBox.cpp:79
+#, c++-format
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:143
+#: gui/panels/GUI_GameChatBox.cpp:145
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:144
+#: gui/panels/GUI_GameChatBox.cpp:146
 msgctxt "ChatBox"
 msgid "Message"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:192
+#: gui/panels/GUI_GameChatBox.cpp:198
+#, c++-format
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:199
+#: gui/panels/GUI_GameChatBox.cpp:205
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
 msgstr ""
@@ -1155,7 +1216,7 @@ msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:149
+#: gui/panels/GUI_GameMainMenu.cpp:149 gui/panels/GUI_GameMainMenu.cpp:175
 msgctxt "MainMenu"
 msgid "Repository"
 msgstr ""
@@ -1165,7 +1226,7 @@ msgctxt "MainMenu"
 msgid "Settings"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:161 gui/panels/GUI_GameMainMenu.cpp:175
+#: gui/panels/GUI_GameMainMenu.cpp:161 gui/panels/GUI_GameMainMenu.cpp:181
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Controls"
@@ -1178,585 +1239,690 @@ msgctxt "MainMenu"
 msgid "About"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:181
+#: gui/panels/GUI_GameMainMenu.cpp:187
 msgid "Return to menu"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:192
+#: gui/panels/GUI_GameMainMenu.cpp:198
 #, fuzzy
 #| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
 msgstr "изход от играта"
 
-#: gui/panels/GUI_GameMainMenu.cpp:230 gui/panels/GUI_GameMainMenu.cpp:258
+#: gui/panels/GUI_GameMainMenu.cpp:236 gui/panels/GUI_GameMainMenu.cpp:264
 msgctxt "MainMenu"
 msgid "Game version"
 msgstr ""
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
+#: gui/panels/GUI_GameMainMenu.cpp:237 gui/panels/GUI_GameMainMenu.cpp:265
 msgctxt "MainMenu"
 msgid "Net. protocol"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:244
+#: gui/panels/GUI_GameMainMenu.cpp:250
 msgctxt "MainMenu"
 msgid "Version box"
 msgstr ""
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:260
+#: gui/panels/GUI_GameMainMenu.cpp:266
 msgctxt "MainMenu"
 msgid "Cache updated"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:273
+#: gui/panels/GUI_GameMainMenu.cpp:279
 msgctxt "MainMenu"
 msgid "Notice box"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:43
+#: gui/panels/GUI_GameSettings.cpp:48
 msgctxt "GameSettings"
 msgid "Game settings"
 msgstr ""
 
 #. Combobox for selecting the Render System
-#: gui/panels/GUI_GameSettings.cpp:51 gui/panels/GUI_GameSettings.cpp:128
+#: gui/panels/GUI_GameSettings.cpp:56 gui/panels/GUI_GameSettings.cpp:154
 msgctxt "GameSettings"
 msgid "Render System"
 msgstr "Графична система"
 
-#: gui/panels/GUI_GameSettings.cpp:58
+#: gui/panels/GUI_GameSettings.cpp:63
 msgctxt "GameSettings"
 msgid "General"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:65
+#: gui/panels/GUI_GameSettings.cpp:70
 #, fuzzy
 #| msgid "Replay Mode"
 msgctxt "GameSettings"
 msgid "Gameplay"
 msgstr "\\\"Replay\\\" режим."
 
-#: gui/panels/GUI_GameSettings.cpp:72
+#: gui/panels/GUI_GameSettings.cpp:77
+msgctxt "GameSettings"
+msgid "UI"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:84
 msgctxt "GameSettings"
 msgid "Graphics"
 msgstr "Графика"
 
-#: gui/panels/GUI_GameSettings.cpp:79
+#: gui/panels/GUI_GameSettings.cpp:91
 msgctxt "GameSettings"
 msgid "Audio"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:86
+#: gui/panels/GUI_GameSettings.cpp:98
 msgctxt "GameSettings"
 msgid "Controls"
 msgstr "Контроли"
 
-#: gui/panels/GUI_GameSettings.cpp:93
+#: gui/panels/GUI_GameSettings.cpp:105
 msgctxt "GameSettings"
 msgid "Diagnostic"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:114
+#: gui/panels/GUI_GameSettings.cpp:127
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:166
+#: gui/panels/GUI_GameSettings.cpp:131
+msgctxt "GameSettings"
+msgid "You must restart the game to make changes effective."
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:204
 msgctxt "GameSettings"
 msgid "Application settings"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:178
+#: gui/panels/GUI_GameSettings.cpp:216
 msgctxt "GameSettings"
 msgid "Language"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:209
+#: gui/panels/GUI_GameSettings.cpp:247
 msgctxt "GameSettings"
 msgid "Country"
 msgstr ""
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
-#: gui/panels/GUI_GameSettings.cpp:218
+#: gui/panels/GUI_GameSettings.cpp:256
 msgctxt "GameSettings"
 msgid "Screenshot format"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:224
+#: gui/panels/GUI_GameSettings.cpp:262
 msgctxt "GameSettings"
 msgid "Extra mod path"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:226
+#: gui/panels/GUI_GameSettings.cpp:264
 msgctxt "GameSettings"
 msgid "Skip main menu"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:227
+#: gui/panels/GUI_GameSettings.cpp:265
 msgctxt "GameSettings"
 msgid "Async physics"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:228
+#: gui/panels/GUI_GameSettings.cpp:266
 #, fuzzy
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
 msgstr "Изключване на картата"
 
-#: gui/panels/GUI_GameSettings.cpp:230
+#: gui/panels/GUI_GameSettings.cpp:268
 #, fuzzy
 #| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
 msgstr "Обновления"
 
-#: gui/panels/GUI_GameSettings.cpp:240
+#: gui/panels/GUI_GameSettings.cpp:278
 msgctxt "GameSettings"
 msgid "Simulation settings"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:242
+#: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
 msgid "Gearbox mode"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:245
-msgctxt "GameSettings"
-msgid "Digital speedometer"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:246
-msgctxt "GameSettings"
-msgid "Imperial speedometer"
-msgstr ""
-
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
-#: gui/panels/GUI_GameSettings.cpp:250
+#: gui/panels/GUI_GameSettings.cpp:285
 msgctxt "GameSettings"
 msgid "Engines spawn running"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:252
+#: gui/panels/GUI_GameSettings.cpp:287
 msgctxt "GameSettings"
 msgid "Replay mode"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:255
+#: gui/panels/GUI_GameSettings.cpp:290
 msgctxt "GameSettings"
 msgid "Replay length"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:256
+#: gui/panels/GUI_GameSettings.cpp:291
 msgctxt "GameSettings"
 msgid "Replay stepping"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:259
+#: gui/panels/GUI_GameSettings.cpp:294
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:261
+#: gui/panels/GUI_GameSettings.cpp:296
 #, fuzzy
 #| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
 msgstr "Включване на вълни"
 
-#: gui/panels/GUI_GameSettings.cpp:263
+#: gui/panels/GUI_GameSettings.cpp:298
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:264
+#: gui/panels/GUI_GameSettings.cpp:299
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:266
+#: gui/panels/GUI_GameSettings.cpp:301
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:268
+#: gui/panels/GUI_GameSettings.cpp:303
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:270
-msgctxt "GameSettings"
-msgid "Show controls in live repair box"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:272
-msgctxt "GameSettings"
-msgid "Show vehicle buttons menu"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:274
+#: gui/panels/GUI_GameSettings.cpp:305
 msgctxt "GameSettings"
 msgid "Enable vehicle tuning"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:280
+#: gui/panels/GUI_GameSettings.cpp:311
 msgctxt "GameSettings"
 msgid "Audio settings"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:296
+#: gui/panels/GUI_GameSettings.cpp:327
 msgctxt "GameSettings"
 msgid "Audio device"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:301
+#: gui/panels/GUI_GameSettings.cpp:332
 msgctxt "GameSettings"
 msgid "Creak sound"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:302
+#: gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
-msgid "Main menu music"
+msgid "Enable advanced sound effects via OpenAL EFX"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:303
+#: gui/panels/GUI_GameSettings.cpp:337
 msgctxt "GameSettings"
-msgid "Master volume"
+msgid "OpenAL Reverb engine"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:309
+#: gui/panels/GUI_GameSettings.cpp:338
 msgctxt "GameSettings"
-msgid "Video settings"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:311
-#, fuzzy
-#| msgid "Light source effects:"
-msgctxt "GameSettings"
-msgid "Light sources"
-msgstr "Източници на светлина:"
-
-#: gui/panels/GUI_GameSettings.cpp:314
-msgctxt "GameSettings"
-msgid "Shadow type (requires restart)"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:319
-msgctxt "GameSettings"
-msgid "Shadow optimizations"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:322
-msgctxt "GameSettings"
-msgid "Shadow quality"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:326
-msgctxt "GameSettings"
-msgid "Sky gfx"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:331
-msgctxt "GameSettings"
-msgid "Sight range (meters)"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:334
-msgctxt "GameSettings"
-msgid "Texture filtering"
+msgid "Sound obstruction"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
-msgid "Anisotropy"
+msgid "Force obstruction inside vehicles"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:343
+msgctxt "GameSettings"
+msgid "Sound occlusion"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:344
+msgctxt "GameSettings"
+msgid "Directed sounds (exhausts etc.)"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
-msgid "Vegetation density"
+msgid "Early reflections panning (experimental)"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
-msgid "Water gfx"
+msgid "Engine exerts automatic control over environmental audio"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:353
+#: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
-msgid "FPS limit"
+msgid "Default EFX Reverb Preset"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:355
 msgctxt "GameSettings"
-msgid "Enable particle gfx"
+msgid "Force EFX Reverb Preset"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:356
+#: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
-msgid "Enable skidmarks"
+msgid "Main menu music"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:358
+#: gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
-msgid "Realtime reflections"
+msgid "Master volume"
 msgstr ""
 
-#. Width includes [+/-] buttons
-#: gui/panels/GUI_GameSettings.cpp:362
+#: gui/panels/GUI_GameSettings.cpp:361
 msgctxt "GameSettings"
-msgid "Realtime refl. update rate"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:366
-msgctxt "GameSettings"
-msgid "Render video cameras"
+msgid "Doppler factor"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
+msgid "UI settings"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:371
+msgctxt "GameSettings"
+msgid "Default truck dashboard"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:372
+msgctxt "GameSettings"
+msgid "Default boat dashboard"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:374
+msgctxt "GameSettings"
+msgid "Imperial units"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:376
+msgctxt "GameSettings"
+msgid "Show controls in live repair box"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:378
+msgctxt "GameSettings"
+msgid "Show vehicle buttons menu"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:380
+msgctxt "GameSettings"
+msgid "Always show full size help image"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:383
+msgctxt "GameSettings"
 msgid "Overview map icons"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:370
+#: gui/panels/GUI_GameSettings.cpp:386
 #, fuzzy
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
 msgstr "Изключване на картата"
 
-#: gui/panels/GUI_GameSettings.cpp:372
+#: gui/panels/GUI_GameSettings.cpp:393
+msgctxt "GameSettings"
+msgid "Video settings"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:395
+#, fuzzy
+#| msgid "Light source effects:"
+msgctxt "GameSettings"
+msgid "Light sources"
+msgstr "Източници на светлина:"
+
+#: gui/panels/GUI_GameSettings.cpp:398
+msgctxt "GameSettings"
+msgid "Shadow type (requires restart)"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:403
+msgctxt "GameSettings"
+msgid "Shadow optimizations"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:406
+msgctxt "GameSettings"
+msgid "Shadow quality"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:410
+msgctxt "GameSettings"
+msgid "Sky gfx"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:415
+msgctxt "GameSettings"
+msgid "Sight range (meters)"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:418
+msgctxt "GameSettings"
+msgid "Texture filtering"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:425
+msgctxt "GameSettings"
+msgid "Anisotropy"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:431
+msgctxt "GameSettings"
+msgid "Vegetation density"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:434
+msgctxt "GameSettings"
+msgid "Water gfx"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:437
+msgctxt "GameSettings"
+msgid "FPS limit"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:439
+msgctxt "GameSettings"
+msgid "Enable particle gfx"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:440
+msgctxt "GameSettings"
+msgid "Enable skidmarks"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:442
+msgctxt "GameSettings"
+msgid "Enable automatic mesh LOD generator (Increases loading times)"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:444
+msgctxt "GameSettings"
+msgid "Realtime reflections"
+msgstr ""
+
+#. Width includes [+/-] buttons
+#: gui/panels/GUI_GameSettings.cpp:448
+msgctxt "GameSettings"
+msgid "Realtime refl. update rate"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:452
+msgctxt "GameSettings"
+msgid "Render video cameras"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:453
 msgctxt "GameSettings"
 msgid "Waves on water"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:373
+#: gui/panels/GUI_GameSettings.cpp:454
 msgctxt "GameSettings"
 msgid "Use alternate vehicle materials"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:378
+#: gui/panels/GUI_GameSettings.cpp:459
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
 msgstr "Завъртане на камерата надясно"
 
-#: gui/panels/GUI_GameSettings.cpp:379
+#: gui/panels/GUI_GameSettings.cpp:460
 msgctxt "GameSettings"
 msgid "Exterior field of view"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:380
+#: gui/panels/GUI_GameSettings.cpp:461
 msgctxt "GameSettings"
 msgid "Interior field of view"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:385
+#: gui/panels/GUI_GameSettings.cpp:466
 msgctxt "GameSettings"
 msgid "Diagnostic options"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:386
+#: gui/panels/GUI_GameSettings.cpp:467
 msgctxt "GameSettings"
 msgid ""
 "These settings are for advanced users only, you should only change these if "
 "you know what you're doing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:388
+#: gui/panels/GUI_GameSettings.cpp:469
 msgctxt "GameSettings"
 msgid "Preselected terrain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:389
+#: gui/panels/GUI_GameSettings.cpp:470
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:390
+#: gui/panels/GUI_GameSettings.cpp:471
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:391
+#: gui/panels/GUI_GameSettings.cpp:472
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:392
+#: gui/panels/GUI_GameSettings.cpp:473
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:393
+#: gui/panels/GUI_GameSettings.cpp:474
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:394
+#: gui/panels/GUI_GameSettings.cpp:475
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:395
+#: gui/panels/GUI_GameSettings.cpp:476
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:396
+#: gui/panels/GUI_GameSettings.cpp:477
 msgctxt "GameSettings"
 msgid "Debug actor mass"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:397
+#: gui/panels/GUI_GameSettings.cpp:478
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:398
+#: gui/panels/GUI_GameSettings.cpp:479
 msgctxt "GameSettings"
 msgid "Debug videocameras"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:399
+#: gui/panels/GUI_GameSettings.cpp:480
 msgctxt "GameSettings"
 msgid "Debug textures"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:400
+#: gui/panels/GUI_GameSettings.cpp:481
 msgctxt "GameSettings"
 msgid "Hide broken beams"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:401
+#: gui/panels/GUI_GameSettings.cpp:482
 msgctxt "GameSettings"
 msgid "Hide wheel info"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:402
+#: gui/panels/GUI_GameSettings.cpp:483
 msgctxt "GameSettings"
 msgid "Hide wheels"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:403
+#: gui/panels/GUI_GameSettings.cpp:484
 msgctxt "GameSettings"
 msgid "Hide nodes"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:404
+#: gui/panels/GUI_GameSettings.cpp:485
 msgctxt "GameSettings"
 msgid "Echo log to console"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:405
+#: gui/panels/GUI_GameSettings.cpp:486
 msgctxt "GameSettings"
 msgid "Log beam breaking"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:406
+#: gui/panels/GUI_GameSettings.cpp:487
 msgctxt "GameSettings"
 msgid "Log beam deforming"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:407
+#: gui/panels/GUI_GameSettings.cpp:488
 msgctxt "GameSettings"
 msgid "Log beam triggers"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:408
+#: gui/panels/GUI_GameSettings.cpp:489
+msgctxt "GameSettings"
+msgid "Allow game window resizing"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:490
+msgctxt "GameSettings"
+msgid "Enable MyGUI.log (needs restart)"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:491
 #, fuzzy
 #| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
 msgstr "Регенериране на кеша"
 
-#: gui/panels/GUI_GameSettings.cpp:418
+#: gui/panels/GUI_GameSettings.cpp:501
 msgctxt "GameSettings"
 msgid "Controller options"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:420
+#: gui/panels/GUI_GameSettings.cpp:504
 msgctxt "GameSettings"
 msgid "Input grab mode"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:423
+#: gui/panels/GUI_GameSettings.cpp:511
+msgctxt "GameSettings"
+msgid "Restarting input subsystem, please wait..."
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:514
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:424
+#: gui/panels/GUI_GameSettings.cpp:515
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:425
+#: gui/panels/GUI_GameSettings.cpp:516
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:427
+#: gui/panels/GUI_GameSettings.cpp:518
 msgctxt "GameSettings"
 msgid "Use arcade controls"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:428
+#: gui/panels/GUI_GameSettings.cpp:519
 msgctxt "GameSettings"
 msgid "Invert orbit camera"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:430
+#: gui/panels/GUI_GameSettings.cpp:521
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:434
+#: gui/panels/GUI_GameSettings.cpp:525
 msgctxt "GameSettings"
 msgid "FFB camera gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:435
+#: gui/panels/GUI_GameSettings.cpp:526
 msgctxt "GameSettings"
 msgid "FFB center gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:436
+#: gui/panels/GUI_GameSettings.cpp:527
 msgctxt "GameSettings"
 msgid "FFB master gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:437
+#: gui/panels/GUI_GameSettings.cpp:528
 msgctxt "GameSettings"
 msgid "FFB stress gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:441
+#: gui/panels/GUI_GameSettings.cpp:532
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:444
+#: gui/panels/GUI_GameSettings.cpp:535
 msgctxt "GameSettings"
 msgid "OutGauge IP"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:446
+#: gui/panels/GUI_GameSettings.cpp:537
 msgctxt "GameSettings"
 msgid "OutGauge port"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:447
+#: gui/panels/GUI_GameSettings.cpp:538
 msgctxt "GameSettings"
 msgid "OutGauge ID"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:448
+#: gui/panels/GUI_GameSettings.cpp:539
 msgctxt "GameSettings"
 msgid "OutGauge delay"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:656
+msgctxt "TopMenubar"
+msgid "UI Preset"
 msgstr ""
 
 #: gui/panels/GUI_LoadingWindow.cpp:76
@@ -1769,340 +1935,384 @@ msgctxt "LoadingWindow"
 msgid "Please wait"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:95
+#: gui/panels/GUI_MainSelector.cpp:96
 msgctxt "MainSelector"
 msgid "Loader"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:301
+#: gui/panels/GUI_MainSelector.cpp:305
 msgctxt "MainSelector"
 msgid "Author(s): "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:305
+#: gui/panels/GUI_MainSelector.cpp:309
 #, fuzzy
 #| msgid "Vegetation:"
 msgctxt "MainSelector"
 msgid "Version: "
 msgstr "Растителност :"
 
-#: gui/panels/GUI_MainSelector.cpp:308
+#: gui/panels/GUI_MainSelector.cpp:312
 #, fuzzy
 #| msgid "Wheels: "
 msgctxt "MainSelector"
 msgid "Wheels: "
 msgstr "Колела : "
 
-#: gui/panels/GUI_MainSelector.cpp:314
+#: gui/panels/GUI_MainSelector.cpp:318
 #, fuzzy
 #| msgid "Mass: "
 msgctxt "MainSelector"
 msgid "Mass: "
 msgstr "Тегло: "
 
-#: gui/panels/GUI_MainSelector.cpp:323
+#: gui/panels/GUI_MainSelector.cpp:327
 #, fuzzy
 #| msgid "Mass: "
 msgctxt "MainSelector"
 msgid "Load Mass: "
 msgstr "Тегло: "
 
-#: gui/panels/GUI_MainSelector.cpp:327
+#: gui/panels/GUI_MainSelector.cpp:331
 #, fuzzy
 #| msgid "Nodes: "
 msgctxt "MainSelector"
 msgid "Nodes: "
 msgstr "Възлови точки/съединения (Nodes): "
 
-#: gui/panels/GUI_MainSelector.cpp:328
+#: gui/panels/GUI_MainSelector.cpp:332
 msgctxt "MainSelector"
 msgid "Beams: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:329
+#: gui/panels/GUI_MainSelector.cpp:333
 msgctxt "MainSelector"
 msgid "Shocks: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:330
+#: gui/panels/GUI_MainSelector.cpp:334
 msgctxt "MainSelector"
 msgid "Hydros: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:331
+#: gui/panels/GUI_MainSelector.cpp:335
 msgctxt "MainSelector"
 msgid "SoundSources: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:332
+#: gui/panels/GUI_MainSelector.cpp:336
 #, fuzzy
 #| msgid "Commands: "
 msgctxt "MainSelector"
 msgid "Commands: "
 msgstr "Команди:"
 
-#: gui/panels/GUI_MainSelector.cpp:333
+#: gui/panels/GUI_MainSelector.cpp:337
 msgctxt "MainSelector"
 msgid "Rotators: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:334
+#: gui/panels/GUI_MainSelector.cpp:338
 msgctxt "MainSelector"
 msgid "Exhausts: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:335
+#: gui/panels/GUI_MainSelector.cpp:339
 msgctxt "MainSelector"
 msgid "Flares: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:336
+#: gui/panels/GUI_MainSelector.cpp:340
 #, fuzzy
 #| msgid "Nodes: "
 msgctxt "MainSelector"
 msgid "Flexbodies: "
 msgstr "Възлови точки/съединения (Nodes): "
 
-#: gui/panels/GUI_MainSelector.cpp:337
+#: gui/panels/GUI_MainSelector.cpp:341
 msgctxt "MainSelector"
 msgid "Props: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:338
+#: gui/panels/GUI_MainSelector.cpp:342
 #, fuzzy
 #| msgid "Warning"
 msgctxt "MainSelector"
 msgid "Wings: "
 msgstr "Предупреждение"
 
-#: gui/panels/GUI_MainSelector.cpp:341
+#: gui/panels/GUI_MainSelector.cpp:345
 msgctxt "MainSelector"
 msgid "Using Submeshs: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:343
+#: gui/panels/GUI_MainSelector.cpp:347
 msgctxt "MainSelector"
 msgid "No"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:343
+#: gui/panels/GUI_MainSelector.cpp:347
 msgctxt "MainSelector"
 msgid "Yes"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:347
+#: gui/panels/GUI_MainSelector.cpp:351
 #, fuzzy
 #| msgid "Default Skin"
 msgctxt "MainSelector"
 msgid "Default skin: "
 msgstr "Кожа (скин) по подразбиране"
 
-#: gui/panels/GUI_MainSelector.cpp:351
+#: gui/panels/GUI_MainSelector.cpp:355
 #, fuzzy
 #| msgid "Torque: "
 msgctxt "MainSelector"
 msgid "Torque: "
 msgstr "Въртящ момент: "
 
-#: gui/panels/GUI_MainSelector.cpp:352
+#: gui/panels/GUI_MainSelector.cpp:356
 #, fuzzy
 #| msgid "Triangle Count: "
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
 msgstr "Брой триъгълници: "
 
-#: gui/panels/GUI_MainSelector.cpp:355
+#: gui/panels/GUI_MainSelector.cpp:359
 msgctxt "MainSelector"
 msgid "Engine RPM: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:359
+#: gui/panels/GUI_MainSelector.cpp:363
 msgctxt "MainSelector"
 msgid "Unique ID: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:360
+#: gui/panels/GUI_MainSelector.cpp:364
 msgctxt "MainSelector"
 msgid "GUID: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:361
+#: gui/panels/GUI_MainSelector.cpp:365
 msgctxt "MainSelector"
 msgid "Times used: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:362
+#: gui/panels/GUI_MainSelector.cpp:366
 msgctxt "MainSelector"
 msgid "Date and Time modified: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:363
+#: gui/panels/GUI_MainSelector.cpp:367
 msgctxt "MainSelector"
 msgid "Date and Time installed: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:366
+#: gui/panels/GUI_MainSelector.cpp:370
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
 msgstr "Вид превозно средство : "
 
-#: gui/panels/GUI_MainSelector.cpp:369
+#: gui/panels/GUI_MainSelector.cpp:373
 msgctxt "MainSelector"
 msgid "[forwards commands]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:370
+#: gui/panels/GUI_MainSelector.cpp:374
 msgctxt "MainSelector"
 msgid "[imports commands]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:371
+#: gui/panels/GUI_MainSelector.cpp:375
 msgctxt "MainSelector"
 msgid "[is rescuer]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:372
+#: gui/panels/GUI_MainSelector.cpp:376
 msgctxt "MainSelector"
 msgid "[uses custom particles]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:373
+#: gui/panels/GUI_MainSelector.cpp:377
 msgctxt "MainSelector"
 msgid "[has fixes]"
 msgstr ""
 
 #. Engine type 't' (truck) is the default, do not display it
-#: gui/panels/GUI_MainSelector.cpp:375
+#: gui/panels/GUI_MainSelector.cpp:379
 msgctxt "MainSelector"
 msgid "[car engine]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:376
+#: gui/panels/GUI_MainSelector.cpp:380
 msgctxt "MainSelector"
 msgid "[zip archive]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:377
+#: gui/panels/GUI_MainSelector.cpp:381
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:381
+#: gui/panels/GUI_MainSelector.cpp:385
 msgctxt "MainSelector"
 msgid "Source: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:388
+#: gui/panels/GUI_MainSelector.cpp:392
 msgctxt "MainSelector"
 msgid "Filename: "
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:394
+#: gui/panels/GUI_MainSelector.cpp:398
 msgctxt "MainSelector"
 msgid "Show details"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:405
+#: gui/panels/GUI_MainSelector.cpp:409
 #, fuzzy
 #| msgid "Configure error"
 msgctxt "MainSelector"
 msgid "Configuration"
 msgstr "Грешна конфигурация"
 
-#: gui/panels/GUI_MainSelector.cpp:411
+#: gui/panels/GUI_MainSelector.cpp:415
 msgctxt "MainSelector"
 msgid "OK"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:418
+#: gui/panels/GUI_MainSelector.cpp:422
 #, fuzzy
 #| msgid "Cancel"
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Отказ"
 
-#: gui/panels/GUI_MessageBox.cpp:110
+#: gui/panels/GUI_MessageBox.cpp:118
 msgctxt "MessageBox"
 msgid "Always ask"
 msgstr ""
 
 #. TextDisabled() are captions, Text() are values
-#: gui/panels/GUI_MultiplayerClientList.cpp:149
+#: gui/panels/GUI_MultiplayerClientList.cpp:198
 msgctxt "MultiplayerClientList"
 msgid "user name"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:154
+#: gui/panels/GUI_MultiplayerClientList.cpp:203
 msgctxt "MultiplayerClientList"
 msgid "user uid"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:158
+#: gui/panels/GUI_MultiplayerClientList.cpp:207
 #, fuzzy
 #| msgid "Language:"
 msgctxt "MultiplayerClientList"
 msgid "user language: "
 msgstr "Език:"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:162
+#: gui/panels/GUI_MultiplayerClientList.cpp:211
 msgctxt "MultiplayerClientList"
 msgid "user country: "
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:173
+#: gui/panels/GUI_MultiplayerClientList.cpp:222
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:188
+#: gui/panels/GUI_MultiplayerClientList.cpp:237
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:197
+#: gui/panels/GUI_MultiplayerClientList.cpp:246
 #, fuzzy
 #| msgid "Terrain loading error"
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
 msgstr "Грешка при зареждане на терен"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:198
+#: gui/panels/GUI_MultiplayerClientList.cpp:247
 msgctxt "MultiplayerClientList"
 msgid "Truck loaded correctly, no errors"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:199
+#: gui/panels/GUI_MultiplayerClientList.cpp:248
 msgctxt "MultiplayerClientList"
 msgid "no truck loaded"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:203
+#: gui/panels/GUI_MultiplayerClientList.cpp:252
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:212
+#: gui/panels/GUI_MultiplayerClientList.cpp:261
 #, fuzzy
 #| msgid "Terrain loading error"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
 msgstr "Грешка при зареждане на терен"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:213
+#: gui/panels/GUI_MultiplayerClientList.cpp:262
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:214
+#: gui/panels/GUI_MultiplayerClientList.cpp:263
 msgctxt "MultiplayerClientList"
 msgid "No Trucks loaded"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:229
+#: gui/panels/GUI_MultiplayerClientList.cpp:280
 msgctxt "MultiplayerClientList"
 msgid "Slow  Network  Download"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:330
+msgctxt "MultiplayerClientList"
+msgid "Local actions"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:331
+#, fuzzy
+#| msgid "enter the chat"
+msgctxt "MultiplayerClientList"
+msgid "Mute chat"
+msgstr "влез в чата"
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:332
+msgctxt "MultiplayerClientList"
+msgid "Mute actors"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:333
+msgctxt "MultiplayerClientList"
+msgid "Hide actors"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:335
+#, fuzzy
+#| msgid "Commands: "
+msgctxt "MultiplayerClientList"
+msgid "Server commands"
+msgstr "Команди:"
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:336
+msgctxt "MultiplayerClientList"
+msgid "Report"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:340
+msgctxt "MultiplayerClientList"
+msgid "Kick"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:341
+msgctxt "MultiplayerClientList"
+msgid "Ban"
 msgstr ""
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:86
@@ -2135,422 +2345,422 @@ msgctxt "MultiplayerSelector"
 msgid "Direct IP"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:172
+#: gui/panels/GUI_MultiplayerSelector.cpp:174
 msgctxt "MultiplayerSelector"
 msgid "Settings"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:191
+#: gui/panels/GUI_MultiplayerSelector.cpp:193
 msgctxt "MultiplayerSelector"
 msgid "Auto connect"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:192
+#: gui/panels/GUI_MultiplayerSelector.cpp:194
 #, fuzzy
 #| msgid "enter the chat"
 msgctxt "MultiplayerSelector"
 msgid "Auto hide chat"
 msgstr "влез в чата"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:193
+#: gui/panels/GUI_MultiplayerSelector.cpp:195
 msgctxt "MultiplayerSelector"
 msgid "Hide net labels"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:194
+#: gui/panels/GUI_MultiplayerSelector.cpp:196
 msgctxt "MultiplayerSelector"
 msgid "Hide own net label"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:195
+#: gui/panels/GUI_MultiplayerSelector.cpp:197
 msgctxt "MultiplayerSelector"
 msgid "Multiplayer collisions"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:196
+#: gui/panels/GUI_MultiplayerSelector.cpp:198
 msgctxt "MultiplayerSelector"
 msgid "Include remote actors when cycling via hotkeys"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:203
+#: gui/panels/GUI_MultiplayerSelector.cpp:205
 msgctxt "MultiplayerSelector"
 msgid "Player nickname"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:204
+#: gui/panels/GUI_MultiplayerSelector.cpp:206
 msgctxt "MultiplayerSelector"
 msgid "Default server password"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:209
+#: gui/panels/GUI_MultiplayerSelector.cpp:211
 msgctxt "MultiplayerSelector"
 msgid "User token"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:220
+#: gui/panels/GUI_MultiplayerSelector.cpp:213
+msgctxt "MultiplayerSelector"
+msgid "(Get token online)"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerSelector.cpp:214
+msgctxt "MultiplayerSelector"
+msgid ""
+"Never share your user token, even if someone is claiming to be an "
+"administrator."
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerSelector.cpp:225
 msgctxt "MultiplayerSelector"
 msgid "Server host"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:221
+#: gui/panels/GUI_MultiplayerSelector.cpp:226
 msgctxt "MultiplayerSelector"
 msgid "Server port"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:222
-#: gui/panels/GUI_MultiplayerSelector.cpp:344
+#: gui/panels/GUI_MultiplayerSelector.cpp:227
+#: gui/panels/GUI_MultiplayerSelector.cpp:349
 msgctxt "MultiplayerSelector"
 msgid "Server password"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:226
-#: gui/panels/GUI_MultiplayerSelector.cpp:332
+#: gui/panels/GUI_MultiplayerSelector.cpp:231
+#: gui/panels/GUI_MultiplayerSelector.cpp:337
 msgctxt "MultiplayerSelector"
 msgid "Join"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:277
+#: gui/panels/GUI_MultiplayerSelector.cpp:282
 msgctxt "MultiplayerSelector"
 msgid "Name"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:278
+#: gui/panels/GUI_MultiplayerSelector.cpp:283
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "MultiplayerSelector"
 msgid "Terrain"
 msgstr "Зареждане на терен"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:279
+#: gui/panels/GUI_MultiplayerSelector.cpp:284
 msgctxt "MultiplayerSelector"
 msgid "Users"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:280
+#: gui/panels/GUI_MultiplayerSelector.cpp:285
 msgctxt "MultiplayerSelector"
 msgid "Version"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:281
+#: gui/panels/GUI_MultiplayerSelector.cpp:286
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:415
+#: gui/panels/GUI_MultiplayerSelector.cpp:420
+#, c++-format
 msgid "HTTP code: {}"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:425
+#: gui/panels/GUI_MultiplayerSelector.cpp:430
 msgctxt "MultiplayerSelector"
 msgid "There are no available servers :/"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:44
+#: gui/panels/GUI_NodeBeamUtils.cpp:50
 msgctxt "NodeBeamUtils"
 msgid "Node/Beam Utils"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:49
+#: gui/panels/GUI_NodeBeamUtils.cpp:63
+#, fuzzy
+#| msgid "Mass: "
 msgctxt "NodeBeamUtils"
-msgid "Total mass"
+msgid "Mass"
+msgstr "Тегло: "
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:68
+msgctxt "NodeBeamUtils"
+msgid "Spring/Damp"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:56
+#. Width includes [+/-] buttons
+#: gui/panels/GUI_NodeBeamUtils.cpp:95
 msgctxt "NodeBeamUtils"
 msgid "Beams:"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:66
+#: gui/panels/GUI_NodeBeamUtils.cpp:105
 msgctxt "NodeBeamUtils"
 msgid "Shocks:"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:76
+#: gui/panels/GUI_NodeBeamUtils.cpp:116
 #, fuzzy
 #| msgid "Wheels: "
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
 msgstr "Колела : "
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:87
+#: gui/panels/GUI_NodeBeamUtils.cpp:156
 #, fuzzy
 #| msgid "Restore Defaults"
 msgctxt "NodeBeamUtils"
 msgid "Reset to default settings"
 msgstr "По подразбиране"
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:96
+#: gui/panels/GUI_NodeBeamUtils.cpp:164
 msgctxt "NodeBeamUtils"
 msgid "Update initial node positions"
 msgstr ""
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_NodeBeamUtils.cpp:103
+#: gui/panels/GUI_NodeBeamUtils.cpp:171
 msgctxt "NodeBeamUtils"
 msgid "Physics steps:"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:110
+#: gui/panels/GUI_NodeBeamUtils.cpp:178
 msgctxt "NodeBeamUtils"
 msgid "Beams (spring & damping search interval):"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:118
+#: gui/panels/GUI_NodeBeamUtils.cpp:186
 msgctxt "NodeBeamUtils"
 msgid "Shocks (spring & damping search interval):"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:126
+#: gui/panels/GUI_NodeBeamUtils.cpp:194
 msgctxt "NodeBeamUtils"
 msgid "Wheels (spring & damping search interval):"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:137
+#: gui/panels/GUI_NodeBeamUtils.cpp:205
 msgctxt "NodeBeamUtils"
 msgid "Continue searching"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:137
+#: gui/panels/GUI_NodeBeamUtils.cpp:205
 msgctxt "NodeBeamUtils"
 msgid "Start searching"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:137
+#: gui/panels/GUI_NodeBeamUtils.cpp:205
 msgctxt "NodeBeamUtils"
 msgid "Stop searching"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:147
+#: gui/panels/GUI_NodeBeamUtils.cpp:215
 msgctxt "NodeBeamUtils"
 msgid "Reset search"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:156
+#: gui/panels/GUI_NodeBeamUtils.cpp:224
 msgctxt "NodeBeamUtils"
 msgid "Search results"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:158
+#: gui/panels/GUI_NodeBeamUtils.cpp:226
 msgctxt "NodeBeamUtils"
 msgid "Reference"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:160
+#: gui/panels/GUI_NodeBeamUtils.cpp:228
 msgctxt "NodeBeamUtils"
 msgid "Optimum"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:163 gui/panels/GUI_NodeBeamUtils.cpp:167
+#: gui/panels/GUI_NodeBeamUtils.cpp:231 gui/panels/GUI_NodeBeamUtils.cpp:235
 msgctxt "NodeBeamUtils"
 msgid "Movement"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:164 gui/panels/GUI_NodeBeamUtils.cpp:168
+#: gui/panels/GUI_NodeBeamUtils.cpp:232 gui/panels/GUI_NodeBeamUtils.cpp:236
 msgctxt "NodeBeamUtils"
 msgid "Stress"
 msgstr ""
 
-#: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
+#: gui/panels/GUI_NodeBeamUtils.cpp:233 gui/panels/GUI_NodeBeamUtils.cpp:237
 msgctxt "NodeBeamUtils"
 msgid "Yitter"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:201
+#: gui/panels/GUI_NodeBeamUtils.cpp:267
+msgctxt "NodeBeamUtils"
+msgid "This mod is read only (ZIP archive)"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:269
+msgctxt "NodeBeamUtils"
+msgid "Create writable project (if not existing)"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:282
+msgctxt "NodeBeamUtils"
+msgid "Project created"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:283
+#, c++-format
+msgctxt "NodeBeamUtils"
+msgid ""
+"Project created successfully as \n"
+"\"{}\"\n"
+"\n"
+"Please load it and open the N/B utility again"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:299
+msgctxt "NodeBeamUtils"
+msgid "Project:"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:303
+#, fuzzy
+#| msgid "Save and Exit"
+msgctxt "NodeBeamUtils"
+msgid "Save and reload"
+msgstr "Запис и Изход"
+
+#. To disambiguate the 'reset' buttons.
+#: gui/panels/GUI_NodeBeamUtils.cpp:318
+msgctxt "NodeBeamUtils"
+msgid "User-defined values:"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:319
+msgctxt "NodeBeamUtils"
+msgid "Dry mass"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:325 gui/panels/GUI_NodeBeamUtils.cpp:339
+#: gui/panels/GUI_NodeBeamUtils.cpp:356
+#, fuzzy
+#| msgid "toggle between transmission modes"
+msgctxt "NodeBeamUtils"
+msgid "Reset"
+msgstr "Режими на скоростната кутия"
+
+#. To disambiguate the 'reset' buttons.
+#: gui/panels/GUI_NodeBeamUtils.cpp:333
+#, fuzzy
+#| msgid "Mass: "
+msgctxt "NodeBeamUtils"
+msgid "Load mass"
+msgstr "Тегло: "
+
+#. To disambiguate the 'reset' buttons.
+#: gui/panels/GUI_NodeBeamUtils.cpp:347
+msgctxt "NodeBeamUtils"
+msgid "Minimum node mass scale"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:368
+msgctxt "NodeBeamUtils"
+msgid "Calculated values:"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:369
+msgctxt "NodeBeamUtils"
+msgid "Total mass"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:370
+msgctxt "NodeBeamUtils"
+msgid "Total nodes"
+msgstr ""
+
+#: gui/panels/GUI_NodeBeamUtils.cpp:371
+msgctxt "NodeBeamUtils"
+msgid "Loaded nodes"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:206
 msgctxt "RepositorySelector"
 msgid "Could not connect to server. Please check your connection."
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:217
+#: gui/panels/GUI_RepositorySelector.cpp:222
 msgctxt "RepositorySelector"
 msgid "Received malformed data. Please try again."
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:400
+#: gui/panels/GUI_RepositorySelector.cpp:410
 msgctxt "RepositorySelector"
 msgid "Rigs of Rods Repository"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:490
+#: gui/panels/GUI_RepositorySelector.cpp:510
 msgctxt "RepositorySelector"
 msgid "Sort"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:492
-#: gui/panels/GUI_RepositorySelector.cpp:799
-#: gui/panels/GUI_RepositorySelector.cpp:921
+#: gui/panels/GUI_RepositorySelector.cpp:512
+#: gui/panels/GUI_RepositorySelector.cpp:617
+#: gui/panels/GUI_RepositorySelector.cpp:742
 msgctxt "RepositorySelector"
 msgid "Last Update"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:497
+#: gui/panels/GUI_RepositorySelector.cpp:517
 msgctxt "RepositorySelector"
 msgid "Date Added"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:502
-#: gui/panels/GUI_RepositorySelector.cpp:795
+#: gui/panels/GUI_RepositorySelector.cpp:522
+#: gui/panels/GUI_RepositorySelector.cpp:613
 msgctxt "RepositorySelector"
 msgid "Title"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:507
-#: gui/panels/GUI_RepositorySelector.cpp:801
-#: gui/panels/GUI_RepositorySelector.cpp:927
+#: gui/panels/GUI_RepositorySelector.cpp:527
+#: gui/panels/GUI_RepositorySelector.cpp:619
+#: gui/panels/GUI_RepositorySelector.cpp:748
 msgctxt "RepositorySelector"
 msgid "Downloads"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:512
-#: gui/panels/GUI_RepositorySelector.cpp:803
+#: gui/panels/GUI_RepositorySelector.cpp:532
+#: gui/panels/GUI_RepositorySelector.cpp:621
 msgctxt "RepositorySelector"
 msgid "Rating"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:517
+#: gui/panels/GUI_RepositorySelector.cpp:537
 #, fuzzy
 #| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count"
 msgstr "Брой триъгълници: "
 
-#: gui/panels/GUI_RepositorySelector.cpp:529
+#: gui/panels/GUI_RepositorySelector.cpp:549
 msgctxt "RepositorySelector"
 msgid "View"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:531
+#: gui/panels/GUI_RepositorySelector.cpp:551
 msgctxt "RepositorySelector"
 msgid "List"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:535
+#: gui/panels/GUI_RepositorySelector.cpp:555
 msgctxt "RepositorySelector"
 msgid "Compact"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:539
+#: gui/panels/GUI_RepositorySelector.cpp:559
 msgctxt "RepositorySelector"
 msgid "Basic"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:551
+#: gui/panels/GUI_RepositorySelector.cpp:571
 msgctxt "RepositorySelector"
 msgid "Search Title, Author"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:571
-msgctxt "RepositorySelector"
-msgid "Details:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:574
-msgctxt "RepositorySelector"
-msgid "Title:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:580
-msgctxt "RepositorySelector"
-msgid "Resource ID:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:586
-msgctxt "RepositorySelector"
-msgid "Category:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:600
-#, fuzzy
-#| msgid "Description: "
-msgctxt "RepositorySelector"
-msgid "Description:"
-msgstr "Описание: "
-
-#: gui/panels/GUI_RepositorySelector.cpp:606
-msgctxt "RepositorySelector"
-msgid "Downloads:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:612
-#, fuzzy
-#| msgid "Triangle Count: "
-msgctxt "RepositorySelector"
-msgid "View Count:"
-msgstr "Брой триъгълници: "
-
-#: gui/panels/GUI_RepositorySelector.cpp:618
-msgctxt "RepositorySelector"
-msgid "Rating:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:624
-#, fuzzy
-#| msgid "Triangle Count: "
-msgctxt "RepositorySelector"
-msgid "Rating Count:"
-msgstr "Брой триъгълници: "
-
-#: gui/panels/GUI_RepositorySelector.cpp:630
-msgctxt "RepositorySelector"
-msgid "Date Added:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:637
-msgctxt "RepositorySelector"
-msgid "Last Update:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:644
-#, fuzzy
-#| msgid "Vegetation:"
-msgctxt "RepositorySelector"
-msgid "Version:"
-msgstr "Растителност :"
-
-#: gui/panels/GUI_RepositorySelector.cpp:650
-msgctxt "RepositorySelector"
-msgid "Authors:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:656
-msgctxt "RepositorySelector"
-msgid "View URL:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:663
-msgctxt "RepositorySelector"
-msgid "Files:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:692
-msgctxt "RepositorySelector"
-msgid "Filename:"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:741
-#, fuzzy
-#| msgid "Updates"
-msgctxt "RepositorySelector"
-msgid "Update"
-msgstr "Обновления"
-
-#: gui/panels/GUI_RepositorySelector.cpp:745
-msgctxt "RepositorySelector"
-msgid "Reinstall"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:749
-msgctxt "RepositorySelector"
-msgid "Install"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:759
-#: gui/panels/GUI_RepositorySelector.cpp:769
-msgctxt "RepositorySelector"
-msgid "Remove"
-msgstr ""
-
-#: gui/panels/GUI_RepositorySelector.cpp:797
-#: gui/panels/GUI_RepositorySelector.cpp:1026
+#: gui/panels/GUI_RepositorySelector.cpp:615
+#: gui/panels/GUI_RepositorySelector.cpp:854
 #, fuzzy
 #| msgid "Vegetation:"
 msgctxt "RepositorySelector"
@@ -2558,39 +2768,151 @@ msgid "Version"
 msgstr "Растителност :"
 
 #. Authors, rating count, last update, download count, description
-#: gui/panels/GUI_RepositorySelector.cpp:911
+#: gui/panels/GUI_RepositorySelector.cpp:732
 msgctxt "RepositorySelector"
 msgid "Authors"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:932
+#: gui/panels/GUI_RepositorySelector.cpp:753
 #, fuzzy
 #| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description"
 msgstr "Описание: "
 
-#: gui/panels/GUI_RepositorySelector.cpp:1033
+#: gui/panels/GUI_RepositorySelector.cpp:861
 msgctxt "RepositorySelector"
 msgid "Downloaded"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:1033
+#: gui/panels/GUI_RepositorySelector.cpp:861
 msgctxt "RepositorySelector"
 msgid "times"
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:1177
+#: gui/panels/GUI_RepositorySelector.cpp:991
+msgctxt "RepositorySelector"
+msgid "No downloads queued."
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1000
+msgctxt "RepositorySelector"
+msgid "Num. queued downloads:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1001
+msgctxt "RepositorySelector"
+msgid "Total Size:"
+msgstr ""
+
+#. Far right - "view in browser" hyperlink.
+#: gui/panels/GUI_RepositorySelector.cpp:1075
+msgctxt "RepositorySelector"
+msgid "View in web browser"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1105
+#, fuzzy
+#| msgid "Vegetation:"
+msgctxt "RepositorySelector"
+msgid "Version:"
+msgstr "Растителност :"
+
+#: gui/panels/GUI_RepositorySelector.cpp:1109
+msgctxt "RepositorySelector"
+msgid "Downloads:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1119
+msgctxt "RepositorySelector"
+msgid "Rating:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1134
+#, fuzzy
+#| msgid "Triangle Count: "
+msgctxt "RepositorySelector"
+msgid "Rating Count:"
+msgstr "Брой триъгълници: "
+
+#: gui/panels/GUI_RepositorySelector.cpp:1144
+msgctxt "RepositorySelector"
+msgid "Authors:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1210
+msgctxt "RepositorySelector"
+msgid "Files:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1277
+#, fuzzy
+#| msgid "Updates"
+msgctxt "RepositorySelector"
+msgid "Update"
+msgstr "Обновления"
+
+#: gui/panels/GUI_RepositorySelector.cpp:1281
+msgctxt "RepositorySelector"
+msgid "Reinstall"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1285
+#: gui/panels/GUI_RepositorySelector.cpp:1302
+msgctxt "RepositorySelector"
+msgid "Install"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1310
+#: gui/panels/GUI_RepositorySelector.cpp:1321
+msgctxt "RepositorySelector"
+msgid "Remove"
+msgstr ""
+
+#. Right side: The detail text
+#: gui/panels/GUI_RepositorySelector.cpp:1334
+msgctxt "RepositorySelector"
+msgid "Details:"
+msgstr ""
+
+#. Right side, next line
+#: gui/panels/GUI_RepositorySelector.cpp:1337
+msgctxt "RepositorySelector"
+msgid "Resource ID:"
+msgstr ""
+
+#. Right side, next line
+#: gui/panels/GUI_RepositorySelector.cpp:1342
+#, fuzzy
+#| msgid "Triangle Count: "
+msgctxt "RepositorySelector"
+msgid "View Count:"
+msgstr "Брой триъгълници: "
+
+#. Right side, next line
+#: gui/panels/GUI_RepositorySelector.cpp:1347
+msgctxt "RepositorySelector"
+msgid "Date Added:"
+msgstr ""
+
+#. Right side, next line
+#: gui/panels/GUI_RepositorySelector.cpp:1353
+msgctxt "RepositorySelector"
+msgid "Last Update:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1384
 msgctxt "RepositorySelector"
 msgid "Sorry, the repository isn't available. Try again later."
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:1193
+#: gui/panels/GUI_RepositorySelector.cpp:1401
 msgctxt "RepositorySelector"
 msgid "No files available :("
 msgstr ""
 
-#: gui/panels/GUI_RepositorySelector.cpp:1235
+#: gui/panels/GUI_RepositorySelector.cpp:1606
+#, c++-format
 msgid "HTTP response code: {}"
 msgstr ""
 
@@ -2615,188 +2937,46 @@ msgctxt "ScriptMonitor"
 msgid "Active"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:66
+#: gui/panels/GUI_ScriptMonitor.cpp:73
 msgctxt "ScriptMonitor"
 msgid "actor"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:70
+#: gui/panels/GUI_ScriptMonitor.cpp:77
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ScriptMonitor"
 msgid "(terrain)"
 msgstr "Зареждане на терен"
 
-#: gui/panels/GUI_ScriptMonitor.cpp:75
+#: gui/panels/GUI_ScriptMonitor.cpp:89
 msgctxt "ScriptMonitor"
 msgid "Reload"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:84
+#: gui/panels/GUI_ScriptMonitor.cpp:98
 msgctxt "ScriptMonitor"
 msgid "Stop"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:91
+#: gui/panels/GUI_ScriptMonitor.cpp:105
 msgctxt "ScriptMonitor"
 msgid "Autoload"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:127
+#: gui/panels/GUI_ScriptMonitor.cpp:141
 msgctxt "ScriptMonitor"
 msgid "Recent"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:139
+#: gui/panels/GUI_ScriptMonitor.cpp:153
 msgctxt "ScriptMonitor"
 msgid "Load"
 msgstr ""
 
-#: gui/panels/GUI_ScriptMonitor.cpp:147 gui/panels/GUI_ScriptMonitor.cpp:150
+#: gui/panels/GUI_ScriptMonitor.cpp:161 gui/panels/GUI_ScriptMonitor.cpp:164
 msgctxt "ScriptMonitor"
 msgid "Remove"
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:53
-#, fuzzy
-#| msgid "Vehicle Type: "
-msgctxt "SimActorStats"
-msgid "Vehicle health: "
-msgstr "Вид превозно средство : "
-
-#: gui/panels/GUI_SimActorStats.cpp:59
-#, fuzzy
-#| msgid "Vehicle Type: "
-msgctxt "SimActorStats"
-msgid "Vehicle destruction: "
-msgstr "Вид превозно средство : "
-
-#: gui/panels/GUI_SimActorStats.cpp:66
-msgctxt "SimActorStats"
-msgid "Beam count: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:71
-msgctxt "SimActorStats"
-msgid "Broken beams count: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:76
-msgctxt "SimActorStats"
-msgid "Deformed beams count: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:81
-msgctxt "SimActorStats"
-msgid "Average deformation: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:86
-#, fuzzy
-#| msgid "Average FPS: "
-msgctxt "SimActorStats"
-msgid "Average stress: "
-msgstr "Средно кадри/сек : "
-
-#: gui/panels/GUI_SimActorStats.cpp:94
-#, fuzzy
-#| msgid "Nodes: "
-msgctxt "SimActorStats"
-msgid "Node count: "
-msgstr "Възлови точки/съединения (Nodes): "
-
-#: gui/panels/GUI_SimActorStats.cpp:98
-msgctxt "SimActorStats"
-msgid "Total mass: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:115
-msgctxt "SimActorStats"
-msgid "Engine RPM: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:120
-msgctxt "SimActorStats"
-msgid "Input shaft RPM: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:125
-#, fuzzy
-#| msgid "Current FPS: "
-msgctxt "SimActorStats"
-msgid "Current torque: "
-msgstr "Кадри/сек: "
-
-#: gui/panels/GUI_SimActorStats.cpp:130
-#, fuzzy
-#| msgid "Current FPS: "
-msgctxt "SimActorStats"
-msgid "Current power: "
-msgstr "Кадри/сек: "
-
-#: gui/panels/GUI_SimActorStats.cpp:134
-#, fuzzy
-#| msgid "Current FPS: "
-msgctxt "SimActorStats"
-msgid "Current gear: "
-msgstr "Кадри/сек: "
-
-#: gui/panels/GUI_SimActorStats.cpp:138
-msgctxt "SimActorStats"
-msgid "Drive ratio: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:157
-#, fuzzy
-#| msgid "Wheels: "
-msgctxt "SimActorStats"
-msgid "Wheel speed: "
-msgstr "Колела : "
-
-#: gui/panels/GUI_SimActorStats.cpp:161
-#, fuzzy
-#| msgid "Vehicle Type: "
-msgctxt "SimActorStats"
-msgid "Vehicle speed: "
-msgstr "Вид превозно средство : "
-
-#: gui/panels/GUI_SimActorStats.cpp:168
-#, fuzzy
-#| msgid "Current FPS: "
-msgctxt "SimActorStats"
-msgid "Current speed: "
-msgstr "Кадри/сек: "
-
-#: gui/panels/GUI_SimActorStats.cpp:175
-msgctxt "SimActorStats"
-msgid "Altitude: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:182 gui/panels/GUI_SimActorStats.cpp:200
-msgctxt "SimActorStats"
-msgid "Engine "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:212
-msgctxt "SimActorStats"
-msgid "Top speed: "
-msgstr ""
-
-#: gui/panels/GUI_SimActorStats.cpp:218
-msgctxt "SimActorStats"
-msgid "G-Forces:"
-msgstr ""
-
-#: gui/panels/GUI_SimPerfStats.cpp:81
-#, fuzzy
-#| msgid "Triangle Count: "
-msgctxt "SimPerfStats"
-msgid "Triangle count: "
-msgstr "Брой триъгълници: "
-
-#: gui/panels/GUI_SimPerfStats.cpp:82
-msgctxt "SimPerfStats"
-msgid "Batch count: "
 msgstr ""
 
 #: gui/panels/GUI_TextureToolWindow.cpp:42
@@ -2828,1045 +3008,1335 @@ msgctxt "TextureToolWindow"
 msgid "saved texture as "
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:138
+#: gui/panels/GUI_TopMenubar.cpp:170
 #, fuzzy
 #| msgid "Configure error"
 msgctxt "TopMenubar"
 msgid "Simulation"
 msgstr "Грешна конфигурация"
 
-#: gui/panels/GUI_TopMenubar.cpp:139
+#: gui/panels/GUI_TopMenubar.cpp:171
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicles"
 msgstr "Вид превозно средство : "
 
-#: gui/panels/GUI_TopMenubar.cpp:140
+#: gui/panels/GUI_TopMenubar.cpp:172
 msgctxt "TopMenubar"
 msgid "Saves"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:141
+#: gui/panels/GUI_TopMenubar.cpp:173
 msgctxt "TopMenubar"
 msgid "Settings"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:142
+#: gui/panels/GUI_TopMenubar.cpp:174
 msgctxt "TopMenubar"
 msgid "Tools"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:143
+#: gui/panels/GUI_TopMenubar.cpp:175
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
 msgstr "Вид превозно средство : "
 
-#: gui/panels/GUI_TopMenubar.cpp:144
+#: gui/panels/GUI_TopMenubar.cpp:176
 msgctxt "TopMenubar"
 msgid "Tuning"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:295
+#: gui/panels/GUI_TopMenubar.cpp:327
 msgctxt "TopMenubar"
 msgid "Sim menu"
 msgstr ""
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
-#: gui/panels/GUI_TopMenubar.cpp:299
+#: gui/panels/GUI_TopMenubar.cpp:331
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:310
+#: gui/panels/GUI_TopMenubar.cpp:342
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:317
+#: gui/panels/GUI_TopMenubar.cpp:349
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:325
+#: gui/panels/GUI_TopMenubar.cpp:357
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:333
+#: gui/panels/GUI_TopMenubar.cpp:365
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:341
+#: gui/panels/GUI_TopMenubar.cpp:373
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:349
+#: gui/panels/GUI_TopMenubar.cpp:381
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:358
+#: gui/panels/GUI_TopMenubar.cpp:390
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:365
+#: gui/panels/GUI_TopMenubar.cpp:397
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:380
+#: gui/panels/GUI_TopMenubar.cpp:412
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:386
+#: gui/panels/GUI_TopMenubar.cpp:418
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:391
+#: gui/panels/GUI_TopMenubar.cpp:423
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:399
+#: gui/panels/GUI_TopMenubar.cpp:431
 #, fuzzy
 #| msgid "delete current truck"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
 msgstr "Изтриване на този камион"
 
-#: gui/panels/GUI_TopMenubar.cpp:412
+#: gui/panels/GUI_TopMenubar.cpp:443
+#, fuzzy
+#| msgid "Save and Play"
+msgctxt "TopMenubar"
+msgid "Save changes to terrain"
+msgstr "Запис и начало на играта"
+
+#: gui/panels/GUI_TopMenubar.cpp:452
 msgctxt "TopMenubar"
 msgid "Back to menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:422
+#: gui/panels/GUI_TopMenubar.cpp:462
 msgctxt "TopMenubar"
 msgid "Exit"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:439
+#: gui/panels/GUI_TopMenubar.cpp:479
 msgctxt "TopMenubar"
 msgid "Actors menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:470
+#: gui/panels/GUI_TopMenubar.cpp:510
 msgctxt "TopMenubar"
 msgid "Savegames"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:472
+#: gui/panels/GUI_TopMenubar.cpp:512
 msgctxt "TopMenubar"
 msgid "Quicksave"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:482
+#: gui/panels/GUI_TopMenubar.cpp:522
 msgctxt "TopMenubar"
 msgid "Quickload"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:493
+#: gui/panels/GUI_TopMenubar.cpp:533
 msgctxt "TopMenubar"
 msgid "(Save with CTRL+ALT+1..5)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:496
+#: gui/panels/GUI_TopMenubar.cpp:536
 msgctxt "TopMenubar"
 msgid "Empty Slot"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:510
+#: gui/panels/GUI_TopMenubar.cpp:550
 msgctxt "TopMenubar"
 msgid "(Load with ALT+1..5)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:538
+#: gui/panels/GUI_TopMenubar.cpp:578
 msgctxt "TopMenubar"
 msgid "Settings menu"
 msgstr ""
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_TopMenubar.cpp:541
+#: gui/panels/GUI_TopMenubar.cpp:583
 msgctxt "TopMenubar"
 msgid "Audio:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:542
+#: gui/panels/GUI_TopMenubar.cpp:584
 msgctxt "TopMenubar"
 msgid "Volume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:544
+#: gui/panels/GUI_TopMenubar.cpp:588
 msgctxt "TopMenubar"
 msgid "Frames per second:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:547
+#: gui/panels/GUI_TopMenubar.cpp:591
 msgctxt "TopMenubar"
 msgid "Reflections"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:549
+#: gui/panels/GUI_TopMenubar.cpp:593
 msgctxt "TopMenubar"
 msgid "Game"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:552
+#: gui/panels/GUI_TopMenubar.cpp:597
 msgctxt "TopMenubar"
 msgid "Simulation:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:554
+#: gui/panels/GUI_TopMenubar.cpp:599
 msgctxt "TopMenubar"
 msgid "Slow motion"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:559
+#: gui/panels/GUI_TopMenubar.cpp:604
 msgctxt "TopMenubar"
 msgid "Time lapse"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:566 gui/panels/GUI_TopMenubar.cpp:573
+#: gui/panels/GUI_TopMenubar.cpp:613 gui/panels/GUI_TopMenubar.cpp:620
 msgctxt "TopMenubar"
 msgid "Camera:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:567 gui/panels/GUI_TopMenubar.cpp:577
-#: gui/panels/GUI_TopMenubar.cpp:585
+#: gui/panels/GUI_TopMenubar.cpp:614 gui/panels/GUI_TopMenubar.cpp:624
+#: gui/panels/GUI_TopMenubar.cpp:632
 #, fuzzy
 #| msgid "FOV: "
 msgctxt "TopMenubar"
 msgid "FOV"
 msgstr "Зрителен ъгъл: "
 
-#: gui/panels/GUI_TopMenubar.cpp:568
+#: gui/panels/GUI_TopMenubar.cpp:615
 msgctxt "TopMenubar"
 msgid "Height"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:592
+#: gui/panels/GUI_TopMenubar.cpp:639
 msgctxt "TopMenubar"
 msgid "Tracking"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:599
+#: gui/panels/GUI_TopMenubar.cpp:648
 msgctxt "TopMenubar"
 msgid "Time of day:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:606
+#: gui/panels/GUI_TopMenubar.cpp:655
 msgctxt "TopMenubar"
 msgid "Cycle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:609 gui/panels/GUI_TopMenubar.cpp:1106
+#: gui/panels/GUI_TopMenubar.cpp:658 gui/panels/GUI_TopMenubar.cpp:1114
 msgctxt "TopMenubar"
 msgid "Speed"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:618
+#: gui/panels/GUI_TopMenubar.cpp:669
 msgctxt "TopMenubar"
 msgid "Waves Height:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:630
+#: gui/panels/GUI_TopMenubar.cpp:682
 msgctxt "TopMenubar"
 msgid "Vehicle control options:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:631
+#: gui/panels/GUI_TopMenubar.cpp:683
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:636
+#: gui/panels/GUI_TopMenubar.cpp:690
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:637
+#: gui/panels/GUI_TopMenubar.cpp:691
 #, fuzzy
 #| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions"
 msgstr "Дебъгване на Collision Meshes"
 
-#: gui/panels/GUI_TopMenubar.cpp:638
+#: gui/panels/GUI_TopMenubar.cpp:692
 msgctxt "TopMenubar"
 msgid "Hide labels"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:653
+#: gui/panels/GUI_TopMenubar.cpp:707
 msgctxt "TopMenubar"
 msgid "Tools menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:655
+#: gui/panels/GUI_TopMenubar.cpp:709
 msgctxt "TopMenubar"
 msgid "Friction settings"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:661
+#: gui/panels/GUI_TopMenubar.cpp:715
 #, fuzzy
 #| msgid "show / hide the console"
 msgctxt "TopMenubar"
 msgid "Show console"
 msgstr "покажи/скрий конзолата"
 
-#: gui/panels/GUI_TopMenubar.cpp:667
+#: gui/panels/GUI_TopMenubar.cpp:721
 #, fuzzy
 #| msgid "Texture filtering:"
 msgctxt "TopMenubar"
 msgid "Texture tool"
 msgstr "Филтриране на текстури:"
 
-#: gui/panels/GUI_TopMenubar.cpp:673
+#: gui/panels/GUI_TopMenubar.cpp:727
 #, fuzzy
 #| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions debug"
 msgstr "Дебъгване на Collision Meshes"
 
-#: gui/panels/GUI_TopMenubar.cpp:681
+#: gui/panels/GUI_TopMenubar.cpp:735
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:687
+#: gui/panels/GUI_TopMenubar.cpp:741
 msgctxt "TopMenubar"
 msgid "FlexBody debug"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:695
+#: gui/panels/GUI_TopMenubar.cpp:748
+msgctxt "TopMenubar"
+msgid "Browse gadgets ..."
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:754
+msgctxt "TopMenubar"
+msgid "Browse repository ..."
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:761
 msgctxt "TopMenubar"
 msgid "Pre-spawn diag. options:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:698
+#: gui/panels/GUI_TopMenubar.cpp:764
 msgctxt "TopMenubar"
 msgid "Node mass recalc. logging"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:705
+#: gui/panels/GUI_TopMenubar.cpp:771
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - mass recalculation"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:710
+#: gui/panels/GUI_TopMenubar.cpp:776
 msgctxt "TopMenubar"
 msgid "Beam break logging"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:717 gui/panels/GUI_TopMenubar.cpp:729
+#: gui/panels/GUI_TopMenubar.cpp:783 gui/panels/GUI_TopMenubar.cpp:795
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:722
+#: gui/panels/GUI_TopMenubar.cpp:788
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:734
+#: gui/panels/GUI_TopMenubar.cpp:800
 msgctxt "TopMenubar"
 msgid "Trigger logging"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:741
+#: gui/panels/GUI_TopMenubar.cpp:807
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - trigger beams activity"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:746
+#: gui/panels/GUI_TopMenubar.cpp:812
 msgctxt "TopMenubar"
 msgid "VideoCamera direction marker"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:753
+#: gui/panels/GUI_TopMenubar.cpp:819
 msgctxt "TopMenubar"
 msgid "Visual marker of VideoCameras direction"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:759
+#: gui/panels/GUI_TopMenubar.cpp:825
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Visual options:"
 msgstr "Вид превозно средство : "
 
-#: gui/panels/GUI_TopMenubar.cpp:760
+#: gui/panels/GUI_TopMenubar.cpp:826
 msgctxt "TopMenubar"
 msgid "Polygon mode"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:764
+#: gui/panels/GUI_TopMenubar.cpp:830
 msgctxt "TopMenubar"
 msgid "1 = Solid"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:765
+#: gui/panels/GUI_TopMenubar.cpp:831
 msgctxt "TopMenubar"
 msgid "2 = Wireframe"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:766
+#: gui/panels/GUI_TopMenubar.cpp:832
 msgctxt "TopMenubar"
 msgid "3 = Points"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:774
-msgctxt "TopMenubar"
-msgid "Live diagnostic views:"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:775
-msgctxt "TopMenubar"
-msgid "(Toggle with {})"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:776
-msgctxt "TopMenubar"
-msgid "(Cycle with {})"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:783
-msgctxt "TopMenubar"
-msgid "Normal view"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:784
-msgctxt "TopMenubar"
-msgid "Skeleton view"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:785
-msgctxt "TopMenubar"
-msgid "Node details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:786
-msgctxt "TopMenubar"
-msgid "Beam details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:789
-msgctxt "TopMenubar"
-msgid "Wheel details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:793
-msgctxt "TopMenubar"
-msgid "Shock details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:797
-msgctxt "TopMenubar"
-msgid "Rotator details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:801
-msgctxt "TopMenubar"
-msgid "Slidenode details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:805
-msgctxt "TopMenubar"
-msgid "Submesh details"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:816
-msgctxt "TopMenubar"
-msgid "Settings:"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:817
-msgctxt "TopMenubar"
-msgid "Hide broken beams"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:818
-msgctxt "TopMenubar"
-msgid "Hide beam stress"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:819
-msgctxt "TopMenubar"
-msgid "Hide wheels"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:820
-msgctxt "TopMenubar"
-msgid "Hide nodes"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:823
-msgctxt "TopMenubar"
-msgid "Hide wheel info"
-msgstr ""
-
-#: gui/panels/GUI_TopMenubar.cpp:840
+#: gui/panels/GUI_TopMenubar.cpp:848
 msgctxt "TopMenubar"
 msgid "AI menu"
 msgstr ""
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_TopMenubar.cpp:848
+#: gui/panels/GUI_TopMenubar.cpp:856
 msgctxt "TopMenubar"
 msgid "General options:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:860
+#: gui/panels/GUI_TopMenubar.cpp:868
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle count"
 msgstr "Вид превозно средство : "
 
-#: gui/panels/GUI_TopMenubar.cpp:864
+#: gui/panels/GUI_TopMenubar.cpp:872
 msgctxt "TopMenubar"
 msgid "Number of vehicles"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:886
+#: gui/panels/GUI_TopMenubar.cpp:894
 msgctxt "TopMenubar"
 msgid "Distance"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:890
+#: gui/panels/GUI_TopMenubar.cpp:898
 msgctxt "TopMenubar"
 msgid "Following distance in meters"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:931
+#: gui/panels/GUI_TopMenubar.cpp:939
 msgctxt "TopMenubar"
 msgid "Positioning scheme"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:933
+#: gui/panels/GUI_TopMenubar.cpp:941
 msgctxt "TopMenubar"
 msgid "Behind: Set vehicle behind vehicle, in line"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:934
+#: gui/panels/GUI_TopMenubar.cpp:942
 msgctxt "TopMenubar"
 msgid ""
 "Parallel: Set vehicles in parallel, useful for certain scenarios like drag "
 "races"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:953
+#: gui/panels/GUI_TopMenubar.cpp:961
 msgctxt "TopMenubar"
 msgid "Repeat times"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:957
+#: gui/panels/GUI_TopMenubar.cpp:965
 msgctxt "TopMenubar"
 msgid "How many times to loop the path"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:974
+#: gui/panels/GUI_TopMenubar.cpp:982
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle options:"
 msgstr "Вид превозно средство : "
 
-#: gui/panels/GUI_TopMenubar.cpp:1083
+#: gui/panels/GUI_TopMenubar.cpp:1091
 msgctxt "TopMenubar"
 msgid "Land vehicle driving mode"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1085
+#: gui/panels/GUI_TopMenubar.cpp:1093
 msgctxt "TopMenubar"
 msgid "Normal: Modify speed according to turns, other vehicles and character"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1086
+#: gui/panels/GUI_TopMenubar.cpp:1094
 msgctxt "TopMenubar"
 msgid "Race: Always keep defined speed"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1087
+#: gui/panels/GUI_TopMenubar.cpp:1095
 msgctxt "TopMenubar"
 msgid "Drag Race: Two vehicles performing a drag race"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1088
+#: gui/panels/GUI_TopMenubar.cpp:1096
 msgctxt "TopMenubar"
 msgid "Crash: Two vehicles driving in opposite direction"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1089
+#: gui/panels/GUI_TopMenubar.cpp:1097
 msgctxt "TopMenubar"
 msgid "Chase: Follow character and player vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1110
+#: gui/panels/GUI_TopMenubar.cpp:1118
 msgctxt "TopMenubar"
 msgid "Speed in km/h for land vehicles or knots/s for boats"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1117
+#: gui/panels/GUI_TopMenubar.cpp:1125
 msgctxt "TopMenubar"
 msgid "Altitude"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1121
+#: gui/panels/GUI_TopMenubar.cpp:1129
 msgctxt "TopMenubar"
 msgid "Airplane maximum altitude in feet"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1138 gui/panels/GUI_TopMenubar.cpp:1156
+#: gui/panels/GUI_TopMenubar.cpp:1146 gui/panels/GUI_TopMenubar.cpp:1164
 msgctxt "TopMenubar"
 msgid "Land vehicles, boats and airplanes"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1175
+#: gui/panels/GUI_TopMenubar.cpp:1183
 msgctxt "TopMenubar"
 msgid "Start"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1199
+#: gui/panels/GUI_TopMenubar.cpp:1207
+#, c++-format
 msgctxt "TopMenubar"
 msgid "Select a preset, record or open survey map ({}) to set waypoints."
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1216
+#: gui/panels/GUI_TopMenubar.cpp:1224
 msgctxt "TopMenubar"
 msgid "Stop"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1264
+#: gui/panels/GUI_TopMenubar.cpp:1272
 msgctxt "TopMenubar"
 msgid "Presets"
 msgstr ""
 
+#: gui/panels/GUI_TopMenubar.cpp:1324
+msgctxt "TopMenubar"
+msgid "Failed to fetch external presets."
+msgstr ""
+
 #: gui/panels/GUI_TopMenubar.cpp:1325
+msgctxt "TopMenubar"
+msgid "Retry"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1339
 msgctxt "TopMenubar"
 msgid "No presets found for this terrain :("
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1326
+#: gui/panels/GUI_TopMenubar.cpp:1340
 msgctxt "TopMenubar"
 msgid "Supported terrains:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1347
+#: gui/panels/GUI_TopMenubar.cpp:1361
 msgctxt "TopMenubar"
 msgid "Waypoints"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1351
+#: gui/panels/GUI_TopMenubar.cpp:1365
 msgctxt "TopMenubar"
 msgid "No waypoints defined."
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1355
+#: gui/panels/GUI_TopMenubar.cpp:1369
 msgctxt "TopMenubar"
 msgid "Export"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1382
+#: gui/panels/GUI_TopMenubar.cpp:1396
+#, c++-format
 msgctxt "TopMenubar"
 msgid "{} waypoints exported to RoR.log"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1413
+#: gui/panels/GUI_TopMenubar.cpp:1427
 msgctxt "TopMenubar"
 msgid "speed"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1417
+#: gui/panels/GUI_TopMenubar.cpp:1431
 msgctxt "TopMenubar"
 msgid "Set waypoint speed in km/h for land vehicles"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1419
+#: gui/panels/GUI_TopMenubar.cpp:1433
 msgctxt "TopMenubar"
 msgid "Value -1: Ignore, vehicle will use default speed"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1420
+#: gui/panels/GUI_TopMenubar.cpp:1434
 msgctxt "TopMenubar"
 msgid "Value >= 5: Override default speed"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1443
+#: gui/panels/GUI_TopMenubar.cpp:1457
 msgctxt "TopMenubar"
 msgid "Tuning menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1449
+#: gui/panels/GUI_TopMenubar.cpp:1463
 msgctxt "Tuning"
 msgid "You are on foot."
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1450
+#: gui/panels/GUI_TopMenubar.cpp:1464
 msgctxt "Tuning"
 msgid "Enter a vehicle to tune it."
 msgstr ""
 
 #. SAVED TUNEUPS
-#: gui/panels/GUI_TopMenubar.cpp:1459
+#: gui/panels/GUI_TopMenubar.cpp:1473
+#, c++-format
 msgctxt "Tuning"
 msgid "Saved tuneups ({})"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1485
+#: gui/panels/GUI_TopMenubar.cpp:1499
 msgctxt "Tuning"
 msgid "Delete"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1505
+#: gui/panels/GUI_TopMenubar.cpp:1519
 msgctxt "Tuning"
 msgid "Working tuneup"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1508
+#: gui/panels/GUI_TopMenubar.cpp:1522
 msgctxt "Tuning"
 msgid "Name"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1510
+#: gui/panels/GUI_TopMenubar.cpp:1524
 msgctxt "Tuning"
 msgid "Save"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1521
+#: gui/panels/GUI_TopMenubar.cpp:1535
 msgctxt "Tuning"
 msgid "Overwrite"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1526 gui/panels/GUI_TopMenubar.cpp:1532
+#: gui/panels/GUI_TopMenubar.cpp:1540 gui/panels/GUI_TopMenubar.cpp:1546
 #, fuzzy
 #| msgid "Cancel"
 msgctxt "Tuning"
 msgid "Cancel"
 msgstr "Отказ"
 
-#: gui/panels/GUI_TopMenubar.cpp:1541
+#: gui/panels/GUI_TopMenubar.cpp:1555
 #, fuzzy
 #| msgid "Save and Play"
 msgctxt "Tuning"
 msgid "Save as..."
 msgstr "Запис и начало на играта"
 
-#: gui/panels/GUI_TopMenubar.cpp:1551 gui/panels/GUI_TopMenubar.cpp:1755
-#: gui/panels/GUI_TopMenubar.cpp:2365
+#: gui/panels/GUI_TopMenubar.cpp:1565 gui/panels/GUI_TopMenubar.cpp:1811
+#: gui/panels/GUI_TopMenubar.cpp:2026 gui/panels/GUI_TopMenubar.cpp:2780
 msgctxt "Tuning"
 msgid "Reset"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1572
+#: gui/panels/GUI_TopMenubar.cpp:1586
+#, c++-format
 msgctxt "TopMenubar"
 msgid "Addon parts ({})"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1594
+#: gui/panels/GUI_TopMenubar.cpp:1645
 msgctxt "Tuning"
 msgid "Reload"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1617
+#: gui/panels/GUI_TopMenubar.cpp:1673
 msgctxt "Tuning"
 msgid "Browse all parts"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1627
+#: gui/panels/GUI_TopMenubar.cpp:1683
+#, c++-format
 msgctxt "Tuning"
 msgid "Props ({})"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1685
-#, fuzzy
+#: gui/panels/GUI_TopMenubar.cpp:1741
+#, fuzzy, c++-format
 #| msgid "Nodes: "
 msgctxt "Tuning"
 msgid "Flexbodies ({})"
 msgstr "Възлови точки/съединения (Nodes): "
 
-#: gui/panels/GUI_TopMenubar.cpp:1716
-#, fuzzy
+#: gui/panels/GUI_TopMenubar.cpp:1772
+#, fuzzy, c++-format
 #| msgid "Wheels: "
 msgctxt "TopMenubar"
 msgid "Wheels ({})"
 msgstr "Колела : "
 
-#: gui/panels/GUI_TopMenubar.cpp:1939
+#: gui/panels/GUI_TopMenubar.cpp:1848
+#, fuzzy, c++-format
+#| msgid "Nodes: "
+msgctxt "Tuning"
+msgid "Flares ({})"
+msgstr "Възлови точки/съединения (Nodes): "
+
+#: gui/panels/GUI_TopMenubar.cpp:1897
+#, c++-format
+msgctxt "Tuning"
+msgid "Exhausts ({})"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1928
+#, c++-format
+msgctxt "Tuning"
+msgid "Managed Materials ({})"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1959
+#, c++-format
+msgctxt "Tuning"
+msgid "Videocameras ({})"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1996
+msgctxt "Tuning"
+msgid "Flipped"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:2012
+msgctxt "Tuning"
+msgid "(Mirror prop - Left)"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:2013
+msgctxt "Tuning"
+msgid "(Mirror prop - Right)"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:2014
+msgctxt "Tuning"
+msgid "(Videocamera)"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:2205
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:1940
+#: gui/panels/GUI_TopMenubar.cpp:2206
 msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2012
+#: gui/panels/GUI_TopMenubar.cpp:2278
+#, c++-format
 msgctxt "TopMenubar"
 msgid "All physics paused, press {} to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2021
+#: gui/panels/GUI_TopMenubar.cpp:2287
+#, c++-format
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press {} to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2030
+#: gui/panels/GUI_TopMenubar.cpp:2296
 #, fuzzy
 #| msgid "Replay Mode"
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "\\\"Replay\\\" режим."
 
-#: gui/panels/GUI_TopMenubar.cpp:2034
+#: gui/panels/GUI_TopMenubar.cpp:2300
+#, c++-format
 msgctxt "TopMenubar"
 msgid "Live repair mode, hit '{}' to stop"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2043
+#: gui/panels/GUI_TopMenubar.cpp:2309
+#, c++-format
 msgctxt "TopMenubar"
 msgid "Quick repair ('{}' for Live repair)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2071
+#: gui/panels/GUI_TopMenubar.cpp:2337
 msgctxt "DirectionArrow"
 msgid "meter"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2090
+#: gui/panels/GUI_TopMenubar.cpp:2356 gui/panels/GUI_TopMenubar.cpp:2367
+#, c++-format
 msgctxt "TopMenubar"
-msgid "Terrain editing mode, press {} to save and exit"
+msgid "Terrain editing mode, press {} to exit"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2139
+#: gui/panels/GUI_TopMenubar.cpp:2418
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2169
+#: gui/panels/GUI_TopMenubar.cpp:2448
 #, fuzzy
 #| msgid "show / hide the console"
 msgctxt "LiveRepair"
 msgid "Show controls"
 msgstr "покажи/скрий конзолата"
 
-#: gui/panels/GUI_TopMenubar.cpp:2179
+#: gui/panels/GUI_TopMenubar.cpp:2458
 msgctxt "LiveRepair"
 msgid "Movement"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2183
+#: gui/panels/GUI_TopMenubar.cpp:2462
 msgctxt "LiveRepair"
 msgid "Forward"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2184
+#: gui/panels/GUI_TopMenubar.cpp:2463
 msgctxt "LiveRepair"
 msgid "Backward"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2186
+#: gui/panels/GUI_TopMenubar.cpp:2465
 msgctxt "LiveRepair"
 msgid "Left"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2187
+#: gui/panels/GUI_TopMenubar.cpp:2466
 msgctxt "LiveRepair"
 msgid "Right"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2189
+#: gui/panels/GUI_TopMenubar.cpp:2468
 msgctxt "LiveRepair"
 msgid "Up"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2190
+#: gui/panels/GUI_TopMenubar.cpp:2469
 msgctxt "LiveRepair"
 msgid "Down"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2193
+#: gui/panels/GUI_TopMenubar.cpp:2472
 msgctxt "LiveRepair"
 msgid "Rotation"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2197
+#: gui/panels/GUI_TopMenubar.cpp:2476
 #, fuzzy
 #| msgid "steer left"
 msgctxt "LiveRepair"
 msgid "Rot. left"
 msgstr "Завиване наляво"
 
-#: gui/panels/GUI_TopMenubar.cpp:2198
+#: gui/panels/GUI_TopMenubar.cpp:2477
 #, fuzzy
 #| msgid "steer right"
 msgctxt "LiveRepair"
 msgid "Rot. right"
 msgstr "Завиване надясно"
 
-#: gui/panels/GUI_TopMenubar.cpp:2201
+#: gui/panels/GUI_TopMenubar.cpp:2480
 msgctxt "LiveRepair"
 msgid "Modifiers"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2207
+#: gui/panels/GUI_TopMenubar.cpp:2486
 msgctxt "LiveRepair"
 msgid "Slow step"
 msgstr ""
 
 #. Left alt
-#: gui/panels/GUI_TopMenubar.cpp:2208
+#: gui/panels/GUI_TopMenubar.cpp:2487
 msgctxt "LiveRepair"
 msgid "Fast step"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2209
+#: gui/panels/GUI_TopMenubar.cpp:2488
 msgctxt "LiveRepair"
 msgid "10x step"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:2213
+#: gui/panels/GUI_TopMenubar.cpp:2492
 #, fuzzy
 #| msgid "toggle between transmission modes"
 msgctxt "LiveRepair"
 msgid "Reset mode"
 msgstr "Режими на скоростната кутия"
 
-#: gui/panels/GUI_TopMenubar.cpp:2216
+#: gui/panels/GUI_TopMenubar.cpp:2495
 #, fuzzy
 #| msgid "toggle between transmission modes"
 msgctxt "LiveRepair"
 msgid "Switch reset mode"
 msgstr "Режими на скоростната кутия"
 
-#: gui/panels/GUI_TopMenubar.cpp:2309
+#. notice text
+#: gui/panels/GUI_TopMenubar.cpp:2503
+msgctxt "TopMenubar"
+msgid "This terrain is read only."
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:2509
+msgctxt "TopMenubar"
+msgid "Import as editable project."
+msgstr ""
+
+#. Info text
+#: gui/panels/GUI_TopMenubar.cpp:2525
+msgctxt "TopMenubar"
+msgid "Use 'Simulation' menu to save changes."
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:2717
 msgctxt "Tuning"
 msgid "Protected"
 msgstr ""
 
-#: gui/panels/GUI_VehicleButtons.cpp:64
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:59
 msgctxt "VehicleButtons"
 msgid "Hover the mouse on the left to see controls"
 msgstr ""
 
-#. Align with the buttons
-#: gui/panels/GUI_VehicleButtons.cpp:82
-#, fuzzy
-#| msgid "Controls"
-msgctxt "VehicleButtons"
-msgid "Main Controls"
-msgstr "Контроли"
-
-#. Align with the buttons
-#: gui/panels/GUI_VehicleButtons.cpp:129
-msgctxt "VehicleButtons"
-msgid "Custom Lights"
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:179
+msgctxt "TPanel"
+msgid "Basics"
 msgstr ""
 
-#. Align with the buttons
-#: gui/panels/GUI_VehicleButtons.cpp:135
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:186
+msgctxt "TPanel"
+msgid "Stats"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:193
 #, fuzzy
 #| msgid "Commands: "
-msgctxt "VehicleButtons"
+msgctxt "TPanel"
 msgid "Commands"
 msgstr "Команди:"
 
-#: gui/panels/GUI_VehicleDescription.cpp:66
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:200
+msgctxt "TPanel"
+msgid "Diag"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:222
 #, fuzzy
 #| msgid "Description: "
 msgctxt "VehicleDescription"
-msgid "Description"
+msgid "Description text:"
 msgstr "Описание: "
 
-#: gui/panels/GUI_VehicleDescription.cpp:74
-#, fuzzy
-#| msgid "Commands: "
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:233
 msgctxt "VehicleDescription"
-msgid "Commands"
-msgstr "Команди:"
-
-#: gui/panels/GUI_VehicleDescription.cpp:104
-msgctxt "VehicleDescription"
-msgid "unknown function"
+msgid "Help image:"
 msgstr ""
 
-#: gui/panels/GUI_VehicleDescription.cpp:111
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:237
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:238
 msgctxt "VehicleDescription"
-msgid "Authors"
+msgid "Full size"
 msgstr ""
 
-#: gui/panels/GUI_VehicleDescription.cpp:120
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:264
 #, fuzzy
-#| msgid "no author information available"
+#| msgid "show / hide the console"
 msgctxt "VehicleDescription"
-msgid "(no author information available) "
-msgstr "Няма информация за автора"
+msgid "Command controls:"
+msgstr "покажи/скрий конзолата"
 
-#: main.cpp:365
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:266
+msgctxt "VehicleDescription"
+msgid "Hover controls for on-vehicle highlight"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:278
+msgctxt "VehicleDescription"
+msgid "~unlabeled~"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:397
+#, fuzzy
+#| msgid "Vehicle Type: "
+msgctxt "SimActorStats"
+msgid "Vehicle health: "
+msgstr "Вид превозно средство : "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:401
+#, fuzzy
+#| msgid "Vehicle Type: "
+msgctxt "SimActorStats"
+msgid "Vehicle destruction: "
+msgstr "Вид превозно средство : "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:405
+msgctxt "SimActorStats"
+msgid "Beam count: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:408
+msgctxt "SimActorStats"
+msgid "Broken beams count: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:411
+msgctxt "SimActorStats"
+msgid "Deformed beams count: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:414
+msgctxt "SimActorStats"
+msgid "Average deformation: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:417
+#, fuzzy
+#| msgid "Average FPS: "
+msgctxt "SimActorStats"
+msgid "Average stress: "
+msgstr "Средно кадри/сек : "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:423
+#, fuzzy
+#| msgid "Nodes: "
+msgctxt "SimActorStats"
+msgid "Node count: "
+msgstr "Възлови точки/съединения (Nodes): "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:426
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:432
+msgctxt "SimActorStats"
+msgid "Total mass: "
+msgstr ""
+
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:427
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:428
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:433
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:434
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:506
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:507
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:512
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:513
+#, fuzzy
+#| msgid ""
+msgctxt "SimActorStats"
+msgid ""
+msgstr ""
+"Project-Id-Version: Rigs of Rods\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-24 13:04+0100\n"
+"PO-Revision-Date: 2018-12-15 12:09+0000\n"
+"Last-Translator: Hiradur\n"
+"Language-Team: Bulgarian (http://www.transifex.com/rigsofrods/rigs-of-rods/"
+"language/bg/)\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:451
+msgctxt "SimActorStats"
+msgid "Engine RPM: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:454
+msgctxt "SimActorStats"
+msgid "Input shaft RPM: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:456
+#, fuzzy
+#| msgid "Current FPS: "
+msgctxt "SimActorStats"
+msgid "Current torque: "
+msgstr "Кадри/сек: "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:461
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:465
+#, fuzzy
+#| msgid "Current FPS: "
+msgctxt "SimActorStats"
+msgid "Current power: "
+msgstr "Кадри/сек: "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:468
+#, fuzzy
+#| msgid "Current FPS: "
+msgctxt "SimActorStats"
+msgid "Current gear: "
+msgstr "Кадри/сек: "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:470
+msgctxt "SimActorStats"
+msgid "Drive ratio: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:489
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:495
+#, fuzzy
+#| msgid "Wheels: "
+msgctxt "SimActorStats"
+msgid "Wheel speed: "
+msgstr "Колела : "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:491
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:497
+#, fuzzy
+#| msgid "Vehicle Type: "
+msgctxt "SimActorStats"
+msgid "Vehicle speed: "
+msgstr "Вид превозно средство : "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:505
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:511
+#, fuzzy
+#| msgid "Current FPS: "
+msgctxt "SimActorStats"
+msgid "Current speed: "
+msgstr "Кадри/сек: "
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:521
+msgctxt "SimActorStats"
+msgid "Altitude: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:526
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:543
+msgctxt "SimActorStats"
+msgid "Engine "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:556
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:560
+msgctxt "SimActorStats"
+msgid "Top speed: "
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:565
+msgctxt "SimActorStats"
+msgid "G-Forces:"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:575
+msgctxt "TopMenubar"
+msgid "Live diagnostic views:"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:576
+#, c++-format
+msgctxt "TopMenubar"
+msgid "(Toggle with {})"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:577
+#, c++-format
+msgctxt "TopMenubar"
+msgid "(Cycle with {})"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:580
+msgctxt "TopMenubar"
+msgid "Normal view"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:581
+msgctxt "TopMenubar"
+msgid "Skeleton view"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:582
+msgctxt "TopMenubar"
+msgid "Node details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:583
+msgctxt "TopMenubar"
+msgid "Beam details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:586
+msgctxt "TopMenubar"
+msgid "Wheel details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:590
+msgctxt "TopMenubar"
+msgid "Shock details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:594
+msgctxt "TopMenubar"
+msgid "Rotator details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:598
+msgctxt "TopMenubar"
+msgid "Slidenode details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:602
+msgctxt "TopMenubar"
+msgid "Submesh details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:606
+msgctxt "TopMenubar"
+msgid "Buoyancy details"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:617
+msgctxt "TopMenubar"
+msgid "Settings:"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:618
+msgctxt "TopMenubar"
+msgid "Hide broken beams"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:619
+msgctxt "TopMenubar"
+msgid "Hide beam stress"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:620
+msgctxt "TopMenubar"
+msgid "Hide wheels"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:621
+msgctxt "TopMenubar"
+msgid "Hide nodes"
+msgstr ""
+
+#: gui/panels/GUI_VehicleInfoTPanel.cpp:624
+msgctxt "TopMenubar"
+msgid "Hide wheel info"
+msgstr ""
+
+#: main.cpp:395
 msgid "Display mode changed to fullscreen"
 msgstr ""
 
-#: main.cpp:371
+#: main.cpp:410
 msgid "Display mode changed to windowed"
 msgstr ""
 
-#: main.cpp:460
+#: main.cpp:585
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr ""
 
-#: main.cpp:468
+#: main.cpp:601
 msgid "Network fatal error: "
 msgstr ""
 
-#: main.cpp:519
+#: main.cpp:688
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr ""
 
-#: main.cpp:587
+#: main.cpp:913
+#, c++-format
+msgctxt "RepositorySelector"
+msgid "Repo file installation requested: {}"
+msgstr ""
+
+#: main.cpp:967
 msgid "Loading resources"
 msgstr ""
 
-#: main.cpp:619
+#: main.cpp:1006
+#, c++-format
 msgctxt "ChatBox"
 msgid "Press {} to start chatting"
 msgstr ""
 
-#: main.cpp:675
+#: main.cpp:1081
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not read savegame file"
 msgstr "Файлът config е недостъпен за запис"
 
-#: main.cpp:688 physics/Savegame.cpp:267
+#: main.cpp:1094 physics/Savegame.cpp:268
 msgid "Error while loading scene: Terrain mismatch"
 msgstr ""
 
-#: main.cpp:922
+#: main.cpp:1631
 msgid "Entered terrain editing mode"
 msgstr ""
 
-#: main.cpp:924
+#: main.cpp:1634
+#, c++-format
 msgid "Press {} or middle mouse click to select an object"
 msgstr ""
 
-#: main.cpp:936
+#: main.cpp:1656
 msgid "Left terrain editing mode"
 msgstr ""
 
-#: main.cpp:1259
+#: main.cpp:1676
+msgid "Terrain files have been updated"
+msgstr ""
+
+#: main.cpp:2191
 msgid "An exception has occured!"
 msgstr ""
 
-#: main.cpp:1264
+#: main.cpp:2196
 msgid "An exception (std::runtime_error) has occured!"
 msgstr ""
 
@@ -3886,212 +4356,224 @@ msgstr ""
 msgid "left the game"
 msgstr "изход от играта"
 
-#: network/Network.cpp:347
+#: network/Network.cpp:352
 #, fuzzy
 #| msgid "exit the game"
 msgid "joined the game"
 msgstr "изход от играта"
 
 #. Mark connect thread as started
-#: network/Network.cpp:401
+#: network/Network.cpp:407
 msgctxt "Network"
 msgid "Starting..."
 msgstr ""
 
-#: network/Network.cpp:407
+#: network/Network.cpp:413
 msgid "Failed to launch connection thread"
 msgstr ""
 
-#: network/Network.cpp:425
+#: network/Network.cpp:433
 msgctxt "Network"
 msgid "Estabilishing connection..."
 msgstr ""
 
-#: network/Network.cpp:431
+#: network/Network.cpp:439
 msgid "Could not create connection"
 msgstr ""
 
-#: network/Network.cpp:435
+#: network/Network.cpp:443
 msgctxt "Network"
 msgid "Getting server info..."
 msgstr ""
 
-#: network/Network.cpp:438
+#: network/Network.cpp:446
 msgid "Establishing network session: error sending hello"
 msgstr ""
 
-#: network/Network.cpp:448
+#: network/Network.cpp:456
 msgid "Establishing network session: error getting server version"
 msgstr ""
 
-#: network/Network.cpp:455 network/Network.cpp:479
+#: network/Network.cpp:463 network/Network.cpp:484
 #, c-format
 msgid ""
 "Establishing network session: wrong server version, you are using version "
 "'%s' and the server is using '%s'"
 msgstr ""
 
-#: network/Network.cpp:464
+#: network/Network.cpp:470
 msgid "server uses a different protocol version"
 msgstr ""
 
-#: network/Network.cpp:469
+#: network/Network.cpp:475
 msgid "Establishing network session: error getting server hello"
 msgstr ""
 
-#: network/Network.cpp:485
+#: network/Network.cpp:489
 msgctxt "Network"
 msgid "Authorizing..."
 msgstr ""
 
-#: network/Network.cpp:506
+#: network/Network.cpp:509
 msgid "Establishing network session: error sending user info"
 msgstr ""
 
-#: network/Network.cpp:513
+#: network/Network.cpp:516
 msgid "Establishing network session: error getting server authorization"
 msgstr ""
 
-#: network/Network.cpp:519
+#: network/Network.cpp:522
 msgid "Establishing network session: sorry, server has too many players"
 msgstr ""
 
 #. Do NOT `disconnect()` the m_socket in this case - causes SocketW to terminate RoR.
-#: network/Network.cpp:525
+#: network/Network.cpp:528
 msgid "Establishing network session: sorry, you are banned!"
 msgstr ""
 
-#: network/Network.cpp:530
+#: network/Network.cpp:533
 msgid "Establishing network session: sorry, wrong password!"
 msgstr ""
 
-#: network/Network.cpp:535
+#: network/Network.cpp:538
 msgid "Establishing network session: sorry, wrong protocol version!"
 msgstr ""
 
-#: network/Network.cpp:541
+#: network/Network.cpp:543
+msgid "Establishing network session: sorry, this server requires a user token!"
+msgstr ""
+
+#: network/Network.cpp:551
 msgid "Establishing network session: sorry, unknown server response"
 msgstr ""
 
-#: network/Network.cpp:545
+#: network/Network.cpp:555
 msgctxt "Network"
 msgid "Finishing..."
 msgstr ""
 
-#: network/Network.cpp:798
+#: network/Network.cpp:863
 msgctxt "NetUserAuth"
 msgid "Admin"
 msgstr ""
 
-#: network/Network.cpp:799
+#: network/Network.cpp:864
 msgctxt "NetUserAuth"
 msgid "Mod"
 msgstr ""
 
-#: network/Network.cpp:800 network/Network.cpp:810
+#: network/Network.cpp:865 network/Network.cpp:875
 #, fuzzy
 #| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
 msgstr "лодка"
 
-#: network/Network.cpp:801
+#: network/Network.cpp:866
 msgctxt "NetUserAuth"
 msgid "Ranked"
 msgstr ""
 
-#: network/Network.cpp:802
+#: network/Network.cpp:867
 msgctxt "NetUserAuth"
 msgid "Banned"
 msgstr ""
 
-#: network/Network.cpp:803 network/Network.cpp:813
+#: network/Network.cpp:868 network/Network.cpp:878
 msgctxt "NetUserAuth"
 msgid "Guest"
 msgstr ""
 
-#: network/Network.cpp:808
+#: network/Network.cpp:873
 msgctxt "NetUserAuth"
 msgid "Server Administrator"
 msgstr ""
 
-#: network/Network.cpp:809
+#: network/Network.cpp:874
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
 msgstr ""
 
-#: network/Network.cpp:811
+#: network/Network.cpp:876
 msgctxt "NetUserAuth"
 msgid "Ranked user"
 msgstr ""
 
-#: network/Network.cpp:812
+#: network/Network.cpp:877
 msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr ""
 
-#: physics/Actor.cpp:443
+#: physics/Actor.cpp:442
 msgid " content mismatch: "
 msgstr ""
 
-#: physics/Actor.cpp:1319
+#: physics/Actor.cpp:1428
 msgid "No inter-axle differential installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1333 physics/Actor.cpp:1359
+#: physics/Actor.cpp:1442 physics/Actor.cpp:1468
 msgid "Axle "
 msgstr ""
 
-#: physics/Actor.cpp:1347
+#: physics/Actor.cpp:1456
 msgid "No inter-wheel differential installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1373
+#: physics/Actor.cpp:1482
 msgid "Transfercase switched to: "
 msgstr ""
 
-#: physics/Actor.cpp:1378
+#: physics/Actor.cpp:1487
 msgid "No transfercase installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1945
+#: physics/Actor.cpp:2038
 msgid "Actor is too big to be sent over the net."
 msgstr ""
 
-#: physics/Actor.cpp:1945
+#: physics/Actor.cpp:2038
 msgid "Network error!"
 msgstr ""
 
-#: physics/ActorManager.cpp:395
+#: physics/ActorManager.cpp:487
 msgid "spawned a new vehicle: "
 msgstr ""
 
-#: physics/ActorManager.cpp:405
+#: physics/ActorManager.cpp:500
 msgid "Mod not installed: "
 msgstr ""
 
-#: physics/ActorManager.cpp:1382 physics/ActorManager.cpp:1391
-#: physics/ActorManager.cpp:1409
+#: physics/ActorManager.cpp:1444
+#, c++-format
+msgctxt "Truck"
+msgid "Failed to export truck '{}' to resource group '{}', message: {}"
+msgstr ""
+
+#: physics/ActorManager.cpp:1470 physics/ActorManager.cpp:1479
+#: physics/ActorManager.cpp:1497
 msgid "New simulation speed: "
 msgstr ""
 
-#: physics/ActorManager.cpp:1403
+#: physics/ActorManager.cpp:1491
 msgid "Simulation speed reset."
 msgstr ""
 
-#: physics/ActorManager.cpp:1429
+#: physics/ActorManager.cpp:1517
 msgid "Physics paused"
 msgstr ""
 
-#: physics/ActorManager.cpp:1434
+#: physics/ActorManager.cpp:1522
 msgid "Physics unpaused"
 msgstr ""
 
-#: physics/ActorSpawner.cpp:134
+#: physics/ActorSpawner.cpp:133
+#, c++-format
 msgid "Could not load addon part '{}' (file '{}')"
 msgstr ""
 
-#: physics/ActorSpawner.cpp:139
+#: physics/ActorSpawner.cpp:138
+#, c++-format
 msgid "Requested addon part '{}' is not installed"
 msgstr ""
 
@@ -4115,59 +4597,55 @@ msgstr ""
 msgid "Locked"
 msgstr "заключен"
 
-#: physics/Savegame.cpp:205
+#: physics/Savegame.cpp:206
 msgctxt "QuickloadDialog"
 msgid "Load game?"
 msgstr ""
 
-#: physics/Savegame.cpp:206
+#: physics/Savegame.cpp:207
 msgctxt "QuickloadDialog"
 msgid "You will lose all unsaved progress!"
 msgstr ""
 
-#: physics/Savegame.cpp:210
+#: physics/Savegame.cpp:211
 msgctxt "QuickloadDialog"
 msgid "Load"
 msgstr ""
 
-#: physics/Savegame.cpp:216
+#: physics/Savegame.cpp:217
 #, fuzzy
 #| msgid "Cancel"
 msgctxt "QuickloadDialog"
 msgid "Cancel"
 msgstr "Отказ"
 
-#: physics/Savegame.cpp:247
+#: physics/Savegame.cpp:248
 msgid "Error while loading scene: File invalid or missing"
 msgstr ""
 
-#: physics/Savegame.cpp:253
+#: physics/Savegame.cpp:254
 msgid "Error while loading scene: File format mismatch"
 msgstr ""
 
-#: physics/Savegame.cpp:273
+#: physics/Savegame.cpp:274
 msgid "Error while loading scene: Too many vehicles"
 msgstr ""
 
-#: physics/Savegame.cpp:309
-msgid "Error while loading scene: Missing content (probably not installed)"
-msgstr ""
-
-#: physics/Savegame.cpp:415
+#: physics/Savegame.cpp:412
 msgid "Scene loaded"
 msgstr ""
 
-#: physics/Savegame.cpp:432
+#: physics/Savegame.cpp:429
 msgid "Error while saving scene: Too many vehicles"
 msgstr ""
 
-#: physics/Savegame.cpp:770
+#: physics/Savegame.cpp:774
 #, fuzzy
 #| msgid "Error while retrieving user space path"
 msgid "Error while saving scene"
 msgstr "Грешен път до файловете на потребителя (записи, логове, кеш и т.н.)"
 
-#: physics/Savegame.cpp:777
+#: physics/Savegame.cpp:781
 msgid "Scene saved"
 msgstr ""
 
@@ -4181,285 +4659,410 @@ msgid ""
 "ground_models.cfg to My Documents/Rigs of Rods/config"
 msgstr ""
 
-#: resources/CacheSystem.cpp:513
+#: resources/CacheSystem.cpp:245
+#, c++-format
+msgctxt "CacheSystem"
+msgid "Mod '{}' was not found in cache; candidates ({}) are:"
+msgstr ""
+
+#: resources/CacheSystem.cpp:252
+#, c++-format
+msgctxt "CacheSystem"
+msgid "* {}:{}"
+msgstr ""
+
+#: resources/CacheSystem.cpp:573
 #, fuzzy
 #| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
 msgstr "Не може да бъде управлявано"
 
-#: resources/CacheSystem.cpp:514
+#: resources/CacheSystem.cpp:574
 #, fuzzy
 #| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
 msgstr "камион"
 
-#: resources/CacheSystem.cpp:515
+#: resources/CacheSystem.cpp:575
 #, fuzzy
 #| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
 msgstr "самолет"
 
-#: resources/CacheSystem.cpp:516
+#: resources/CacheSystem.cpp:576
 #, fuzzy
 #| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
 msgstr "лодка"
 
-#: resources/CacheSystem.cpp:517
+#: resources/CacheSystem.cpp:577
 #, fuzzy
 #| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
 msgstr "машинен"
 
-#: resources/CacheSystem.cpp:518
+#: resources/CacheSystem.cpp:578
 msgctxt "MainSelector"
 msgid "A.I."
 msgstr ""
 
-#: resources/CacheSystem.cpp:1054
+#: resources/CacheSystem.cpp:1139
 msgid "Loading zips in group "
 msgstr "Зареждане на zip архиви в група "
 
-#: resources/CacheSystem.cpp:1251
+#: resources/CacheSystem.cpp:1438
+#, c++-format
 msgid "Failed to load asset pack '{}' (requested by '{}'): {}"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1257
+#: resources/CacheSystem.cpp:1444
+#, c++-format
 msgid "Asset pack '{}' (requested by '{}') not found"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1576
+#: resources/CacheSystem.cpp:1792
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Cannot create project '{}' - no source mod specified!"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1588
+#: resources/CacheSystem.cpp:1804
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Project directory '{}' already exists!"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1595
+#: resources/CacheSystem.cpp:1811
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Project directory '{}' could not be created!"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1708
+#: resources/CacheSystem.cpp:1939
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Could not copy file '{}' to project '{}', message: {}."
 msgstr ""
 
-#: resources/CacheSystem.cpp:1740
+#: resources/CacheSystem.cpp:1960
+#, fuzzy, c++-format
+#| msgid "Could not write config file"
 msgctxt "CacheSystem"
-msgid "Unexpected error creating project '{}', message: {}"
+msgid "Could not load project file '{}' to perform fixups."
+msgstr "Файлът config е недостъпен за запис"
+
+#: resources/CacheSystem.cpp:1993
+#, fuzzy, c++-format
+#| msgid "Could not write config file"
+msgctxt "CacheSystem"
+msgid "Could not save fixed-up project file '{}'."
+msgstr "Файлът config е недостъпен за запис"
+
+#: resources/CacheSystem.cpp:2031
+#, c++-format
+msgctxt "Tuning"
+msgid "Addon part '{}' is already equipped."
 msgstr ""
 
-#: resources/CacheSystem.cpp:1832
+#: resources/CacheSystem.cpp:2039
+#, c++-format
+msgctxt "Tuning"
+msgid "Addon part '{}' was not found in mod cache (probably not installed)."
+msgstr ""
+
+#: resources/CacheSystem.cpp:2198
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Error loading tuneup: file '{}', not found in mod cache"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1889
+#: resources/CacheSystem.cpp:2219
+msgctxt "CacheSystem"
+msgid "Error updating truck file: actor not found or disposed"
+msgstr ""
+
+#: resources/CacheSystem.cpp:2227
+msgctxt "CacheSystem"
+msgid "Error updating truck file: cache entry missing or not a project"
+msgstr ""
+
+#: resources/CacheSystem.cpp:2276
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Problem deleting project '{}' - could not delete file '{}'"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1899
+#: resources/CacheSystem.cpp:2286
+#, c++-format
 msgctxt "CacheSystem"
 msgid "Problem deleting project '{}' - could not delete directory '{}'"
 msgstr ""
 
-#: resources/CacheSystem.cpp:1912
+#: resources/CacheSystem.cpp:2473
+#, c++-format
 msgctxt "CacheSystem"
-msgid "Unexpected error deleting project '{}'"
+msgid "Could not delete resource bundle '{}': not found in mod cache."
+msgstr ""
+
+#: resources/CacheSystem.cpp:2486
+#, c++-format
+msgctxt "CacheSystem"
+msgid "Deleted {} '{}' because bundle {} is being removed."
+msgstr ""
+
+#: resources/CacheSystem.cpp:2500
+#, c++-format
+msgctxt "CacheSystem"
+msgid "Could not delete resource bundle file '{}' from disk."
+msgstr ""
+
+#: resources/CacheSystem.cpp:2510
+#, c++-format
+msgctxt "CacheSystem"
+msgid "Could not delete resource bundle '{}', message: {}."
 msgstr ""
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
-#: resources/CacheSystem.h:375
+#: resources/CacheSystem.h:397
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
 msgstr ""
 
-#: resources/CacheSystem.h:377
+#: resources/CacheSystem.h:399
 msgctxt "ModCategory"
 msgid "Street Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:378
+#: resources/CacheSystem.h:400
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:379
+#: resources/CacheSystem.h:401
 msgctxt "ModCategory"
 msgid "Offroad Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:380
+#: resources/CacheSystem.h:402
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:381
+#: resources/CacheSystem.h:403
 msgctxt "ModCategory"
 msgid "Bikes"
 msgstr ""
 
-#: resources/CacheSystem.h:382
+#: resources/CacheSystem.h:404
 msgctxt "ModCategory"
 msgid "Crawlers"
 msgstr ""
 
-#: resources/CacheSystem.h:384
+#: resources/CacheSystem.h:406
 msgctxt "ModCategory"
 msgid "Towercranes"
 msgstr ""
 
-#: resources/CacheSystem.h:385
+#: resources/CacheSystem.h:407
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
 msgstr ""
 
-#: resources/CacheSystem.h:386
+#: resources/CacheSystem.h:408
 msgctxt "ModCategory"
 msgid "Other cranes"
 msgstr ""
 
-#: resources/CacheSystem.h:388
+#: resources/CacheSystem.h:410
 msgctxt "ModCategory"
 msgid "Buses"
 msgstr ""
 
-#: resources/CacheSystem.h:389
+#: resources/CacheSystem.h:411
 msgctxt "ModCategory"
 msgid "Tractors"
 msgstr ""
 
-#: resources/CacheSystem.h:390
+#: resources/CacheSystem.h:412
 msgctxt "ModCategory"
 msgid "Forklifts"
 msgstr ""
 
-#: resources/CacheSystem.h:391
+#: resources/CacheSystem.h:413
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:392
+#: resources/CacheSystem.h:414
 msgctxt "ModCategory"
 msgid "Transport Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:393
+#: resources/CacheSystem.h:415
 msgctxt "ModCategory"
 msgid "Racing Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:394
+#: resources/CacheSystem.h:416
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:396
+#: resources/CacheSystem.h:418
 #, fuzzy
 #| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
 msgstr "лодка"
 
-#: resources/CacheSystem.h:398
+#: resources/CacheSystem.h:420
 msgctxt "ModCategory"
 msgid "Helicopters"
 msgstr ""
 
-#: resources/CacheSystem.h:399
+#: resources/CacheSystem.h:421
 msgctxt "ModCategory"
 msgid "Aircraft"
 msgstr ""
 
-#: resources/CacheSystem.h:401
+#: resources/CacheSystem.h:423
 msgctxt "ModCategory"
 msgid "Trailers"
 msgstr ""
 
-#: resources/CacheSystem.h:402
+#: resources/CacheSystem.h:424
 msgctxt "ModCategory"
 msgid "Other Loads"
 msgstr ""
 
 #. terrains
-#: resources/CacheSystem.h:405
+#: resources/CacheSystem.h:427
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
 msgstr "Зареждане на терен"
 
-#: resources/CacheSystem.h:407
+#: resources/CacheSystem.h:429
 msgctxt "ModCategory"
 msgid "Container"
 msgstr ""
 
-#: resources/CacheSystem.h:409
+#: resources/CacheSystem.h:431
 msgctxt "ModCategory"
 msgid "Submarine"
 msgstr ""
 
+#. dashboards
+#: resources/CacheSystem.h:434
+msgctxt "ModCategory"
+msgid "Dashboards - Generic"
+msgstr ""
+
+#: resources/CacheSystem.h:435
+msgctxt "ModCategory"
+msgid "Dashboards - Truck"
+msgstr ""
+
+#: resources/CacheSystem.h:436
+msgctxt "ModCategory"
+msgid "Dashboards - Boat"
+msgstr ""
+
+#. gadgets
+#: resources/CacheSystem.h:439
+msgctxt "ModCategory"
+msgid "Gadgets - Generic"
+msgstr ""
+
+#: resources/CacheSystem.h:440
+msgctxt "ModCategory"
+msgid "Gadgets - Actor"
+msgstr ""
+
+#: resources/CacheSystem.h:441
+#, fuzzy
+#| msgid "Loading Terrain"
+msgctxt "ModCategory"
+msgid "Gadgets - Terrain"
+msgstr "Зареждане на терен"
+
 #. note: these categories are NOT in the repository:
-#: resources/CacheSystem.h:412
+#: resources/CacheSystem.h:444
 msgctxt "ModCategory"
 msgid "Official Terrains"
 msgstr ""
 
-#: resources/CacheSystem.h:413
+#: resources/CacheSystem.h:445
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Night Terrains"
 msgstr "Зареждане на терен"
 
-#: resources/CacheSystem.h:415
+#: resources/CacheSystem.h:447
 msgctxt "ModCategory"
 msgid "Projects"
 msgstr ""
 
-#: resources/CacheSystem.h:416
+#: resources/CacheSystem.h:448
 msgctxt "ModCategory"
 msgid "Tuneups"
 msgstr ""
 
 #. do not use category numbers above 9000!
-#: resources/CacheSystem.h:419
+#: resources/CacheSystem.h:451
 msgctxt "ModCategory"
 msgid "Unsorted"
 msgstr ""
 
-#: resources/CacheSystem.h:420
+#: resources/CacheSystem.h:452
 msgctxt "ModCategory"
 msgid "All"
 msgstr ""
 
-#: resources/CacheSystem.h:421
+#: resources/CacheSystem.h:453
 msgctxt "ModCategory"
 msgid "Fresh"
 msgstr ""
 
-#: resources/CacheSystem.h:422
+#: resources/CacheSystem.h:454
 msgctxt "ModCategory"
 msgid "Hidden"
 msgstr ""
 
-#: scripting/GameScript.cpp:875
-msgid "using Online API..."
+#: resources/addonpart_fileformat/AddonPartFileFormat.cpp:976
+msgctxt "Tuning"
+msgid "Cannot install addon part, conflicts were detected."
 msgstr ""
 
-#: scripting/GameScript.cpp:911
-msgid "Cannot use Online API in this build (CURL not available)"
+#: resources/addonpart_fileformat/AddonPartFileFormat.cpp:977
+#, c++-format
+msgctxt "Tuning"
+msgid "Requested addon part: '{}' (file '{}')."
+msgstr ""
+
+#: resources/addonpart_fileformat/AddonPartFileFormat.cpp:979
+#, c++-format
+msgctxt "Tuning"
+msgid "Total conflicts: {}."
+msgstr ""
+
+#: resources/addonpart_fileformat/AddonPartFileFormat.cpp:984
+#, c++-format
+msgctxt "Tuning"
+msgid "[{}/{}] '{}' (file '{}') conflicts with '{}' #{}."
+msgstr ""
+
+#: resources/addonpart_fileformat/AddonPartFileFormat.cpp:992
+msgctxt "Tuning"
+msgid "OK"
 msgstr ""
 
 #: system/AppCommandLine.cpp:165
@@ -4508,288 +5111,305 @@ msgstr ""
 msgid "This terrain does not have water."
 msgstr ""
 
-#: system/ConsoleCmd.cpp:117
+#: system/ConsoleCmd.cpp:116
 msgid "Water level set to: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:126
+#: system/ConsoleCmd.cpp:125
 msgid "Get elevation of terrain at current position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:150
+#: system/ConsoleCmd.cpp:149
 msgid "Terrain height at position: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:160
+#: system/ConsoleCmd.cpp:159
 msgid "spawnobject  - spawn a object at the player position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:179 system/ConsoleCmd.cpp:411
+#: system/ConsoleCmd.cpp:178 system/ConsoleCmd.cpp:438
 msgid "Missing parameter: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:187 terrain/TerrainEditor.cpp:101
+#: system/ConsoleCmd.cpp:186 terrain/TerrainEditor.cpp:102
 msgid "Spawned object at position: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:192
+#: system/ConsoleCmd.cpp:191
 msgid "Could not spawn object"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:208
+#: system/ConsoleCmd.cpp:207
 msgid "log - toggles log output on the console"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:229
+#: system/ConsoleCmd.cpp:228
 msgid "ver - shows the Rigs of Rods version"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:248
+#: system/ConsoleCmd.cpp:247
 msgid "pos - outputs the current position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:263
+#: system/ConsoleCmd.cpp:262
 msgid "Character position: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:268
+#: system/ConsoleCmd.cpp:267
 msgid "Vehicle position: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:278
+#: system/ConsoleCmd.cpp:277
 msgid "goto <x> <y> <z> - jumps to the mentioned position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:292
+#: system/ConsoleCmd.cpp:291
 msgid "usage: goto x y z"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:303
+#: system/ConsoleCmd.cpp:302
 msgid "Character position set to: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:309
+#: system/ConsoleCmd.cpp:308
 msgid "Vehicle position set to: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:321
+#: system/ConsoleCmd.cpp:320
 msgid "Run AngelScript code snippet"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:352 system/ConsoleCmd.cpp:429
+#: system/ConsoleCmd.cpp:351 system/ConsoleCmd.cpp:456
 msgid "Scripting disabled in this build"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:361
+#: system/ConsoleCmd.cpp:360
+msgid "speedofsound - outputs the current speed of sound"
+msgstr ""
+
+#: system/ConsoleCmd.cpp:374
+msgid "unable to get sound manager"
+msgstr ""
+
+#: system/ConsoleCmd.cpp:378
+#, fuzzy
+#| msgid "Current FPS: "
+msgid "Current speed of sound: "
+msgstr "Кадри/сек: "
+
+#: system/ConsoleCmd.cpp:388
 msgid "quit - exit Rigs of Rods"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:372
+#: system/ConsoleCmd.cpp:399
 msgid "help - information on commands (this)"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:377
+#: system/ConsoleCmd.cpp:404
 msgid "Available commands:"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:390
+#: system/ConsoleCmd.cpp:417
 msgid "Tips:"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:392
+#: system/ConsoleCmd.cpp:419
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:399
+#: system/ConsoleCmd.cpp:426
 #, fuzzy
 #| msgid "Description: "
 msgid "Runs an AngelScript file"
 msgstr "Описание: "
 
-#: system/ConsoleCmd.cpp:419
+#: system/ConsoleCmd.cpp:446
 msgid ""
 "Failed to load script. See 'Angelscript.log' or use console command `log` "
 "and retry."
 msgstr ""
 
-#: system/ConsoleCmd.cpp:424
+#: system/ConsoleCmd.cpp:451
+#, c++-format
 msgid "Script '{}' running with ID '{}'"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:442
+#: system/ConsoleCmd.cpp:469
 msgid "Print cvars with one of <expr> in name"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:481
+#: system/ConsoleCmd.cpp:508
 msgid "Get or set value of existing CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:509
+#: system/ConsoleCmd.cpp:536
 msgid "No such CVar: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:571
+#: system/ConsoleCmd.cpp:598
 msgid "Set or create string CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:577
+#: system/ConsoleCmd.cpp:604
 msgid "Set or create boolean CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:583
+#: system/ConsoleCmd.cpp:610
 msgid "Set or create integer CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:589
+#: system/ConsoleCmd.cpp:616
 msgid "Set or create real-number CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:595
+#: system/ConsoleCmd.cpp:622
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:632
+#: system/ConsoleCmd.cpp:659
+#, c++-format
 msgid "No such message type: {}"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:683
+#: system/ConsoleCmd.cpp:711
 msgid ""
 "Using slashes before commands are deprecated, you can now type command "
 "without any slashes"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:706
+#: system/ConsoleCmd.cpp:741
 msgid "unknown command: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:722
+#: system/ConsoleCmd.cpp:757
 msgid "Only allowed when simulation is running"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:726
+#: system/ConsoleCmd.cpp:761
 msgid "Not allowed in current app state"
 msgstr ""
 
-#: terrain/Terrain.cpp:150
-msgid "Initializing Shadow Subsystem"
-msgstr ""
-
-#: terrain/Terrain.cpp:153
-msgid "Initializing Geometry Subsystem"
-msgstr ""
-
-#: terrain/Terrain.cpp:156
+#: terrain/Terrain.cpp:157
 msgid "Initializing Object Subsystem"
 msgstr ""
 
 #. *.odef files
-#: terrain/Terrain.cpp:159
+#: terrain/Terrain.cpp:160
+msgid "Initializing Shadow Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:163
+msgid "Initializing Geometry Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:166
 msgid "Initializing Camera Subsystem"
 msgstr ""
 
 #. sky, must come after camera due to m_sight_range
-#: terrain/Terrain.cpp:163
+#: terrain/Terrain.cpp:170
 msgid "Initializing Sky Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:166
+#: terrain/Terrain.cpp:173
 msgid "Initializing Light Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:171
+#: terrain/Terrain.cpp:178
 msgid "Initializing Fog Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:175
+#: terrain/Terrain.cpp:182
 msgid "Initializing Vegetation Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:180
+#: terrain/Terrain.cpp:187
 msgid "Loading Terrain Geometry"
 msgstr ""
 
-#: terrain/Terrain.cpp:186
+#: terrain/Terrain.cpp:193
 msgid "Initializing Collision Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:189
+#: terrain/Terrain.cpp:196
 msgid "Initializing Script Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:192
+#: terrain/Terrain.cpp:200
 msgid "Initializing Water Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:195
+#: terrain/Terrain.cpp:203
 msgid "Loading Terrain Objects"
 msgstr ""
 
-#: terrain/Terrain.cpp:201
+#: terrain/Terrain.cpp:209
 msgid "Initializing terrain light properties"
 msgstr ""
 
 #. *.terrn2 file feature
 #. Particle effects
-#: terrain/Terrain.cpp:209
+#: terrain/Terrain.cpp:217
 msgid "Initializing Overview Map Subsystem"
 msgstr ""
 
-#: terrain/Terrain.cpp:213
+#: terrain/Terrain.cpp:221
 #, fuzzy
 #| msgid "Loading Terrain"
 msgid "Loading Terrain Actors"
 msgstr "Зареждане на терен"
 
-#: terrain/TerrainEditor.cpp:126 terrain/TerrainEditor.cpp:129
+#: terrain/TerrainEditor.cpp:127 terrain/TerrainEditor.cpp:130
 msgid "ry"
 msgstr ""
 
-#: terrain/TerrainEditor.cpp:134
+#: terrain/TerrainEditor.cpp:135
 msgid "rz"
 msgstr ""
 
-#: terrain/TerrainEditor.cpp:139
+#: terrain/TerrainEditor.cpp:140
 msgid "rx"
 msgstr ""
 
-#: terrain/TerrainEditor.cpp:142
+#: terrain/TerrainEditor.cpp:143
 msgid "Rotating: "
 msgstr ""
 
-#: terrain/TerrainEditor.cpp:148
+#: terrain/TerrainEditor.cpp:149
 msgid "Disabled object tracking"
 msgstr ""
 
-#: terrain/TerrainEditor.cpp:148
+#: terrain/TerrainEditor.cpp:149
 msgid "Enabled object tracking"
 msgstr ""
 
-#: terrain/TerrainEditor.cpp:153
+#: terrain/TerrainEditor.cpp:404
 msgid "Selected object: ["
 msgstr ""
 
 #. sync load since we want everything in place when we start
-#: terrain/TerrainGeometryManager.cpp:328
+#: terrain/TerrainGeometryManager.cpp:329
 #, fuzzy
 #| msgid "Loading Terrain"
 msgid "Loading terrain pages ..."
 msgstr "Зареждане на терен"
 
-#: terrain/TerrainGeometryManager.cpp:375
+#: terrain/TerrainGeometryManager.cpp:376
 msgid "Saving all terrain pages ..."
 msgstr ""
 
-#: terrain/TerrainObjectManager.cpp:558
-#, fuzzy
+#: terrain/TerrainObjectManager.cpp:624
+#, fuzzy, c++-format
 #| msgid "Could not write config file"
 msgid "Could not load file '{}'"
 msgstr "Файлът config е недостъпен за запис"
 
-#: terrain/TerrainObjectManager.cpp:583
+#: terrain/TerrainObjectManager.cpp:649
+#, c++-format
 msgid "Could not load mesh '{}' (used by object '{}')"
 msgstr ""
 
-#: utils/ErrorUtils.cpp:45
+#: utils/ErrorUtils.cpp:49
 msgid ""
 "An internal error occured in Rigs of Rods.\n"
 "\n"
@@ -4797,7 +5417,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: utils/ErrorUtils.cpp:46
+#: utils/ErrorUtils.cpp:50
 msgid "FATAL ERROR"
 msgstr ""
 
@@ -5484,7 +6104,7 @@ msgctxt "InputEvent"
 msgid "hold to start the engine"
 msgstr "Задръжте, за да запалите двигателя"
 
-#: utils/InputEngine.cpp:156 utils/InputEngine.cpp:215
+#: utils/InputEngine.cpp:156 utils/InputEngine.cpp:218
 #, fuzzy
 #| msgid "steer left"
 msgctxt "InputEvent"
@@ -5492,8 +6112,8 @@ msgid "steer left"
 msgstr "Завиване наляво"
 
 #. Airplane
-#: utils/InputEngine.cpp:157 utils/InputEngine.cpp:203
-#: utils/InputEngine.cpp:216
+#: utils/InputEngine.cpp:157 utils/InputEngine.cpp:206
+#: utils/InputEngine.cpp:219
 #, fuzzy
 #| msgid "steer right"
 msgctxt "InputEvent"
@@ -5603,334 +6223,349 @@ msgid "manual clutch (for manual transmission)"
 msgstr "Ръчен съединител (за ръчна скоростна кутия)"
 
 #: utils/InputEngine.cpp:175
+msgctxt "InputEvent"
+msgid "manual clutch with 25 percent pedal input"
+msgstr ""
+
+#: utils/InputEngine.cpp:176
+msgctxt "InputEvent"
+msgid "manual clutch with 50 percent pedal input"
+msgstr ""
+
+#: utils/InputEngine.cpp:177
 #, fuzzy
 #| msgid "shift one gear down in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
 msgstr "Превключване на по-долна предавка в ръчен режим"
 
-#: utils/InputEngine.cpp:176
+#: utils/InputEngine.cpp:178
 #, fuzzy
 #| msgid "shift to neutral gear in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
 msgstr "Превключване на неутрална предавка в ръчен режим"
 
-#: utils/InputEngine.cpp:177
+#: utils/InputEngine.cpp:179
 #, fuzzy
 #| msgid "shift one gear up in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
 msgstr "Превключване на по-горна предавка в ръчен режим"
 
-#: utils/InputEngine.cpp:178
+#: utils/InputEngine.cpp:180
 #, fuzzy
 #| msgid "shift directly to reverse gear"
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
 msgstr "Превключване направо задна предавка"
 
-#: utils/InputEngine.cpp:179
+#: utils/InputEngine.cpp:181
 #, fuzzy
 #| msgid "shift directly to first gear"
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
 msgstr "Превключване направо на 1-ва предавка"
 
-#: utils/InputEngine.cpp:180
+#: utils/InputEngine.cpp:182
 #, fuzzy
 #| msgid "shift directly to second gear"
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
 msgstr "Превключване направо на 2-ра предавка"
 
-#: utils/InputEngine.cpp:181
+#: utils/InputEngine.cpp:183
 #, fuzzy
 #| msgid "shift directly to third gear"
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
 msgstr "Превключване направо на 3-та предавка"
 
-#: utils/InputEngine.cpp:182
+#: utils/InputEngine.cpp:184
 #, fuzzy
 #| msgid "shift directly to fourth gear"
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
 msgstr "Превключване направо на 4-та предавка"
 
-#: utils/InputEngine.cpp:183
+#: utils/InputEngine.cpp:185
 #, fuzzy
 #| msgid "shift directly to 5th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
 msgstr "Превключване направо на 5-та предавка"
 
-#: utils/InputEngine.cpp:184
+#: utils/InputEngine.cpp:186
 #, fuzzy
 #| msgid "shift directly to 6th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
 msgstr "Превключване направо на 6-та предавка"
 
-#: utils/InputEngine.cpp:185
+#: utils/InputEngine.cpp:187
 #, fuzzy
 #| msgid "shift directly to 7th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
 msgstr "Превключване направо на 7-ма предавка"
 
-#: utils/InputEngine.cpp:186
+#: utils/InputEngine.cpp:188
 #, fuzzy
 #| msgid "shift directly to 8th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
 msgstr "Превключване направо на 8-ма предавка"
 
-#: utils/InputEngine.cpp:187
+#: utils/InputEngine.cpp:189
 #, fuzzy
 #| msgid "shift directly to 9th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
 msgstr "Превключване направо на 9-та предавка"
 
-#: utils/InputEngine.cpp:188
+#: utils/InputEngine.cpp:190
 #, fuzzy
 #| msgid "shift directly to 10th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
 msgstr "Превключване направо на 10-та предавка"
 
-#: utils/InputEngine.cpp:189
+#: utils/InputEngine.cpp:191
 #, fuzzy
 #| msgid "shift directly to 11th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
 msgstr "Превключване направо на 11-та предавка"
 
-#: utils/InputEngine.cpp:190
+#: utils/InputEngine.cpp:192
 #, fuzzy
 #| msgid "shift directly to 12th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
 msgstr "Превключване направо на 12-та предавка"
 
-#: utils/InputEngine.cpp:191
+#: utils/InputEngine.cpp:193
 #, fuzzy
 #| msgid "shift directly to 13th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
 msgstr "Превключване направо на 13-та предавка"
 
-#: utils/InputEngine.cpp:192
+#: utils/InputEngine.cpp:194
 #, fuzzy
 #| msgid "shift directly to 14th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
 msgstr "Превключване направо на 14-та предавка"
 
-#: utils/InputEngine.cpp:193
+#: utils/InputEngine.cpp:195
 #, fuzzy
 #| msgid "shift directly to 15th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
 msgstr "Превключване направо на 15-та предавка"
 
-#: utils/InputEngine.cpp:194
+#: utils/InputEngine.cpp:196
 #, fuzzy
 #| msgid "shift directly to 16th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
 msgstr "Превключване направо на 16-та предавка"
 
-#: utils/InputEngine.cpp:195
+#: utils/InputEngine.cpp:197
 #, fuzzy
 #| msgid "shift directly to 17th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
 msgstr "Превключване направо на 17-та предавка"
 
-#: utils/InputEngine.cpp:196
+#: utils/InputEngine.cpp:198
 #, fuzzy
 #| msgid "shift directly to 18th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
 msgstr "Превключване направо на 18-та предавка"
 
-#: utils/InputEngine.cpp:197
+#: utils/InputEngine.cpp:199
 #, fuzzy
 #| msgid "sets low range (1-6) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
 msgstr "определя с малък обхват (6.1) за H-вал"
 
-#: utils/InputEngine.cpp:198
+#: utils/InputEngine.cpp:200
 #, fuzzy
 #| msgid "sets middle range (7-12) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
 msgstr "определя средата диапазон (7-12) за H-вал"
 
-#: utils/InputEngine.cpp:199
+#: utils/InputEngine.cpp:201
 #, fuzzy
 #| msgid "sets high range (13-18) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
 msgstr "поставя високи диапазон (13-18) за H-вал"
 
-#: utils/InputEngine.cpp:200
+#: utils/InputEngine.cpp:202
+msgctxt "InputEvent"
+msgid "cycle through gear ranges"
+msgstr ""
+
+#: utils/InputEngine.cpp:203
 #, fuzzy
 #| msgid "toggle between transmission modes"
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
 msgstr "Режими на скоростната кутия"
 
-#: utils/InputEngine.cpp:204
+#: utils/InputEngine.cpp:207
 #, fuzzy
 #| msgid "normal brake for an aircraft"
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
 msgstr "Обикновена спирачка за летящо превозно средство"
 
-#: utils/InputEngine.cpp:205
+#: utils/InputEngine.cpp:208
 #, fuzzy
 #| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
 msgstr "Снижаване на елеватора в летящо превозно средство"
 
-#: utils/InputEngine.cpp:206
+#: utils/InputEngine.cpp:209
 #, fuzzy
 #| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
 msgstr "Вдигане на елеватора в летящо превозно средство"
 
-#: utils/InputEngine.cpp:207
+#: utils/InputEngine.cpp:210
 #, fuzzy
 #| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
 msgstr "Напълно спуснати задкрилки"
 
-#: utils/InputEngine.cpp:208
+#: utils/InputEngine.cpp:211
 #, fuzzy
 #| msgid "one step less flaps."
 msgctxt "InputEvent"
 msgid "one step less flaps."
 msgstr "Вдигане на задкрилките с една степен."
 
-#: utils/InputEngine.cpp:209
+#: utils/InputEngine.cpp:212
 #, fuzzy
 #| msgid "one step more flaps."
 msgctxt "InputEvent"
 msgid "one step more flaps."
 msgstr "Спускане на задкрилките с една стъпка повече."
 
-#: utils/InputEngine.cpp:210
+#: utils/InputEngine.cpp:213
 #, fuzzy
 #| msgid "no flaps."
 msgctxt "InputEvent"
 msgid "no flaps."
 msgstr "Без задкрилки."
 
-#: utils/InputEngine.cpp:211
+#: utils/InputEngine.cpp:214
 #, fuzzy
 #| msgid "airplane parking brake."
 msgctxt "InputEvent"
 msgid "airplane parking brake."
 msgstr "\\\"Ръчна спирачка\\\" на самолет"
 
-#: utils/InputEngine.cpp:212
+#: utils/InputEngine.cpp:215
 #, fuzzy
 #| msgid "reverse the turboprops"
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
 msgstr "Обръщане на турбореактивния двигател"
 
-#: utils/InputEngine.cpp:213
+#: utils/InputEngine.cpp:216
 #, fuzzy
 #| msgid "rudder left"
 msgctxt "InputEvent"
 msgid "rudder left"
 msgstr "Завой наляво с руля"
 
-#: utils/InputEngine.cpp:214
+#: utils/InputEngine.cpp:217
 #, fuzzy
 #| msgid "rudder right"
 msgctxt "InputEvent"
 msgid "rudder right"
 msgstr "Завой надясно с руля"
 
-#: utils/InputEngine.cpp:217 utils/InputEngine.cpp:236
+#: utils/InputEngine.cpp:220 utils/InputEngine.cpp:239
 msgctxt "InputEvent"
 msgid ""
 "throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)"
 msgstr ""
 
-#: utils/InputEngine.cpp:218
+#: utils/InputEngine.cpp:221
 #, fuzzy
 #| msgid "decreases the airplane thrust"
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
 msgstr "Намаляване на тягата на летящо превозно средство"
 
-#: utils/InputEngine.cpp:219
+#: utils/InputEngine.cpp:222
 #, fuzzy
 #| msgid "full thrust"
 msgctxt "InputEvent"
 msgid "full thrust"
 msgstr "Пълна тяга"
 
-#: utils/InputEngine.cpp:220 utils/InputEngine.cpp:231
+#: utils/InputEngine.cpp:223 utils/InputEngine.cpp:234
 #, fuzzy
 #| msgid "no thrust"
 msgctxt "InputEvent"
 msgid "no thrust"
 msgstr "Без двигателна сила"
 
-#: utils/InputEngine.cpp:221
+#: utils/InputEngine.cpp:224
 #, fuzzy
 #| msgid "increase the airplane thrust"
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
 msgstr "Усилване тягата на летящо превозно средство"
 
-#: utils/InputEngine.cpp:222
+#: utils/InputEngine.cpp:225
 #, fuzzy
 #| msgid "switch all engines on / off"
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
 msgstr "Вкл./Изкл. всички двигатели"
 
-#: utils/InputEngine.cpp:223
+#: utils/InputEngine.cpp:226
 #, fuzzy
 #| msgid "no airbrakes"
 msgctxt "InputEvent"
 msgid "no airbrakes"
 msgstr "Без въздушна спирачка"
 
-#: utils/InputEngine.cpp:224
+#: utils/InputEngine.cpp:227
 #, fuzzy
 #| msgid "full airbrakes"
 msgctxt "InputEvent"
 msgid "full airbrakes"
 msgstr "Максимум въздушна спирачка"
 
-#: utils/InputEngine.cpp:225
+#: utils/InputEngine.cpp:228
 #, fuzzy
 #| msgid "less airbrakes"
 msgctxt "InputEvent"
 msgid "less airbrakes"
 msgstr "По-слаба въздушна спирачка"
 
-#: utils/InputEngine.cpp:226
+#: utils/InputEngine.cpp:229
 #, fuzzy
 #| msgid "more airbrakes"
 msgctxt "InputEvent"
 msgid "more airbrakes"
 msgstr "повече въздушни спирачки"
 
-#: utils/InputEngine.cpp:227
+#: utils/InputEngine.cpp:230
 #, fuzzy
 #| msgid "airplane throttle"
 msgctxt "InputEvent"
@@ -5938,49 +6573,49 @@ msgid "airplane throttle"
 msgstr "Самолетна тяга"
 
 #. Boat
-#: utils/InputEngine.cpp:230
+#: utils/InputEngine.cpp:233
 #, fuzzy
 #| msgid "center the rudder"
 msgctxt "InputEvent"
 msgid "center the rudder"
 msgstr "Центриране на руля"
 
-#: utils/InputEngine.cpp:232
+#: utils/InputEngine.cpp:235
 #, fuzzy
 #| msgid "steer left a step"
 msgctxt "InputEvent"
 msgid "steer left a step"
 msgstr "Завиване наляво 1 стъпка"
 
-#: utils/InputEngine.cpp:233
+#: utils/InputEngine.cpp:236
 #, fuzzy
 #| msgid "steer left (analog value!)"
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
 msgstr "Завиване наляво (аналогова стойност!)"
 
-#: utils/InputEngine.cpp:234
+#: utils/InputEngine.cpp:237
 #, fuzzy
 #| msgid "steer right a step"
 msgctxt "InputEvent"
 msgid "steer right a step"
 msgstr "Завиване надясно 1 стъпка"
 
-#: utils/InputEngine.cpp:235
+#: utils/InputEngine.cpp:238
 #, fuzzy
 #| msgid "steer right (analog value!)"
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
 msgstr "Завиване надясно (аналогова стойност!)"
 
-#: utils/InputEngine.cpp:237
+#: utils/InputEngine.cpp:240
 #, fuzzy
 #| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
 msgstr "Намаляване на газта"
 
-#: utils/InputEngine.cpp:238
+#: utils/InputEngine.cpp:241
 #, fuzzy
 #| msgid "increase throttle"
 msgctxt "InputEvent"
@@ -5988,588 +6623,588 @@ msgid "increase throttle"
 msgstr "Повече газ"
 
 #. Commands
-#: utils/InputEngine.cpp:241
+#: utils/InputEngine.cpp:244
 #, fuzzy
 #| msgid "Command 1"
 msgctxt "InputEvent"
 msgid "Command 1"
 msgstr "Команда 1"
 
-#: utils/InputEngine.cpp:242
+#: utils/InputEngine.cpp:245
 #, fuzzy
 #| msgid "Command 2"
 msgctxt "InputEvent"
 msgid "Command 2"
 msgstr "Команда 2"
 
-#: utils/InputEngine.cpp:243
+#: utils/InputEngine.cpp:246
 #, fuzzy
 #| msgid "Command 3"
 msgctxt "InputEvent"
 msgid "Command 3"
 msgstr "Команда 3"
 
-#: utils/InputEngine.cpp:244
+#: utils/InputEngine.cpp:247
 #, fuzzy
 #| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 4"
 msgstr "Команда 4"
 
-#: utils/InputEngine.cpp:245
+#: utils/InputEngine.cpp:248
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 5"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:246
+#: utils/InputEngine.cpp:249
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 6"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:247
+#: utils/InputEngine.cpp:250
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 7"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:248
+#: utils/InputEngine.cpp:251
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 8"
 msgstr "Команда 8"
 
-#: utils/InputEngine.cpp:249
+#: utils/InputEngine.cpp:252
 #, fuzzy
 #| msgid "Command 9"
 msgctxt "InputEvent"
 msgid "Command 9"
 msgstr "Команда 9"
 
-#: utils/InputEngine.cpp:250
+#: utils/InputEngine.cpp:253
 #, fuzzy
 #| msgid "Command 10"
 msgctxt "InputEvent"
 msgid "Command 10"
 msgstr "Команда 10"
 
-#: utils/InputEngine.cpp:251
+#: utils/InputEngine.cpp:254
 #, fuzzy
 #| msgid "Command 11"
 msgctxt "InputEvent"
 msgid "Command 11"
 msgstr "Команда 11"
 
-#: utils/InputEngine.cpp:252
+#: utils/InputEngine.cpp:255
 #, fuzzy
 #| msgid "Command 12"
 msgctxt "InputEvent"
 msgid "Command 12"
 msgstr "Команда 12"
 
-#: utils/InputEngine.cpp:253
+#: utils/InputEngine.cpp:256
 #, fuzzy
 #| msgid "Command 13"
 msgctxt "InputEvent"
 msgid "Command 13"
 msgstr "Команда 13"
 
-#: utils/InputEngine.cpp:254
+#: utils/InputEngine.cpp:257
 #, fuzzy
 #| msgid "Command 14"
 msgctxt "InputEvent"
 msgid "Command 14"
 msgstr "Команда 14"
 
-#: utils/InputEngine.cpp:255
+#: utils/InputEngine.cpp:258
 #, fuzzy
 #| msgid "Command 15"
 msgctxt "InputEvent"
 msgid "Command 15"
 msgstr "Команда 15"
 
-#: utils/InputEngine.cpp:256
+#: utils/InputEngine.cpp:259
 #, fuzzy
 #| msgid "Command 16"
 msgctxt "InputEvent"
 msgid "Command 16"
 msgstr "Команда 16"
 
-#: utils/InputEngine.cpp:257
+#: utils/InputEngine.cpp:260
 #, fuzzy
 #| msgid "Command 17"
 msgctxt "InputEvent"
 msgid "Command 17"
 msgstr "Команда 17"
 
-#: utils/InputEngine.cpp:258
+#: utils/InputEngine.cpp:261
 #, fuzzy
 #| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
 msgstr "Команда 18"
 
-#: utils/InputEngine.cpp:259
+#: utils/InputEngine.cpp:262
 #, fuzzy
 #| msgid "Command 19"
 msgctxt "InputEvent"
 msgid "Command 19"
 msgstr "Команда 19"
 
-#: utils/InputEngine.cpp:260
+#: utils/InputEngine.cpp:263
 #, fuzzy
 #| msgid "Command 20"
 msgctxt "InputEvent"
 msgid "Command 20"
 msgstr "Команда 20"
 
-#: utils/InputEngine.cpp:261
+#: utils/InputEngine.cpp:264
 #, fuzzy
 #| msgid "Command 21"
 msgctxt "InputEvent"
 msgid "Command 21"
 msgstr "Команда 21"
 
-#: utils/InputEngine.cpp:262
+#: utils/InputEngine.cpp:265
 #, fuzzy
 #| msgid "Command 22"
 msgctxt "InputEvent"
 msgid "Command 22"
 msgstr "Команда 22"
 
-#: utils/InputEngine.cpp:263
+#: utils/InputEngine.cpp:266
 #, fuzzy
 #| msgid "Command 23"
 msgctxt "InputEvent"
 msgid "Command 23"
 msgstr "Команда 23"
 
-#: utils/InputEngine.cpp:264
+#: utils/InputEngine.cpp:267
 #, fuzzy
 #| msgid "Command 24"
 msgctxt "InputEvent"
 msgid "Command 24"
 msgstr "Команда 24"
 
-#: utils/InputEngine.cpp:265
+#: utils/InputEngine.cpp:268
 #, fuzzy
 #| msgid "Command 25"
 msgctxt "InputEvent"
 msgid "Command 25"
 msgstr "Команда 25"
 
-#: utils/InputEngine.cpp:266
+#: utils/InputEngine.cpp:269
 #, fuzzy
 #| msgid "Command 26"
 msgctxt "InputEvent"
 msgid "Command 26"
 msgstr "Команда 26"
 
-#: utils/InputEngine.cpp:267
+#: utils/InputEngine.cpp:270
 #, fuzzy
 #| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
 msgstr "Команда 27"
 
-#: utils/InputEngine.cpp:268
+#: utils/InputEngine.cpp:271
 #, fuzzy
 #| msgid "Command 28"
 msgctxt "InputEvent"
 msgid "Command 28"
 msgstr "Команда 28"
 
-#: utils/InputEngine.cpp:269
+#: utils/InputEngine.cpp:272
 #, fuzzy
 #| msgid "Command 29"
 msgctxt "InputEvent"
 msgid "Command 29"
 msgstr "Команда 29"
 
-#: utils/InputEngine.cpp:270
+#: utils/InputEngine.cpp:273
 #, fuzzy
 #| msgid "Command 30"
 msgctxt "InputEvent"
 msgid "Command 30"
 msgstr "Команда 30"
 
-#: utils/InputEngine.cpp:271
+#: utils/InputEngine.cpp:274
 #, fuzzy
 #| msgid "Command 31"
 msgctxt "InputEvent"
 msgid "Command 31"
 msgstr "Команда 31"
 
-#: utils/InputEngine.cpp:272
+#: utils/InputEngine.cpp:275
 #, fuzzy
 #| msgid "Command 32"
 msgctxt "InputEvent"
 msgid "Command 32"
 msgstr "Команда 32"
 
-#: utils/InputEngine.cpp:273
+#: utils/InputEngine.cpp:276
 #, fuzzy
 #| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
 msgstr "Команда 33"
 
-#: utils/InputEngine.cpp:274
+#: utils/InputEngine.cpp:277
 #, fuzzy
 #| msgid "Command 34"
 msgctxt "InputEvent"
 msgid "Command 34"
 msgstr "Команда 34"
 
-#: utils/InputEngine.cpp:275
+#: utils/InputEngine.cpp:278
 #, fuzzy
 #| msgid "Command 35"
 msgctxt "InputEvent"
 msgid "Command 35"
 msgstr "Команда 35"
 
-#: utils/InputEngine.cpp:276
+#: utils/InputEngine.cpp:279
 #, fuzzy
 #| msgid "Command 36"
 msgctxt "InputEvent"
 msgid "Command 36"
 msgstr "Команда 36"
 
-#: utils/InputEngine.cpp:277
+#: utils/InputEngine.cpp:280
 #, fuzzy
 #| msgid "Command 37"
 msgctxt "InputEvent"
 msgid "Command 37"
 msgstr "Команда 37"
 
-#: utils/InputEngine.cpp:278
+#: utils/InputEngine.cpp:281
 #, fuzzy
 #| msgid "Command 38"
 msgctxt "InputEvent"
 msgid "Command 38"
 msgstr "Команда 38"
 
-#: utils/InputEngine.cpp:279
+#: utils/InputEngine.cpp:282
 #, fuzzy
 #| msgid "Command 39"
 msgctxt "InputEvent"
 msgid "Command 39"
 msgstr "Команда 39"
 
-#: utils/InputEngine.cpp:280
+#: utils/InputEngine.cpp:283
 #, fuzzy
 #| msgid "Command 40"
 msgctxt "InputEvent"
 msgid "Command 40"
 msgstr "Команда 40"
 
-#: utils/InputEngine.cpp:281
+#: utils/InputEngine.cpp:284
 #, fuzzy
 #| msgid "Command 41"
 msgctxt "InputEvent"
 msgid "Command 41"
 msgstr "Команда 41"
 
-#: utils/InputEngine.cpp:282
+#: utils/InputEngine.cpp:285
 #, fuzzy
 #| msgid "Command 42"
 msgctxt "InputEvent"
 msgid "Command 42"
 msgstr "Команда 42"
 
-#: utils/InputEngine.cpp:283
+#: utils/InputEngine.cpp:286
 #, fuzzy
 #| msgid "Command 43"
 msgctxt "InputEvent"
 msgid "Command 43"
 msgstr "Команда 43"
 
-#: utils/InputEngine.cpp:284
+#: utils/InputEngine.cpp:287
 #, fuzzy
 #| msgid "Command 44"
 msgctxt "InputEvent"
 msgid "Command 44"
 msgstr "Команда 44"
 
-#: utils/InputEngine.cpp:285
+#: utils/InputEngine.cpp:288
 #, fuzzy
 #| msgid "Command 45"
 msgctxt "InputEvent"
 msgid "Command 45"
 msgstr "Команда 45"
 
-#: utils/InputEngine.cpp:286
+#: utils/InputEngine.cpp:289
 #, fuzzy
 #| msgid "Command 46"
 msgctxt "InputEvent"
 msgid "Command 46"
 msgstr "Команда 46"
 
-#: utils/InputEngine.cpp:287
+#: utils/InputEngine.cpp:290
 #, fuzzy
 #| msgid "Command 47"
 msgctxt "InputEvent"
 msgid "Command 47"
 msgstr "Команда 47"
 
-#: utils/InputEngine.cpp:288
+#: utils/InputEngine.cpp:291
 #, fuzzy
 #| msgid "Command 48"
 msgctxt "InputEvent"
 msgid "Command 48"
 msgstr "Команда 48"
 
-#: utils/InputEngine.cpp:289
+#: utils/InputEngine.cpp:292
 #, fuzzy
 #| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 49"
 msgstr "Команда 4"
 
-#: utils/InputEngine.cpp:290
+#: utils/InputEngine.cpp:293
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 50"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:291
+#: utils/InputEngine.cpp:294
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 51"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:292
+#: utils/InputEngine.cpp:295
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 52"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:293
+#: utils/InputEngine.cpp:296
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 53"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:294
+#: utils/InputEngine.cpp:297
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 54"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:295
+#: utils/InputEngine.cpp:298
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 55"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:296
+#: utils/InputEngine.cpp:299
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 56"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:297
+#: utils/InputEngine.cpp:300
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 57"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:298
+#: utils/InputEngine.cpp:301
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 58"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:299
+#: utils/InputEngine.cpp:302
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 59"
 msgstr "Команда 5"
 
-#: utils/InputEngine.cpp:300
+#: utils/InputEngine.cpp:303
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 60"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:301
+#: utils/InputEngine.cpp:304
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 61"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:302
+#: utils/InputEngine.cpp:305
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 62"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:303
+#: utils/InputEngine.cpp:306
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 63"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:304
+#: utils/InputEngine.cpp:307
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 64"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:305
+#: utils/InputEngine.cpp:308
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 65"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:306
+#: utils/InputEngine.cpp:309
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 66"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:307
+#: utils/InputEngine.cpp:310
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 67"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:308
+#: utils/InputEngine.cpp:311
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 68"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:309
+#: utils/InputEngine.cpp:312
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 69"
 msgstr "Команда 6"
 
-#: utils/InputEngine.cpp:310
+#: utils/InputEngine.cpp:313
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 70"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:311
+#: utils/InputEngine.cpp:314
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 71"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:312
+#: utils/InputEngine.cpp:315
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 72"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:313
+#: utils/InputEngine.cpp:316
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 73"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:314
+#: utils/InputEngine.cpp:317
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 74"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:315
+#: utils/InputEngine.cpp:318
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 75"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:316
+#: utils/InputEngine.cpp:319
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 76"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:317
+#: utils/InputEngine.cpp:320
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 77"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:318
+#: utils/InputEngine.cpp:321
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 78"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:319
+#: utils/InputEngine.cpp:322
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 79"
 msgstr "Команда 7"
 
-#: utils/InputEngine.cpp:320
+#: utils/InputEngine.cpp:323
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 80"
 msgstr "Команда 8"
 
-#: utils/InputEngine.cpp:321
+#: utils/InputEngine.cpp:324
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 81"
 msgstr "Команда 8"
 
-#: utils/InputEngine.cpp:322
+#: utils/InputEngine.cpp:325
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 82"
 msgstr "Команда 8"
 
-#: utils/InputEngine.cpp:323
+#: utils/InputEngine.cpp:326
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 83"
 msgstr "Команда 8"
 
-#: utils/InputEngine.cpp:324
+#: utils/InputEngine.cpp:327
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
@@ -6577,70 +7212,70 @@ msgid "Command 84"
 msgstr "Команда 8"
 
 #. Character
-#: utils/InputEngine.cpp:327
+#: utils/InputEngine.cpp:330
 #, fuzzy
 #| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
 msgstr "Движение назад с героя"
 
-#: utils/InputEngine.cpp:328
+#: utils/InputEngine.cpp:331
 #, fuzzy
 #| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
 msgstr "Движение напред с героя"
 
-#: utils/InputEngine.cpp:329
+#: utils/InputEngine.cpp:332
 #, fuzzy
 #| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
 msgstr "Кара героя да скача"
 
-#: utils/InputEngine.cpp:330
+#: utils/InputEngine.cpp:333
 #, fuzzy
 #| msgid "rotate character left"
 msgctxt "InputEvent"
 msgid "rotate character left"
 msgstr "Завъртане на героя наляво"
 
-#: utils/InputEngine.cpp:331
+#: utils/InputEngine.cpp:334
 #, fuzzy
 #| msgid "rotate character right"
 msgctxt "InputEvent"
 msgid "rotate character right"
 msgstr "Завъртане на героя надясно"
 
-#: utils/InputEngine.cpp:332
+#: utils/InputEngine.cpp:335
 #, fuzzy
 #| msgid "let the character run"
 msgctxt "InputEvent"
 msgid "let the character run"
 msgstr "Кара героя да бяга"
 
-#: utils/InputEngine.cpp:333
+#: utils/InputEngine.cpp:336
 #, fuzzy
 #| msgid "sidestep to the left"
 msgctxt "InputEvent"
 msgid "sidestep to the left"
 msgstr "Стъпка наляво"
 
-#: utils/InputEngine.cpp:334
+#: utils/InputEngine.cpp:337
 #, fuzzy
 #| msgid "sidestep to the right"
 msgctxt "InputEvent"
 msgid "sidestep to the right"
 msgstr "Стъпка надясно"
 
-#: utils/InputEngine.cpp:335
+#: utils/InputEngine.cpp:338
 #, fuzzy
 #| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
 msgstr "Завъртане на изгледа нагоре"
 
-#: utils/InputEngine.cpp:336
+#: utils/InputEngine.cpp:339
 #, fuzzy
 #| msgid "rotate view down"
 msgctxt "InputEvent"
@@ -6648,105 +7283,105 @@ msgid "rotate view down"
 msgstr "Завъртане на изгледа надолу"
 
 #. Camera
-#: utils/InputEngine.cpp:339
+#: utils/InputEngine.cpp:342
 #, fuzzy
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "change camera mode"
 msgstr "Смяна на режима на камерата"
 
-#: utils/InputEngine.cpp:340
+#: utils/InputEngine.cpp:343
 #, fuzzy
 #| msgid "look back (toggles between normal and lookback)"
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
 msgstr "Поглед назад (превключва между поглед напред и назад)"
 
-#: utils/InputEngine.cpp:341
+#: utils/InputEngine.cpp:344
 #, fuzzy
 #| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the camera position"
 msgstr "Връщане на камерата в изходна позиция"
 
-#: utils/InputEngine.cpp:342
+#: utils/InputEngine.cpp:345
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
 msgstr "Завъртане на камерата надолу"
 
-#: utils/InputEngine.cpp:343
+#: utils/InputEngine.cpp:346
 #, fuzzy
 #| msgid "rotate camera left"
 msgctxt "InputEvent"
 msgid "rotate camera left"
 msgstr "Завъртане на камерата наляво"
 
-#: utils/InputEngine.cpp:344
+#: utils/InputEngine.cpp:347
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "InputEvent"
 msgid "rotate camera right"
 msgstr "Завъртане на камерата надясно"
 
-#: utils/InputEngine.cpp:345
+#: utils/InputEngine.cpp:348
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
 msgstr "Завъртане на камерата нагоре"
 
-#: utils/InputEngine.cpp:346
+#: utils/InputEngine.cpp:349
 #, fuzzy
 #| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
 msgstr "Приближаване на камерата"
 
-#: utils/InputEngine.cpp:347
+#: utils/InputEngine.cpp:350
 #, fuzzy
 #| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
 msgstr "Приближаване на камерата по-бързо"
 
-#: utils/InputEngine.cpp:348
+#: utils/InputEngine.cpp:351
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
 msgstr "Отдалечаване на камерата"
 
-#: utils/InputEngine.cpp:349
+#: utils/InputEngine.cpp:352
 #, fuzzy
 #| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
 msgstr "Отдалечаване на камерата по-бързо"
 
-#: utils/InputEngine.cpp:350
+#: utils/InputEngine.cpp:353
 #, fuzzy
 #| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
 msgstr "Фиксиране на камерата в определена позиция"
 
-#: utils/InputEngine.cpp:351
+#: utils/InputEngine.cpp:354
 #, fuzzy
 #| msgid "enable / disable free camera mode"
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
 msgstr "Вкл./Изкл. режим свободна камера"
 
-#: utils/InputEngine.cpp:352
+#: utils/InputEngine.cpp:355
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "move camera up"
 msgstr "Завъртане на камерата нагоре"
 
-#: utils/InputEngine.cpp:353
+#: utils/InputEngine.cpp:356
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
@@ -6754,28 +7389,28 @@ msgid "move camera down"
 msgstr "Завъртане на камерата надолу"
 
 #. Sky
-#: utils/InputEngine.cpp:356
+#: utils/InputEngine.cpp:359
 #, fuzzy
 #| msgid "decrease day-time"
 msgctxt "InputEvent"
 msgid "decrease day-time"
 msgstr "Намаляване на деня"
 
-#: utils/InputEngine.cpp:357
+#: utils/InputEngine.cpp:360
 #, fuzzy
 #| msgid "decrease day-time a lot faster"
 msgctxt "InputEvent"
 msgid "decrease day-time a lot faster"
 msgstr "Намаляване на деня много по-бързо"
 
-#: utils/InputEngine.cpp:358
+#: utils/InputEngine.cpp:361
 #, fuzzy
 #| msgid "increase day-time"
 msgctxt "InputEvent"
 msgid "increase day-time"
 msgstr "Увеличаване на деня"
 
-#: utils/InputEngine.cpp:359
+#: utils/InputEngine.cpp:362
 #, fuzzy
 #| msgid "increase day-time a lot faster"
 msgctxt "InputEvent"
@@ -6783,35 +7418,35 @@ msgid "increase day-time a lot faster"
 msgstr "Увеличаване на деня много по-бързо"
 
 #. Grass
-#: utils/InputEngine.cpp:362
+#: utils/InputEngine.cpp:365
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
 msgstr "ЕКСПЕРИМЕНТАЛНО:"
 
-#: utils/InputEngine.cpp:363
+#: utils/InputEngine.cpp:366
 #, fuzzy
 #| msgid "EXPERIMENTAL: add some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
 msgstr "ЕКСПЕРИМЕНТАЛНО: добави малко трева"
 
-#: utils/InputEngine.cpp:364
+#: utils/InputEngine.cpp:367
 #, fuzzy
 #| msgid "EXPERIMENTAL: set maximum amount of grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
 msgstr "ЕКСПЕРИМЕНТАЛНО: максимално количество трева"
 
-#: utils/InputEngine.cpp:365
+#: utils/InputEngine.cpp:368
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
 msgstr "ЕКСПЕРИМЕНТАЛНО: премахване на тревата изцяло"
 
-#: utils/InputEngine.cpp:366
+#: utils/InputEngine.cpp:369
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
@@ -6819,35 +7454,35 @@ msgid "EXPERIMENTAL: save changes to the grass density image"
 msgstr "ЕКСПЕРИМЕНТАЛНО:"
 
 #. Survey map
-#: utils/InputEngine.cpp:369
+#: utils/InputEngine.cpp:372
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map icons"
 msgstr "Вкл./Изкл. предупредителни светлини"
 
-#: utils/InputEngine.cpp:370
+#: utils/InputEngine.cpp:373
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map"
 msgstr "Вкл./Изкл. предупредителни светлини"
 
-#: utils/InputEngine.cpp:371
+#: utils/InputEngine.cpp:374
 #, fuzzy
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "cycle map modes"
 msgstr "Смяна на режима на камерата"
 
-#: utils/InputEngine.cpp:372
+#: utils/InputEngine.cpp:375
 #, fuzzy
 #| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom in"
 msgstr "Приближаване на камерата"
 
-#: utils/InputEngine.cpp:373
+#: utils/InputEngine.cpp:376
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
@@ -6855,35 +7490,35 @@ msgid "zoom out"
 msgstr "Отдалечаване на камерата"
 
 #. Menu
-#: utils/InputEngine.cpp:376
+#: utils/InputEngine.cpp:379
 #, fuzzy
 #| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
 msgstr "Избор на следващ елемент в настоящата категория"
 
-#: utils/InputEngine.cpp:377
+#: utils/InputEngine.cpp:380
 #, fuzzy
 #| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
 msgstr "Избор на предходна категория"
 
-#: utils/InputEngine.cpp:378
+#: utils/InputEngine.cpp:381
 #, fuzzy
 #| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
 msgstr "Избор на следваща категория"
 
-#: utils/InputEngine.cpp:379
+#: utils/InputEngine.cpp:382
 #, fuzzy
 #| msgid "select focussed item and close menu"
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
 msgstr "Избор на посоченото и затваряне на менюто"
 
-#: utils/InputEngine.cpp:380
+#: utils/InputEngine.cpp:383
 #, fuzzy
 #| msgid "select previous element in current category"
 msgctxt "InputEvent"
@@ -6891,7 +7526,7 @@ msgid "select previous element in current category"
 msgstr "Избор на предходен елемент в настоящата категория"
 
 #. Truck editing
-#: utils/InputEngine.cpp:383
+#: utils/InputEngine.cpp:386
 #, fuzzy
 #| msgid "tie a load to the truck"
 msgctxt "InputEvent"
@@ -6899,66 +7534,102 @@ msgid "reload truck"
 msgstr "вържи товар за камиона"
 
 #. Road editing
-#: utils/InputEngine.cpp:386
+#: utils/InputEngine.cpp:389
 msgctxt "InputEvent"
 msgid "insert road point"
 msgstr ""
 
-#: utils/InputEngine.cpp:387
+#: utils/InputEngine.cpp:390
 msgctxt "InputEvent"
 msgid "go to road point"
 msgstr ""
 
-#: utils/InputEngine.cpp:388
+#: utils/InputEngine.cpp:391
 #, fuzzy
 #| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "set road point position"
 msgstr "Връщане в изходна позиция"
 
-#: utils/InputEngine.cpp:389
+#: utils/InputEngine.cpp:392
 msgctxt "InputEvent"
 msgid "delete road point"
 msgstr ""
 
-#: utils/InputEngine.cpp:390
+#: utils/InputEngine.cpp:393
 msgctxt "InputEvent"
 msgid "regenerate road mesh"
 msgstr ""
 
-#: utils/InputEngine.cpp:1742
+#: utils/InputEngine.cpp:1796
 msgid "(Please press a key)"
 msgstr ""
 
-#: utils/InputEngine.cpp:2198
+#: utils/InputEngine.cpp:2252
 msgctxt "ModifierKey"
 msgid "Left Alt"
 msgstr ""
 
-#: utils/InputEngine.cpp:2199
+#: utils/InputEngine.cpp:2253
 msgctxt "ModifierKey"
 msgid "Left Shift"
 msgstr ""
 
-#: utils/InputEngine.cpp:2200
+#: utils/InputEngine.cpp:2254
 msgctxt "ModifierKey"
 msgid "Left Ctrl"
 msgstr ""
 
-#: utils/InputEngine.cpp:2202
+#: utils/InputEngine.cpp:2256
 msgctxt "ModifierKey"
 msgid "Right Alt"
 msgstr ""
 
-#: utils/InputEngine.cpp:2203
+#: utils/InputEngine.cpp:2257
 msgctxt "ModifierKey"
 msgid "Right Shift"
 msgstr ""
 
-#: utils/InputEngine.cpp:2204
+#: utils/InputEngine.cpp:2258
 msgctxt "ModifierKey"
 msgid "Right Ctrl"
 msgstr ""
+
+#, fuzzy
+#~| msgid "Triangle Count: "
+#~ msgctxt "SimPerfStats"
+#~ msgid "Triangle count: "
+#~ msgstr "Брой триъгълници: "
+
+#, fuzzy
+#~| msgid "Controls"
+#~ msgctxt "VehicleButtons"
+#~ msgid "Main Controls"
+#~ msgstr "Контроли"
+
+#, fuzzy
+#~| msgid "Commands: "
+#~ msgctxt "VehicleButtons"
+#~ msgid "Commands"
+#~ msgstr "Команди:"
+
+#, fuzzy
+#~| msgid "Description: "
+#~ msgctxt "VehicleDescription"
+#~ msgid "Description"
+#~ msgstr "Описание: "
+
+#, fuzzy
+#~| msgid "Commands: "
+#~ msgctxt "VehicleDescription"
+#~ msgid "Commands"
+#~ msgstr "Команди:"
+
+#, fuzzy
+#~| msgid "no author information available"
+#~ msgctxt "VehicleDescription"
+#~ msgid "(no author information available) "
+#~ msgstr "Няма информация за автора"
 
 #, fuzzy
 #~| msgid "toggle render mode (solid, wireframe and points)"
@@ -7075,9 +7746,6 @@ msgstr ""
 
 #~ msgid "Restore the default configuration."
 #~ msgstr "Възстановяване на стандартните настройки."
-
-#~ msgid "Save and Exit"
-#~ msgstr "Запис и Изход"
 
 #~ msgid "Save the current configuration and close the configuration program."
 #~ msgstr "Запазване на настройките и изключване на конфигуратора."
