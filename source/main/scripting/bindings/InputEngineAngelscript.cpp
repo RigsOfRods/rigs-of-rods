@@ -39,7 +39,6 @@ void registerInputEngineObject(asIScriptEngine* engine)
 
     using namespace RoR;
     int result = 0;
-
     result = engine->RegisterObjectType("InputEngineClass", sizeof(InputEngine), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
 
     // > Input processing
@@ -51,13 +50,24 @@ void registerInputEngineObject(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommandTrimmed(inputEvents ev)", asMETHOD(InputEngine,getEventCommandTrimmed), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // > Event states
-    result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValue(inputEvents ev)", asMETHOD(InputEngine,getEventBoolValue), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("InputEngineClass", "float getEventValue(inputEvents, bool = false, inputSourceType = inputSourceType::IST_ANY)", asMETHOD(InputEngine,getEventValue), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValue(inputEvents ev)", asMETHOD(InputEngine,getEventBoolValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValueBounce(inputEvents ev, float time = 0.2f)", asMETHOD(InputEngine,getEventBoolValueBounce), asCALL_THISCALL); ROR_ASSERT(result>=0);    
     result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDownEffective(keyCodes keycode)", asMETHOD(InputEngine,isKeyDownEffective), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDownValueBounce(keyCodes keycode, float time = 0.2f)", asMETHOD(InputEngine,isKeyDownValueBounce), asCALL_THISCALL); ROR_ASSERT(result>=0);    
     
     // Direct input device states
     result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDown(keyCodes keycode)", asMETHOD(InputEngine,isKeyDown), asCALL_THISCALL); ROR_ASSERT(result>=0);
+}
+
+void registerInputSourceTypeEnum(asIScriptEngine* engine)
+{
+    int result = 0;
+    result = engine->RegisterEnum("inputSourceType"); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterEnumValue("inputSourceType", "IST_ANY", (int)InputSourceType::IST_ANY); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputSourceType", "IST_DIGITAL", (int)InputSourceType::IST_DIGITAL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputSourceType", "IST_ANALOG", (int)InputSourceType::IST_ANALOG); ROR_ASSERT(result >= 0);
 }
 
 void registerEventTypeEnum(asIScriptEngine* engine)
@@ -491,6 +501,7 @@ void registerKeyCodeEnum(asIScriptEngine* engine)
 
 void RoR::RegisterInputEngine(asIScriptEngine* engine)
 {
+    registerInputSourceTypeEnum(engine);
     registerEventTypeEnum(engine);
     registerKeyCodeEnum(engine);
     registerInputEngineObject(engine);

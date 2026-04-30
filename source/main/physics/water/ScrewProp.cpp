@@ -100,6 +100,14 @@ void Screwprop::setRudder(float val)
     rudder = val * 45.0;
 }
 
+void Screwprop::setMaxPower(float power)
+{
+    if (power >= 0)
+    {
+        fullpower = power;
+    }
+}
+
 float Screwprop::getThrottle()
 {
     if (reverse)

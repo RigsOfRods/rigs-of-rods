@@ -40,6 +40,11 @@ public:
      * @return Whether the engine is a piston propeller.
      */
     bool isPistonProp();
+
+    /**
+     * @brief Sets the maximum power of the engine, in kilowatts.
+     */
+    void setMaxPower(float power);
 };
 
 /// @}    //addtogroup Script2Game

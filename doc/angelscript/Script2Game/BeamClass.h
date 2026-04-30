@@ -1,4 +1,3 @@
-
 namespace Script2Game {
 
 /** \addtogroup ScriptSideAPIs
@@ -9,9 +8,9 @@ namespace Script2Game {
  *  @{
  */    
 
-/**
- * @brief Binding of RoR::Actor; a softbody-physics gameplay object, can be anything from soda can to space shuttle.
- */
+ /**
+  * @brief Binding of RoR::Actor; a softbody-physics gameplay object, can be anything from soda can to space shuttle.
+  */
 class BeamClass
 {
 public:
@@ -45,10 +44,10 @@ public:
     /**
     * Orientation on all axes packed to single quaternion. Use `getYaw()`, `getPitch()` and `getRoll()` for individual rotations in radians.
     */
-    quaternion getOrientation()
+    quaternion getOrientation();
     
     /**
-    * Meters per second.
+    * Gets the vehicle speed, in meters per second.
     */
     float getSpeed();
     
@@ -243,7 +242,31 @@ public:
     /// @name User interaction
     /// @{
     // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'  
-    
+
+    /**
+     * @brief Returns whether the parking brake is engaged.
+     * @returns `true` if the parking brake is engaged, `false` otherwise.
+     */
+    bool getParkingBrake();
+
+    /**
+     * @brief Returns whether the cruise control is engaged.
+     * @returns `true` if the cruise control is engaged, `false` otherwise.
+     */
+    bool getCruiseControl();
+
+    /**
+     * @brief Returns whether the traction control is engaged.
+     * @returns `true` if the traction control is engaged, `false` otherwise.
+     */
+    bool getTractionControl();
+
+    /**
+     * @brief Returns whether the anti-lock brake system (ABS) is engaged.
+     * @returns `true` if the ABS is engaged, `false` otherwise.
+     */
+    bool getAntiLockBrake();
+
     /**
      * Toggles the parking brake.
      */
@@ -253,11 +276,16 @@ public:
      * Toggles the tracktion control.
      */
     void tractioncontrolToggle();
-    
+
     /**
      * Toggles the anti-lock brakes.
      */
     void antilockbrakeToggle();
+
+    /**
+     * Toggles the cruise control.
+     */
+    void cruisecontrolToggle();
     
     /**
      * Toggles the custom particles.
@@ -298,7 +326,56 @@ public:
     * Reports number of installed cinecams.
     */
     int getNumCinecams() const;
-    
+
+    /**
+     * Returns the simulated value associated to the given `eventID`.
+     * If `eventID` is not simulated, returns the same value as `InputEngineClass.getEventValue()`.
+     */
+    float getEventValue(inputEvents eventID, bool pure = false, inputSourceType valueSource = inputSourceType::IST_ANY);
+
+    /**
+     * Returns `true` if the given `eventID` is active, `false` otherwise.
+     * 
+     * If the `eventID` is simulated, returns `true` if the value is greater than 0.5.
+     */
+    bool getEventBoolValue(inputEvents eventID);
+
+    /**
+     * Returns `true` if the given input event is active and the bouncing on/off cycle is in 'on' state.
+     * 
+     * If the `eventID` is simulated, it behaves the samw way as `getEventBoolValue()`, ignoring the `time` parameter.
+     */
+    bool getEventBoolValueBounce(inputEvents eventID, float time = 0.2f);
+
+    /**
+     * Removes all the event simulated values for the actor.
+     */
+    void clearEventSimulatedValues();
+
+    /**
+     * Returns `true` if the actor simulates the given input event.
+     */
+    bool hasEventSimulatedValue(inputEvents eventID);
+
+    /**
+     * Returns the simulated value of the given input event for the actor, or 0 if the event value is not simulated.
+     */
+    float getEventSimulatedValue(inputEvents eventID);
+
+    /**
+     * Sets a `float` value that simulates the state of the given input event, exclusively for this actor.
+     * 
+     * As soon as an event is associated to a simulated value, functions like `getEventValue()`
+     * will ignore the values returned by the input engine and return the simulated value instead.
+     * 
+     * If you want to stop simulating the event value, call `removeEventSimulatedValue()`.
+     */
+    void setEventSimulatedValue(inputEvents eventID, float value);
+
+    /**
+     * Removes the simulated value for the given input event.
+     */
+    void removeEventSimulatedValue(inputEvents eventID);
     
     //! @}
     
@@ -310,17 +387,17 @@ public:
     /**
     * Retrieve dashboard manager.
     */
-    DashboardManagerClassPtr @getDashboardManager();
+    DashBoardManagerClass @getDashboardManager();
     
     /**
      * Retrieve the waypoint AI object.
      */
-    VehicleAiClass @getVehicleAI();
+    VehicleAIClass @getVehicleAI();
 
     /**
     * Retrieve engine/transmission simulator.
     */
-    EngineClassPtr @getEngine();
+    EngineClass @getEngine();
 
     /**
     * @return The amount of aircraft engines defined for this actor.
@@ -446,11 +523,10 @@ public:
      */
     int getInstanceId();    
     
-    //! @}    
-}
+    //! @}  
+};
 
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
 
 } //namespace Script2Game
-

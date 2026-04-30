@@ -173,10 +173,10 @@ public:
     void                UpdateGlobalInputEvents();
     void                UpdateSimInputEvents(float dt);
     void                UpdateSkyInputEvents(float dt);
-    void                UpdateCommonInputEvents(float dt);
-    void                UpdateAirplaneInputEvents(float dt);
-    void                UpdateBoatInputEvents(float dt);
-    void                UpdateTruckInputEvents(float dt);
+    void                UpdateCommonInputEvents(float dt, ActorPtr actor);
+    void                UpdateAirplaneInputEvents(float dt, ActorPtr airplane);
+    void                UpdateBoatInputEvents(float dt, ActorPtr boat);
+    void                UpdateTruckInputEvents(float dt, ActorPtr truck);
 
     /// @}
 

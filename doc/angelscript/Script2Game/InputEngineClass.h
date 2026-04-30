@@ -43,7 +43,12 @@ public:
     /// @}   
  
     /// @name Event states
-    /// @{    
+    /// @{  
+
+        /**
+         * @return The current event input value.
+         */
+        float getEventValue(inputEvents eventID, bool pure = false, inputSourceType valueSource = inputSourceType::IST_ANY);
 
         /**
          * @return true if the event input is active (keyboard key pressed etc.).

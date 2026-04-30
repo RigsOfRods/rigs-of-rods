@@ -43,6 +43,7 @@ public:
     void updateForces(int update);
     void setThrottle(float val);
     void setRudder(float val);
+    void setMaxPower(float power);
     float getThrottle();
     float getRudder();
     float getMaxPower() { return fullpower; }

@@ -25,4 +25,6 @@ void RoR::RegisterTurboprop(asIScriptEngine* engine)
         return self->getMaxPower(); }, (Turboprop*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TurbopropClass", "bool isPistonProp()", asFUNCTIONPR([](Turboprop* self) -> bool {
         return self->is_piston; }, (Turboprop*), bool), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterObjectMethod("TurbopropClass", "void setMaxPower(float)", asMETHOD(Turboprop, setMaxPower), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

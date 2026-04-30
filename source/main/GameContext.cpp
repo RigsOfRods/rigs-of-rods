@@ -1317,155 +1317,155 @@ void GameContext::UpdateSkyInputEvents(float dt)
     }
 }
 
-void GameContext::UpdateCommonInputEvents(float dt)
+void GameContext::UpdateCommonInputEvents(float dt, ActorPtr actor)
 {
-    ROR_ASSERT(m_player_actor);
+    ROR_ASSERT(actor);
 
     // reload current truck
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
+    if (actor->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
         rq->amr_type = ActorModifyRequest::Type::RELOAD;
-        rq->amr_actor = m_player_actor->ar_instance_id;
+        rq->amr_actor = actor->ar_instance_id;
         this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 
     // remove current truck
-    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
+    if (actor->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
     {
         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(m_player_actor))));
     }
 
     // Front lights
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS))
     {
-        m_player_actor->setHeadlightsVisible(!m_player_actor->getHeadlightsVisible());
+        actor->setHeadlightsVisible(!actor->getHeadlightsVisible());
         // sync sidelights to lowbeams
-        m_player_actor->setSideLightsVisible(m_player_actor->getHeadlightsVisible());
+        actor->setSideLightsVisible(actor->getHeadlightsVisible());
     }
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_TRUCK_LIGHTS))
+    if (actor->getEventBoolValueBounce(EV_COMMON_CYCLE_TRUCK_LIGHTS))
     {
         // Smart cycling:
         //  1) all lights off
         //  2) sidelights on but only if any installed, otherwise skip to 3).
         //  3) sidelights and lowbeams on.
         //  4) sidelights, lowbeams and highbeams on, but only if highbeams are installed, otherwise cycle to 1).
-        if (m_player_actor->countFlaresByType(FlareType::SIDELIGHT) > 0 && !m_player_actor->getSideLightsVisible())
+        if (actor->countFlaresByType(FlareType::SIDELIGHT) > 0 && !actor->getSideLightsVisible())
         {
-            m_player_actor->setSideLightsVisible(true);
+            actor->setSideLightsVisible(true);
         }
-        else if (!m_player_actor->getHeadlightsVisible())
+        else if (!actor->getHeadlightsVisible())
         {
-            m_player_actor->setSideLightsVisible(true);
-            m_player_actor->setHeadlightsVisible(true);
+            actor->setSideLightsVisible(true);
+            actor->setHeadlightsVisible(true);
         }
-        else if (m_player_actor->countFlaresByType(FlareType::HIGH_BEAM) > 0 && !m_player_actor->getHighBeamsVisible())
+        else if (actor->countFlaresByType(FlareType::HIGH_BEAM) > 0 && !actor->getHighBeamsVisible())
         {
-            m_player_actor->setSideLightsVisible(true);
-            m_player_actor->setHeadlightsVisible(true);
-            m_player_actor->setHighBeamsVisible(true);
+            actor->setSideLightsVisible(true);
+            actor->setHeadlightsVisible(true);
+            actor->setHighBeamsVisible(true);
         }
         else
         {
-            m_player_actor->setSideLightsVisible(false);
-            m_player_actor->setHeadlightsVisible(false);
-            m_player_actor->setHighBeamsVisible(false);
+            actor->setSideLightsVisible(false);
+            actor->setHeadlightsVisible(false);
+            actor->setHighBeamsVisible(false);
         }
     }
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS))
     {
-        m_player_actor->setHighBeamsVisible(!m_player_actor->getHighBeamsVisible());
+        actor->setHighBeamsVisible(!actor->getHighBeamsVisible());
     }
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS))
     {
-        m_player_actor->setFogLightsVisible(!m_player_actor->getFogLightsVisible());
+        actor->setFogLightsVisible(!actor->getFogLightsVisible());
     }
 
     // Beacons
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
     {
-        m_player_actor->beaconsToggle();
+        actor->beaconsToggle();
     }
 
     // blinkers
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
-        m_player_actor->toggleBlinkType(BLINK_LEFT);
+    if (actor->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
+        actor->toggleBlinkType(BLINK_LEFT);
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
-        m_player_actor->toggleBlinkType(BLINK_RIGHT);
+    if (actor->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
+        actor->toggleBlinkType(BLINK_RIGHT);
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
-        m_player_actor->toggleBlinkType(BLINK_WARN);
+    if (actor->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
+        actor->toggleBlinkType(BLINK_WARN);
 
     // custom lights
     for (int i = 0; i < MAX_CLIGHTS; i++)
     {
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LIGHTTOGGLE01 + i))
-            m_player_actor->setCustomLightVisible(i, !m_player_actor->getCustomLightVisible(i));
+        if (actor->getEventBoolValueBounce(EV_TRUCK_LIGHTTOGGLE01 + i))
+            actor->setCustomLightVisible(i, !actor->getCustomLightVisible(i));
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
     {
         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(m_player_actor))));
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
+    if (actor->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
     {
-        m_player_actor->ar_toggle_ropes = true;
+        actor->ar_toggle_ropes = true;
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
+    if (actor->getEventBoolValueBounce(EV_COMMON_LOCK))
     {
-        //m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
+        //actor->hookToggle(-1, HOOK_TOGGLE, -1);
         ActorLinkingRequest* hook_rq = new ActorLinkingRequest();
         hook_rq->alr_type = ActorLinkingRequestType::HOOK_TOGGLE;
-        hook_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
+        hook_rq->alr_actor_instance_id = actor->ar_instance_id;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, hook_rq));
 
-        //m_player_actor->toggleSlideNodeLock();
+        //actor->toggleSlideNodeLock();
         ActorLinkingRequest* slidenode_rq = new ActorLinkingRequest();
         slidenode_rq->alr_type = ActorLinkingRequestType::SLIDENODE_TOGGLE;
-        slidenode_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
+        slidenode_rq->alr_actor_instance_id = actor->ar_instance_id;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, slidenode_rq));
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
+    if (actor->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
     {
-        m_player_actor->hookToggle(-2, ActorLinkingRequestType::HOOK_UNLOCK, -1); //unlock all autolocks
+        actor->hookToggle(-2, ActorLinkingRequestType::HOOK_UNLOCK, -1); //unlock all autolocks
     }
 
     //strap
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
+    if (actor->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
     {
-        m_player_actor->ar_toggle_ties = true;
+        actor->ar_toggle_ties = true;
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
     {
-        m_player_actor->toggleCustomParticles();
+        actor->toggleCustomParticles();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
+    if (actor->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
     {
-        m_player_actor->GetGfxActor()->ToggleDebugView();
-        for (ActorPtr& actor : m_player_actor->ar_linked_actors)
+        actor->GetGfxActor()->ToggleDebugView();
+        for (ActorPtr& actor : actor->ar_linked_actors)
         {
-            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+            actor->GetGfxActor()->SetDebugView(actor->GetGfxActor()->GetDebugView());
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
+    if (actor->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
     {
-        m_player_actor->GetGfxActor()->CycleDebugViews();
-        for (ActorPtr& actor : m_player_actor->ar_linked_actors)
+        actor->GetGfxActor()->CycleDebugViews();
+        for (ActorPtr& actor : actor->ar_linked_actors)
         {
-            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+            actor->GetGfxActor()->SetDebugView(actor->GetGfxActor()->GetDebugView());
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&
+    if (actor->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&
         App::mp_state->getEnum<MpState>() != MpState::CONNECTED &&
-        m_player_actor->ar_driveable != AIRPLANE)
+        actor->ar_driveable != AIRPLANE)
     {
         ActorPtr rescuer = nullptr;
         for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
@@ -1486,48 +1486,48 @@ void GameContext::UpdateCommonInputEvents(float dt)
     }
 
     // parking brake
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRAILER_PARKING_BRAKE))
+    if (actor->getEventBoolValueBounce(EV_TRUCK_TRAILER_PARKING_BRAKE))
     {
-        if (m_player_actor->ar_driveable == TRUCK)
-            m_player_actor->ar_trailer_parking_brake = !m_player_actor->ar_trailer_parking_brake;
-        else if (m_player_actor->ar_driveable == NOT_DRIVEABLE)
-            m_player_actor->parkingbrakeToggle();
+        if (actor->ar_driveable == TRUCK)
+            actor->ar_trailer_parking_brake = !actor->ar_trailer_parking_brake;
+        else if (actor->ar_driveable == NOT_DRIVEABLE)
+            actor->parkingbrakeToggle();
     }
 
     // videocam
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
+    if (actor->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
     {
-        if (m_player_actor->GetGfxActor()->GetVideoCamState() == VideoCamState::VCSTATE_DISABLED)
+        if (actor->GetGfxActor()->GetVideoCamState() == VideoCamState::VCSTATE_DISABLED)
         {
-            m_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_ENABLED_ONLINE);
+            actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_ENABLED_ONLINE);
         }
         else
         {
-            m_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
+            actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
         }
     }
 
     // enter/exit truck - Without a delay: the vehicle must brake like braking normally
-    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK))
+    if (actor->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK))
     {
-        if (m_player_actor->ar_driveable != AI)
+        if (actor->ar_driveable != AI)
         {
-            m_player_actor->ar_brake = 0.66f;
+            actor->ar_brake = 0.66f;
         }
     }
 
     // toggle physics
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
+    if (actor->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
     {
-        for (ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
+        for (ActorPtr& linked_actor : actor->ar_linked_actors)
         {
-            actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
+            linked_actor->ar_physics_paused = !linked_actor->ar_physics_paused;
         }
-        App::GetGameContext()->GetPlayerActor()->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
+        actor->ar_physics_paused = !actor->ar_physics_paused;
     }
 
     // reset truck
-    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK))
+    if (actor->getEventBoolValue(EV_COMMON_RESET_TRUCK))
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
         rq->amr_actor = App::GetGameContext()->GetPlayerActor()->ar_instance_id;
@@ -1540,19 +1540,20 @@ void GameContext::UpdateCommonInputEvents(float dt)
     {
         int eventID = EV_COMMANDS_01 + (i - 1);
 
-        m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+        actor->ar_command_key[i].playerInputValue = actor->getEventValue(eventID);
     }
 
     // Commandkeys: Apply command buttons in T-screen
-    if (App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey() != COMMANDKEYID_INVALID)
+    if (actor == m_player_actor &&
+        App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey() != COMMANDKEYID_INVALID)
     {
         m_player_actor->ar_command_key[App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey()].playerInputValue = 1.f;
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
+    if (actor->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
     {
-        m_player_actor->ar_forward_commands = !m_player_actor->ar_forward_commands;
-        if (m_player_actor->ar_forward_commands)
+        actor->ar_forward_commands = !actor->ar_forward_commands;
+        if (actor->ar_forward_commands)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png");
         }
@@ -1562,10 +1563,10 @@ void GameContext::UpdateCommonInputEvents(float dt)
         }
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
+    if (actor->getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
     {
-        m_player_actor->ar_import_commands = !m_player_actor->ar_import_commands;
-        if (m_player_actor->ar_import_commands)
+        actor->ar_import_commands = !actor->ar_import_commands;
+        if (actor->ar_import_commands)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png");
         }
@@ -1575,7 +1576,8 @@ void GameContext::UpdateCommonInputEvents(float dt)
         }
     }
 
-    if (m_player_actor->getReplay())
+    if (actor == m_player_actor &&
+        m_player_actor->getReplay())
     {
         m_player_actor->getReplay()->UpdateInputEvents();
     }
@@ -1599,369 +1601,400 @@ void smoothValue(float& ref, float value, float rate)
         ref += rate;
 }
 
-void GameContext::UpdateAirplaneInputEvents(float dt)
+void GameContext::UpdateAirplaneInputEvents(float dt, ActorPtr airplane)
 {
-    if (m_player_actor->isBeingReset() || m_player_actor->ar_physics_paused)
+    if (airplane->isBeingReset() || airplane->ar_physics_paused)
         return;
 
     // autopilot
-    if (m_player_actor->ar_autopilot && m_player_actor->ar_autopilot->wantsdisconnect)
+    if (airplane->ar_autopilot && airplane->ar_autopilot->wantsdisconnect)
     {
-        m_player_actor->ar_autopilot->disconnect();
+        airplane->ar_autopilot->disconnect();
     }
+
+    float commandrate = 4.0;
 
     // steer
-    float commandrate = 4.0;
-    float tmp_left = App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
-    float tmp_right = App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
+    float tmp_left = airplane->getEventValue(EV_AIRPLANE_STEER_LEFT);
+    float tmp_right = airplane->getEventValue(EV_AIRPLANE_STEER_RIGHT);
     float sum_steer = -tmp_left + tmp_right;
-    smoothValue(m_player_actor->ar_aileron, sum_steer, dt * commandrate);
-    m_player_actor->ar_hydro_dir_command = m_player_actor->ar_aileron;
-    m_player_actor->ar_hydro_speed_coupling = !(App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
-
+    airplane->ar_hydro_speed_coupling = !(airplane->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && airplane->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
+    
     // pitch
-    float tmp_pitch_up = App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
-    float tmp_pitch_down = App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_DOWN);
+    float tmp_pitch_up = airplane->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
+    float tmp_pitch_down = airplane->getEventValue(EV_AIRPLANE_ELEVATOR_DOWN);
     float sum_pitch = tmp_pitch_down - tmp_pitch_up;
-    smoothValue(m_player_actor->ar_elevator, sum_pitch, dt * commandrate);
-
+    
     // rudder
-    float tmp_rudder_left = App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_LEFT);
-    float tmp_rudder_right = App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_RIGHT);
+    float tmp_rudder_left = airplane->getEventValue(EV_AIRPLANE_RUDDER_LEFT);
+    float tmp_rudder_right = airplane->getEventValue(EV_AIRPLANE_RUDDER_RIGHT);
     float sum_rudder = tmp_rudder_left - tmp_rudder_right;
-    smoothValue(m_player_actor->ar_rudder, sum_rudder, dt * commandrate);
 
-    // brakes
-    if (!m_player_actor->ar_parking_brake)
+    // Simulated inputs at actor level shouldn't be smoothed. We'll let
+    // the code that added simulated values do its own smoothing
+    // if needed.
+    if (airplane->hasEventSimulatedValue(EV_AIRPLANE_STEER_LEFT) &&
+        airplane->hasEventSimulatedValue(EV_AIRPLANE_STEER_RIGHT))
     {
-        m_player_actor->ar_brake = App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE) * 0.66f;
+        airplane->ar_aileron = sum_steer;
+    }
+    else
+    {
+        smoothValue(airplane->ar_aileron, sum_steer, dt * commandrate);
+        airplane->ar_hydro_dir_command = airplane->ar_aileron;
+    }
+    if (airplane->hasEventSimulatedValue(EV_AIRPLANE_ELEVATOR_UP) &&
+        airplane->hasEventSimulatedValue(EV_AIRPLANE_ELEVATOR_DOWN))
+    {
+        airplane->ar_elevator = sum_pitch;
+    }
+    else
+    {
+        smoothValue(airplane->ar_elevator, sum_pitch, dt * commandrate);
+    }
+    if (airplane->hasEventSimulatedValue(EV_AIRPLANE_RUDDER_LEFT) &&
+        airplane->hasEventSimulatedValue(EV_AIRPLANE_RUDDER_RIGHT))
+    {
+        airplane->ar_rudder = sum_rudder;
+    }
+    else
+    {
+        smoothValue(airplane->ar_rudder, sum_rudder, dt * commandrate);
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
+    // brakes
+    if (!airplane->ar_parking_brake)
     {
-        m_player_actor->parkingbrakeToggle();
+        airplane->ar_brake = airplane->getEventValue(EV_AIRPLANE_BRAKE) * 0.66f;
+    }
+
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
+    {
+        airplane->parkingbrakeToggle();
     }
 
     // reverse
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_REVERSE))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_REVERSE))
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->toggleReverse();
+            airplane->ar_aeroengines[i]->toggleReverse();
         }
     }
 
     // engines
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_TOGGLE_ENGINES))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_TOGGLE_ENGINES))
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->flipStart();
+            airplane->ar_aeroengines[i]->flipStart();
         }
     }
 
     // flaps
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_NONE))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_NONE))
     {
-        if (m_player_actor->ar_aerial_flap > 0)
+        if (airplane->ar_aerial_flap > 0)
         {
-            m_player_actor->ar_aerial_flap = 0;
+            airplane->ar_aerial_flap = 0;
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_FULL))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_FULL))
     {
-        if (m_player_actor->ar_aerial_flap < 5)
+        if (airplane->ar_aerial_flap < 5)
         {
-            m_player_actor->ar_aerial_flap = 5;
+            airplane->ar_aerial_flap = 5;
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_LESS))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_LESS))
     {
-        if (m_player_actor->ar_aerial_flap > 0)
+        if (airplane->ar_aerial_flap > 0)
         {
-            m_player_actor->ar_aerial_flap = (m_player_actor->ar_aerial_flap) - 1;
+            airplane->ar_aerial_flap = (airplane->ar_aerial_flap) - 1;
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_MORE))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_MORE))
     {
-        if (m_player_actor->ar_aerial_flap < 5)
+        if (airplane->ar_aerial_flap < 5)
         {
-            m_player_actor->ar_aerial_flap = (m_player_actor->ar_aerial_flap) + 1;
+            airplane->ar_aerial_flap = (airplane->ar_aerial_flap) + 1;
         }
     }
 
     // airbrakes
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_NONE))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_NONE))
     {
-        if (m_player_actor->ar_airbrake_intensity > 0)
+        if (airplane->ar_airbrake_intensity > 0)
         {
-            m_player_actor->setAirbrakeIntensity(0);
+            airplane->setAirbrakeIntensity(0);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
     {
-        if (m_player_actor->ar_airbrake_intensity < 5)
+        if (airplane->ar_airbrake_intensity < 5)
         {
-            m_player_actor->setAirbrakeIntensity(5);
+            airplane->setAirbrakeIntensity(5);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
     {
-        if (m_player_actor->ar_airbrake_intensity > 0)
+        if (airplane->ar_airbrake_intensity > 0)
         {
-            m_player_actor->setAirbrakeIntensity((m_player_actor->ar_airbrake_intensity) - 1);
+            airplane->setAirbrakeIntensity((airplane->ar_airbrake_intensity) - 1);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
     {
-        if (m_player_actor->ar_airbrake_intensity < 5)
+        if (airplane->ar_airbrake_intensity < 5)
         {
-            m_player_actor->setAirbrakeIntensity((m_player_actor->ar_airbrake_intensity) + 1);
+            airplane->setAirbrakeIntensity((airplane->ar_airbrake_intensity) + 1);
         }
     }
 
     // throttle
-    float tmp_throttle = App::GetInputEngine()->getEventBoolValue(EV_AIRPLANE_THROTTLE);
-    if (tmp_throttle > 0)
+    if (airplane->isEventDefined(EV_AIRPLANE_THROTTLE_AXIS))
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        float f = airplane->getEventValue(EV_AIRPLANE_THROTTLE_AXIS);
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->setThrottle(tmp_throttle);
+            airplane->ar_aeroengines[i]->setThrottle(f);
+        }
+    }
+    else
+    {
+        float tmp_throttle = airplane->getEventBoolValue(EV_AIRPLANE_THROTTLE);
+        if (tmp_throttle > 0)
+        {
+            for (int i = 0; i < airplane->ar_num_aeroengines; i++)
+            {
+                airplane->ar_aeroengines[i]->setThrottle(tmp_throttle);
+            }
         }
     }
 
-    if (App::GetInputEngine()->isEventDefined(EV_AIRPLANE_THROTTLE_AXIS))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_DOWN, 0.1f))
     {
-        float f = App::GetInputEngine()->getEventValue(EV_AIRPLANE_THROTTLE_AXIS);
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->setThrottle(f);
+            airplane->ar_aeroengines[i]->setThrottle(airplane->ar_aeroengines[i]->getThrottle() - 0.05);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_DOWN, 0.1f))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_UP, 0.1f))
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->setThrottle(m_player_actor->ar_aeroengines[i]->getThrottle() - 0.05);
+            airplane->ar_aeroengines[i]->setThrottle(airplane->ar_aeroengines[i]->getThrottle() + 0.05);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_UP, 0.1f))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_NO, 0.1f))
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->setThrottle(m_player_actor->ar_aeroengines[i]->getThrottle() + 0.05);
+            airplane->ar_aeroengines[i]->setThrottle(0);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_NO, 0.1f))
+    if (airplane->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_FULL, 0.1f))
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->setThrottle(0);
-        }
-    }
-
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_FULL, 0.1f))
-    {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
-        {
-            m_player_actor->ar_aeroengines[i]->setThrottle(1);
+            airplane->ar_aeroengines[i]->setThrottle(1);
         }
     }
 
     // autopilot
-    if (m_player_actor->ar_autopilot)
+    if (airplane->ar_autopilot)
     {
-        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        for (int i = 0; i < airplane->ar_num_aeroengines; i++)
         {
-            m_player_actor->ar_aeroengines[i]->setThrottle(m_player_actor->ar_autopilot->getThrottle(m_player_actor->ar_aeroengines[i]->getThrottle(), dt));
+            airplane->ar_aeroengines[i]->setThrottle(airplane->ar_autopilot->getThrottle(airplane->ar_aeroengines[i]->getThrottle(), dt));
         }
     }
 }
 
-void GameContext::UpdateBoatInputEvents(float dt)
+void GameContext::UpdateBoatInputEvents(float dt, ActorPtr boat)
 {
     // throttle
-    if (App::GetInputEngine()->isEventDefined(EV_BOAT_THROTTLE_AXIS))
+    if (boat->isEventDefined(EV_BOAT_THROTTLE_AXIS))
     {
-        float f = App::GetInputEngine()->getEventValue(EV_BOAT_THROTTLE_AXIS);
+        float f = boat->getEventValue(EV_BOAT_THROTTLE_AXIS);
         // use negative values also!
         f = f * 2 - 1;
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->setThrottle(-f);
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->setThrottle(-f);
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
+    if (boat->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
     {
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() - 0.05);
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->setThrottle(boat->ar_screwprops[i]->getThrottle() - 0.05);
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
+    if (boat->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
     {
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() + 0.05);
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->setThrottle(boat->ar_screwprops[i]->getThrottle() + 0.05);
     }
 
     // steer
-    float tmp_steer_left = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT);
-    float tmp_steer_right = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT);
-    float stime = App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_LEFT) + App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_RIGHT);
+    float tmp_steer_left = boat->getEventValue(EV_BOAT_STEER_LEFT);
+    float tmp_steer_right = boat->getEventValue(EV_BOAT_STEER_RIGHT);
+    float stime = boat->getEventBounceTime(EV_BOAT_STEER_LEFT) + boat->getEventBounceTime(EV_BOAT_STEER_RIGHT);
     float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
     // do not center the rudder!
     if (fabs(sum_steer) > 0 && stime <= 0)
     {
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->setRudder(m_player_actor->ar_screwprops[i]->getRudder() + sum_steer);
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->setRudder(boat->ar_screwprops[i]->getRudder() + sum_steer);
     }
 
-    if (App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
+    if (boat->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && boat->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
     {
-        tmp_steer_left = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
-        tmp_steer_right = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
+        tmp_steer_left = boat->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
+        tmp_steer_right = boat->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
         sum_steer = (tmp_steer_left - tmp_steer_right);
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->setRudder(sum_steer);
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->setRudder(sum_steer);
     }
 
     // rudder
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_CENTER_RUDDER, 0.1f))
+    if (boat->getEventBoolValueBounce(EV_BOAT_CENTER_RUDDER, 0.1f))
     {
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->setRudder(0);
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->setRudder(0);
     }
 
     // reverse
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_REVERSE))
+    if (boat->getEventBoolValueBounce(EV_BOAT_REVERSE))
     {
-        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-            m_player_actor->ar_screwprops[i]->toggleReverse();
+        for (int i = 0; i < boat->ar_num_screwprops; i++)
+            boat->ar_screwprops[i]->toggleReverse();
     }
 }
 
-void GameContext::UpdateTruckInputEvents(float dt)
+void GameContext::UpdateTruckInputEvents(float dt, ActorPtr truck)
 {
-    if (m_player_actor->isBeingReset() || m_player_actor->ar_physics_paused)
+    if (truck->isBeingReset() || truck->ar_physics_paused)
         return;
 #ifdef USE_ANGELSCRIPT
-    if (m_player_actor->ar_vehicle_ai && m_player_actor->ar_vehicle_ai->isActive())
+    if (truck->ar_vehicle_ai && truck->ar_vehicle_ai->isActive())
         return;
 #endif // USE_ANGELSCRIPT
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT))
-        m_player_actor->ar_left_mirror_angle -= 0.001;
+    if (truck->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT))
+        truck->ar_left_mirror_angle -= 0.001;
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_RIGHT))
-        m_player_actor->ar_left_mirror_angle += 0.001;
+    if (truck->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_RIGHT))
+        truck->ar_left_mirror_angle += 0.001;
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_LEFT))
-        m_player_actor->ar_right_mirror_angle -= 0.001;
+    if (truck->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_LEFT))
+        truck->ar_right_mirror_angle -= 0.001;
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT))
-        m_player_actor->ar_right_mirror_angle += 0.001;
+    if (truck->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT))
+        truck->ar_right_mirror_angle += 0.001;
 
     // steering
-    float tmp_left_digital  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputSourceType::IST_DIGITAL);
-    float tmp_right_digital = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputSourceType::IST_DIGITAL);
-    float tmp_left_analog   = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputSourceType::IST_ANALOG);
-    float tmp_right_analog  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputSourceType::IST_ANALOG);
+    float tmp_left_digital  = truck->getEventValue(EV_TRUCK_STEER_LEFT , false, InputSourceType::IST_DIGITAL);
+    float tmp_right_digital = truck->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputSourceType::IST_DIGITAL);
+    float tmp_left_analog   = truck->getEventValue(EV_TRUCK_STEER_LEFT , false, InputSourceType::IST_ANALOG);
+    float tmp_right_analog  = truck->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputSourceType::IST_ANALOG);
 
     float sum = -std::max(tmp_left_digital, tmp_left_analog) + std::max(tmp_right_digital, tmp_right_analog);
 
-    m_player_actor->ar_hydro_dir_command = Ogre::Math::Clamp(sum, -1.0f, 1.0f);
+    truck->ar_hydro_dir_command = Ogre::Math::Clamp(sum, -1.0f, 1.0f);
 
-    m_player_actor->ar_hydro_speed_coupling = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
+    truck->ar_hydro_speed_coupling = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
 
-    if (m_player_actor->ar_engine)
+    if (truck->ar_engine)
     {
-        m_player_actor->ar_engine->UpdateInputEvents(dt);
+        truck->ar_engine->UpdateInputEvents(dt);
     }
 
-    if (m_player_actor->ar_brake > 1.0f / 6.0f)
+    if (truck->ar_brake > 1.0f / 6.0f)
     {
-        SOUND_START(m_player_actor, SS_TRIG_BRAKE);
+        SOUND_START(truck, SS_TRIG_BRAKE);
     }
     else
     {
-        SOUND_STOP(m_player_actor, SS_TRIG_BRAKE);
+        SOUND_STOP(truck, SS_TRIG_BRAKE);
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
     {
-        m_player_actor->toggleAxleDiffMode();
-        m_player_actor->displayAxleDiffMode();
+        truck->toggleAxleDiffMode();
+        truck->displayAxleDiffMode();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
     {
-        m_player_actor->toggleWheelDiffMode();
-        m_player_actor->displayWheelDiffMode();
+        truck->toggleWheelDiffMode();
+        truck->displayWheelDiffMode();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
     {
-        m_player_actor->toggleTransferCaseMode();
-        m_player_actor->displayTransferCaseMode();
+        truck->toggleTransferCaseMode();
+        truck->displayTransferCaseMode();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
     {
-        m_player_actor->toggleTransferCaseGearRatio();
-        m_player_actor->displayTransferCaseMode();
+        truck->toggleTransferCaseGearRatio();
+        truck->displayTransferCaseMode();
     }
 
-    if (m_player_actor->ar_is_police)
+    if (truck->ar_is_police)
     {
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_HORN))
+        if (truck->getEventBoolValueBounce(EV_TRUCK_HORN))
         {
-            SOUND_TOGGLE(m_player_actor, SS_TRIG_HORN); // Police siren
+            SOUND_TOGGLE(truck, SS_TRIG_HORN); // Police siren
         }
     }
     else
     {
-        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN)
+        if (truck->getEventBoolValue(EV_TRUCK_HORN)
             || App::GetGuiManager()->VehicleInfoTPanel.IsHornButtonActive())
         {
-            SOUND_START(m_player_actor, SS_TRIG_HORN);
+            SOUND_START(truck, SS_TRIG_HORN);
         }
         else
         {
-            SOUND_STOP(m_player_actor, SS_TRIG_HORN);
+            SOUND_STOP(truck, SS_TRIG_HORN);
         }
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
-            !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
+        !truck->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
     {
-        m_player_actor->parkingbrakeToggle();
+        truck->parkingbrakeToggle();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
     {
-        m_player_actor->antilockbrakeToggle();
+        truck->antilockbrakeToggle();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
     {
-        m_player_actor->tractioncontrolToggle();
+        truck->tractioncontrolToggle();
     }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
+    if (truck->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
     {
-        m_player_actor->cruisecontrolToggle();
+        truck->cruisecontrolToggle();
     }
 
-    if (m_player_actor->getTyrePressure().IsEnabled())
+    if (truck->getTyrePressure().IsEnabled())
     {
-        m_player_actor->getTyrePressure().UpdateInputEvents(dt);
+        truck->getTyrePressure().UpdateInputEvents(dt);
     }
 }
 
