@@ -2047,10 +2047,12 @@ int main(int argc, char *argv[])
                             {
                                 if (actor->ar_state != ActorState::NETWORKED_OK)
                                 {
-                                    // If this actor is not the player actor, it must not receive
-                                    // inputs from the InputEngine.
-                                    if (actor != App::GetGameContext()->GetPlayerActor())
-                                        actor->ar_force_simulated_values = true;
+                                    // Inputs from InputEngine are disabled for actors when:
+                                    //  - this actor is not the player actor
+                                    //  - camera behaviour is "Free"
+                                    actor->ar_force_simulated_values =
+                                        (actor != App::GetGameContext()->GetPlayerActor()) ||
+                                        (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE);
 
                                     App::GetGameContext()->UpdateCommonInputEvents(dt, actor);
                                     if (actor->ar_state != ActorState::LOCAL_REPLAY)
