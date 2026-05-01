@@ -15,7 +15,7 @@ class RoR(ConanFile):
         self.requires("discord-rpc/3.4.0@anotherfoxguy/stable")
         self.requires("libcurl/8.2.1")
         self.requires("fmt/10.1.1")
-        self.requires("mygui/3.4.0@anotherfoxguy/stable")
+        self.requires("mygui/3.4.1@anotherfoxguy/stable")
         self.requires("ogre3d-caelum/0.6.3.1@anotherfoxguy/stable")
         self.requires("ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable")
         self.requires("ogre3d/1.11.6.1@anotherfoxguy/stable", force=True)
