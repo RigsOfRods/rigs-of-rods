@@ -8,7 +8,9 @@
 #include "MyGUI_Gui.h"
 #include "MyGUI_LayerNode.h"
 
-namespace MyGUI {
+using namespace RoR;
+
+using namespace MyGUI;
 
 RTTLayer::RTTLayer() :
     mTexture(nullptr),
@@ -18,11 +20,7 @@ RTTLayer::RTTLayer() :
 
 RTTLayer::~RTTLayer()
 {
-    if (mTexture)
-    {
-        MyGUI::RenderManager::getInstance().destroyTexture(mTexture);
-        mTexture = nullptr;
-    }
+    this->destroyRttTexture();
 }
 
 void RTTLayer::deserialization(xml::ElementPtr _node, Version _version)
@@ -39,10 +37,15 @@ void RTTLayer::deserialization(xml::ElementPtr _node, Version _version)
         if (key == "TextureName")
             setTextureName(value);
     }
+
+    this->createRttTexture();
 }
 
 void RTTLayer::renderToTarget(IRenderTarget* _target, bool _update)
 {
+    if (!mTexture)
+        return;
+
     bool outOfDate = mOutOfDate || isOutOfDate();
 
     if (outOfDate || _update)
@@ -68,16 +71,8 @@ void RTTLayer::setTextureSize(const IntSize& _size)
         return;
 
     mTextureSize = _size;
-    if (mTexture)
-    {
-        MyGUI::RenderManager::getInstance().destroyTexture(mTexture);
-        mTexture = nullptr;
-    }
 
-    MYGUI_ASSERT(mTextureSize.width * mTextureSize.height, "RTTLayer texture size must have non-zero width and height");
-    std::string name = mTextureName.empty() ? MyGUI::utility::toString((size_t)this, getClassTypeName()) : mTextureName;
-    mTexture = MyGUI::RenderManager::getInstance().createTexture(name);
-    mTexture->createManual(mTextureSize.width, mTextureSize.height, MyGUI::TextureUsage::RenderTarget, MyGUI::PixelFormat::R8G8B8A8);
+    ROR_ASSERT(mTextureSize.width && mTextureSize.height && "RTTLayer texture size must have non-zero width and height");
 
     mOutOfDate = true;
 }
@@ -86,14 +81,56 @@ void RTTLayer::setTextureName(const std::string& _name)
 {
     mTextureName = _name;
 
-    if (mTexture != nullptr)
-    {
-        IntSize size = mTextureSize;
-        mTextureSize.clear();
-        setTextureSize(size);
-    }
-
     mOutOfDate = true;
 }
 
-} // namespace MyGUI
+void RTTLayer::destroyRttTexture()
+{
+    if (mTexture)
+    {
+        mTexture->destroy();
+        MyGUI::RenderManager::getInstance().destroyTexture(mTexture);
+        mTexture = nullptr;
+        LOG(fmt::format("[RoR|Dashboard] Destroyed texture '{}' in RTTLayer '{}'", mTextureName, mName));
+    }
+}
+
+void RTTLayer::createRttTexture()
+{
+    ROR_ASSERT(!mTexture && "RTTLayer texture already exists; destroy it first before creating a new one");
+    bool sizeIsValid = mTextureSize.width > 0 && mTextureSize.height > 0;
+    if (!mTexture && sizeIsValid)
+    {
+        std::string name = mTextureName.empty() ? MyGUI::utility::toString((size_t)this, getClassTypeName()) : mTextureName;
+        mTexture = MyGUI::RenderManager::getInstance().createTexture(name);
+        mTexture->createManual(mTextureSize.width, mTextureSize.height, MyGUI::TextureUsage::RenderTarget, MyGUI::PixelFormat::R8G8B8A8);
+        mOutOfDate = true;
+        LOG(fmt::format("[RoR|Dashboard] Created texture '{}' in RTTLayer '{}'", mTextureName, mName));
+    }
+}
+
+// ----------------------- RTTLayerManager -----------------------
+
+RTTLayer* RTTLayerManager::CreateOrReuseRttLayer()
+{
+    RTTLayer* rttLayer = nullptr;
+    if (mReusableRttLayers.size() > 0)
+    {
+        rttLayer = mReusableRttLayers.back();
+        mReusableRttLayers.pop_back();
+        LOG(fmt::format("[RoR|Dashboard] Reusing RTTLayer '{}'", rttLayer->getName()));
+    }
+    else
+    {
+        MyGUI::ILayer* layer = MyGUI::LayerManager::getInstance().createLayerAt(fmt::format("RttLayer_{}", mNextRenderdashRttNum++), "RTTLayer", 0);
+        rttLayer = dynamic_cast<RTTLayer*>(layer);
+        LOG(fmt::format("[RoR|Dashboard] Creating new RTTLayer '{}'", rttLayer->getName()));
+    }
+    return rttLayer;
+}
+
+void RTTLayerManager::RecycleRttLayer(RTTLayer* rttLayer)
+{
+    LOG(fmt::format("[RoR|Dashboard] Recycling RTTLayer '{}'", rttLayer->getName()));
+    mReusableRttLayers.push_back(rttLayer);
+}

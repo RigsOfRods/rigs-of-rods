@@ -504,8 +504,6 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
     {
         App::GetOverlayWrapper()->showDashboardOverlays(false, prev_player_actor);
 
-        prev_player_actor->GetGfxActor()->SetRenderdashActive(false);
-
         SOUND_STOP(prev_player_actor, SS_TRIG_AIR);
         SOUND_STOP(prev_player_actor, SS_TRIG_PUMP);
     }
@@ -561,8 +559,6 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
         {
             m_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_ENABLED_ONLINE);
         }
-
-        m_player_actor->GetGfxActor()->SetRenderdashActive(true);
 
         // force feedback
         App::GetAppContext()->GetForceFeedback().SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far

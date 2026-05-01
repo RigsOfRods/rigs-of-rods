@@ -26,7 +26,6 @@
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "ContentManager.h"
-#include "Renderdash.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"

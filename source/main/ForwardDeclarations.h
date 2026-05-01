@@ -165,9 +165,9 @@ namespace RoR
     struct Prop;
     struct PropAnim;
     class  RailGroup;
-    class  Renderdash;
     class  Replay;
     class  RigLoadingProfiler;
+    class  RTTLayer;
     class  Screwprop;
     class  ScriptEngine;
     class  ShadowManager;

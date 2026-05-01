@@ -42,7 +42,6 @@
 #include "MeshObject.h"
 #include "MovableText.h"
 #include "OgreImGui.h"
-#include "Renderdash.h" // classic 'renderdash' material
 #include "RoRnet.h"
 #include "ActorSpawner.h"
 #include "SlideNode.h"
@@ -59,11 +58,9 @@
 
 using namespace RoR;
 
-RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group,
-                        RoR::Renderdash* renderdash):
+RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group):
     m_actor(actor),
-    m_custom_resource_group(ogre_resource_group),
-    m_renderdash(renderdash)
+    m_custom_resource_group(ogre_resource_group)
 {
     // Setup particles
     m_particles_drip   = App::GetGfxScene()->GetDustPool("drip");
@@ -269,19 +266,6 @@ RoR::GfxActor::~GfxActor()
         catch (...)
         {
             HandleGenericException(WhereFrom(this, "destroying cab mesh"), HANDLEGENERICEXCEPTION_LOGFILE);
-        }
-    }
-
-    // Delete old dashboard RTT
-    if (m_renderdash != nullptr)
-    {
-        try
-        {
-            delete m_renderdash;
-        }
-        catch (...)
-        {
-            HandleGenericException(WhereFrom(this, "destroying renderdash"), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
 
@@ -2378,22 +2362,6 @@ void RoR::GfxActor::SetAeroEnginesVisible(bool visible)
     for (int i = 0; i < m_actor->ar_num_aeroengines; i++)
     {
         m_actor->ar_aeroengines[i]->setVisible(visible);
-    }
-}
-
-void RoR::GfxActor::SetRenderdashActive(bool active)
-{
-    if (m_renderdash != nullptr)
-    {
-        m_renderdash->setEnable(active);
-    }
-}
-
-void RoR::GfxActor::UpdateRenderdashRTT()
-{
-    if (m_renderdash != nullptr)
-    {
-        m_renderdash->getRenderTarget()->update();
     }
 }
 

@@ -279,6 +279,7 @@ CVar* ui_show_vehicle_buttons;
 CVar* ui_preset;
 CVar* ui_hide_gui;
 CVar* ui_default_truck_dash;
+CVar* ui_legacy_truck_renderdash;
 CVar* ui_default_boat_dash;
 CVar* ui_always_show_fullsize;
 

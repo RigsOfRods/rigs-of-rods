@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="ImageBox" skin="ImageBox" position="200 456 2048 1024" align="Left Top" layer="Back" name="_Main">
+        <Widget type="ImageBox" skin="ImageBox" position="0 0 2048 1024" align="Left Top" layer="Back" name="texture_container_2048x1024">
+            <Property key="ImageTexture" value="rdd_original.png"/>
+            <Widget type="TextBox" skin="TextBox" position="1060 556 1184 282" name="info_text">
+                <Property key="TextColour" value="1 1 1"/>
+                <Property key="TextAlign" value="Left Top"/>
+                <Property key="FontName" value="DefaultDashFont62"/>
+                <Property key="Caption" value="rdd_classic.layout\n\resources\dashboards.zip"/>
+            </Widget>
+            <Widget type="TextBox" skin="TextBox" position="1060 706 1184 161" name="info_text_2">
+                <Property key="TextColour" value="1 1 1"/>
+                <Property key="TextAlign" value="Left Top"/>
+                <Property key="FontName" value="DefaultDashFont"/>
+                <Property key="Caption" value="This is a dashboard layout/texture used for the interior dashboard on older vehicles.\nYou can specify a different dashboard mod to be used, by editing `ui_default_truck_dash` in \config\RoR.cfg\nNormal on-screen dashboard mods will not work. It has to be a specific layout, like this one."/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="0 512 1024 512" align="Right Bottom" layer="Back" name="renderdash_background">
+                <Property key="ImageTexture" value="rdd_dash_bg.png"/>
+				
+                <!-- T h e   g a u g e s -->
+                <Widget type="ImageBox" skin="ImageBox" position="102 10 368 368" align="Right Bottom" layer="Back" name="renderdash_turbo_bg">
+                    <Property key="ImageTexture" value="rdd_turbo_bg.png"/>
+					<UserString key="link" value="engine_turbo"/>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="102 10 368 368" align="Right Bottom" layer="Back" name="renderdash_tacho_bg">
+                    <Property key="ImageTexture" value="rdd_tacho_7k.png"/>
+					<UserString key="link" value="guisetting_tacho_tex"/>
+					<UserString key="anim" value="imagetexture"/>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="513 10 368 368" align="Right Bottom" layer="Back" name="renderdash_speedo_bg">
+                    <Property key="ImageTexture" value="rdd_speedo_140kph.png"/>
+					<UserString key="link" value="guisetting_speedo_tex"/>
+					<UserString key="anim" value="imagetexture"/>
+                </Widget>
+                
+                <!-- T h e   n e e d l e s -->
+                <Widget type="ImageBox" skin="RotatingSkin" position="133 45 306 306" align="Right Bottom" style="Overlapped" layer="Main" name="TachoNeedle">
+                    <Property key="ImageTexture" value="rdd_needle.png"/>
+                    <UserString key="anim" value="rotate"/>
+                    <UserString key="vmin" value="0"/>
+                    <UserString key="vmax" value="7950"/>
+                    <UserString key="link" value="guisetting_tacho_rpm"/>
+                    <UserString key="min" value="-121.5"/>
+                    <UserString key="max" value="118"/>
+                </Widget>
+                <Widget type="ImageBox" skin="RotatingSkin" position="541 45 306 306" align="Right Bottom" style="Overlapped" layer="Main" name="SpeedoNeedle">
+                    <Property key="ImageTexture" value="rdd_needle.png"/>
+                    <UserString key="anim" value="rotate"/>
+                    <UserString key="vmin" value="0"/>
+                    <UserString key="vmax" value="144"/>
+                    <UserString key="link" value="guisetting_speedo_kph"/>
+                    <UserString key="min" value="-140"/>
+                    <UserString key="max" value="137"/>
+                </Widget>
+                <Widget type="ImageBox" skin="RotatingSkin" position="119 307 254 254" align="Right Bottom" layer="Overlapped" name="needle_bottom">
+                    <Property key="ImageTexture" value="rdd_needle_turbo.png"/>
+                    <UserString key="link" value="engine_turbo"/>
+                    <UserString key="anim" value="rotate"/>
+                    <UserString key="vmax" value="130"/>
+                    <UserString key="vmin" value="-141"/>
+                    <UserString key="min" value="-130"/>
+                    <UserString key="max" value="60"/>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="895 47 104 75" align="Right Bottom" style="Overlapped" layer="Main" name="AutoGearR">
+                    <Widget type="TextBox" skin="TextBox" position="20 0 64 388" align="Left Top" layer="Main" name="textAutoGearR">
+                        <Property key="Caption" value="R\nN\nD\n1\n2"/>
+                        <Property key="FontName" value="DefaultDashFont62"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <UserString key="anim" value="textstring"/>
+                        <UserString key="link" value="engine_autogear_string"/>
+                    </Widget>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="895 123 104 62" align="Right Bottom" style="Overlapped" layer="Main" name="AutoGearN">
+                    <Widget type="TextBox" skin="TextBox" position="20 -88 64 388" align="Left Top" layer="Main" name="textAutoGearN">
+                        <Property key="Caption" value="R\nN\nD\n1\n2"/>
+                        <Property key="FontName" value="DefaultDashFont62"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <UserString key="anim" value="textstring"/>
+                        <UserString key="link" value="engine_autogear_string"/>
+                    </Widget>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="895 186 104 61" align="Right Bottom" style="Overlapped" layer="Main" name="AutoGearD">
+                    <Widget type="TextBox" skin="TextBox" position="20 -164 64 388" align="Left Top" layer="Main" name="textAutoGearD">
+                        <Property key="Caption" value="R\nN\nD\n1\n2"/>
+                        <Property key="FontName" value="DefaultDashFont62"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <UserString key="anim" value="textstring"/>
+                        <UserString key="link" value="engine_autogear_string"/>
+                    </Widget>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="895 248 104 61" align="Right Bottom" style="Overlapped" layer="Main" name="AutoGear2">
+                    <Widget type="TextBox" skin="TextBox" position="20 -238 64 388" align="Left Top" layer="Main" name="textAutoGear2">
+                        <Property key="Caption" value="R\nN\nD\n1\n2"/>
+                        <Property key="FontName" value="DefaultDashFont62"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <UserString key="anim" value="textstring"/>
+                        <UserString key="link" value="engine_autogear_string"/>
+                    </Widget>
+                </Widget>
+                <Widget type="ImageBox" skin="ImageBox" position="895 310 104 60" align="Right Bottom" style="Overlapped" layer="Main" name="AutoGear1">
+                    <Widget type="TextBox" skin="TextBox" position="20 -312 64 388" align="Left Top" layer="Main" name="textAutoGear2">
+                        <Property key="Caption" value="R\nN\nD\n1\n2"/>
+                        <Property key="FontName" value="DefaultDashFont62"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <UserString key="anim" value="textstring"/>
+                        <UserString key="link" value="engine_autogear_string"/>
+                    </Widget>
+                </Widget>
+                <Widget type="TextBox" skin="TextBox" position="412 264 167 66" name="textGear">
+                    <Property key="TextColour" value="1 1 1"/>
+                    <Property key="TextAlign" value="Center"/>
+                    <Property key="FontName" value="DefaultDashFont62"/>
+                    <Property key="Caption" value="N"/>
+                    <UserString key="anim" value="textstring"/>
+                    <UserString key="link" value="engine_gear_string"/>
+                </Widget>
+            </Widget>
+			<Widget type="ImageBox" skin="ImageBox" position="0 512 1024 512" align="Right Bottom" style="Overlapped" layer="Main" name="renderdash_glass">
+                <Property key="ImageTexture" value="rdd_dash_glass.png"/>
+			</Widget>
+        </Widget>
+    </Widget>
+</MyGUI>

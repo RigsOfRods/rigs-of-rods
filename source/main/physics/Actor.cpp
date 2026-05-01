@@ -3998,6 +3998,7 @@ void Actor::updateDashBoards(float dt)
         // RPM
         float rpm = ar_engine->getRPM();
         ar_dashboard->setFloat(DD_ENGINE_RPM, rpm);
+        ar_dashboard->setFloat(DD_GUISETTING_TACHO_RPM, rpm);
 
         // engine running
         bool engRun = ar_engine->isRunning();
@@ -4037,6 +4038,7 @@ void Actor::updateDashBoards(float dt)
     float cur_speed_kph = ar_wheel_speed * 3.6f;
     float smooth_kph = (cur_speed_kph * 0.3) + (ar_dashboard->_getFloat(DD_ENGINE_SPEEDO_KPH) * 0.7);
     ar_dashboard->setFloat(DD_ENGINE_SPEEDO_KPH, smooth_kph);
+    ar_dashboard->setFloat(DD_GUISETTING_SPEEDO_KPH, smooth_kph);
 
     // MPH
     float cur_speed_mph = ar_wheel_speed * 2.23693629f;
@@ -4227,6 +4229,7 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setEnabled(DD_ENGINE_AUTO_GEAR, hasEngine);
         ar_dashboard->setEnabled(DD_ENGINE_CLUTCH, hasEngine);
         ar_dashboard->setEnabled(DD_ENGINE_RPM, hasEngine);
+        ar_dashboard->setEnabled(DD_GUISETTING_TACHO_RPM, hasEngine);
         ar_dashboard->setEnabled(DD_ENGINE_IGNITION, hasEngine);
         ar_dashboard->setEnabled(DD_ENGINE_BATTERY, hasEngine);
         ar_dashboard->setEnabled(DD_ENGINE_CLUTCH_WARNING, hasEngine);

@@ -55,8 +55,7 @@ class GfxActor
 
 public:
 
-    GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group,
-        RoR::Renderdash* renderdash);
+    GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group);
 
     ~GfxActor();
 
@@ -83,7 +82,6 @@ public:
     void                 ToggleDebugView();
     void                 CycleDebugViews();
     void                 ResetFlexbodies();
-    void                 SetRenderdashActive(bool active);
     void                 SetBeaconsEnabled(bool beacon_light_is_active);
     void                 SetDebugView(DebugViewType dv);
     void                 SetNodeHot(NodeNum_t nodenum, bool value);
@@ -120,7 +118,6 @@ public:
     void                 UpdateAeroEngines();
     void                 UpdateNetLabels(float dt);
     void                 UpdateFlares(float dt, bool is_player);
-    void                 UpdateRenderdashRTT ();
 
     // SimBuffers
 
@@ -189,7 +186,6 @@ private:
     std::vector<WheelGfx>       m_wheels;
     std::vector<VideoCamera>    m_videocameras;
     std::vector<FlareMaterial>  m_flare_materials;
-    RoR::Renderdash*            m_renderdash = nullptr;
     std::vector<CParticle>      m_cparticles;
     std::vector<Exhaust>        m_exhausts;
     

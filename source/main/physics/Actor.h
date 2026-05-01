@@ -481,7 +481,6 @@ public:
     std::map<int,int> ar_net_stream_results;
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time = 0;
-    DashBoardManagerPtr ar_dashboard;
     float             ar_collision_range = DEFAULT_COLLISION_RANGE;             //!< Physics attr
     float             ar_top_speed = 0.f;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
@@ -511,8 +510,16 @@ public:
 
     // Guisettings
     bool              ar_guisettings_use_engine_max_rpm = false;
-    float             ar_guisettings_speedo_max_kph = 0.f;
+    float             ar_guisettings_speedo_max_kph = DEFAULT_SPEEDO_MAX_KPH;
     float             ar_guisettings_shifter_anim_time = 0.4f;
+    std::string       ar_guisettings_tacho_material;    //!< Used on 'renderdash'
+    std::string       ar_guisettings_speedo_material;   //!< Used on 'renderdash'
+    std::string       ar_guisettings_help_material;   //!< Used on 'renderdash'
+
+    // Dashboards
+    bool                m_hud_features_ok = false;      //!< Gfx state; Are HUD features matching actor's capabilities?
+    DashBoardManagerPtr ar_dashboard;                   //!< Gfx state; Dashboard manager (HUD element manager)
+
 
     // Gameplay state
     ActorState        ar_state = ActorState::LOCAL_SIMULATED;
@@ -669,6 +676,7 @@ private:
     CacheEntryPtr     m_used_skin_entry;               //!< Optional, only graphics.
     CacheEntryPtrVec  m_used_addonpart_entries;        //!< Optional, assigned by player via Tuning menu (.tuneup files).
     CacheEntryPtrVec  m_used_assetpack_entries;        //!< Optional, specified by mod author in truck file via 'assetpacks' section.
+    /// @}
 
     /// @name Networking
     /// @{
@@ -693,7 +701,7 @@ private:
     bool              m_blinker_right_lit = false;               //!< Blinking state of right turn signal
     /// @}
 
-    bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
+    
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
     bool m_net_initialized:1;
     bool m_water_contact:1;        //!< Scripting state

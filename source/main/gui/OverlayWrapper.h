@@ -218,8 +218,7 @@ protected:
     // -------------------------------------------------------------
 
     // Truck
-    Ogre::OverlayElement* guiGear = nullptr;      //!< truck
-    Ogre::OverlayElement* guiGear3D = nullptr;    //!< truck
+    Ogre::OverlayElement* guiGear = nullptr;
 
     // Marine overlay elements
     Ogre::OverlayElement *bthro1 = nullptr;
@@ -227,7 +226,6 @@ protected:
 
     // Truck
     Ogre::TextAreaOverlayElement* guiAuto[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
-    Ogre::TextAreaOverlayElement* guiAuto3D[5] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 
     // Truck (racing overlay)
     Ogre::TextAreaOverlayElement* laptime = nullptr;
@@ -236,8 +234,8 @@ protected:
     Ogre::TextAreaOverlayElement* boat_depth_value_taoe = nullptr; //!< Marine
 
     // truck
-    Ogre::TextureUnitState *speedotexture = nullptr; // Needed for dashboard prop
-    Ogre::TextureUnitState *tachotexture = nullptr;  // Needed for dashboard prop
+    Ogre::TextureUnitState *speedotexture = nullptr;
+    Ogre::TextureUnitState *tachotexture = nullptr;
 
     // Marine
     Ogre::TextureUnitState *boatspeedtexture = nullptr;
