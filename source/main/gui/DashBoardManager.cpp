@@ -30,6 +30,8 @@
 #include "CacheSystem.h"
 #include "Console.h"
 #include "GenericFileFormat.h"
+#include "gui/GUIManager.h"
+#include "RTTLayer.h"
 #include "ScriptEngine.h"
 #include "Utils.h"
 
@@ -141,11 +143,17 @@ DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(acto
     INITDATA(DD_SIGNAL_TURNRIGHT        , DC_BOOL, "signal_turnright");
     INITDATA(DD_SIGNAL_WARNING          , DC_BOOL, "signal_warning");
 
+    INITDATA(DD_GUISETTING_TACHO        , DC_CHAR,  "guisetting_tacho_tex");
+    INITDATA(DD_GUISETTING_SPEEDO       , DC_CHAR,  "guisetting_speedo_tex");
+    INITDATA(DD_GUISETTING_HELP         , DC_CHAR,  "guisetting_help");
+    INITDATA(DD_GUISETTING_TACHO_RPM    , DC_FLOAT, "guisetting_tacho_rpm");
+    INITDATA(DD_GUISETTING_SPEEDO_KPH   , DC_FLOAT, "guisetting_speedo_kph");
+
     // load dash fonts
     MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
 }
 
-DashBoardManager::~DashBoardManager(void)
+DashBoardManager::~DashBoardManager()
 {
     // free all objects
     while (m_dashboards.size() > 0)
@@ -247,7 +255,7 @@ struct DashCandidateLayout
     }
 };
 
-std::string DashBoardManager::determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename)
+std::string DashBoardManager::determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename, BitMask_t loaddashboardFlags)
 {
     App::GetCacheSystem()->LoadResource(entry);
     Ogre::FileInfoListPtr filelist
@@ -267,7 +275,8 @@ std::string DashBoardManager::determineLayoutFromDashboardMod(CacheEntryPtr& ent
         return filelist->begin()->filename;
     }
 
-    if (m_actor->ar_driveable == TRUCK)
+    // Renderdash is created before `ar_driveable` is set.
+    if (m_actor->ar_driveable == TRUCK || BITMASK_IS_1(loaddashboardFlags, LOADDASHBOARD_RENDERDASH))
     {
         return this->determineTruckLayoutFromDashboardMod(filelist);
     }
@@ -408,13 +417,43 @@ void DashBoardManager::loadDashboardModDetails(CacheEntryPtr& entry)
     }
 }
 
-void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flags)
+// Internal helper for `loadDashBoard()`.
+bool GetGuisettingTextureName(const std::string& logLabel, const std::string& matGuisetting, const std::string& matRg, std::string& outTexname)
+{
+    if (matGuisetting == "")
+    {
+        LOG(fmt::format("[RoR|DashBoard] '{}' not defined in 'guisettings'", logLabel));
+        return false;
+    }
+
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(matGuisetting, matRg);
+    if (!mat)
+    {
+        LOG(fmt::format("[RoR|DashBoard] '{}' '{}' not found", logLabel, matGuisetting));
+        return false;
+    }
+
+    if (
+        !mat->getTechniques().size() || 
+        !mat->getTechniques()[0]->getPasses().size() ||
+        !mat->getTechniques()[0]->getPasses()[0]->getTextureUnitStates().size() ||
+            mat->getTechniques()[0]->getPasses()[0]->getTextureUnitStates()[0]->getTextureName() == "")
+    {
+        LOG(fmt::format("[RoR|DashBoard] '{}' '{}' has no texture", logLabel, matGuisetting));
+        return false;
+    }
+
+    outTexname = mat->getTechniques()[0]->getPasses()[0]->getTextureUnitStates()[0]->getTextureName();
+    return true;
+}
+
+DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flags, RTTLayer* rttLayer)
 {
     // filename may be either '.layout' file (classic approach) or a new '.dashboard' mod.
     // ----------------------------------------------------------------------------------
 
-    if (BITMASK_IS_0(flags, LOADDASHBOARD_SCREEN_HUD | LOADDASHBOARD_RTT_TEXTURE))
-        return; // Nothing to do.
+    if (BITMASK_IS_0(flags, LOADDASHBOARD_SCREEN_HUD | LOADDASHBOARD_RTT_TEXTURE | LOADDASHBOARD_RENDERDASH))
+        return nullptr; // Nothing to do.
 
     std::string basename, ext, layoutfname, scriptfilename = "";
     Ogre::StringUtil::splitBaseFilename(filename, basename, ext);
@@ -425,10 +464,10 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
                 fmt::format("DashboardManager: Could not find dashboard file '{}'", filename));
-            return;
+            return nullptr;
         }
         App::GetCacheSystem()->LoadResource(entry);
-        layoutfname = this->determineLayoutFromDashboardMod(entry, basename);
+        layoutfname = this->determineLayoutFromDashboardMod(entry, basename, flags);
 
         loadDashboardModDetails(entry);
 
@@ -457,12 +496,13 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
             fmt::format("{}: Cannot load dashboard '{}' - no applicable layout file found", m_actor->ar_design_name, filename));
-        return;
+        return nullptr;
     }
 
+    DashBoard* d = nullptr;
     if (BITMASK_IS_1(flags, LOADDASHBOARD_RTT_TEXTURE))
     {
-        DashBoard* d = new DashBoard(this, layoutfname, loadedRTTDashboards + 1);
+        d = new DashBoard(this, layoutfname, rttLayer);
         loadedRTTDashboards++;
         // This dashboard shouldn't be visible at this point, since
         // it's not linked to the current player actor yet.
@@ -481,9 +521,22 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
         }
     }
 
+    if (BITMASK_IS_1(flags, LOADDASHBOARD_RENDERDASH))
+    {
+        d = new DashBoard(this, layoutfname, rttLayer);
+        loadedRTTDashboards++;
+        d->setVisible(true);
+        if (scriptfilename != "")
+        {
+            d->loadScript(scriptfilename, m_actor);
+        }
+        m_dashboards.push_back(d);
+        // NOTE: Renderdash RTTs are never stackable
+    }
+
     if (BITMASK_IS_1(flags, LOADDASHBOARD_SCREEN_HUD))
     {
-        DashBoard* d = new DashBoard(this, layoutfname, NO_RTT_DASHBOARD);
+        d = new DashBoard(this, layoutfname, rttLayer);
         d->setVisible(true);
         if (scriptfilename != "")
         {
@@ -496,6 +549,64 @@ void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flag
             m_hud_loaded = true;
         }
     }
+
+    // Apply textures from 'guisettings' in truck file.
+
+    std::string tachotex;
+    if (GetGuisettingTextureName("tachoMaterial", m_actor->ar_guisettings_tacho_material,
+        m_actor->GetGfxActor()->GetResourceGroup(), tachotex))
+    {
+        this->setChar(DD_GUISETTING_TACHO, tachotex.c_str());
+        // Special feature: adjust the tachometer's maximum RPM according to the truck's engine redline RPM
+        if (m_actor->ar_guisettings_use_engine_max_rpm)
+        {
+            for (DashBoard::layoutLink_t& link : d->controls)
+            {
+                for (int i = 0; i < link.geometricAnimationCount; i++)
+                {
+                    DashBoard::layoutGeometricAnimation_t& anim = link.geometricAnimations[i];
+                    if (anim.linkID == DD_GUISETTING_TACHO_RPM)
+                    {
+                        const float redlineRPM = (float)m_actor->ar_engine->getShiftUpRPM();
+                        const std::string prefixLessName = std::string(link.name).substr(d->prefix.size());
+                        LOG(fmt::format("[RoR|DashBoard] per 'guisettings/useMaxRPM', overriding vmax of '{}' to {}", prefixLessName, redlineRPM));
+                        anim.vmax = redlineRPM;
+                    }
+                }
+            }
+        }
+    }
+    std::string speedotex;
+    if (GetGuisettingTextureName("speedoMaterial", m_actor->ar_guisettings_speedo_material,
+        m_actor->GetGfxActor()->GetResourceGroup(), speedotex))
+    {
+        this->setChar(DD_GUISETTING_SPEEDO, speedotex.c_str());
+        // Special feature: adjust the speedometer's maximum KPH according to value given in 'guisettings'.
+        if (m_actor->ar_guisettings_speedo_max_kph != DEFAULT_SPEEDO_MAX_KPH)
+        {
+            for (DashBoard::layoutLink_t& link : d->controls)
+            {
+                for (int i = 0; i < link.geometricAnimationCount; i++)
+                {
+                    DashBoard::layoutGeometricAnimation_t& anim = link.geometricAnimations[i];
+                    if (anim.linkID == DD_GUISETTING_SPEEDO_KPH)
+                    {
+                        const std::string prefixLessName = std::string(link.name).substr(d->prefix.size());
+                        LOG(fmt::format("[RoR|DashBoard] per 'guisettings/speedoMax', overriding vmax of '{}' to {}", prefixLessName, m_actor->ar_guisettings_speedo_max_kph));
+                        anim.vmax = m_actor->ar_guisettings_speedo_max_kph;
+                    }
+                }
+            }
+        }
+    }
+    std::string helptex;
+    if (GetGuisettingTextureName("helpMaterial", m_actor->ar_guisettings_help_material,
+        m_actor->GetGfxActor()->GetResourceGroup(), helptex))
+    {
+        this->setChar(DD_GUISETTING_HELP, helptex.c_str());
+    }
+
+    return d;
 }
 
 void DashBoardManager::update(float dt)
@@ -564,24 +675,16 @@ void DashBoardManager::windowResized()
 
 // DASHBOARD class below
 
-DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, int _textureLayerNum)
+DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, RTTLayer* _rttLayer)
     : manager(manager)
     , filename(filename)
-    , free_controls(0)
     , visible(false)
     , mainWidget(nullptr)
-    , textureLayerNum(_textureLayerNum)
+    , rttLayer(_rttLayer)
 {
     // use 'this' class pointer to make layout unique
     prefix = MyGUI::utility::toString(this, "_");
 
-    if (getIsTextureLayer())
-    {
-        rttLayer = fmt::format("RTTLayer{}", textureLayerNum);
-        rttTexture = fmt::format("RTTTexture{}", textureLayerNum);
-    }
-
-    memset(&controls, 0, sizeof(controls));
     loadLayoutInternal();
     // hide first
     if (mainWidget)
@@ -599,6 +702,12 @@ DashBoard::~DashBoard()
     MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
     // Force unloading the '.layout' file from memory
     MyGUI::ResourceManager::getInstance().removeByName(filename);
+    if (rttLayer)
+    {
+        // Clean up the RTT
+        rttLayer->destroyRttTexture();
+        App::GetGuiManager()->GetRttLayerManager().RecycleRttLayer(rttLayer);
+    }
 }
 
 void DashBoard::loadScript(std::string scriptFilename, ActorPtr associatedActor)
@@ -612,7 +721,7 @@ void DashBoard::loadScript(std::string scriptFilename, ActorPtr associatedActor)
 void DashBoard::updateFeatures()
 {
     // this hides / shows parts of the gui depending on the vehicle features
-    for (int i = 0; i < free_controls; i++)
+    for (size_t i = 0; i < controls.size(); i++)
     {
         bool enabled = manager->getEnabled(controls[i].linkIDForVisibility);
 
@@ -640,7 +749,7 @@ float DashBoard::getSmoothNumeric(int linkID, float& lastVal)
 void DashBoard::update(float dt)
 {
     // walk all controls and animate them
-    for (int i = 0; i < free_controls; i++)
+    for (size_t i = 0; i < controls.size(); i++)
     {
         // Process graphical animation
         if (controls[i].graphicalAnimation.animationType == ANIM_LAMP)
@@ -714,6 +823,14 @@ void DashBoard::update(float dt)
         {
             char* val = manager->getChar(controls[i].graphicalAnimation.linkID);
             controls[i].txt->setCaption(MyGUI::UString(val));
+        }
+        else if (controls[i].graphicalAnimation.animationType == ANIM_IMAGETEXTURE)
+        {
+            char* val = manager->getChar(controls[i].graphicalAnimation.linkID);
+            if (strnlen(val, DD_MAXCHAR) > 0)
+            {
+                controls[i].img->setImageTexture(MyGUI::UString(val));
+            }
         }
 
         float finalHorizontalTranslation = 0,
@@ -792,7 +909,7 @@ void DashBoard::windowResized()
     if (getIsTextureLayer())
     {
         // texture layers are independent from the screen size, but rather from the layer texture size
-        TexturePtr tex = TextureManager::getSingleton().getByName(rttTexture);
+        TexturePtr tex = TextureManager::getSingleton().getByName(rttLayer->getTextureName());
         if (tex)
             mainWidget->setSize(tex->getWidth(), tex->getHeight());
     }
@@ -1003,6 +1120,15 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                     else
                         graphicalAnimationAlreadySet = true;
                 }
+                else if (anim == "imagetexture")
+                {
+                    animType = ANIM_IMAGETEXTURE;
+                    graphicalAnimation = true;
+                    if (graphicalAnimationUsed == "")
+                        graphicalAnimationUsed = anim;
+                    else
+                        graphicalAnimationAlreadySet = true;
+                }
                 else
                 {
                     LOG("Dashboard (" + filename + "/" + name + "): Unknown animation \"" + anim + "\".");
@@ -1048,38 +1174,31 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                     if (!format.empty())
                         strncpy(ctrl.graphicalAnimation.format, format.c_str(), sizeof ctrl.graphicalAnimation.format);
 
+                    // check if its the correct control
                     if (animType == ANIM_SERIES)
                     {
-                        ctrl.img = (MyGUI::ImageBox*)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
+                        ctrl.img = w->castType<MyGUI::ImageBox>(/* _throw: */ false);
                         if (!ctrl.img)
                         {
-                            LOG("Dashboard (" + filename + "/" + name + "): error loading series control");
+                            LOG("Dashboard (" + filename + "/" + name + "): series anim must use the ImageBox Control");
                             return;
                         }
                     }
                     else if (animType == ANIM_TEXTCOLOR)
                     {
-                        // try to cast, will throw
-                        try
+                        ctrl.txt = w->castType<MyGUI::TextBox>(/* _throw: */ false);
+                        if (!ctrl.txt)
                         {
-                            ctrl.txt = (MyGUI::TextBox*)w;
-                        }
-                        catch (...)
-                        {
-                            LOG("Dashboard (" + filename + "/" + name + "): textcolor controls must use the TextBox Control");
+                            LOG("Dashboard (" + filename + "/" + name + "): textcolor anim must use the TextBox Control");
                             return;
                         }
                     }
                     else if (animType == ANIM_TEXTFORMAT)
                     {
-                        // try to cast, will throw
-                        try
+                        ctrl.txt = w->castType<MyGUI::TextBox>(/* _throw: */ false);
+                        if (!ctrl.txt)
                         {
-                            ctrl.txt = (MyGUI::TextBox*)w; // w->getSubWidgetMain()->castType<MyGUI::TextBox>();
-                        }
-                        catch (...)
-                        {
-                            LOG("Dashboard (" + filename + "/" + name + "): Lamp controls must use the ImageBox Control");
+                            LOG("Dashboard (" + filename + "/" + name + "): textformat anim must use the TextBox Control");
                             return;
                         }
 
@@ -1092,37 +1211,28 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                     }
                     else if (animType == ANIM_TEXTSTRING)
                     {
-                        // try to cast, will throw
-                        try
+                        ctrl.txt = w->castType<MyGUI::TextBox>(/* _throw: */ false);
+                        if (!ctrl.txt)
                         {
-                            ctrl.txt = (MyGUI::TextBox*)w; // w->getSubWidgetMain()->castType<MyGUI::TextBox>();
-                        }
-                        catch (...)
-                        {
-                            LOG("Dashboard (" + filename + "/" + name + "): Lamp controls must use the ImageBox Control");
+                            LOG("Dashboard (" + filename + "/" + name + "): textstring anim must use the TextBox Control");
                             return;
                         }
                     }
                     else if (animType == ANIM_LAMP)
                     {
-                        // try to cast, will throw
-                        /*
-                        {
-                            try
-                            {
-                                w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-                            }
-                            catch (...)
-                            {
-                                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
-                                continue;
-                            }
-                        }
-                        */
-                        ctrl.img = (MyGUI::ImageBox*)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
+                        ctrl.img = w->castType<MyGUI::ImageBox>(/* _throw: */ false);
                         if (!ctrl.img)
                         {
-                            LOG("Dashboard (" + filename + "/" + name + "): error loading Lamp control");
+                            LOG("Dashboard (" + filename + "/" + name + "): lamp anim must use the ImageBox Control");
+                            return;
+                        }
+                    }
+                    else if (animType == ANIM_IMAGETEXTURE)
+                    {
+                        ctrl.img = w->castType<MyGUI::ImageBox>(/* _throw: */ false);
+                        if (!ctrl.img)
+                        {
+                            LOG("Dashboard (" + filename + "/" + name + "): imagetexture anim must use the ImageBox Control");
                             return;
                         }
                     }
@@ -1167,28 +1277,10 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                         if (animType == ANIM_ROTATE)
                         {
                             // check if its the correct control
-                            // try to cast, will throw
-                            // and if the link is a float
-                            /*
-                            if (manager->getDataType(ctrl.linkID) != DC_FLOAT)
-                            {
-                                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls can only link to floats");
-                                continue;
-                            }
-                            */
-
-                            try
-                            {
-                                ctrl.rotImg = w->getSubWidgetMain()->castType<MyGUI::RotatingSkin>();
-                            }
-                            catch (...)
-                            {
-                                LOG("Dashboard (" + filename + "/" + name + "): Rotating controls must use the RotatingSkin");
-                                return;
-                            }
+                            ctrl.rotImg = w->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(/* _throw: */ false);
                             if (!ctrl.rotImg)
                             {
-                                LOG("Dashboard (" + filename + "/" + name + "): error loading rotation control");
+                                LOG("Dashboard (" + filename + "/" + name + "): Rotating controls must use the RotatingSkin");
                                 return;
                             }
 
@@ -1228,13 +1320,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             anim = w->getUserString(animNumStr);
         }
 
-        controls[free_controls] = ctrl;
-        free_controls++;
-        if (free_controls >= MAX_CONTROLS)
-        {
-            LOG("maximum amount of controls reached, discarding the rest: " + TOSTRING(MAX_CONTROLS));
-            return;
-        }
+        controls.push_back(ctrl);
     }
     else
     {
@@ -1253,13 +1339,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             ctrl.initialPosition = w->getPosition();
             ctrl.lastState = false;
 
-            controls[free_controls] = ctrl;
-            free_controls++;
-            if (free_controls >= MAX_CONTROLS)
-            {
-                LOG("maximum amount of controls reached, discarding the rest: " + TOSTRING(MAX_CONTROLS));
-                return;
-            }
+            controls.push_back(ctrl);
         }
     }
 
@@ -1281,8 +1361,12 @@ void DashBoard::loadLayoutInternal()
     }
 
     // if this thing should be rendered to texture, relocate the main window to the RTT layer
+
     if (getIsTextureLayer() && mainWidget)
-        mainWidget->detachFromWidget(rttLayer);
+    {
+        // NOTE: this confusingly named MyGUI function actually attaches the widget to the `rttLayer` (which means detaching from previous hierarchy, that's what the name is trying to say).
+        mainWidget->detachFromWidget(rttLayer->getName());
+    }
 }
 
 void DashBoard::setVisible(bool v, bool smooth)

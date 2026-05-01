@@ -52,6 +52,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GameContext.h"
+#include "GUIManager.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
 #include "Console.h"
@@ -59,7 +60,6 @@
 #include "Language.h"
 #include "MeshObject.h"
 #include "PointColDetector.h"
-#include "Renderdash.h"
 #include "ScrewProp.h"
 #include "Skidmark.h"
 #include "SkinFileFormat.h"
@@ -1256,7 +1256,8 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 {
     if (def.key == "helpMaterial")
     {
-        m_help_material_name = (def.value != "") ? def.value : m_help_material_name;
+        // Don't override value from 'help' section
+        m_actor->ar_guisettings_help_material = (def.value != "") ? def.value : m_actor->ar_guisettings_help_material;
     }
     else if (def.key == "speedoMax")
     {
@@ -1279,6 +1280,14 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
     else if (def.key == "shifterAnimTime")
     {
         m_actor->ar_guisettings_shifter_anim_time = PARSEREAL(def.value);
+    }
+    else if (def.key == "tachoMaterial")
+    {
+        m_actor->ar_guisettings_tacho_material = def.value;
+    }
+    else if (def.key == "speedoMaterial")
+    {
+        m_actor->ar_guisettings_speedo_material = def.value;
     }
 
     // NOTE: Dashboard layouts are processed later
@@ -5588,7 +5597,7 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
 
 void ActorSpawner::ProcessHelp(RigDef::Help & def)
 {
-    m_help_material_name = def.material;
+    m_actor->ar_guisettings_help_material = def.material;
 };
 
 void ActorSpawner::ProcessAuthor(RigDef::Author & def)
@@ -6765,27 +6774,37 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
         // Register the substitute
         m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
 
-        // Finally, query texture replacements - .skin and builtins
+        // Finally, query texture replacements - .skin and dashboards.
         for (auto& technique: lookup_entry.material->getTechniques())
         {
             for (auto& pass: technique->getPasses())
             {
                 for (auto& tex_unit: pass->getTextureUnitStates())
                 {
-                    // Built-ins
+                    // The built-in 'renderdash' material and associated 'dashtexture'.
                     if (tex_unit->getTextureName() == "dashtexture")
                     {
-                        if (!m_oldstyle_renderdash)
+                        ROR_ASSERT(m_renderdash_rtt_layer && "RenderDash RTT layer not created");
+                        Ogre::TexturePtr dash_tex = Ogre::TextureManager::getSingleton().getByName(m_renderdash_rtt_layer->getTextureName());
+                        ROR_ASSERT(dash_tex && "could not find renderdash's render texture");
+                        tex_unit->setTexture(dash_tex);
+                    }
+                    // The placeholder 'RTTTexture#'-s specified by 'guisettings/texturedashboard' entries in truck file.
+                    else if (Ogre::StringUtil::startsWith(tex_unit->getTextureName(), "RTTTexture"))
+                    {
+                        int rtt_index = std::stoi(tex_unit->getTextureName().substr(std::string("RTTTexture").length()));
+                        if (rtt_index > 0 && rtt_index <= (int)m_texturedashboard_rtt_layers.size())
                         {
-                            // This is technically a bug, but does it matter at all? Let's watch ~ only_a_ptr, 05/2019
-                            std::stringstream msg;
-                            msg << "Warning: '" << mat_lookup_name
-                                << "' references 'dashtexture', but Renderdash isn't created yet! Texture will be blank.";
-                            this->AddMessage(Message::TYPE_WARNING, msg.str());
+                            const std::string texname = m_texturedashboard_rtt_layers[rtt_index - 1]->getTextureName();
+                            LOG(fmt::format("[RoR|DashBoard] Swapping placeholder '{}' for '{}'", tex_unit->getTextureName(), texname));
+                            const Ogre::TexturePtr dash_tex = Ogre::TextureManager::getSingleton().getByName(texname);
+                            tex_unit->setTexture(dash_tex);
                         }
                         else
                         {
-                            tex_unit->setTexture(m_oldstyle_renderdash->getTexture());
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                                fmt::format("Invalid dashboard RTT texture {} in material '{}', number of available RTTTextures: {}",
+                                    tex_unit->getTextureName(), lookup_entry.material->getName(), m_texturedashboard_rtt_layers.size()));
                         }
                     }
                     // .skin
@@ -6938,44 +6957,58 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     // Load dashboard layouts
+    this->SetCurrentKeyword(RigDef::Keyword::GUISETTINGS); // Logging
     for (auto& module: m_selected_modules)
     {
         for (auto& gs: module->guisettings)
         {
             if (gs.key == "dashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_SCREEN_HUD);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_SCREEN_HUD, nullptr);
             }
             else if (gs.key == "texturedashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_RTT_TEXTURE);
+                if (!m_texturedashboard_rtt_layers.size())
+                {
+                    this->AddMessage(Message::TYPE_ERROR, "Internal error - missing pre-allocated RTT layer");
+                }
+                else
+                {
+                    const std::string rtt_name = this->ComposeName("dashboard_rtt", m_actor->ar_instance_id);
+                    RTTLayer* rtt_layer = m_texturedashboard_rtt_layers.front();
+                    m_texturedashboard_rtt_layers.erase(m_texturedashboard_rtt_layers.begin());
+                    m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_RTT_TEXTURE, rtt_layer);
+                }
             }
         }
     }
+    this->SetCurrentKeyword(RigDef::Keyword::INVALID); // Logging
 
     // If none specified, load default dashboard layouts
-    BitMask_t defaultdash_flags = 0;
+    BitMask_t defaultdash_flags = 0; // this means 'do nothing'
+    RTTLayer* defaultdash_rtt_layer = nullptr;
     BITMASK_SET_1(defaultdash_flags, m_actor->ar_dashboard->wasDashboardHudLoaded() ? 0 : LOADDASHBOARD_SCREEN_HUD);
-    BITMASK_SET_1(defaultdash_flags, m_actor->ar_dashboard->wasDashboardRttLoaded() ? 0 : LOADDASHBOARD_RTT_TEXTURE);
+
     switch (m_actor->ar_driveable)
     {
     case TRUCK:
-        m_actor->ar_dashboard->loadDashBoard(App::ui_default_truck_dash->getStr(), defaultdash_flags);
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_truck_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
+        m_actor->ar_dashboard->loadDashBoard(App::ui_legacy_truck_renderdash->getStr(), LOADDASHBOARD_RENDERDASH, m_renderdash_rtt_layer);
         m_actor->ar_dashboard->setVisible(false);
         break;
     case BOAT:
-        m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags);
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
         m_actor->ar_dashboard->setVisible(false);
         break;
     default:
         break;
     }
 
-    if (!m_help_material_name.empty())
+    if (m_actor->ar_guisettings_help_material != "")
     {
         try
         {
-            Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_help_material_name, m_custom_resource_group);
+            Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_actor->ar_guisettings_help_material, m_custom_resource_group);
             m_actor->m_gfx_actor->m_help_mat = mat;
             if (mat &&
                 mat->getNumTechniques() > 0 &&
@@ -6991,7 +7024,7 @@ void ActorSpawner::FinalizeGfxSetup()
         catch (Ogre::Exception& e)
         {
             this->AddMessage(Message::TYPE_ERROR,
-                "Failed to load `help` material '" + m_help_material_name + "', message:" + e.getFullDescription());
+                "Failed to load `help` material '" + m_actor->ar_guisettings_help_material + "', message:" + e.getFullDescription());
         }
     }
 
@@ -7529,4 +7562,53 @@ void ActorSpawner::AssignManagedMaterialTexture(Ogre::TextureUnitState* tus, con
     catch (...) // Exception is already logged by OGRE
     {
     }
+}
+
+void ActorSpawner::CreateDashboardRttLayers()
+{
+    // Create 'RTTTexture#' textures for 'guisettings/texturedashboard' (# is number starting with 1).
+    // The first texturedashboard is rendered to RTTTexture1, the second one to RTTTexture2, and so on.
+    // This must be done before loading the meshes (usually 'props') that use these textures.
+    // -----------------------------------------------------------------------------------------------
+
+    for (auto& module: m_selected_modules)
+    {
+        for (auto& gs: module->guisettings)
+        {
+            if (gs.key == "texturedashboard")
+            {
+                RTTLayer* rttLayer = App::GetGuiManager()->GetRttLayerManager().CreateOrReuseRttLayer();
+                rttLayer->setTextureSize(MyGUI::IntSize(1024, 1024));
+                rttLayer->setTextureName(this->ComposeName("RTTTexture", (int)m_texturedashboard_rtt_layers.size() + 1));
+                rttLayer->createRttTexture();
+                m_texturedashboard_rtt_layers.push_back(rttLayer);
+            }
+        }
+    }
+}
+
+void ActorSpawner::PrepareRenderdashMaterial()
+{
+    // Set up the built-in "renderdash" material for use in meshes.
+    // Must be done before 'props' are processed because those traditionally use it.
+
+    // Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
+    // ----------------------------------------------------------------------------------------------------------------------------------
+
+    // NOTE: The 'renderdash' material is defined as a dummy in file 'ror.material' which is loaded into every actor's resource group.
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("renderdash", m_custom_resource_group);
+    ROR_ASSERT(mat && "could not find 'renderdash' material");
+
+    // Create a rendertarget-texture for the renderdash, but don't load the dashboard layout yet - to determine type and RPM, `ar_engine` and `ar_driveable` must be set up first.
+    m_renderdash_rtt_layer = App::GetGuiManager()->GetRttLayerManager().CreateOrReuseRttLayer();
+    m_renderdash_rtt_layer->setTextureSize(MyGUI::IntSize(2048, 1024));
+    m_renderdash_rtt_layer->setTextureName(this->ComposeName("rendertex"));
+    m_renderdash_rtt_layer->createRttTexture();
+
+    // Attach the generated RTT texture to the material
+    ROR_ASSERT(m_renderdash_rtt_layer && "failed to create 'renderdash' RTT layer");
+    Ogre::TexturePtr renderdash_tex = Ogre::TextureManager::getSingleton().getByName(m_renderdash_rtt_layer->getTextureName());
+    ROR_ASSERT(renderdash_tex && "failed to find 'renderdash' texture");
+    LOG(fmt::format("[RoR|DashBoard] Swapping placeholder 'dashtexture' for '{}'", m_renderdash_rtt_layer->getTextureName()));
+    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(renderdash_tex);
 }

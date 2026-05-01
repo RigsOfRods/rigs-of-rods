@@ -229,7 +229,6 @@ void GfxScene::UpdateScene(float dt)
             gfx_actor->UpdateExhausts();
             gfx_actor->UpdateAeroEngines();
             gfx_actor->UpdatePropAnimations(dt_actor);
-            gfx_actor->UpdateRenderdashRTT();
         }
         // Beacon flares must always be updated
         gfx_actor->UpdateProps(dt_actor, (gfx_actor == player_gfx_actor));

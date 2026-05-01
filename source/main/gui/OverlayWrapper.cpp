@@ -273,8 +273,8 @@ int OverlayWrapper::init()
     boatsteertexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatsteer/fg_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 
     //prepare needles
-    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
-    tachotexture  = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat"))) ->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
+    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    tachotexture  = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat"))) ->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 
     resizePanel(loadOverlayElement("tracks/airspeedneedle"));
     m_aerial_dashboard.airspeedtexture = GetTexUnit("tracks/airspeedneedle_mat");
@@ -316,19 +316,12 @@ int OverlayWrapper::init()
     m_aerial_dashboard.engines[3].torque_texture = GetTexUnit("tracks/airtorque4needle_mat");
 
     guiGear = loadOverlayElement("tracks/Gear");
-    guiGear3D = loadOverlayElement("tracks/3DGear");
 
     guiAuto[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearR");
     guiAuto[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearN");
     guiAuto[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearD");
     guiAuto[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear2");
     guiAuto[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear1");
-
-    guiAuto3D[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearR");
-    guiAuto3D[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearN");
-    guiAuto3D[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearD");
-    guiAuto3D[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear2");
-    guiAuto3D[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear1");
 
     m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
     m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
@@ -686,17 +679,14 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
         size_t numgears = ga->GetSimDataBuffer().simbuf_num_gears;
         String gearstr = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
         guiGear->setCaption(gearstr);
-        guiGear3D->setCaption(gearstr);
     }
     else if (vehicle_getgear == 0)
     {
         guiGear->setCaption("N");
-        guiGear3D->setCaption("N");
     }
     else
     {
         guiGear->setCaption("R");
-        guiGear3D->setCaption("R");
     }
 
     //autogears
@@ -709,15 +699,11 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
             {
                 guiAuto[i]->setColourTop(ColourValue(1.0, 0.2, 0.2, 1.0));
                 guiAuto[i]->setColourBottom(ColourValue(0.8, 0.1, 0.1, 1.0));
-                guiAuto3D[i]->setColourTop(ColourValue(1.0, 0.2, 0.2, 1.0));
-                guiAuto3D[i]->setColourBottom(ColourValue(0.8, 0.1, 0.1, 1.0));
             }
             else
             {
                 guiAuto[i]->setColourTop(ColourValue(1.0, 1.0, 1.0, 1.0));
                 guiAuto[i]->setColourBottom(ColourValue(0.8, 0.8, 0.8, 1.0));
-                guiAuto3D[i]->setColourTop(ColourValue(1.0, 1.0, 1.0, 1.0));
-                guiAuto3D[i]->setColourBottom(ColourValue(0.8, 0.8, 0.8, 1.0));
             }
         }
         else
@@ -726,15 +712,11 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
             {
                 guiAuto[i]->setColourTop(ColourValue(0.4, 0.05, 0.05, 1.0));
                 guiAuto[i]->setColourBottom(ColourValue(0.3, 0.02, 0.2, 1.0));
-                guiAuto3D[i]->setColourTop(ColourValue(0.4, 0.05, 0.05, 1.0));
-                guiAuto3D[i]->setColourBottom(ColourValue(0.3, 0.02, 0.2, 1.0));
             }
             else
             {
                 guiAuto[i]->setColourTop(ColourValue(0.4, 0.4, 0.4, 1.0));
                 guiAuto[i]->setColourBottom(ColourValue(0.3, 0.3, 0.3, 1.0));
-                guiAuto3D[i]->setColourTop(ColourValue(0.4, 0.4, 0.4, 1.0));
-                guiAuto3D[i]->setColourBottom(ColourValue(0.3, 0.3, 0.3, 1.0));
             }
         }
     }

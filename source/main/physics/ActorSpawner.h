@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "RigDef_Parser.h"
+#include "RTTLayer.h"
 #include "SimData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
@@ -387,6 +388,9 @@ private:
     void                          CreateMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
     std::string                   GetCurrentElementMediaRG(); //!< Where to load media from (the addonpart's bundle or vehicle's bundle?)
     void                          AssignManagedMaterialTexture(Ogre::TextureUnitState* tus, const std::string & mm_name, int media_id, const std::string& tex_name); //!< Helper for `ProcessManagedMaterial()`
+    void                          CreateDashboardRttLayers();
+    void                          PrepareRenderdashMaterial();
+    /// @}
 
     /// @param rim_ratio Percentual size of the rim.
     void CreateWheelVisuals(
@@ -463,8 +467,7 @@ private:
     /// @name State
     /// @{
     ActorSpawnState                m_state;
-    std::string                    m_cab_material_name; //!< Original name defined in truckfile/globals.    
-    std::string                    m_help_material_name;
+    std::string                    m_cab_material_name; //!< Original name defined in truckfile/globals.
     float                          m_wing_area;
     int                            m_airplane_left_light;
     int                            m_airplane_right_light;
@@ -474,7 +477,7 @@ private:
     float                          m_fuse_y_max;    
     int                            m_first_wing_index;
     std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
-    std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
+    std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;
     RigDef::Keyword                m_current_keyword = RigDef::Keyword::INVALID; //!< For error reports
     std::shared_ptr<RigDef::Document::Module> m_current_module; //!< For resolving addonparts
     std::map<Ogre::String, unsigned int> m_named_nodes;
@@ -488,7 +491,8 @@ private:
     Ogre::MaterialPtr                         m_managedmat_placeholder_template; //!< An 'error marker' material (bright magenta) to generate managedmaterial placeholders from.
     Ogre::MaterialPtr                         m_cab_trans_material;
     Ogre::MaterialPtr                         m_simple_material_base;
-    RoR::Renderdash*                          m_oldstyle_renderdash;
+    RTTLayer*                                 m_renderdash_rtt_layer{nullptr}; //!< The built-in 'renderdash' material.
+    std::vector<RTTLayer*>                    m_texturedashboard_rtt_layers; //!< layouts specified in 'guisettings/texturedashboard'.
     CustomMaterial::MirrorPropType            m_curr_mirror_prop_type;
     Ogre::SceneNode*                          m_curr_mirror_prop_scenenode;
     // Grouping nodes for diagnostics:

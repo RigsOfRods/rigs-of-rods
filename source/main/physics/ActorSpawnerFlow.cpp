@@ -31,7 +31,7 @@
 #include "Actor.h"
 #include "CacheSystem.h"
 #include "GfxScene.h"
-#include "Renderdash.h"
+
 
 using namespace RoR;
 
@@ -95,15 +95,15 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
         }
     }
 
-    // Create the built-in "renderdash" material for use in meshes.
+    this->InitializeRig();
+
+    // Set up the built-in "renderdash" material for use in meshes.
     // Must be done before 'props' are processed because those traditionally use it.
     // Must be always created, there is no mechanism to declare the need for it. It can be acessed from any mesh, not only dashboard-prop.
     // Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
-    // TODO: Move setup to GfxActor
-    m_oldstyle_renderdash = new RoR::Renderdash(
-        m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
+    this->PrepareRenderdashMaterial();
 
-    this->InitializeRig();
+    this->CreateDashboardRttLayers();
 
     // Vehicle name
     m_actor->ar_design_name = m_file->name;
@@ -145,7 +145,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     // ---------------------------- User-defined nodes ----------------------------
 
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_oldstyle_renderdash));
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group));
 
     PROCESS_ELEMENT(RigDef::Keyword::NODES, nodes, ProcessNode);
 

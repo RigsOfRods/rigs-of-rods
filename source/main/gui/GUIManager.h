@@ -27,7 +27,7 @@
 #include "OgreImGui.h"
 #include "Application.h"
 #include "CVar.h"
-#include "GUI_MessageBox.h"
+#include "RTTLayer.h"
 
 // GUI panels
 #include "GUI_CollisionsDebug.h"
@@ -166,6 +166,7 @@ public:
 
     inline OgreImGui& GetImGui() { return m_imgui; }
     inline GuiTheme&  GetTheme() { return m_theme; }
+    RTTLayerManager& GetRttLayerManager() { return m_rtt_layer_manager; }
 
     void WakeUpGUI();
 
@@ -180,6 +181,7 @@ private:
     MyGUI::OgrePlatform* m_mygui_platform           = nullptr;
     OgreImGui            m_imgui;
     GuiTheme             m_theme;
+    RTTLayerManager      m_rtt_layer_manager;                //!< Manages dashboard RTT layers (reusable).
     bool                 m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame
     bool                 m_gui_kb_capture_requested = false; //!< Effective value, persistent
     Ogre::Timer          m_last_mousemove_time;

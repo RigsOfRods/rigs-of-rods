@@ -29,6 +29,7 @@
 #include "Application.h"
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
+#include "RTTLayer.h"
 
 #include <MyGUI.h>
 
@@ -42,9 +43,6 @@ namespace RoR {
 #define DD_MAX_AEROENGINE 6
 #define DD_MAX_WING       6
 #define DD_MAX_GEOMETRIC_ANIMATIONS 10
-
-#define MAX_CONTROLS      1024
-#define NO_RTT_DASHBOARD 0
 
 struct dataContainer_t
 {
@@ -205,6 +203,12 @@ enum DashData
     DD_SIGNAL_TURNRIGHT, //!< Right blinker is lit.
     DD_SIGNAL_WARNING,   //!< The warning-blink indicator is lit.
 
+    DD_GUISETTING_SPEEDO,     //!< (char) Speedo texture name - from 'guisettings' section of truck file.
+    DD_GUISETTING_TACHO,      //!< (char) Tacho texture name - from 'guisettings' section of truck file.
+    DD_GUISETTING_HELP,       //!< (char) Help texture name - from 'guisettings' section of truck file.
+    DD_GUISETTING_SPEEDO_KPH, //!< (float) Like `DD_ENGINE_SPEEDO_KPH`, but if 'speedoTexture' and 'speedoMax' in 'guisettings' are set, it overrides the 'vmax' attribute of the widget.
+    DD_GUISETTING_TACHO_RPM,  //!< (float) Like `DD_ENGINE_RPM`, but if 'tachoTexture' and 'useMaxRPM' in 'guisettings' is set, it overrides the 'vmax' attribute of the widget.
+
     DD_MAX // This is the starting point for custom inputs
 };
 
@@ -212,7 +216,8 @@ enum LoadDashBoardFlags
 {
     LOADDASHBOARD_SCREEN_HUD = BITMASK(1), //!< Will be drawn to screen. Unless STACKABLE, it prevents the default dashboard from loading.
     LOADDASHBOARD_RTT_TEXTURE = BITMASK(2), //!< Will be drawn to texture. Unless STACKABLE, it prevents the default dashboard from loading.
-    LOADDASHBOARD_STACKABLE = BITMASK(3) //!< Allows loading multiple dashboards at once (by default there's only one for screen and one for RTT).
+    LOADDASHBOARD_RENDERDASH = BITMASK(3), //!< Will be drawn to texture in classic 'renderdash' format. Ignores STACKABLE flag.
+    LOADDASHBOARD_STACKABLE = BITMASK(4) //!< Allows loading multiple dashboards at once (by default there's only one for screen and one for RTT).
 };
 
 // this class is NOT intended to be thread safe - performance is required
@@ -244,7 +249,7 @@ public:
     int getLinkIDForName(Ogre::String& str);
     std::string getLinkNameForID(DashData id);
 
-    void loadDashBoard(const std::string& filename, BitMask_t flags);
+    DashBoard* loadDashBoard(const std::string& filename, BitMask_t flags, RTTLayer* rttLayer);
 
     void update(float dt);
     void updateFeatures();
@@ -257,8 +262,9 @@ public:
     bool getVisible() { return visible; };
     void windowResized();
     size_t getInputCount() { return data.size(); }
+    int getNumLoadedRTTDashboards() const { return loadedRTTDashboards; }
 protected:
-    std::string determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename);
+    std::string determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename, BitMask_t loaddashboardFlags);
     std::string determineTruckLayoutFromDashboardMod(Ogre::FileInfoListPtr& filelist);
     void loadDashboardModDetails(CacheEntryPtr& entry);
     bool visible = false;
@@ -273,8 +279,10 @@ protected:
 
 class DashBoard
 {
+    friend class DashBoardManager;
+
 public:
-    DashBoard(DashBoardManager* manager, Ogre::String filename, int textureLayerNum);
+    DashBoard(DashBoardManager* manager, Ogre::String filename, RTTLayer* _rttLayer);
     ~DashBoard();
 
     void loadScript(std::string scriptFilename, ActorPtr associatedActor);
@@ -282,7 +290,7 @@ public:
     void setVisible(bool visible, bool smooth = true);
     bool getVisible() { return visible; };
 
-    bool getIsTextureLayer() { return textureLayerNum > 0; }
+    bool getIsTextureLayer() { return rttLayer != nullptr; }
 
     void update(float dt);
     void updateFeatures();
@@ -292,16 +300,14 @@ public:
     float getSmoothNumeric(int linkID, float& lastVal);
 
 protected:
-    DashBoardManager* manager;
+    DashBoardManager* manager{nullptr};
     Ogre::String filename;
     ScriptUnitID_t scriptUnitID = SCRIPTUNITID_INVALID;
     MyGUI::VectorWidgetPtr widgets;
     MyGUI::WindowPtr mainWidget;
     bool visible;
     std::string prefix;
-    int textureLayerNum;
-    std::string rttLayer;
-    std::string rttTexture;
+    RTTLayer* rttLayer{nullptr};
 
     enum
     {
@@ -313,7 +319,8 @@ protected:
         ANIM_LAMP,
         ANIM_SERIES,
         ANIM_TRANSLATE,
-        ANIM_TEXTCOLOR
+        ANIM_TEXTCOLOR,
+        ANIM_IMAGETEXTURE
     };
 
     enum
@@ -384,8 +391,7 @@ protected:
     void loadLayoutInternal();
     void loadLayoutRecursive(MyGUI::WidgetPtr ptr);
     bool parseLink(std::string& linkArgs, int& linkID, char& condition, float& conditionArgument, const std::string& filename, const std::string& name);
-    layoutLink_t controls[MAX_CONTROLS];
-    int free_controls;
+    std::vector<layoutLink_t> controls;
 };
 
 } // namespace RoR

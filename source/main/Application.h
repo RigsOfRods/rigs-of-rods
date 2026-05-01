@@ -490,6 +490,7 @@ enum CacheCategoryId
     CID_DashboardsGeneric = 200,
     CID_DashboardsTruck = 201,
     CID_DashboardsBoat = 202,
+    CID_DashboardsRtt = 203,
 
     CID_GadgetsGeneric = 300,
     CID_GadgetsActor = 301,
@@ -825,6 +826,7 @@ extern CVar* ui_show_vehicle_buttons;
 extern CVar* ui_preset;                    //!< enum `RoR::UiPreset`
 extern CVar* ui_hide_gui;                  //!< bool; The 'hide GUI' hotkey state
 extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard' file in modcache.
+extern CVar* ui_legacy_truck_renderdash;   //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_always_show_fullsize;
 

@@ -81,7 +81,7 @@ GUIManager::GUIManager()
     mygui->initialise("");
 
     // add layer factory
-    MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
+    MyGUI::FactoryManager::getInstance().registerFactory<RTTLayer>("Layer");
 
     // then load the actual config
     MyGUI::ResourceManager::getInstance().load(RESOURCE_FILENAME);

@@ -219,6 +219,7 @@ void Console::cVarSetupBuiltins()
     App::ui_preset                         = this->cVarCreate("ui_preset",                         "", CVAR_ARCHIVE | CVAR_TYPE_INT, "0"/*(int)UiPreset::NOVICE*/);
     App::ui_hide_gui                       = this->cVarCreate("ui_hide_gui",                       "", CVAR_TYPE_BOOL, "false");
     App::ui_default_truck_dash             = this->cVarCreate("ui_default_truck_dash",             "", CVAR_ARCHIVE, "default_truck_digital.dashboard");
+    App::ui_legacy_truck_renderdash        = this->cVarCreate("ui_legacy_truck_renderdash",        "", CVAR_ARCHIVE, "rdd_classic.dashboard");
     App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
     App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
 }
