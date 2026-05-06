@@ -1513,8 +1513,8 @@ void Actor::toggleTransferCaseMode()
     }
     else
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::NONE;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::NONE;
         m_num_proped_wheels -= 2;
     }
 }
