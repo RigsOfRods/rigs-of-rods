@@ -4980,7 +4980,7 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
     case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: tc_wheelslip_constant = val; return;
 
         // Engine
-    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { ar_engine->m_engine_shiftup_rpm = val; } return;
+    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { ar_engine->m_engine_min_rpm = val; } return;
     case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { ar_engine->m_engine_max_rpm = val; } return;
     case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { ar_engine->m_engine_torque = val; } return;
     case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { ar_engine->m_diff_ratio = val; } return;
@@ -5030,7 +5030,7 @@ float Actor::getSimAttribute(ActorSimAttr attr)
     case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: return tc_wheelslip_constant;
 
         // Engine
-    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { return ar_engine->m_engine_shiftup_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { return ar_engine->m_engine_min_rpm; } return 0.f;
     case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { return ar_engine->m_engine_max_rpm; } return 0.f;
     case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { return ar_engine->m_engine_torque; } return 0.f;
     case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { return ar_engine->m_diff_ratio; } return 0.f;
