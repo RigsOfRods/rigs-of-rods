@@ -6,6 +6,10 @@ from conan.tools.files import copy
 class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
+    default_options = {
+        "ogre3d*:resourcemanager_strict": "off",
+        "ogre3d*:profiling": "True"
+    }
 
     def layout(self):
         self.folders.generators = os.path.join(self.folders.build, "generators")
