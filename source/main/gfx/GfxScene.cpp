@@ -119,7 +119,7 @@ void GfxScene::UpdateScene(float dt)
     }
 
     // Particles
-    if (App::gfx_particles_mode->getInt() == 1)
+    if (App::gfx_particles_mode->getEnum<GfxParticlesMode>() != GfxParticlesMode::OFF)
     {
         // Generate particles as needed
         for (GfxActor* gfx_actor: m_all_gfx_actors)
@@ -131,6 +131,7 @@ void GfxScene::UpdateScene(float dt)
         // Update particle movement
         for (auto itor : m_dustpools)
         {
+            itor.second->AdjustDustPoolSpeedFactor();
             itor.second->update();
         }
     }
@@ -432,12 +433,17 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
 #endif // USE_SOCKETW
 }
 
-void GfxScene::AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys)
+void GfxScene::AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys, GfxActor* gfx_actor /* = nullptr */)
 {
     float speed_factor = 0.f;
     if (App::sim_state->getEnum<SimState>() == SimState::RUNNING && !App::GetGameContext()->GetActorManager()->IsSimulationPaused())
     {
         speed_factor = m_simbuf.simbuf_sim_speed;
+    }
+
+    if (gfx_actor && gfx_actor->GetSimDataBuffer().simbuf_physics_paused)
+    {
+        speed_factor = 0.f;
     }
 
     psys->setSpeedFactor(speed_factor);

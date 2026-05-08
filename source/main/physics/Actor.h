@@ -669,6 +669,7 @@ private:
     CacheEntryPtr     m_used_skin_entry;               //!< Optional, only graphics.
     CacheEntryPtrVec  m_used_addonpart_entries;        //!< Optional, assigned by player via Tuning menu (.tuneup files).
     CacheEntryPtrVec  m_used_assetpack_entries;        //!< Optional, specified by mod author in truck file via 'assetpacks' section.
+    /// @}
 
     /// @name Networking
     /// @{
@@ -693,6 +694,12 @@ private:
     bool              m_blinker_right_lit = false;               //!< Blinking state of right turn signal
     /// @}
 
+    /// @name Built-in particles
+    /// @{
+    GfxParticlesMode  m_particles_mode = GfxParticlesMode::OFF; //!< Snapshot of cvar 'gfx_particles_mode' on spawn.
+    bool              m_disable_smoke = false;                  //!< Stops/starts smoke particles (i.e. exhausts, turbojets).
+    /// @}
+
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
     bool m_net_initialized:1;
@@ -704,7 +711,6 @@ private:
     bool m_beam_deform_debug_enabled:1; //!< Logging state
     bool m_trigger_debug_enabled:1;     //!< Logging state
     bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
-    bool m_disable_smoke:1;             //!< Stops/starts smoke particles (i.e. exhausts, turbojets).
 
     struct VehicleForceSensors
     {

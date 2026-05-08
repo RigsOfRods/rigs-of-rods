@@ -53,7 +53,7 @@ public:
     /// @{
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
-    void           AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys);
+    void           AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys, GfxActor* gfx_actor = nullptr);
     void           SetParticlesVisible(bool visible);
     /// @}
 

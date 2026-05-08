@@ -36,19 +36,18 @@ using namespace RoR;
   const int DustPool::MAX_DUSTS;
 #endif // !_WIN32
 
-DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
+DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize, const std::string& custom_name /* = "" */):
 	allocated(0),
 	size(std::min(dsize, static_cast<int>(MAX_DUSTS))),
 	m_is_discarded(false)
 {
-    parent_snode = sm->getRootSceneNode()->createChildSceneNode(fmt::format("DustPools/{}", dname));
+    std::string poolname = fmt::format("DustPools/{}", custom_name.empty() ? dname : custom_name);
+    parent_snode = sm->getRootSceneNode()->createChildSceneNode(poolname);
 
     for (int i = 0; i < size; i++)
     {
-        char dename[256];
-        sprintf(dename, "Dust %s %i", dname, i);
         sns[i] = parent_snode->createChildSceneNode();
-        pss[i] = sm->createParticleSystem(dename, dname);
+        pss[i] = sm->createParticleSystem(fmt::format("{}_{}", poolname, i), dname);
         if (pss[i])
         {
             sns[i]->attachObject(pss[i]);
@@ -192,11 +191,19 @@ void DustPool::allocRipple(Vector3 pos, Vector3 vel)
     }
 }
 
+void DustPool::AdjustDustPoolSpeedFactor(GfxActor* gfx_actor /* = nullptr */)
+{
+    // This must be done over all particle system, even those not allocated at the moment
+    for (int i = 0; i < size; i++)
+    {
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(pss[i], gfx_actor);
+    }
+}
+
 void DustPool::update()
 {
     for (int i = 0; i < allocated; i++)
     {
-        App::GetGfxScene()->AdjustParticleSystemTimeFactor(pss[i]);
         ParticleEmitter* emit = pss[i]->getEmitter(0);
         Vector3 ndir = velocities[i];
         Real vel = ndir.length();

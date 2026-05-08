@@ -310,7 +310,8 @@ void ActorSpawner::InitializeRig()
     m_actor->m_odometer_user  = 0;
 
     m_actor->ar_masscount=0;
-    m_actor->m_disable_smoke = App::gfx_particles_mode->getInt() == 0;
+    m_actor->m_particles_mode =  App::gfx_particles_mode->getEnum<GfxParticlesMode>();
+    m_actor->m_disable_smoke = App::gfx_particles_mode->getEnum<GfxParticlesMode>() == GfxParticlesMode::OFF;
     m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break->getBool();
     m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform->getBool();
     m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger->getBool();
@@ -2948,7 +2949,7 @@ void ActorSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 
 void ActorSpawner::ProcessParticle(RigDef::Particle & def)
 {
-    if (App::gfx_particles_mode->getInt() != 1)
+    if (App::gfx_particles_mode->getEnum<GfxParticlesMode>() == GfxParticlesMode::OFF)
     {
         return;
     }

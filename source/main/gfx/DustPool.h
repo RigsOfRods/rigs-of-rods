@@ -34,10 +34,12 @@ class DustPool
 {
 public:
 
-    DustPool(Ogre::SceneManager* sm, const char* dname, int dsize);
+    DustPool(Ogre::SceneManager* sm, const char* dname, int dsize, const std::string& custom_name = "");
     ~DustPool();
 
     void Discard(Ogre::SceneManager* sm);
+
+    void AdjustDustPoolSpeedFactor(GfxActor* gfx_actor = nullptr);
 
     void setVisible(bool s);
     //Dust
