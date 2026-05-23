@@ -168,6 +168,7 @@ namespace RoR
     class  Renderdash;
     class  Replay;
     class  RigLoadingProfiler;
+    class  ServerScriptEngine;
     class  Screwprop;
     class  ScriptEngine;
     class  ShadowManager;

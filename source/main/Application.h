@@ -51,6 +51,7 @@
 #define RGN_SAVEGAMES "Savegames"
 #define RGN_MANAGED_MATS "ManagedMaterials"
 #define RGN_SCRIPTS "Scripts"
+#define RGN_SERVER_SCRIPTS "ServerScripts"
 #define RGN_LOGS "Logs"
 
 // Legacy macros
@@ -326,6 +327,7 @@ enum class MpState
     DISABLED,  //!< Not connected for whatever reason.
     CONNECTING,
     CONNECTED,
+    LOCAL_SCRIPT, //!< Not actually connected to network, but running server script locally.
 };
 
 enum class SimState
@@ -718,6 +720,7 @@ extern CVar* sys_profiler_dir;
 extern CVar* sys_savegames_dir;
 extern CVar* sys_screenshot_dir;
 extern CVar* sys_scripts_dir;
+extern CVar* sys_server_scripts_dir;
 extern CVar* sys_projects_dir;
 extern CVar* sys_repo_attachments_dir;
 
@@ -847,6 +850,7 @@ GfxScene*            GetGfxScene();
 SoundScriptManager*  GetSoundScriptManager();
 LanguageEngine*      GetLanguageEngine();
 ScriptEngine*        GetScriptEngine();
+ServerScriptEngine* GetServerScriptEngine();
 Network*             GetNetwork();
 GameContext*         GetGameContext();
 OutGauge*            GetOutGauge();
@@ -862,6 +866,7 @@ void CreateCameraManager();
 void CreateGfxScene();
 void CreateSoundScriptManager();
 void CreateScriptEngine();
+void CreateServerScriptEngine();
 
 // Cleanups
 void DestroyOverlayWrapper();
