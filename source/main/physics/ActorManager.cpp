@@ -336,12 +336,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         actor->m_buoyance->buoy_projected_nodes = actor->m_buoyance->buoy_cached_nodes;
     }
 
-    // Launch scripts (FIXME: ignores sectionconfig)
-    for (RigDef::Script const& script_def : def->root_module->scripts)
-    {
-        App::GetScriptEngine()->loadScript(script_def.filename, ScriptCategory::ACTOR, actor);
-    }
-
     LOG(" ===== DONE LOADING VEHICLE");
 
     if (App::diag_actor_dump->getBool())

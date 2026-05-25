@@ -199,7 +199,8 @@ private:
     void ProcessRope(RigDef::Rope & def);
     void ProcessRotator(RigDef::Rotator & def);
     void ProcessRotator2(RigDef::Rotator2 & def);
-    void ProcessScrewprop(RigDef::Screwprop & def);
+    void ProcessScrewprop(RigDef::Screwprop& def);
+    void ProcessScript(RigDef::Script& def);
     void ProcessShock(RigDef::Shock & def);
     void ProcessShock2(RigDef::Shock2 & def);
     void ProcessShock3(RigDef::Shock3 & def);
