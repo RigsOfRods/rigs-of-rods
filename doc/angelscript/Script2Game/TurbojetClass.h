@@ -35,6 +35,18 @@ public:
      * @return The exhaust gas velocity, in metres per second.
      */
     float getExhaustVelocity();
+
+    /**
+     * @brief Sets the maximum dry thrust (no afterburner) of the engine, in kilonewtons.
+     *        The value is limited to the maximum wet thrust.
+     */
+    void setMaxDryThrust(float thrust);
+
+    /**
+     * @brief Sets the thrust with afterburner active (wet thrust) of the engine, in kilonewtons.
+     *        The minimum value is the maximum dry thrust.
+     */
+    void setAfterburnerThrust(float afterburnerThrust);
 };
 
 /// @}    //addtogroup Script2Game

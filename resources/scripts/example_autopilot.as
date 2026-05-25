@@ -81,6 +81,10 @@ void frameStep(float dt)
                     ImGui::Text("ILS is not available");
                 }
 
+                bool customAPMode = autopilot.getCustomAutopilotMode();
+                if (ImGui::Checkbox("Custom autopilot mode", customAPMode))
+                    autopilot.setCustomAutopilotMode(customAPMode);
+
                 if (ImGui::Button("Disconnect A/P"))
                     autopilot.disconnect();
             }

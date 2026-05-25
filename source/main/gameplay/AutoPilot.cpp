@@ -43,6 +43,7 @@ Autopilot::Autopilot(int actor_id):
 
 void Autopilot::reset()
 {
+    custom_autopilot_mode = false;
     mode_heading = HEADING_NONE;
     mode_alt = ALT_NONE;
     mode_ias = false;
@@ -79,6 +80,11 @@ void Autopilot::disconnect()
     }
 }
 
+void Autopilot::setCustomAutopilotMode(bool customAP)
+{
+    custom_autopilot_mode = customAP;
+}
+
 void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc)
 {
     ref_l = refl;
@@ -90,80 +96,87 @@ void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, 
 
 float Autopilot::getAilerons()
 {
-    float val = 0;
-    if (ref_l && ref_r)
+    if (!custom_autopilot_mode)
     {
-        float rat = (ref_r->RelPosition.y - ref_l->RelPosition.y) / ref_span;
-        float bank = 90.0;
-        if (rat >= 1.0)
-            bank = 90.0;
-        else if (rat <= -1.0)
-            bank = -90.0;
-        else
-            bank = 57.3 * asin(rat);
-        if (mode_heading == HEADING_WLV)
+        float val = 0;
+        if (ref_l && ref_r)
         {
-            val = bank / 100.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
+            float rat = (ref_r->RelPosition.y - ref_l->RelPosition.y) / ref_span;
+            float bank = 90.0;
+            if (rat >= 1.0)
+                bank = 90.0;
+            else if (rat <= -1.0)
+                bank = -90.0;
+            else
+                bank = 57.3 * asin(rat);
+            if (mode_heading == HEADING_WLV)
+            {
+                val = bank / 100.0;
+                if (val > 0.5)
+                    val = 0.5;
+                if (val < -0.5)
+                    val = -0.5;
+            }
+            if (mode_heading == HEADING_FIXED)
+            {
+                Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
+                float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
+                float want_bank = curdir - (float)heading;
+                if (want_bank < -180.0)
+                    want_bank += 360.0;
+                want_bank = want_bank * 2.0;
+                if (want_bank > 45.0)
+                    want_bank = 45.0;
+                if (want_bank < -45.0)
+                    want_bank = -45.0;
+                val = (bank - want_bank) / 100.0;
+                if (val > 0.5)
+                    val = 0.5;
+                if (val < -0.5)
+                    val = -0.5;
+            }
+            if (mode_heading == HEADING_NAV)
+            {
+                //compute intercept heading
+                float error_heading = m_ils_angle_hdev / 10.0;
+                if (error_heading > 1.0)
+                    error_heading = 1.0;
+                if (error_heading < -1.0)
+                    error_heading = -1.0;
+                float offcourse_tolerance = m_ils_runway_distance / 30.0;
+                if (offcourse_tolerance > 60.0)
+                    offcourse_tolerance = 60.0;
+                float intercept_heading = m_ils_runway_heading + error_heading * offcourse_tolerance;
+                Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
+                float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
+                float want_bank = curdir - intercept_heading;
+                if (want_bank < -180.0)
+                    want_bank += 360.0;
+                want_bank = want_bank * 2.0;
+                if (want_bank > 45.0)
+                    want_bank = 45.0;
+                if (want_bank < -45.0)
+                    want_bank = -45.0;
+                val = (bank - want_bank) / 100.0;
+                if (val > 0.5)
+                    val = 0.5;
+                if (val < -0.5)
+                    val = -0.5;
+            }
         }
-        if (mode_heading == HEADING_FIXED)
-        {
-            Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
-            float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
-            float want_bank = curdir - (float)heading;
-            if (want_bank < -180.0)
-                want_bank += 360.0;
-            want_bank = want_bank * 2.0;
-            if (want_bank > 45.0)
-                want_bank = 45.0;
-            if (want_bank < -45.0)
-                want_bank = -45.0;
-            val = (bank - want_bank) / 100.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
-        }
-        if (mode_heading == HEADING_NAV)
-        {
-            //compute intercept heading
-            float error_heading = m_ils_angle_hdev / 10.0;
-            if (error_heading > 1.0)
-                error_heading = 1.0;
-            if (error_heading < -1.0)
-                error_heading = -1.0;
-            float offcourse_tolerance = m_ils_runway_distance / 30.0;
-            if (offcourse_tolerance > 60.0)
-                offcourse_tolerance = 60.0;
-            float intercept_heading = m_ils_runway_heading + error_heading * offcourse_tolerance;
-            Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
-            float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
-            float want_bank = curdir - intercept_heading;
-            if (want_bank < -180.0)
-                want_bank += 360.0;
-            want_bank = want_bank * 2.0;
-            if (want_bank > 45.0)
-                want_bank = 45.0;
-            if (want_bank < -45.0)
-                want_bank = -45.0;
-            val = (bank - want_bank) / 100.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
-        }
+        last_aileron = (last_aileron + val) / 2.0;
+        return last_aileron;
     }
-    last_aileron = (last_aileron + val) / 2.0;
-    return last_aileron;
+    else
+    {
+        return 0;
+    }
 }
 
 float Autopilot::getElevator()
 {
     float val = 0;
-    if (ref_l && ref_r && ref_b)
+    if (ref_l && ref_r && ref_b && !custom_autopilot_mode)
     {
         float wanted_vs = (float)vs / 196.87;
         float current_vs = (ref_l->Velocity.y + ref_r->Velocity.y) / 2.0;
@@ -224,7 +237,7 @@ float Autopilot::getRudder()
 
 float Autopilot::getThrottle(float thrtl, float dt)
 {
-    if (!mode_ias) { return thrtl; };
+    if (!mode_ias || custom_autopilot_mode) { return thrtl; };
 
     float val = thrtl;
     if (ref_l && ref_r)
@@ -314,8 +327,6 @@ int Autopilot::adjIAS(int d)
     ias += d;
     if (ias < 0)
         ias = 0;
-    if (ias > 350)
-        ias = 350;
     return ias;
 }
 
@@ -440,7 +451,10 @@ void Autopilot::UpdateIls()
     }
 
     last_closest_hdist = closest_hdist;
-    if (mode_heading == HEADING_NAV)
+
+    // We let custom autopilot scripts to have their own NAV mode
+    // engagement/disengagement logic when custom_autopilot is true.
+    if (mode_heading == HEADING_NAV && !custom_autopilot_mode)
     {
         // disconnect if close to runway or no locators are available
         if (closest_hdist < 20.0 || closest_vdist < 20.0)
@@ -448,5 +462,4 @@ void Autopilot::UpdateIls()
         if (!this->IsIlsAvailable())
             wantsdisconnect = true;
     }
-        
 }
