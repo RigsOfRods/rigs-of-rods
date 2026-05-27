@@ -141,6 +141,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     PROCESS_ELEMENT(RigDef::Keyword::BRAKES, brakes, ProcessBrakes);
     PROCESS_ELEMENT(RigDef::Keyword::CUSTOMDASHBOARDINPUTS, customdashboardinputs, ProcessCustomDashInputs);
     PROCESS_ELEMENT(RigDef::Keyword::GUISETTINGS, guisettings, ProcessGuiSettings);
+    PROCESS_ELEMENT(RigDef::Keyword::SCRIPTS, scripts, ProcessScript);
 
     // ---------------------------- User-defined nodes ----------------------------
 

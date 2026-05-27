@@ -30,9 +30,9 @@
 
 #include "AddonPartFileFormat.h"
 #include "AppContext.h"
+#include "Application.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
-#include "Application.h"
 #include "ApproxMath.h"
 #include "AutoPilot.h"
 #include "Actor.h"
@@ -61,6 +61,7 @@
 #include "MeshObject.h"
 #include "PointColDetector.h"
 #include "ScrewProp.h"
+#include "ScriptEngine.h"
 #include "Skidmark.h"
 #include "SkinFileFormat.h"
 #include "SlideNode.h"
@@ -740,6 +741,23 @@ void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
     );
     m_actor->ar_driveable=BOAT;
     m_actor->ar_num_screwprops++;
+}
+
+void ActorSpawner::ProcessScript(RigDef::Script& def)
+{
+    // Load actor script
+    // We have to push messages to load actor scripts because
+    // this code can be called from a script execution context
+    // (e.g. using game.spawnTruck()).
+    // If we are in a script context, calling loadScript() directly
+    // will crash the game immediately, since AngelScript doesn't
+    // allow scripts to load other scripts.
+    LoadScriptRequest* req = new LoadScriptRequest();
+    req->lsr_category = ScriptCategory::ACTOR;
+    req->lsr_filename = def.filename;
+    req->lsr_associated_actor = m_actor->getInstanceId();
+    App::GetGameContext()->PushMessage(RoR::Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
+    // ActorManager::DeleteActorInternal() will unload scripts later.
 }
 
 void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)

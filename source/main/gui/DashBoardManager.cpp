@@ -480,12 +480,12 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
         }
 
         // Load dashboard script
-        Ogre::FileInfoListPtr scriptFile
-            = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}.as", basename));
-        if (scriptFile->size() > 0)
-        {
-            scriptfilename = scriptFile->front().filename;
-        }
+        // First, we check if the script file actually exists.
+        std::string expected_script_name = fmt::format("{}.as", basename);
+        bool script_exists =
+            Ogre::ResourceGroupManager::getSingleton().resourceExists(entry->resource_group, expected_script_name);
+        if (script_exists)
+            scriptfilename = expected_script_name;
     }
     else
     {
@@ -509,10 +509,6 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
         // GameContext.ChangePlayerActor() will change the visibility
         // when needed.
         d->setVisible(false);
-        if (scriptfilename != "")
-        {
-            d->loadScript(scriptfilename, m_actor);
-        }
         m_dashboards.push_back(d);
 
         if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
@@ -526,10 +522,6 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
         d = new DashBoard(this, layoutfname, rttLayer);
         loadedRTTDashboards++;
         d->setVisible(true);
-        if (scriptfilename != "")
-        {
-            d->loadScript(scriptfilename, m_actor);
-        }
         m_dashboards.push_back(d);
         // NOTE: Renderdash RTTs are never stackable
     }
@@ -538,16 +530,31 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
     {
         d = new DashBoard(this, layoutfname, rttLayer);
         d->setVisible(true);
-        if (scriptfilename != "")
-        {
-            d->loadScript(scriptfilename, m_actor);
-        }
         m_dashboards.push_back(d);
 
         if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
         {
             m_hud_loaded = true;
         }
+    }
+
+    // Load dashboard script
+    // We have to push messages to load dashboard scripts because
+    // this code can be called from a script execution context
+    // (e.g. using game.spawnTruck()).
+    // If we are in a script context, calling loadScript() directly
+    // will crash the game immediately, since AngelScript doesn't
+    // allow scripts to load other scripts.
+    if (scriptfilename != "")
+    {
+        LoadScriptRequest* req = new LoadScriptRequest();
+        req->lsr_category = ScriptCategory::ACTOR;
+        req->lsr_filename = scriptfilename;
+        req->lsr_associated_actor = m_actor->getInstanceId();
+        App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
+        // We don't need to worry about unloading the script later because
+        // it has an actor associated to it. Actor scripts are unloaded
+        // already when calling ActorManager::DeleteActorInternal().
     }
 
     // Apply textures from 'guisettings' in truck file.
@@ -693,11 +700,6 @@ DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, RTTLayer*
 
 DashBoard::~DashBoard()
 {
-    // Unload dashboard script
-    if (scriptUnitID != SCRIPTUNITID_INVALID)
-    {
-        App::GetScriptEngine()->unloadScript(scriptUnitID);
-    }
     // Clear the GUI widgets
     MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
     // Force unloading the '.layout' file from memory
@@ -708,14 +710,6 @@ DashBoard::~DashBoard()
         rttLayer->destroyRttTexture();
         App::GetGuiManager()->GetRttLayerManager().RecycleRttLayer(rttLayer);
     }
-}
-
-void DashBoard::loadScript(std::string scriptFilename, ActorPtr associatedActor)
-{
-    if (scriptUnitID != SCRIPTUNITID_INVALID)
-        return;
-
-    scriptUnitID = App::GetScriptEngine()->loadScript(scriptFilename, ScriptCategory::ACTOR, associatedActor);
 }
 
 void DashBoard::updateFeatures()

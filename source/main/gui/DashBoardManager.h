@@ -285,8 +285,6 @@ public:
     DashBoard(DashBoardManager* manager, Ogre::String filename, RTTLayer* _rttLayer);
     ~DashBoard();
 
-    void loadScript(std::string scriptFilename, ActorPtr associatedActor);
-
     void setVisible(bool visible, bool smooth = true);
     bool getVisible() { return visible; };
 
@@ -302,7 +300,6 @@ public:
 protected:
     DashBoardManager* manager{nullptr};
     Ogre::String filename;
-    ScriptUnitID_t scriptUnitID = SCRIPTUNITID_INVALID;
     MyGUI::VectorWidgetPtr widgets;
     MyGUI::WindowPtr mainWidget;
     bool visible;
