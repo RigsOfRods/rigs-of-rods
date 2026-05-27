@@ -482,16 +482,10 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
         // Load dashboard script
         // First, we check if the script file actually exists.
         std::string expected_script_name = fmt::format("{}.as", basename);
-        Ogre::FileInfoListPtr scriptFiles
-            = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}*.as", basename));
-        for (Ogre::FileInfo& fileinfo : *scriptFiles)
-        {
-            if (fileinfo.filename == expected_script_name)
-            {
-                scriptfilename = fileinfo.filename;
-                break;
-            }
-        }
+        bool script_exists =
+            Ogre::ResourceGroupManager::getSingleton().resourceExists(entry->resource_group, expected_script_name);
+        if (script_exists)
+            scriptfilename = expected_script_name;
     }
     else
     {
