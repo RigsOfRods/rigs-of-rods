@@ -306,6 +306,7 @@ enum events
     EV_TRUCK_BRAKE_MODIFIER_25,   //!< brake with 25 percent pedal input
     EV_TRUCK_BRAKE_MODIFIER_50,   //!< brake with 50 percent pedal input
     EV_TRUCK_CRUISE_CONTROL,      //!< toggle cruise control
+    EV_TRUCK_CRUISE_CONTROL_RESUME,   //!< resume cruise control
     EV_TRUCK_CRUISE_CONTROL_ACCL, //!< increase target speed / rpm
     EV_TRUCK_CRUISE_CONTROL_DECL, //!< decrease target speed / rpm
     EV_TRUCK_CRUISE_CONTROL_READJUST, //!< match target speed / rpm with current truck speed / rpm

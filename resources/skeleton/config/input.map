@@ -241,7 +241,8 @@ TRUCK_BLINK_WARN               Keyboard             EXPL+MINUS
 TRUCK_BRAKE                    Keyboard             DOWN 
 TRUCK_BRAKE_MODIFIER_25        Keyboard             ALT+DOWN 
 TRUCK_BRAKE_MODIFIER_50        Keyboard             CTRL+DOWN 
-TRUCK_CRUISE_CONTROL           Keyboard             EXPL+SPACE 
+TRUCK_CRUISE_CONTROL           Keyboard             EXPL+SPACE
+TRUCK_CRUISE_CONTROL_RESUME    Keyboard             EXPL+CTRL+SHIFT+SPACE
 TRUCK_CRUISE_CONTROL_READJUST  Keyboard             EXPL+CTRL+SPACE 
 TRUCK_CRUISE_CONTROL_ACCL      Keyboard             EXPL+CTRL+R 
 TRUCK_CRUISE_CONTROL_DECL      Keyboard             EXPL+CTRL+F 

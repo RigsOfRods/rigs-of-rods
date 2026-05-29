@@ -35,6 +35,7 @@ void Actor::cruisecontrolToggle()
     if (cc_mode)
     {
         cc_target_speed = ar_avg_wheel_speed;
+        cc_last_speed = cc_target_speed;
         cc_target_rpm = ar_engine->getRPM();
     }
     else
@@ -43,6 +44,10 @@ void Actor::cruisecontrolToggle()
         cc_target_rpm = 0;
         cc_accs.clear();
     }
+}
+void Actor::cruisecontrolResume()
+{
+    cc_target_speed = cc_last_speed;
 }
 
 void Actor::UpdateCruiseControl(float dt)
@@ -97,6 +102,7 @@ void Actor::UpdateCruiseControl(float dt)
         {
             cc_target_speed *= pow(2.0f, dt / 5.0f);
             cc_target_speed = std::max(cc_target_speed_lower_limit, cc_target_speed);
+            cc_last_speed = cc_target_speed;
             if (sl_enabled)
             {
                 cc_target_speed = std::min(cc_target_speed, sl_speed_limit);
@@ -114,6 +120,7 @@ void Actor::UpdateCruiseControl(float dt)
         {
             cc_target_speed *= pow(0.5f, dt / 5.0f);
             cc_target_speed = std::max(cc_target_speed_lower_limit, cc_target_speed);
+            cc_last_speed = cc_target_speed;
         }
         else if (ar_engine->getGear() == 0) // out of gear
         {
