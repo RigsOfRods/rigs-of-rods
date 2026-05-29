@@ -4,9 +4,13 @@
 SkyXVersion=0.4.0
 
 #Main options field
-<float>TimeMultiplier=0.01
-<vector3>Time=12.00x7.5x20.5 ; current-time 'x' sunrise time 'x' sunset time
+; RIGSOFRODS:  param 'TimeMultiplier' is set in game via top menubar, menu Settings, tab Sky, 'advanced' checkbox
+<vector3>Time=12.00x7.5x20.5 ; current-time 'x' unused 'x' unused
 <float>MoonPhase=0
+
+# RIGSOFRODS: new sun/moon trajectory config
+<float>Latitude = 45
+<int>DayOfYear = 150
 
 #Atmoshperic options
 <float>_InnerRadius=9.77501
@@ -34,7 +38,7 @@ SkyXVersion=0.4.0
 #Volumetric clouds
 <bool>volClouds=true 
 <vector2>vHeight=825x3500
-<float>WindSpeed=80.0
+<float>WindSpeed=25.0
 <bool>AutoUpdate=false
 <degree>WindDirection=0
 <vector3>AmbientColor=0.63x0.63x0.7
@@ -48,3 +52,23 @@ SkyXVersion=0.4.0
 <float>AverageLightningApparitionTime=1.5
 <vector3>LightningColor=1x0.925x0.85
 <float>LightningTimeMultiplier=2.0
+
+# Precipitation system ported from Caelum
+# note: wind speed is tied to the VClouds wind speed
+# =================================================================================
+# Names in Caelum script   | names in SkyX script                       | Descriptions
+# ---------------------------------------------------------------------------------
+# "texture"                | "PrecipitationTextureName"                 | 'precipitation_X.png', where X is: 'drizzle/icecrystals/icepellets/smallhail/hail/snow/snowgrains'
+# "precipitation_colour"   | "<color>PrecipitationColor"                | 
+# "falling_speed"          | "<float>PrecipitationFallingSpeed"         |
+# "camera_speed_scale"     | "<vector3>PrecipitationCameraSpeedScale"   | Controls how much of an effect moving the camera has on rain drop directions.
+# "intensity"              | "<float>PrecipitationIntensity"            | Controlled via UI
+# "auto_disable_intensity" | "<float>PrecipitationAutoDisableThreshold" | Auto-disable compositors when intensity is below threshold (expensive switch!). Use negative value to always keep enabled.
+
+; Values of 'rain' preset
+PrecipitationTextureName=precipitation_rain.png
+<color>PrecipitationColor=0.7x0.7x0.7
+<float>PrecipitationFallingSpeed=0.85
+<vector3>PrecipitationCameraSpeedScale=1x1x1
+<float>PrecipitationIntensity=0           
+<float>PrecipitationAutoDisableThreshold=0.001

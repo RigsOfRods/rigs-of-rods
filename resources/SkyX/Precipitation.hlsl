@@ -18,8 +18,8 @@
 // along with Caelum. If not, see <http://www.gnu.org/licenses/>.
 //
 
-sampler scene: register(s0);
-sampler samplerPrec: register(s1);
+sampler samplerScene;
+sampler samplerPrec;
 
 uniform float intensity;
 uniform float4 ambient_light_colour;
@@ -74,7 +74,7 @@ void MainFP
 		lerp(corner2, corner4, scr_pos.y),
 		scr_pos.x ) ;
 	
-	float4 scenecol = tex2D(scene, scr_pos);
+	float4 scenecol = tex2D(samplerScene, scr_pos);
 	float2 cCoords = CylindricalCoordinates(eye);
 	float prec1 = Precipitation(cCoords, intensity/4, float2(deltaX.x,deltaY.x));
 	float prec2 = Precipitation(cCoords, intensity/4, float2(deltaX.y,deltaY.y));

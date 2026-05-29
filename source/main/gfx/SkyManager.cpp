@@ -54,6 +54,7 @@ SkyManager::SkyManager() : m_caelum_system(nullptr), m_last_clock(0.0)
 SkyManager::~SkyManager()
 {
     RoR::App::GetAppContext()->GetRenderWindow()->removeListener(m_caelum_system);
+    RoR::App::GetAppContext()->GetOgreRoot()->removeFrameListener(m_caelum_system);
     m_caelum_system->shutdown(false);
     m_caelum_system = nullptr;
 }

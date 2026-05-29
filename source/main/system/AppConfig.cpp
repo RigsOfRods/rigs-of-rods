@@ -75,6 +75,7 @@ const char* CONF_WATER_FULL_FAST    = "Reflection + refraction (speed optimized)
 const char* CONF_WATER_FULL_HQ      = "Reflection + refraction (quality optimized)";
 const char* CONF_WATER_HYDRAX       = "Hydrax";
 
+const char* CONF_SKY_NONE           = "None";
 const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
 const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
 const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
@@ -158,6 +159,7 @@ GfxWaterMode ParseGfxWaterMode(std::string const & s)
 
 GfxSkyMode ParseGfxSkyMode(std::string const & s)
 {
+    if (s == CONF_SKY_NONE     )      { return GfxSkyMode::NONE      ; }
     if (s == CONF_SKY_SANDSTORM)      { return GfxSkyMode::SANDSTORM ; }
     if (s == CONF_SKY_CAELUM   )      { return GfxSkyMode::CAELUM    ; }
     if (s == CONF_SKY_SKYX     )      { return GfxSkyMode::SKYX      ; }
@@ -272,6 +274,7 @@ const char* GfxSkyModeToStr(GfxSkyMode v)
 {
     switch(v)
     {
+    case GfxSkyMode::NONE     : return CONF_SKY_NONE;
     case GfxSkyMode::CAELUM   : return CONF_SKY_CAELUM;
     case GfxSkyMode::SKYX     : return CONF_SKY_SKYX;
     case GfxSkyMode::SANDSTORM: return CONF_SKY_SANDSTORM;
