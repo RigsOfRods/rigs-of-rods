@@ -98,11 +98,13 @@ struct LoadScriptRequest
 };
 
 struct ScriptCallbackArgs
+
 {
-    ScriptCallbackArgs(eventsource_t* evs, NodeNum_t nd): eventsource(evs), node(nd) {}
+    ScriptCallbackArgs(eventsource_t* evs, NodeNum_t nd, int ac = ACTORINSTANCEID_INVALID): eventsource(evs), node(nd), actorID(ac) {}
 
     eventsource_t* eventsource = nullptr;
     NodeNum_t node = NODENUM_INVALID;
+    int actorID = ACTORINSTANCEID_INVALID;
 };
 
 typedef BitMask_t GetFuncFlags_t; //!< Flags for `RoR::ScriptEngine::getFunctionByDeclAndLogCandidates()`
@@ -112,6 +114,7 @@ const GetFuncFlags_t GETFUNCFLAG_SILENT = BITMASK(2); //!< Never logs
 
 // Params to `RoR::ScriptEngine::getFunctionByDeclAndLogCandidates()`
 const std::string GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT = "void {}(int, string, string, int)";
+const std::string GETFUNC_ALTERNATEEVENTCALLBACK_SIGFMT = "void {}(int, string, string, int, int)";
 const std::string GETFUNC_DEFAULTEVENTCALLBACK_NAME = "defaultEventCallback";
 
 /// Common return codes for script manipulation funcs (add/get/delete | funcs/variables)
@@ -278,7 +281,7 @@ public:
 
     int fireEvent(std::string instanceName, float intensity);
 
-    void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0);
+    void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0, int actorID = ACTORINSTANCEID_INVALID);
 
     /**
     * Forwards useful info from C++ `try{}catch{}` exceptions to script in the form of game event.
