@@ -28,14 +28,14 @@ void main_nicemetal_vp(
 } 
 
 void main_nicemetal_fp(
-            float4 pos      : TEXCOORD0,
-            float4 incol    : COLOR,
-            float3 normal       : TEXCOORD1, 
-            float4 lightpos     : TEXCOORD2,
-            float3 eyepos       : TEXCOORD3,
+            float4 pos      : TEXCOORD0,     // RTSS: in vec4 vLightPos
+            float4 incol    : COLOR,         // RTSS: in vec4 vInVertexColour
+            float3 normal       : TEXCOORD1, // RTSS: in vec3 vNormal
+            float4 lightpos     : TEXCOORD2, // RTSS: in vec4 vLightPos
+            float3 eyepos       : TEXCOORD3, // RTSS: in vec4 vLightDirView ??
             float2 uv       : TEXCOORD4,
-            uniform float4 lightDiffuse,
-            uniform float4 lightSpecular,
+            uniform float4 lightDiffuse,  // RTSS: in vec4 vDiffuseColour
+            uniform float4 lightSpecular, // RTSS: in vec4 vSpecularColour
             uniform float exponent,
             uniform float4 ambient,
             
@@ -52,6 +52,8 @@ void main_nicemetal_fp(
 
     float NdotL = dot(LightDir, N);
     float NdotH = dot(HalfAngle, N);
+    // lit() = generic perpixel stuff
+    // RTSS EQUIVALENT seems to be `getDistanceAttenuation()` and `getAngleAttenuation()` in RTSLib_Lighting.glsl
     float4 Lit = lit(NdotL,NdotH,exponent);
     float4 textColour = tex2D(Diffuse_Map, uv)*(1-incol.a);
     textColour=textColour+tex2D(Dmg_Diffuse_Map, uv)*incol.a;
