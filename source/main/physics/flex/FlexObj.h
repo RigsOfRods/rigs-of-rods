@@ -74,7 +74,7 @@ public:
 
     ~FlexObj();
 
-    Ogre::Vector3   UpdateFlexObj();
+    void            UpdateFlexObj();
     void            ScaleFlexObj(float factor);
 
 private:
@@ -88,7 +88,7 @@ private:
 
     /// Compute vertex position in the vertexbuffer (0-based offset) for node `v` of triangle `tidx`
     int             ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshes);
-    Ogre::Vector3   UpdateMesh();
+    void            UpdateMesh();
 
     Ogre::MeshPtr               m_mesh;
     std::vector<Ogre::SubMesh*> m_submeshes;
