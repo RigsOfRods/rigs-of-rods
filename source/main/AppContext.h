@@ -61,6 +61,9 @@ public:
     void                 CaptureScreenshot();
     void                 ActivateFullscreen(bool val);
 
+    // Profiling
+    void                 PrepareProfiler();
+
     // Getters
     Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
     Ogre::Viewport*      GetViewport() { return m_viewport; }
@@ -98,6 +101,7 @@ private:
     Ogre::RenderWindow*  m_render_window = nullptr;
     Ogre::Viewport*      m_viewport      = nullptr;
     bool                 m_windowed_fix = false; //!< Workaround OGRE glitch when switching from fullscreen.
+    bool                 m_profiler_enabled = false; //!< Last known state, to workaround OGRE v14.5.2 bug
 
     std::time_t          m_prev_screenshot_time;
     int                  m_prev_screenshot_index = 1;
