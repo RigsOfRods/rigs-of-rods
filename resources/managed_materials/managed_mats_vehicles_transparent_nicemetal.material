@@ -20,6 +20,8 @@ material managed/flexmesh_transparent/specularonly_nicemetal
             // Make this pass use the pixel shader
             fragment_program_ref NiceMetal_transp_PS_nodmg_mm
             {
+                param_named Diffuse_Map int 0
+                param_named Specular_Map int 1
             }
            texture_unit Diffuse_Map
             {
@@ -47,6 +49,8 @@ material managed/flexmesh_transparent/specularonly_nicemetal
             // Make this pass use the pixel shader
              fragment_program_ref NiceMetal_Reflect_PS_mm
               {
+                  param_named Specular_Map 0
+                  param_named cubeMap 1
               }
               texture_unit Specular_Map
               {
@@ -85,6 +89,9 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
             // Make this pass use the pixel shader
             fragment_program_ref NiceMetal_transp_PS_mm
             {
+                param_named Diffuse_Map int 0
+                param_named Specular_Map int 1
+                param_named Dmg_Diffuse_Map int 2
             }
            texture_unit Diffuse_Map
             {
@@ -118,6 +125,8 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
             // Make this pass use the pixel shader
              fragment_program_ref NiceMetal_Reflect_PS_mm
               {
+                  param_named Specular_Map 0
+                  param_named cubeMap 1
               }
               texture_unit Specular_Map
               {
@@ -153,6 +162,8 @@ material managed/mesh_transparent/specular_nicemetal
             // Make this pass use the pixel shader
             fragment_program_ref SimpleMetal_transp_PS_mm
             {
+                param_named Diffuse_Map int 0
+                param_named Specular_Map int 1
             }
            texture_unit Diffuse_Map
             {
@@ -179,6 +190,8 @@ material managed/mesh_transparent/specular_nicemetal
             // Make this pass use the pixel shader
              fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm
               {
+                  param_named Specular_Map 0
+                  param_named cubeMap 1
               }
               texture_unit Specular_Map
               {
