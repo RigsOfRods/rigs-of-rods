@@ -1,9 +1,11 @@
 // Project Rigs of Rods (www.rigsofrods.org)
-// PixelMetal - monolithic cross-language shader to replace classic Cg shaders
-// See comments in 'mm_pixelmetal.glsl'
+// MM_PixelMetal - monolithic cross-language shader to replace classic 'nicemetal_mm.cg':
+// * Based on Blinn-Phong lighting model.
+// * Features: fake specular metalness, damage-tex blending, reflections.
+// * Original entry points are replaced by preprocessor defines (detailed in code comments).
 
+OGRE_NATIVE_GLSL_VERSION_DIRECTIVE
 #include <OgreUnifiedShader.h>
-#include "mm_pixelmetal.glsl"
 
 // This shader replaces '*nicemetal*' and '*simplemetal*' fragment programs:
 // - same semantics of uniforms
@@ -19,26 +21,38 @@
 // * With MM_NOWET & MM_NODMG: Equivalent of 'main_simplemetal_fp'
 // * With MM_NOWET & MM_NODMG & MM_TRANSP: Equivalent of 'main_simplemetal_transp_fp'
 
-OGRE_NATIVE_GLSL_VERSION_DIRECTIVE
-
 OGRE_UNIFORMS(
-    uniform vec4 lightDiffuse; // color
-    uniform vec4 lightSpecular; // color
+    uniform vec4 lightDiffuse;
+    uniform vec4 lightSpecular;
     uniform float exponent;
-    uniform vec4 ambient; // ambient light color
+    uniform vec4 ambient;
     
-    uniform SAMPLER2D Diffuse_Map;
-    uniform SAMPLER2D Specular_Map;
-    uniform SAMPLER2D Dmg_Diffuse_Map;
+    SAMPLER2D(Diffuse_Map, 0);
+    SAMPLER2D(Specular_Map, 1);
+    SAMPLER2D(Dmg_Diffuse_Map, 2);
 )
 
-MAIN_ARGUMENTS
-    IN(vec4, pos, TEXCOORD0)
-    IN(vec4, incol, COLOR)
-    IN(vec3, normal, TEXCOORD1)
-    IN(vec4, lightpos, TEXCOORD2)
-    IN(vec3, eyepos, TEXCOORD3)
-    IN(vec2, uv, TEXCOORD4)
+// GLSL equivalent of builtin `lit()` function in Cg and HLSL - defined to make the new code resemble the old one more closely.
+vec4 lit(float NdotL, float NdotH, float m)
+{
+    float diffuse = max(NdotL, 0.0);
+    float specular = (NdotL > 0.0)
+        ? pow(max(NdotH, 0.0), m)
+        : 0.0;
+
+    return vec4(1.0, diffuse, specular, 1.0);
+}
+
+// GLSL `lerp()` alias - defined to make the new code resemble the old one more closely.
+#define lerp mix
+
+MAIN_PARAMETERS
+    IN(vec4 pos, TEXCOORD0)
+    IN(vec4 incol, COLOR)
+    IN(vec3 normal, TEXCOORD1)
+    IN(vec4 lightpos, TEXCOORD2)
+    IN(vec3 eyepos, TEXCOORD3)
+    IN(vec2 uv, TEXCOORD4)
 MAIN_DECLARATION
 {
     // ~~ Standard Blinn-Phong lighting ~~
@@ -53,24 +67,24 @@ MAIN_DECLARATION
     
 #ifndef MM_NODMG 
     // ~~ Flexbody damage effect: blend Diffuse and Dmg_Diffuse based on vertex color's alpha value. ~~
-    vec4 textColour = tex2D(Diffuse_Map, uv)*(1-incol.a);
-    textColour=textColour+tex2D(Dmg_Diffuse_Map, uv)*incol.a;
+    vec4 textColour = texture2D(Diffuse_Map, uv)*(1-incol.a);
+    textColour=textColour+texture2D(Dmg_Diffuse_Map, uv)*incol.a;
 #else
-    vec4 textColour = tex2D(Diffuse_Map, uv);
+    vec4 textColour = texture2D(Diffuse_Map, uv);
 #endif
 
 #ifndef MM_NOWET    
     // ~~ Flexbody wetness effect: dim diffuse and amplify specular based on vertex color's blue value. ~~
     textColour=textColour*(1-incol.b/3);
-    vec4 specColour = tex2D(Specular_Map, uv)+incol.b/3-incol.a/2;
+    vec4 specColour = texture2D(Specular_Map, uv)+incol.b/3-incol.a/2;
 #else
-    vec4 specColour = tex2D(Specular_Map, uv);
+    vec4 specColour = texture2D(Specular_Map, uv);
 #endif
     
     // ~~ Nicemetal secret sauce: `lerp()` by specular value, so as specular intensity increases, diffuse light is removed. ~~
     gl_FragColor = lerp(lightDiffuse * textColour * Lit.y + textColour*ambient, lightSpecular * Lit.z, specColour);
 #ifdef MM_TRANSP
-    gl_FragColor.a=tex2D(Diffuse_Map, uv).a;
+    gl_FragColor.a=texture2D(Diffuse_Map, uv).a;
 #else
     gl_FragColor.a=1;
 #endif
