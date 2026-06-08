@@ -21,16 +21,14 @@ material managed/flexmesh_transparent/specularonly_nicemetal
             fragment_program_ref NiceMetal_transp_PS_nodmg_mm
             {
             }
-           texture_unit Diffuse_Map
+            texture_unit Diffuse_Map
             {
-                // This pass will use this 2D texture as its input
-                texture unknown.dds
+                texture FilledAtSpawn
                 tex_coord_set 0
             }
             texture_unit Specular_Map
             {
-                // This pass will use this 2D texture as its input
-                texture specular_tex
+                texture FilledAtSpawn
                 tex_coord_set 1
             }
         }
@@ -50,8 +48,7 @@ material managed/flexmesh_transparent/specularonly_nicemetal
               }
               texture_unit Specular_Map
               {
-                  // This pass will use this 2D texture as its input
-                  texture specular_tex
+                texture FilledAtSpawn
                   tex_coord_set 0
               }
               texture_unit envmaptex
@@ -88,20 +85,17 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
             }
            texture_unit Diffuse_Map
             {
-                // This pass will use this 2D texture as its input
-                texture unknown.dds
+                texture FilledAtSpawn
                 tex_coord_set 0
             }
             texture_unit Specular_Map
             {
-                // This pass will use this 2D texture as its input
-                texture specular_tex
+                texture FilledAtSpawn
                 tex_coord_set 1
             }
             texture_unit Dmg_Diffuse_Map
             {
-                // This pass will use this 2D texture as its input
-                texture unknown.dds
+                texture FilledAtSpawn
                 tex_coord_set 2
             }
         }
@@ -121,8 +115,7 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
               }
               texture_unit Specular_Map
               {
-                  // This pass will use this 2D texture as its input
-                  texture specular_tex 2d
+                texture FilledAtSpawn
                   tex_coord_set 0
               }
               texture_unit envmaptex
@@ -154,16 +147,14 @@ material managed/mesh_transparent/specular_nicemetal
             fragment_program_ref SimpleMetal_transp_PS_mm
             {
             }
-           texture_unit Diffuse_Map
+            texture_unit Diffuse_Map
             {
-                // This pass will use this 2D texture as its input
-                texture unknown.dds 2d
+                texture FilledAtSpawn
                 tex_coord_set 0
             }
             texture_unit Specular_Map
             {
-                // This pass will use this 2D texture as its input
-                texture specular_tex
+                texture FilledAtSpawn
                 tex_coord_set 1
             }
         }
@@ -177,21 +168,20 @@ material managed/mesh_transparent/specular_nicemetal
             {
             }
             // Make this pass use the pixel shader
-             fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm
-              {
-              }
-              texture_unit Specular_Map
-              {
-                  // This pass will use this 2D texture as its input
-                  texture specular_tex
-                  tex_coord_set 0
-              }
-              texture_unit envmaptex
-              {
-                  cubic_texture EnvironmentTexture combinedUVW
-                  tex_address_mode clamp
-                  tex_coord_set 1
-              }
-          }
+            fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm
+            {
+            }
+            texture_unit Specular_Map
+            {
+                texture FilledAtSpawn
+                tex_coord_set 0
+            }
+            texture_unit envmaptex
+            {
+                cubic_texture EnvironmentTexture combinedUVW
+                tex_address_mode clamp
+                tex_coord_set 1
+            }
+        }
     }
 }
