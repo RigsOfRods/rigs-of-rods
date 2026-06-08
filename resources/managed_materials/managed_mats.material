@@ -5,7 +5,6 @@ abstract material RoR/Managed_Mats/Base
 {
 	technique BaseTechnique: Shadows/managed/base_receiver
 	{
-	//Texture is rendred here
 		pass BaseRender
 		{
 			texture_unit Diffuse_Map
@@ -34,7 +33,6 @@ abstract material RoR/Managed_Mats/BaseSpecular
 {
 	technique BaseTechnique: Shadows/managed/base_receiver
 	{
-	//Texture is rendred here
 		pass BaseRender
 		{
 			texture_unit Diffuse_Map
@@ -57,12 +55,10 @@ abstract material RoR/Managed_Mats/Vegetation
 {	
 	technique BaseTechnique: Shadows/managed_transparent/base_receiver
 	{
-	//Texture is rendred here
 		pass BaseRender
 		{
 			alpha_rejection greater_equal 192
 			cull_hardware none
-			cull_software none
 			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex
@@ -75,12 +71,10 @@ abstract material RoR/Managed_Mats/Transparent
 {
 	technique BaseTechnique: Shadows/managed_transparent/base_receiver
 	{
-	//Texture is rendred here
 		pass BaseRender
 		{
 			alpha_rejection greater_equal 192
 			cull_hardware none
-			cull_software none
 			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex

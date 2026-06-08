@@ -28,7 +28,7 @@ material tree_01/leaves
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			//lighting off
 			scene_blend alpha_blend
 			alpha_rejection greater 128
