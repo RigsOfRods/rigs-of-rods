@@ -28,7 +28,7 @@
 
 #include "ForwardDeclarations.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <vector>
 
 namespace RoR {

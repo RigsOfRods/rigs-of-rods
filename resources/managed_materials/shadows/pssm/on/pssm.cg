@@ -77,6 +77,7 @@ void shadow_receiver_vs(
 	oNormal = normal;
 }
 
+// RTSS EQUIVALENT: SGX_ShadowPCF4()
 float shadowPCF(sampler2D shadowMap, float4 shadowMapPos, float2 offset)
 {
 	shadowMapPos = shadowMapPos / shadowMapPos.w;
@@ -93,6 +94,9 @@ float shadowPCF(sampler2D shadowMap, float4 shadowMapPos, float2 offset)
 }
 
 // to put it simply, this does 100% per pixel diffuse lighting
+// RTSS EQUIVALENT: SGX_ComputeShadowFactor_PSSM3()
+//                  Uniforms per split: shaadowmap sampler, vec2 shadowmapsize, vec4 lightposition
+//                  looks like the "OS*" vars are specific to this (generic perpixel lighting?)
 void shadow_receiver_ps(
 	float3 uv		: TEXCOORD0,
 	float3 OSlightDir	: TEXCOORD1,
@@ -117,6 +121,8 @@ void shadow_receiver_ps(
 	uniform float4 ambient
 	)
 {
+    // ~~~~ SGX_ComputeShadowFactor_PSSM3()  ~~~~
+    
 	// calculate shadow
 	float shadowing = 1.0f;
 	float4 splitColour;
@@ -136,6 +142,8 @@ void shadow_receiver_ps(
 		splitColour = float4(0.9, 0.9, 0, 1);
 		shadowing = shadowPCF(shadowMap2, LightPosition2, invShadowMapSize2.xy);/*2*/
 	}
+    
+    // ~~~~ generic perpixel ~~~~~
 
 	// retrieve normalised light vector, expand from range-compressed
 	float3 lightVec = normalize(OSlightDir);

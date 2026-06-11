@@ -1,8 +1,7 @@
-vertex_program NiceMetal_VS_mm cg
+vertex_program NiceMetal_VS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point main_nicemetal_vp
-    profiles vs_1_1 arbvp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_nicemetal_vp,    profiles vs_1_1 arbvp1
+    source mm_pixelmetal_vert.glsl
     default_params
     {
         param_named_auto worldviewproj worldviewproj_matrix
@@ -11,11 +10,10 @@ vertex_program NiceMetal_VS_mm cg
     }
 }
 
-fragment_program NiceMetal_PS_mm cg
+fragment_program NiceMetal_PS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point main_nicemetal_fp
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_nicemetal_fp,    profiles ps_2_0 arbfp1
+    source mm_pixelmetal_frag.glsl
     default_params
     {
         param_named_auto lightDiffuse light_diffuse_colour 0
@@ -25,11 +23,11 @@ fragment_program NiceMetal_PS_mm cg
     }
 }
 
-fragment_program NiceMetal_transp_PS_mm cg
+fragment_program NiceMetal_transp_PS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point main_nicemetal_transp_fp
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_nicemetal_transp_fp,    profiles ps_2_0 arbfp1
+    source mm_pixelmetal_frag.glsl
+    preprocessor_defines MM_TRANSP
     default_params
     {
         param_named_auto lightDiffuse light_diffuse_colour 0
@@ -39,11 +37,11 @@ fragment_program NiceMetal_transp_PS_mm cg
     }
 }
 
-fragment_program NiceMetal_PS_nodmg_mm cg
+fragment_program NiceMetal_PS_nodmg_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point main_nicemetal_fp_nodmg
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_nicemetal_fp_nodmg,    profiles ps_2_0 arbfp1
+    source mm_pixelmetal_frag.glsl
+    preprocessor_defines MM_NODMG
     default_params
     {
         param_named_auto lightDiffuse light_diffuse_colour 0
@@ -53,11 +51,11 @@ fragment_program NiceMetal_PS_nodmg_mm cg
     }
 }
 
-fragment_program NiceMetal_transp_PS_nodmg_mm cg
+fragment_program NiceMetal_transp_PS_nodmg_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point main_nicemetal_fp_nodmg
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_nicemetal_fp_nodmg,    profiles ps_2_0 arbfp1
+    source mm_pixelmetal_frag.glsl
+    preprocessor_defines MM_TRANSP, MM_NODMG
     default_params
     {
         param_named_auto lightDiffuse light_diffuse_colour 0
@@ -67,11 +65,10 @@ fragment_program NiceMetal_transp_PS_nodmg_mm cg
     }
 }
 
-vertex_program NiceMetal_Reflect_VS_mm cg
+vertex_program NiceMetal_Reflect_VS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point reflect_nicemetal_vp
-    profiles vs_1_1 arbvp1
+    //ORIG: source nicemetal_mm.cg,    entry_point reflect_nicemetal_vp,    profiles vs_1_1 arbvp1
+    source mm_pixelmetalchrome_vert.glsl
     default_params
     {
 	  param_named_auto camPosition camera_position_object_space
@@ -83,31 +80,30 @@ vertex_program NiceMetal_Reflect_VS_mm cg
     }
 }
 
-fragment_program NiceMetal_Reflect_PS_mm cg
+fragment_program NiceMetal_Reflect_PS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point reflect_nicemetal_fp
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point reflect_nicemetal_fp,    profiles ps_2_0 arbfp1
+    source mm_pixelmetalchrome_frag.glsl
     default_params
     {
     }
 }
 
-fragment_program NiceMetal_Reflect_nocolor_PS_mm cg
+fragment_program NiceMetal_Reflect_nocolor_PS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point reflect_nicemetal_nocolor_fp
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point reflect_nicemetal_nocolor_fp,    profiles ps_2_0 arbfp1
+    source mm_pixelmetalchrome_frag.glsl
+    preprocessor_defines MM_NOCOLOR
     default_params
     {
     }
 }
 
-fragment_program SimpleMetal_PS_mm cg
+fragment_program SimpleMetal_PS_mm glsl
 {
-    source nicemetal_mm.cg
-    entry_point main_simplemetal_fp
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_simplemetal_fp,    profiles ps_2_0 arbfp1
+    source mm_pixelmetal_frag.glsl
+    preprocessor_defines MM_NODMG, MM_NOWET
     default_params
     {
         param_named_auto lightDiffuse light_diffuse_colour 0
@@ -119,9 +115,9 @@ fragment_program SimpleMetal_PS_mm cg
 
 fragment_program SimpleMetal_transp_PS_mm cg
 {
-    source nicemetal_mm.cg
-    entry_point main_simplemetal_transp_fp
-    profiles ps_2_0 arbfp1
+    //ORIG: source nicemetal_mm.cg,    entry_point main_simplemetal_transp_fp,    profiles ps_2_0 arbfp1
+    source mm_pixelmetal_frag.glsl
+    preprocessor_defines MM_NODMG, MM_NOWET, MM_TRANSP    
     default_params
     {
         param_named_auto lightDiffuse light_diffuse_colour 0
