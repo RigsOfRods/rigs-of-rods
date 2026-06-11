@@ -60,6 +60,17 @@ enum ActorSimAttr
     ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE, //!<  Param #12 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!<  Param #13 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  Param #14 of 'engturbo2'    
+
+    // Truck controls
+    ACTORSIMATTR_TRUCK_STEERING, //!< Steering angle, from -1 (full right steering) to 1 (full left steering).
+    ACTORSIMATTR_TRUCK_BRAKE, //!< Braking level, from 0 (no braking) to 1 (maximum braking).
+
+    // Aircraft control surfaces
+    ACTORSIMATTR_AIRCRAFT_AIRBRAKES, //!< Air braking level for aircraft, from 0 (no braking) to 5 (maximum braking).
+    ACTORSIMATTR_AIRCRAFT_FLAPS, //!< Flaps level for aircraft, from 0 (flaps up) to 5 (flaps fully down).
+    ACTORSIMATTR_AIRCRAFT_AILERON, //!< Aircraft aileron position, from -1 (full left bank) to 1 (full right bank).
+    ACTORSIMATTR_AIRCRAFT_ELEVATOR, //!< Aircraft elevator position, from -1 (full pitch down) to 1 (full pitch up).
+    ACTORSIMATTR_AIRCRAFT_RUDDER, //!< Aircraft rudder deflection, from -1 (full right yaw) to 1 (full left yaw).
 };
 
 } // namespace Script2Game

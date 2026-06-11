@@ -91,6 +91,7 @@ public:
     bool getWarmup() { return warmup; };
     float getRadius() { return radius; };
     float getMaxPower() const { return fullpower; };
+    void setMaxPower(float power);
 
     // Visuals
     void updateVisuals(RoR::GfxActor* gfx_actor) override;

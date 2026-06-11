@@ -29,6 +29,8 @@ void RoR::RegisterAutopilot(asIScriptEngine* engine)
 
     // PLEASE maintain same order as in 'gameplay/AutoPilot.h' and 'doc/angelscript/Script2Game/AutopilotClass.h'
     result = engine->RegisterObjectMethod("AutopilotClass", "void disconnect()", asMETHOD(Autopilot, disconnect), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("AutopilotClass", "bool getCustomAutopilotMode()", asMETHOD(Autopilot, getCustomAutopilotMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("AutopilotClass", "void setCustomAutopilotMode(bool)", asMETHOD(Autopilot, setCustomAutopilotMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "APHeadingMode toggleHeading(APHeadingMode)", asMETHOD(Autopilot, toggleHeading), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "APAltitudeMode toggleAltitude(APAltitudeMode)", asMETHOD(Autopilot, toggleAlt), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AutopilotClass", "bool toggleIAS()", asMETHOD(Autopilot, toggleIAS), asCALL_THISCALL); ROR_ASSERT(result >= 0);

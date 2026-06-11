@@ -6,6 +6,8 @@
 
 // Window [X] button handler
 imgui_utils::CloseWindowPrompt closeBtnHandler;
+array<float> originalPropellerPowers;
+int lastTruckNum;
 
 string YesOrNo(bool b)
 {
@@ -31,6 +33,11 @@ void ShowEngineType(AircraftEngineClass@ engine)
     ImGui::BulletText("Type: " + engType);
 }
 
+void main()
+{
+    lastTruckNum = game.getCurrentTruckNumber();
+}
+
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(440, 520));
@@ -38,6 +45,18 @@ void frameStep(float dt)
     {
         closeBtnHandler.draw();
         BeamClass@ truck = game.getCurrentTruck();
+        int currentTruckID = -1;
+        if (@truck != null)
+            currentTruckID = truck.getInstanceId();
+
+        if (lastTruckNum != currentTruckID)
+        {
+            // The current truck has changed. Empty the list to add the new power values afterwards.
+            lastTruckNum = currentTruckID;
+            while (originalPropellerPowers.length() > 0)
+                originalPropellerPowers.removeLast();
+        }
+
         if (@truck != null)
         {
             ImGui::Text("Vehicle: " + truck.getTruckName());
@@ -88,6 +107,9 @@ void frameStep(float dt)
 
                     if (engine.getType() == AE_TURBOJET)
                     {
+                        if (int(originalPropellerPowers.length()) < engCount)
+                            originalPropellerPowers.insertLast(0);
+
                         TurbojetClass@ turbojet = truck.getTurbojet(i);
                         ImGui::Text("Turbojet info:");
                         ImGui::BulletText("Dry thrust: " + formatFloat(turbojet.getMaxDryThrust(), '', 0, 1) + " kN");
@@ -95,17 +117,40 @@ void frameStep(float dt)
                         if (turbojet.getAfterburner())
                             ImGui::BulletText("Afterburner thrust: " + formatFloat(turbojet.getAfterburnerThrust(), '', 0, 1) + " kN");
                         ImGui::BulletText("Exhaust velocity: " + formatFloat(turbojet.getExhaustVelocity(), '', 0, 1) + " m/s");
+
+
+                        ImGui::PushID("DRYTHR" + formatInt(i));
+                        float maxDryThrust = turbojet.getMaxDryThrust();
+                        if (ImGui::SliderFloat("Set maximum dry thrust", maxDryThrust, 0, turbojet.getAfterburnerThrust()))
+                            turbojet.setMaxDryThrust(maxDryThrust);
+                        ImGui::PopID();
+
+                        ImGui::PushID("WETTHR" + formatInt(i));
+                        float maxWetThrust = turbojet.getAfterburnerThrust();
+                        if (ImGui::SliderFloat("Set maximum afterburner thrust", maxWetThrust, turbojet.getMaxDryThrust(), turbojet.getMaxDryThrust() * 2))
+                            turbojet.setAfterburnerThrust(maxWetThrust);
+                        ImGui::PopID();
                     }
                     else if (engine.getType() == AE_PROPELLER)
                     {
                         TurbopropClass@ propeller = truck.getTurboprop(i);
+                        float maxPower = propeller.getPropellerMaxPower();
+                        if (int(originalPropellerPowers.length()) < engCount)
+                            originalPropellerPowers.insertLast(maxPower);
+
                         ImGui::Text("Propeller info:");
                         ImGui::BulletText("Pitch: " + formatFloat(propeller.getPropellerPitch(), '', 0, 1));
                         ImGui::BulletText("Torque: " + formatFloat(propeller.getPropellerIndicatedTorque(), '', 0, 1) + " N m");
                         ImGui::BulletText("Max torque: " + formatFloat(propeller.getPropellerMaxTorque(), '', 0, 1) + " N m");
                         ImGui::BulletText("Max power: " + formatFloat(propeller.getPropellerMaxPower(), '', 0, 1) + " kW");
                         ImGui::BulletText("Is piston prop: " + YesOrNo(propeller.isPistonProp()));
+
+                        ImGui::PushID("PROPPWR" + formatInt(i));
+                        if (ImGui::SliderFloat("Set maximum power", maxPower, 0, originalPropellerPowers[i] * 2))
+                            propeller.setMaxPower(maxPower);
+                        ImGui::PopID();
                     }
+
                 }
             }
         }
