@@ -115,6 +115,7 @@ public:
     bool                LoadTerrain(std::string const& filename_part);
     void                UnloadTerrain();
     const TerrainPtr&   GetTerrain() { return m_terrain; }
+    bool                LoadRace(std::string const& filename_part);
 
     /// @}
     /// @name Actors
