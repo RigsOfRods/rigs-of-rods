@@ -1543,7 +1543,7 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
     if (!entry)
         return;
 
-    // Check if already loaded for this entry->
+    // Check if already loaded for this entry
     if (entry->resource_group != "")
     {
         this->LoadSupplementaryDocuments(entry);
@@ -1552,60 +1552,82 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
 
     Ogre::String group = CacheSystem::ComposeResourceGroupName(entry);
 
+    const bool inGlobalPool = false; // Prevent resource name conflicts with other mods.
+    ResourceGroupManager::getSingleton().createResourceGroup(group, inGlobalPool);
+
+    // Initialize "managed materials" first
+    //   These are base materials referenced by user content
+    //   They must be initialized before any content is loaded,
+    //   otherwise material links are unresolved and loading ends with an exception
+    App::GetContentManager()->InitManagedMaterials(group);
+
     // Make "FileSystem" (directory) bundles writable (Default is read-only), except if it's a root directory.
     // See explanation of `readOnly` OGRE flag in `ContentManager::InitModCache()`.
-    bool readonly = entry->resource_bundle_type == "Zip" || this->IsPathContentDirRoot(entry->resource_bundle_path);
-    bool recursive = false;
+    const bool readonly = entry->resource_bundle_type == "Zip" || this->IsPathContentDirRoot(entry->resource_bundle_path);
+    const bool recursive = false;
 
     // Load now.
     try
     {
         if (entry->fext == "terrn2")
         {
-            // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
-            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
-            ResourceGroupManager::getSingleton().addResourceLocation(
-                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
-        }
-        else if (entry->fext == "skin")
-        {
-            // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-            // Note: this code won't execute for .skin files in vehicle-bundles because in such case the bundle is already loaded by the vehicle's Cacheentry->
-            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(
-                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
-            App::GetContentManager()->InitManagedMaterials(group);
-        }
-        else if (entry->fext == "tuneup")
-        {
-            // This is a .tuneup bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(
-                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
-            App::GetContentManager()->InitManagedMaterials(group);
-        }
-        else if (entry->fext == "gadget")
-        {
-            // This is a .gadget bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(
-                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
-            App::GetContentManager()->InitManagedMaterials(group);
-            // Allow using builtin include scripts
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS, group);
-        }
-        else
-        {
-            // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-            // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
-            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            // NOTE: PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`, which uses 'inGlobalPool=true', so it can access resources from any group.
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
 
-            App::GetContentManager()->InitManagedMaterials(group);
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
+            // Add game files which may be referenced by the terrain
+            App::GetContentManager()->AddResourcePack("textures", group);
+            App::GetContentManager()->AddResourcePack("materials", group);
+            App::GetContentManager()->AddResourcePack("meshes", group);
+            App::GetContentManager()->AddResourcePack("particles", group);
+            App::GetContentManager()->AddResourcePack("scripts", group);
+        }
+        else if (entry->fext == "skin")
+        {
+            // This is a SkinZip bundle
+            // Note: this code won't execute for .skin files in vehicle-bundles because in such case the bundle is already loaded by the vehicle's Cacheentry->
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+        }
+        else if (entry->fext == "tuneup")
+        {
+            // This is a .tuneup bundle
+            //  - most certainly a directory under USER/projects/ created by the Tuning menu.
+            //  - however, sharing tuneups between users is entirely legit.
+            // Only the .tuneup file will be loaded from this bundle (other data are in base actor or addonparts/assetpacks).
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+        }
+        else if (entry->fext == "gadget")
+        {
+            // This is a .gadget bundle
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+            // Add game files which may be referenced by the actor
+            App::GetContentManager()->AddResourcePack("scripts", group);
+        }
+        else if (entry->fext == "dashboard")
+        {
+            // This is a .dashboard bundle
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+            // Add game files which may be referenced by the actor
+            App::GetContentManager()->AddResourcePack("scripts", group);
+            App::GetContentManager()->AddResourcePack("dashboards", group);
+        }
+        else
+        {
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+
+            // Add game files which may be referenced by the actor
+            App::GetContentManager()->AddResourcePack("textures", group);
+            App::GetContentManager()->AddResourcePack("materials", group);
+            App::GetContentManager()->AddResourcePack("meshes", group);
+            App::GetContentManager()->AddResourcePack("airfoils", group);
+            App::GetContentManager()->AddResourcePack("particles", group);
+            App::GetContentManager()->AddResourcePack("scripts", group);
+            App::GetContentManager()->AddResourcePack("dashboards", group);
         }
 
         // Initialize resource group
