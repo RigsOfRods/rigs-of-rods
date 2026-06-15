@@ -95,7 +95,7 @@ material RoR/Submesh/Body :  RoR/Managed_Mats/Base
 			}
 			texture_unit envmap
 			{
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic
 				tex_address_mode wrap
                 scale 1 1
 				env_map cubic_reflection
@@ -200,7 +200,7 @@ material RoR/Submesh/Body/Alpha :  RoR/Managed_Mats/Base
 
 			texture_unit envmap
 			{
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic
 				colour_op_ex blend_manual src_texture src_current 0.5
 				tex_address_mode wrap
                 scale 1 1
@@ -295,7 +295,7 @@ material RoR/Submesh/Wheels:  RoR/Managed_Mats/Base
 			}
 			texture_unit envmap
 			{
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic
 				tex_address_mode wrap
                 scale 1 1
 				env_map cubic_reflection
@@ -399,7 +399,7 @@ material RoR/Submesh/Wheels/Alpha :  RoR/Managed_Mats/Base
 
 			texture_unit envmap
 			{
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic
 				colour_op_ex blend_manual src_texture src_current 0.5
 				tex_address_mode wrap
                 scale 1 1
