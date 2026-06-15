@@ -32,54 +32,19 @@
 
 namespace RoR {
 
+/// Manages game files (under 'GAMEDIR/resources/')
 class ContentManager:
     public Ogre::ResourceLoadingListener, // Ogre::ResourceGroupManager::getSingleton().setLoadingListener()
     public Ogre::ScriptCompilerListener   // Ogre::ScriptCompilerManager::getSingleton().setListener()
 {
 public:
 
-    struct ResourcePack
-    {
-        ResourcePack(const char* name, const char* resource_group_name):
-            name(name), resource_group_name(resource_group_name)
-        {}
-
-        static const ResourcePack OGRE_CORE;
-        static const ResourcePack WALLPAPERS;
-        static const ResourcePack AIRFOILS;
-        static const ResourcePack BEAM_OBJECTS;
-        static const ResourcePack CAELUM;
-        static const ResourcePack CUBEMAPS;
-        static const ResourcePack DASHBOARDS;
-        static const ResourcePack FAMICONS;
-        static const ResourcePack FLAGS;
-        static const ResourcePack FONTS;
-        static const ResourcePack HYDRAX;
-        static const ResourcePack ICONS;
-        static const ResourcePack MATERIALS;
-        static const ResourcePack MESHES;
-        static const ResourcePack MYGUI;
-        static const ResourcePack OVERLAYS;
-        static const ResourcePack PAGED;
-        static const ResourcePack PARTICLES;
-        static const ResourcePack PSSM;
-        static const ResourcePack SKYX;
-        static const ResourcePack RTSHADER;
-        static const ResourcePack SCRIPTS;
-        static const ResourcePack SOUNDS;
-        static const ResourcePack TEXTURES;
-
-        const char* name;
-        const char* resource_group_name;
-    };
-
-                       /// Loads resources if not already loaded
-                       /// @param override_rg If not set, the ResourcePack's RG is used -> resources won't unload until shutdown
-    void               AddResourcePack(ResourcePack const& resource_pack, std::string const& override_rgn = "");
+                       /// Loads game files if not already loaded
+                       /// @param override_rg If not set, the OGRE builtin "Default" group is used -> resources won't unload until shutdown
+    void               AddResourcePack(std::string const& resource_pack, std::string const& override_rgn = "");
     void               InitManagedMaterials(std::string const & rg_name);
     void               InitContentManager();
     void               InitModCache(CacheValidity validity);
-    void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
 
@@ -96,8 +61,6 @@ private:
 
     // Ogre::ScriptCompilerListener
     bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
-
-    bool              m_base_resource_loaded;
 };
 
 } // namespace RoR

@@ -179,13 +179,23 @@ int main(int argc, char *argv[])
             Ogre::TextureManager::getSingleton()._getWarningTexture()->getBuffer()->blitFromMemory(pixels);
         }
 
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FONTS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-
+        // Use 'General' group (aka RGN_DEFAULT)
+        App::GetContentManager()->AddResourcePack("fonts");
+        App::GetContentManager()->AddResourcePack("OgreCore");
+        App::GetContentManager()->AddResourcePack("caelum");
+        App::GetContentManager()->AddResourcePack("hydrax");
+        App::GetContentManager()->AddResourcePack("skyx");
+        App::GetContentManager()->AddResourcePack("paged");
+        App::GetContentManager()->AddResourcePack("overlays");
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_UI_ICONS, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
+        App::GetContentManager()->AddResourcePack("icons", RGN_UI_ICONS);
+        App::GetContentManager()->AddResourcePack("famicons", RGN_UI_ICONS);
+        App::GetContentManager()->AddResourcePack("flags", RGN_UI_ICONS);
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_COUNTRIES, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
+        App::GetContentManager()->AddResourcePack("flags", RGN_COUNTRIES); // Only for MP country selector to list countries from, files are always loaded from RGN_UI_ICONS defined below.
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_WALLPAPERS, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
+        App::GetContentManager()->AddResourcePack("wallpapers", RGN_WALLPAPERS); // For random menu wallpaper selection.
+        
 #ifndef NOLANG
         App::GetLanguageEngine()->setup();
 #endif // NOLANG
@@ -973,7 +983,6 @@ int main(int argc, char *argv[])
                     {
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                         App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
-                        App::GetContentManager()->LoadGameplayResources();
 
                         if (App::GetGameContext()->LoadTerrain(m.description))
                         {
