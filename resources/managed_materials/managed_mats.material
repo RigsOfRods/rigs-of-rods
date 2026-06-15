@@ -53,12 +53,10 @@ abstract material RoR/Managed_Mats/BaseSpecular
 	}
 }
 
-	//Texture is rendred here
 abstract material RoR/Managed_Mats/Transparent
 {
 	technique BaseTechnique: Shadows/managed_transparent/base_receiver
 	{
-	//Texture is rendred here
 		pass BaseRender
 		{
 			alpha_rejection greater_equal 192
