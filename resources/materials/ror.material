@@ -1,16 +1,5 @@
 import * from "managed_mats.material"
 
-
-material tracks/bigsign/empty
-{
-	technique
-	{
-		pass
-		{
-			scene_blend alpha_blend
-			alpha_rejection greater 0
-			cull_hardware none
-			
 material dashboard
 {
  receive_shadows off
@@ -27,6 +16,16 @@ material dashboard
 	}
 }
 
+
+material tracks/bigsign/empty
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			cull_hardware none
 
 			texture_unit
 			{
@@ -56,9 +55,9 @@ material tracks/bigsign/town
 }
 
 
-material chp: RoR/Managed_Mats/Base
+material chp: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex chp.dds
+	set $diffuse_tex chp.dds
 }
 
 
@@ -589,39 +588,39 @@ material tracks/map/background
 	}
 }
 
-material asphalt: RoR/Managed_Mats/Base
+material asphalt: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex asphalt.dds
+	set $diffuse_tex asphalt.dds
 }
 
-material roadcross: RoR/Managed_Mats/Base
+material roadcross: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex roadcross.dds
+	set $diffuse_tex roadcross.dds
 }
 
-material roadtee: RoR/Managed_Mats/Base
+material roadtee: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex roadtee.dds
+	set $diffuse_tex roadtee.dds
 }
 
-material road: RoR/Managed_Mats/Base
+material road: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex road.dds
+	set $diffuse_tex road.dds
 }
 
-material roadturn: RoR/Managed_Mats/Base
+material roadturn: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex roadturn.dds
+	set $diffuse_tex roadturn.dds
 }
 
-material roadbf: RoR/Managed_Mats/Base
+material roadbf: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex road.dds
+	set $diffuse_tex road.dds
 }
 
-material runway: RoR/Managed_Mats/Base
+material runway: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex runway.dds
+	set $diffuse_tex runway.dds
 }
 
 material sign-nhelens
@@ -637,9 +636,9 @@ material sign-nhelens
 		}
 	}
 }
-material tracks/master: RoR/Managed_Mats/Base
+material tracks/master: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex master.dds
+	set $diffuse_tex master.dds
 }
 
 material tracks/nozzle
@@ -783,9 +782,9 @@ material renderdash
 	}
 }
 
-material road2: RoR/Managed_Mats/Base
+material road2: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex road2.dds
+	set $diffuse_tex road2.dds
 }
 
 
@@ -1615,7 +1614,7 @@ material tracks/beamblack
 
 // Instantiated per-managedmaterial, globally
 // This is necessary to load meshes with original material names (= unchanged managed mat names)
-// - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
+// - if not found, OGRE substitutes them with 'BaseDiffuseWhite' which breaks subsequent processing.
 // See `RigSpawner::ProcessManagedMaterial()` in RigSpawner.cpp
 material rigsofrods/managedmaterial-placeholder
 {
