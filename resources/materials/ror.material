@@ -137,11 +137,11 @@ material tracks/invisible
         scheme HydraxDepth
         pass
         {
-					lighting off
-					texture_unit
-					{
-            colour_op_ex modulate src_manual src_current 0 0 0
-					}
+            lighting off
+            texture_unit
+            {
+                colour_op_ex modulate src_manual src_current 0 0 0
+            }
         }
     } 
 }
@@ -162,45 +162,28 @@ material tracks/EnvMapDebug
 
 			texture_unit
 			{
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic
 			}
 		}
 	}
 }
 
-material tracks/Chrome
+material tracks/Chrome // Used for hydraulic beams (hydros/shocks/commands)
 {
 	technique
 	{
 		pass
 		{
-
 			texture_unit
 			{
-				//texture Chrome.dds
-				cubic_texture EnvironmentTexture combinedUVW
+				texture EnvironmentTexture cubic
 				env_map cubic_reflection 
 			}
 		}
 	}
 }
 
-material tracks/chrome
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				//texture Chrome.dds
-				cubic_texture EnvironmentTexture combinedUVW
-				env_map cubic_reflection 
-			}
-		}
-	}
-}
+material tracks/chrome: tracks/Chrome
 
 material tracks/wheelface
 {
@@ -268,7 +251,6 @@ material seat
 	{
 		pass
 		{
-
 			texture_unit
 			{
 				texture seat.dds
@@ -704,11 +686,10 @@ material tracks/skyboxcol
             fog_override true
             lighting off
             depth_write off
-//         depth_check off
 
             texture_unit
             {
-                cubic_texture cloudy_noon.dds separateUV
+                texture cloudy_noon.dds cubic
                 tex_address_mode clamp
             }
         }
@@ -727,7 +708,7 @@ material Sky/EarlyMorning
 
 			texture_unit
 			{
-				cubic_texture early_morning.dds separateUV
+				texture early_morning.dds cubic
 				tex_address_mode clamp
 			}
 		}
@@ -746,7 +727,7 @@ material Sky/ClubTropicana
 
 			texture_unit
 			{
-				cubic_texture ct.dds separateUV
+				texture ct.dds cubic
 				tex_address_mode clamp
 			}
 		}
@@ -765,7 +746,7 @@ material Sky/Clouds
 
 			texture_unit
 			{
-				cubic_texture clouds.dds separateUV
+				texture clouds.dds cubic
 				tex_address_mode clamp
 			}
 		}

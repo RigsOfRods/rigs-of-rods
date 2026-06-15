@@ -48,12 +48,12 @@ material managed/flexmesh_transparent/specularonly_nicemetal
               }
               texture_unit Specular_Map
               {
-                texture FilledAtSpawn
+                  texture FilledAtSpawn
                   tex_coord_set 0
               }
               texture_unit envmaptex
               {
-                  cubic_texture EnvironmentTexture combinedUVW
+                  texture EnvironmentTexture cubic
                   tex_address_mode clamp
                   tex_coord_set 1
               }
@@ -120,7 +120,7 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
               }
               texture_unit envmaptex
               {
-                  cubic_texture EnvironmentTexture combinedUVW
+                  texture EnvironmentTexture cubic
                   tex_address_mode clamp
                   tex_coord_set 1
               }
@@ -178,7 +178,7 @@ material managed/mesh_transparent/specular_nicemetal
             }
             texture_unit envmaptex
             {
-                cubic_texture EnvironmentTexture combinedUVW
+                texture EnvironmentTexture cubic
                 tex_address_mode clamp
                 tex_coord_set 1
             }
