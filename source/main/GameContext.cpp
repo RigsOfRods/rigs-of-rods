@@ -1955,6 +1955,11 @@ void GameContext::UpdateTruckInputEvents(float dt)
         m_player_actor->cruisecontrolToggle();
     }
 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL_RESUME))
+    {
+        m_player_actor->cruisecontrolResume();
+    }
+
     if (m_player_actor->getTyrePressure().IsEnabled())
     {
         m_player_actor->getTyrePressure().UpdateInputEvents(dt);
