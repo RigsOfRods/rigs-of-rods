@@ -808,7 +808,9 @@ void DashBoard::update(float dt)
                     sprintf(tmp, controls[i].graphicalAnimation.format, 0.f);
                 }
 
-                s = MyGUI::UString(tmp);
+                // BEWARE: MyGUI::UString has a constructor that takes a char[N]
+                //         and buffers up all N chars, even if NULLs. This breaks rendering.
+                s = MyGUI::UString((const char*)tmp);
             }
 
             controls[i].txt->setCaption(s);
