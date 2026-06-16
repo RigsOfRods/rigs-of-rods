@@ -317,9 +317,6 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
     //Dirty, needs to be improved
     if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
     {
-        // Always load shared params - we only add managedmats to RGs with 'inGlobalPool=false'
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem", rg_name);
-        
         ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
     }
     else
