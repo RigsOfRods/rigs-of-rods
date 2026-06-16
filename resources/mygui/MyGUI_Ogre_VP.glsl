@@ -16,5 +16,5 @@ void main()
 {
 	gl_Position = worldViewProj * position;
 	outUV0 = uv0;
-	outColor = colour.bgra;
+	outColor = colour; //Changed for ROR, orig: outColor = colour.bgra;
 }

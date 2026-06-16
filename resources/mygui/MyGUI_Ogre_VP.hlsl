@@ -8,6 +8,6 @@ void main(
 	out float2 outTexcoord : TEXCOORD1 )
 {
 	outPosition = mul(worldViewProj, inPosition);
-	outColor = inColor.bgra;
+	outColor = inColor; //Changed for ROR, orig: outColor = inColor.bgra;
 	outTexcoord = inTexcoord;
 }
