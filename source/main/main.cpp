@@ -187,6 +187,10 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack("skyx");
         App::GetContentManager()->AddResourcePack("paged");
         App::GetContentManager()->AddResourcePack("overlays");
+        // Always load PSSM shared params to RGN_DEFAULT
+        Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem");
+        
         Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_UI_ICONS, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
         App::GetContentManager()->AddResourcePack("icons", RGN_UI_ICONS);
         App::GetContentManager()->AddResourcePack("famicons", RGN_UI_ICONS);
