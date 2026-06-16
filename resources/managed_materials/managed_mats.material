@@ -9,6 +9,7 @@ abstract material RoR/Managed_Mats/Base
 	}
 }
 
+
 abstract material RoR/Managed_Mats/BaseNoShadows
 {
 	technique BaseTechnique
@@ -16,6 +17,7 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 
 	}
 }
+
 
 abstract material RoR/Managed_Mats/BaseDiffuse
 {
@@ -28,8 +30,9 @@ abstract material RoR/Managed_Mats/BaseDiffuse
 				texture $diffuse_tex
 			}
 		}
-    }
+	}
 }
+
 
 abstract material RoR/Managed_Mats/BaseSpecular
 {
@@ -52,6 +55,7 @@ abstract material RoR/Managed_Mats/BaseSpecular
 	}
 }
 
+
 abstract material RoR/Managed_Mats/Transparent
 {
 	technique BaseTechnique: Shadows/managed_transparent/base_receiver
@@ -68,32 +72,3 @@ abstract material RoR/Managed_Mats/Transparent
 	}
 }
 
-// ---- Simple vehicle materials ----
-
-material managed/mesh_standard/simple
-{
-	technique BaseTechnique
-	{
-		pass BaseRender
-		{
-			texture_unit Diffuse_Map
-			{
-                texture FilledAtSpawn
-			}
-		}
-	}
-}
-
-material managed/flexmesh_standard/simple
-{
-	technique BaseTechnique
-	{
-		pass BaseRender
-		{
-			texture_unit Diffuse_Map
-			{
-				texture unknown.dds
-			}
-		}
-	}
-}

@@ -305,7 +305,7 @@ bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *
     return false; // Report "not handled"
 }
 
-void ContentManager::InitManagedMaterials(std::string const & rg_name)
+void ContentManager::InitBaseManagedMaterials(std::string const & rg_name)
 {
     //   These are base materials referenced by user content
     //   They must be initialized before any content is loaded,
@@ -326,6 +326,20 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
+    // Last
+    ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", rg_name);
+}
+
+void ContentManager::InitActorManagedMaterials(std::string const & rg_name)
+{
+    // Base materials for the 'managedmaterials' section of truck fileformat.
+    // Must be loaded before the actor is spawned.
+    // ======================================================================
+
+    Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
+
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "vehicles"), "FileSystem", rg_name);
+
     // We can't have `EnvironmentTexture` both use shaders (nicemetal) and not use shaders (alternate).
     // RoR.log: Error: ScriptCompiler - invalid parameters in texture_manager.material(16): 
     //          overriding previous declarations of texture 'EnvironmentTexture' with different parameters
@@ -337,9 +351,6 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
     {
         ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "vehicles/nicemetal"), "FileSystem", rg_name);
     }
-
-    // Last
-    ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", rg_name);
 }
 
 std::string ContentManager::ListAllUserContent()

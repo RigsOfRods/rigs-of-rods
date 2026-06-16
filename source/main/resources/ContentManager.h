@@ -42,7 +42,8 @@ public:
                        /// Loads game files if not already loaded
                        /// @param override_rg If not set, the OGRE builtin "Default" group is used -> resources won't unload until shutdown
     void               AddResourcePack(std::string const& resource_pack, std::string const& override_rgn = "");
-    void               InitManagedMaterials(std::string const & rg_name);
+    void               InitBaseManagedMaterials(std::string const & rg_name);
+    void               InitActorManagedMaterials(std::string const & rg_name);
     void               InitContentManager();
     void               InitModCache(CacheValidity validity);
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
