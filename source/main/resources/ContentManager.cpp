@@ -69,12 +69,10 @@ void ContentManager::AddResourcePack(std::string const& resource_pack, std::stri
     const std::string zip_path = dir_path + ".zip";
     if (FileExists(zip_path))
     {
-        LOG(fmt::format("[RoR|ContentManager] Loading resource pack '{}' (ZIP archive) to group '{}'", resource_pack, rg_name));
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(zip_path, "Zip", rg_name);
     }
     else if (FolderExists(dir_path))
     {
-        LOG(fmt::format("[RoR|ContentManager] Loading resource pack '{}' (directory) to group '{}'", resource_pack, rg_name));
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dir_path, "FileSystem", rg_name);
     }
     else
