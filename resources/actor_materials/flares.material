@@ -1,0 +1,209 @@
+
+
+material tracks/flare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture flare.dds
+			}
+		}
+	}
+}
+
+material tracks/brakeflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture brakeflare.dds
+			}
+		}
+	}
+}
+
+material tracks/aimflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture aimflare.dds
+			}
+		}
+	}
+}
+
+material tracks/blinkflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture blinkflare.dds
+			}
+		}
+	}
+}
+material tracks/beaconflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture beaconflare.dds
+			}
+		}
+	}
+}
+
+material tracks/redbeaconflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture redbeaconflare.dds
+			}
+		}
+	}
+}
+
+material tracks/redflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture redflare.dds
+			}
+		}
+	}
+}
+material tracks/greenflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture greenflare.dds
+			}
+		}
+	}
+}
+
+material tracks/brightredflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture brightredflare.dds
+			}
+		}
+	}
+}
+
+material tracks/brightblueflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture brightblueflare.dds
+			}
+		}
+	}
+}
