@@ -57,6 +57,8 @@ public:
     Autopilot(int actor_id);
     void reset();
     void disconnect();
+    bool isActive() { return is_active; }
+    void setActive(bool active);
     void setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc);
     int toggleHeading(int mode);
     int toggleAlt(int mode);
@@ -87,6 +89,13 @@ public:
     bool GetGpwsMode() const { return mode_gpws; }
     int GetVsValue() const { return vs; }
 private:
+
+    // This prevents the default A/P from controlling the aircraft and disables the
+    // default logic (such as the A/P disengaging when NAV is engaged and no ILS
+    // is available).
+    // Allows custom autopilot scripts to use all the A/P settings and operate the
+    // controls without conflicts from the default A/P.
+    bool is_active;
 
     int mode_heading;
     int mode_alt;
