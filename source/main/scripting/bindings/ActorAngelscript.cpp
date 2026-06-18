@@ -170,7 +170,7 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void recalculateNodeMasses()", asMETHOD(Actor,recalculateNodeMasses), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setAirbrakeIntensity(float)", asMETHOD(Actor,setAirbrakeIntensity), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setAircraftFlaps(int)", asMETHOD(Actor,setAircraftFlaps), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
+    
     // - user interaction (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void tractioncontrolToggle()", asMETHOD(Actor,tractioncontrolToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -182,8 +182,15 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void clearForcedCinecam()", asMETHOD(Actor, clearForcedCinecam), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getForcedCinecam(int& inout, int& inout)", asMETHOD(Actor, getForcedCinecam), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getNumCinecams() const", asMETHOD(Actor, getNumCinecams), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getEventValue(inputEvents, bool = false, inputSourceType = inputSourceType::IST_ANY)", asMETHOD(Actor, getEventValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getEventBoolValue(inputEvents)", asMETHOD(Actor, getEventBoolValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getEventBoolValueBounce(inputEvents, float = 0.2f)", asMETHOD(Actor, getEventBoolValueBounce), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void clearEventSimulatedValues()", asMETHOD(Actor, clearEventSimulatedValues), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool hasEventSimulatedValue(inputEvents)", asMETHOD(Actor, hasEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getEventSimulatedValue(inputEvents)", asMETHOD(Actor, getEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setEventSimulatedValue(inputEvents, float)", asMETHOD(Actor, setEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void removeEventSimulatedValue(inputEvents)", asMETHOD(Actor, removeEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
-    
     // - subsystems (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "DashBoardManagerClassPtr@ getDashboardManager()", asMETHOD(Actor, getDashboardManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClassPtr @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
