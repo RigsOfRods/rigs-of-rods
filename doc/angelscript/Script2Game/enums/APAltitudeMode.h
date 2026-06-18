@@ -18,7 +18,7 @@ namespace Script2Game {
  */
 enum APAltitudeMode
 {
-	ALT_NONE,		//!< Disables all the altitude modes.
+	ALT_NONE,		//!< No altitude modes are enabled.
 	ALT_FIXED,		//!< The autopilot keeps the aircraft at a constant altitude set by `AutopilotClass.adjustAltitude(int addedAltitude)`.
 	ALT_VS			//!< The autopilot keeps the aircraft at a constant rate of climb/descent set by `AutopilotClass.adjustVerticalSpeed(int addedVS)`.
 };
