@@ -169,6 +169,14 @@ public:
     void              clearForcedCinecam();
     bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
     int               getNumCinecams() { return ar_num_cinecams; }
+    float             getEventValue(int eventID, bool pure = false, InputSourceType valueSource = InputSourceType::IST_ANY);
+    bool              getEventBoolValue(int eventID);
+    bool              getEventBoolValueBounce(int eventID, float time = 0.2f);
+    void              clearEventSimulatedValues();
+    bool              hasEventSimulatedValue(int eventID);
+    float             getEventSimulatedValue(int eventID);
+    void              setEventSimulatedValue(int eventID, float value);
+    void              removeEventSimulatedValue(int eventID);
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
@@ -192,6 +200,9 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
+    bool              isEventAnalog(int eventID);
+    bool              isEventDefined(int eventID);
+    float             getEventBounceTime(int eventID);
     //! @}
 
     /// @name Vehicle lights
@@ -448,6 +459,18 @@ public:
     
     float             ar_posnode_spawn_height = 0.f;
     VehicleAIPtr      ar_vehicle_ai;
+
+    // Overrides the input event values from InputEngine with custom values
+    // for this actor.
+    // As soon as an event-value pair is added to this map, values from the
+    // InputEngine are ignored.
+    std::map<int, float> ar_actor_event_simulated_values;
+    // Determines whether input event values for this actor must be read from
+    // the simulated values map. This allows us to apply inputs to actors
+    // other than the player actor, without it being affected by InputEngine
+    // values.
+    bool                 ar_force_simulated_values = false;
+
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
     float             ar_wheel_speed = 0.f;         //!< Physics state; wheel speed in m/s
@@ -468,9 +491,9 @@ public:
     bool              ar_trailer_parking_brake = false;
     float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle = -0.52f;          //!< Sim state; rear view mirror angle
-    float             ar_elevator = 0.f;                    //!< Sim state; aerial controller
-    float             ar_rudder = 0.f;                      //!< Sim state; aerial/marine controller
-    float             ar_aileron = 0.f;                     //!< Sim state; aerial controller
+    float             ar_elevator = 0.f;                    //!< Sim state; aircraft elevator
+    float             ar_rudder = 0.f;                      //!< Sim state; aircraft rudder (boat rudders are controlled in RoR::Screwprop)
+    float             ar_aileron = 0.f;                     //!< Sim state; aircraft aileron
     int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
     std::string       ar_filename;                    //!< Attribute; filled at spawn

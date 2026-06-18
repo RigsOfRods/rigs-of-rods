@@ -1552,9 +1552,14 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
 
     EnginePtr engine = vehicle->ar_engine;
 
+    /* Anti roll-back is disabled when the brake input
+     event is simulated for the vehicle.
+     That way the brake simulated input can be freely
+     modified without conflicts.*/
     if (engine && engine->hasContact() &&
         engine->getAutoMode() == SimGearboxMode::AUTO &&
-        engine->getAutoShift() != Engine::NEUTRAL)
+        engine->getAutoShift() != Engine::NEUTRAL &&
+        !vehicle->hasEventSimulatedValue(EV_TRUCK_BRAKE))
     {
         Ogre::Vector3 dirDiff = vehicle->getDirection();
         Ogre::Degree pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));
