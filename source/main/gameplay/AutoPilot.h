@@ -57,8 +57,8 @@ public:
     Autopilot(int actor_id);
     void reset();
     void disconnect();
-    bool isActive() { return is_active; }
-    void setActive(bool active);
+    bool getForceDisabled() { return force_disabled; }
+    void setForceDisabled(bool disabled);
     void setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc);
     int toggleHeading(int mode);
     int toggleAlt(int mode);
@@ -90,12 +90,12 @@ public:
     int GetVsValue() const { return vs; }
 private:
 
-    // This prevents the default A/P from controlling the aircraft and disables the
-    // default logic (such as the A/P disengaging when NAV is engaged and no ILS
-    // is available).
+    // When true, this prevents the default A/P from controlling the aircraft and
+    // disables the default logic (such as the A/P disengaging when NAV is engaged
+    // and ILS is not available).
     // Allows custom autopilot scripts to use all the A/P settings and operate the
     // controls without conflicts from the default A/P.
-    bool is_active;
+    bool force_disabled;
 
     int mode_heading;
     int mode_alt;

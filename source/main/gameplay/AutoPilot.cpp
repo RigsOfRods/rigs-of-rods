@@ -43,7 +43,7 @@ Autopilot::Autopilot(int actor_id):
 
 void Autopilot::reset()
 {
-    is_active = true;
+    force_disabled = false;
     mode_heading = HEADING_NONE;
     mode_alt = ALT_NONE;
     mode_ias = false;
@@ -80,9 +80,9 @@ void Autopilot::disconnect()
     }
 }
 
-void Autopilot::setActive(bool active)
+void Autopilot::setForceDisabled(bool disabled)
 {
-    is_active = active;
+    force_disabled = disabled;
 }
 
 void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc)
@@ -96,7 +96,7 @@ void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, 
 
 float Autopilot::getAilerons()
 {
-    if (is_active)
+    if (!force_disabled)
     {
         float val = 0;
         if (ref_l && ref_r)
@@ -176,7 +176,7 @@ float Autopilot::getAilerons()
 float Autopilot::getElevator()
 {
     float val = 0;
-    if (ref_l && ref_r && ref_b && is_active)
+    if (ref_l && ref_r && ref_b && !force_disabled)
     {
         float wanted_vs = (float)vs / 196.87;
         float current_vs = (ref_l->Velocity.y + ref_r->Velocity.y) / 2.0;
@@ -237,7 +237,7 @@ float Autopilot::getRudder()
 
 float Autopilot::getThrottle(float thrtl, float dt)
 {
-    if (!mode_ias || !is_active) { return thrtl; };
+    if (!mode_ias || force_disabled) { return thrtl; };
 
     float val = thrtl;
     if (ref_l && ref_r)
@@ -455,8 +455,8 @@ void Autopilot::UpdateIls()
     last_closest_hdist = closest_hdist;
 
     // We let custom autopilot scripts to have their own NAV mode
-    // engagement/disengagement logic when is_active is false.
-    if (mode_heading == HEADING_NAV && is_active)
+    // engagement/disengagement logic when force_disabled is true.
+    if (mode_heading == HEADING_NAV && !force_disabled)
     {
         // disconnect if close to runway or no locators are available
         if (closest_hdist < 20.0 || closest_vdist < 20.0)

@@ -22,20 +22,21 @@ public:
     void disconnect();
 
     /**
-     * @brief Returns whether the autopilot is active (i.e. is able to control the aircraft).
+     * @brief Returns whether the autopilot has been disabled forcefully.
      */
-    bool isActive();
+    bool getForceDisabled();
 
     /**
-     * @brief Sets whether the autopilot is active (i.e. is able to control the aircraft).
+     * @brief Forces the autopilot to be enabled/disabled.
      * 
-     * When disabled, this mode prevents the default A/P from controlling the aircraft
-     * and disables the default logic (such as the A/P disengaging when NAV is engaged
-     * and no ILS is available).
+     * When `true`, this prevents the default A/P from controlling the aircraft and
+     * disables the default logic (such as the A/P disengaging when NAV is engaged
+     * and ILS is not available).
      * 
-     * You can use this method to replace the default autopilot with your own implementation.
+     * This is useful for replacing the default autopilot logic with your own. It allows you to 
+     * use all the settings and operate the controls without conflicts from the default autopilot.
      */
-    void setActive(bool active);
+    void setForceDisabled(bool disabled);
 
     /**
      * @brief Sets or toggles the heading modes.
