@@ -3003,7 +3003,7 @@ float Actor::getEventValue(int eventID, bool pure, InputSourceType valueSource)
     float value = 0;
     if (simulated_value_info != ar_actor_event_simulated_values.end())
         value = simulated_value_info->second;
-    else if (!ar_force_simulated_values)
+    else if (ShouldAllowNonSimulatedInputs())
         value = App::GetInputEngine()->getEventValue(eventID, pure, valueSource);
 
     return value;
@@ -3022,7 +3022,7 @@ bool Actor::getEventBoolValueBounce(int eventID, float time)
     float value = 0;
     if (simulated_value_info != ar_actor_event_simulated_values.end())
         value = simulated_value_info->second > 0.5f;
-    else if (!ar_force_simulated_values)
+    else if (ShouldAllowNonSimulatedInputs())
         value = App::GetInputEngine()->getEventBoolValueBounce(eventID, time);
 
     return value;
@@ -3067,11 +3067,20 @@ void Actor::resetEventSimulatedValue(int eventID)
         ar_actor_event_simulated_values.erase(simulated_value_info);
 }
 
+bool Actor::ShouldAllowNonSimulatedInputs()
+{
+    // Inputs from InputEngine are disabled for actors when:
+    //  - this actor is not the player actor
+    //  - camera behaviour is "Free"
+    return (ar_instance_id == App::GetGameContext()->GetPlayerActor()->getInstanceId()) ||
+        (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE);
+}
+
 bool Actor::isEventAnalog(int eventID)
 {
     // Simulated values are analog, so we'll return true.
     bool is_analog = true;
-    if (!hasEventSimulatedValue(eventID) && !ar_force_simulated_values)
+    if (!hasEventSimulatedValue(eventID) && ShouldAllowNonSimulatedInputs())
         is_analog = App::GetInputEngine()->isEventAnalog(eventID);
 
     return is_analog;
@@ -3079,14 +3088,14 @@ bool Actor::isEventAnalog(int eventID)
 
 bool Actor::isEventDefined(int eventID)
 {
-    return hasEventSimulatedValue(eventID) || (!ar_force_simulated_values && App::GetInputEngine()->isEventDefined(eventID));
+    return hasEventSimulatedValue(eventID) || (ShouldAllowNonSimulatedInputs() && App::GetInputEngine()->isEventDefined(eventID));
 }
 
 float Actor::getEventBounceTime(int eventID)
 {
-    float bounce_time = 0;
     // Simulated values don't have bounce times.
-    if (!hasEventSimulatedValue(eventID) && !ar_force_simulated_values)
+    float bounce_time = 0;
+    if (!hasEventSimulatedValue(eventID) && ShouldAllowNonSimulatedInputs())
         bounce_time = App::GetInputEngine()->getEventBounceTime(eventID);
 
     return bounce_time;

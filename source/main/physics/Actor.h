@@ -207,6 +207,14 @@ public:
     float             getEventSimulatedValue(int eventID);
     void              setEventSimulatedValue(int eventID, float value);
     void              resetEventSimulatedValue(int eventID);
+
+    // not exported to scripting:
+
+    // Determines whether input event values for this actor must be read from
+    // the simulated values map. This allows us to send simulated inputs to actors
+    // other than the player actor, without it being affected by InputEngine
+    // values.
+    bool              ShouldAllowNonSimulatedInputs();
     //! @}
 
     /// @name Vehicle lights
@@ -469,11 +477,6 @@ public:
     // As soon as an event-value pair is added to this map, values from the
     // InputEngine are ignored.
     std::map<int, float> ar_actor_event_simulated_values;
-    // Determines whether input event values for this actor must be read from
-    // the simulated values map. This allows us to apply inputs to actors
-    // other than the player actor, without it being affected by InputEngine
-    // values.
-    bool                 ar_force_simulated_values = false;
 
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
