@@ -169,14 +169,6 @@ public:
     void              clearForcedCinecam();
     bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
     int               getNumCinecams() { return ar_num_cinecams; }
-    float             getEventValue(int eventID, bool pure = false, InputSourceType valueSource = InputSourceType::IST_ANY);
-    bool              getEventBoolValue(int eventID);
-    bool              getEventBoolValueBounce(int eventID, float time = 0.2f);
-    void              clearEventSimulatedValues();
-    bool              hasEventSimulatedValue(int eventID);
-    float             getEventSimulatedValue(int eventID);
-    void              setEventSimulatedValue(int eventID, float value);
-    void              removeEventSimulatedValue(int eventID);
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
@@ -203,6 +195,18 @@ public:
     bool              isEventAnalog(int eventID);
     bool              isEventDefined(int eventID);
     float             getEventBounceTime(int eventID);
+    //! @}
+
+    /// @name Input engine overrides
+    /// @{
+    float             getEventValue(int eventID, bool pure = false, InputSourceType valueSource = InputSourceType::IST_ANY);
+    bool              getEventBoolValue(int eventID);
+    bool              getEventBoolValueBounce(int eventID, float time = 0.2f);
+    void              clearEventSimulatedValues();
+    bool              hasEventSimulatedValue(int eventID);
+    float             getEventSimulatedValue(int eventID);
+    void              setEventSimulatedValue(int eventID, float value);
+    void              resetEventSimulatedValue(int eventID);
     //! @}
 
     /// @name Vehicle lights

@@ -3058,7 +3058,7 @@ void Actor::setEventSimulatedValue(int eventID, float value)
     ar_actor_event_simulated_values[eventID] = value;
 }
 
-void Actor::removeEventSimulatedValue(int eventID)
+void Actor::resetEventSimulatedValue(int eventID)
 {
     std::map<int, float>::const_iterator simulated_value_info =
         ar_actor_event_simulated_values.find(eventID);
@@ -3071,7 +3071,7 @@ bool Actor::isEventAnalog(int eventID)
 {
     // Simulated values are analog, so we'll return true.
     bool is_analog = true;
-    if (!hasEventSimulatedValue(eventID) && !!ar_force_simulated_values)
+    if (!hasEventSimulatedValue(eventID) && !ar_force_simulated_values)
         is_analog = App::GetInputEngine()->isEventAnalog(eventID);
 
     return is_analog;
@@ -3086,7 +3086,7 @@ float Actor::getEventBounceTime(int eventID)
 {
     float bounce_time = 0;
     // Simulated values don't have bounce times.
-    if (!hasEventSimulatedValue(eventID) && !!ar_force_simulated_values)
+    if (!hasEventSimulatedValue(eventID) && !ar_force_simulated_values)
         bounce_time = App::GetInputEngine()->getEventBounceTime(eventID);
 
     return bounce_time;

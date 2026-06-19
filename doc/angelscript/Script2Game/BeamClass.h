@@ -297,7 +297,11 @@ public:
     * Reports number of installed cinecams.
     */
     int getNumCinecams() const;
+    
+    //! @}
 
+    /// @name Input engine overrides
+    /// @{
     /**
      * Returns the simulated value associated to the given `eventID`.
      * If `eventID` is not simulated, returns the same value as `InputEngineClass.getEventValue()`.
@@ -306,14 +310,14 @@ public:
 
     /**
      * Returns `true` if the given `eventID` is active, `false` otherwise.
-     * 
+     *
      * If the `eventID` is simulated, returns `true` if the value is greater than 0.5.
      */
     bool getEventBoolValue(inputEvents eventID);
 
     /**
      * Returns `true` if the given input event is active and the bouncing on/off cycle is in 'on' state.
-     * 
+     *
      * If the `eventID` is simulated, it behaves the samw way as `getEventBoolValue()`, ignoring the `time` parameter.
      */
     bool getEventBoolValueBounce(inputEvents eventID, float time = 0.2f);
@@ -335,25 +339,23 @@ public:
 
     /**
      * Sets a `float` value that simulates the state of the given input event, exclusively for this actor.
-     * 
+     *
      * As soon as an event is associated to a simulated value, functions like `getEventValue()`
      * will ignore the values returned by the input engine and return the simulated value instead.
-     * 
-     * If you want to stop simulating the event value, call `removeEventSimulatedValue()`.
+     *
+     * If you want to stop simulating the event value, call `resetEventSimulatedValue()`.
      */
     void setEventSimulatedValue(inputEvents eventID, float value);
 
     /**
-     * Removes the simulated value for the given input event.
+     * Resets the simulated value for the given input event.
      */
-    void removeEventSimulatedValue(inputEvents eventID);
-    
+    void resetEventSimulatedValue(inputEvents eventID);
     //! @}
     
     /// @name Subsystems
     /// @{
     // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'      
-
 
     /**
     * Retrieve dashboard manager.

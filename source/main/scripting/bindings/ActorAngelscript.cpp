@@ -189,7 +189,7 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "bool hasEventSimulatedValue(inputEvents)", asMETHOD(Actor, hasEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getEventSimulatedValue(inputEvents)", asMETHOD(Actor, getEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void setEventSimulatedValue(inputEvents, float)", asMETHOD(Actor, setEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "void removeEventSimulatedValue(inputEvents)", asMETHOD(Actor, removeEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void resetEventSimulatedValue(inputEvents)", asMETHOD(Actor, resetEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // - subsystems (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "DashBoardManagerClassPtr@ getDashboardManager()", asMETHOD(Actor, getDashboardManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
