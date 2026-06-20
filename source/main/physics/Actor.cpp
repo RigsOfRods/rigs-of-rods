@@ -3072,7 +3072,9 @@ bool Actor::ShouldAllowNonSimulatedInputs()
     // Inputs from InputEngine are disabled for actors when:
     //  - this actor is not the player actor
     //  - camera behaviour is "Free"
-    return (ar_instance_id == App::GetGameContext()->GetPlayerActor()->getInstanceId()) ||
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+    bool is_player_actor = player_actor != nullptr && ar_instance_id == player_actor->getInstanceId();
+    return is_player_actor &&
         (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE);
 }
 
@@ -4582,7 +4584,7 @@ Actor::Actor(
     , ar_disable_aerodyn_turbulent_drag(false)
     , ar_engine_hydraulics_ready(true) // !!
     , ar_guisettings_use_engine_max_rpm(false)
-    , ar_hydro_speed_coupling(false)
+    , ar_hydro_speed_coupling_active(false)
     , ar_collision_relevant(false)
     , ar_is_police(false)
     , ar_rescuer_flag(false)

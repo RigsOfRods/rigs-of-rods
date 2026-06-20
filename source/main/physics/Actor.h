@@ -585,7 +585,8 @@ public:
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
-    bool ar_hydro_speed_coupling:1;
+    bool ar_hydro_speed_coupling_active:1;
+    bool ar_hydro_speed_coupling_enabled:1; //!< Should we use hydro coupling? This gets updated for the player actor according to 'io_hydro_coupling' CVar. For other actors, it's false.
     bool ar_collision_relevant:1;      //!< Physics state;
     bool ar_is_police:1;        //!< Gfx/sfx attr
     bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
@@ -594,6 +595,7 @@ public:
     bool ar_toggle_ropes:1;     //!< Sim state
     bool ar_toggle_ties:1;      //!< Sim state
     bool ar_cparticles_active:1;//!< Gfx state
+    bool ar_arcade_controls:1; //!< Should we use arcade controls? This gets updated for the player actor according to 'io_arcade_controls' CVar. For other actors, it's false.
 
 private:
 

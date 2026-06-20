@@ -1614,7 +1614,7 @@ void GameContext::UpdateAirplaneInputEvents(float dt, ActorPtr airplane)
     float tmp_left = airplane->getEventValue(EV_AIRPLANE_STEER_LEFT);
     float tmp_right = airplane->getEventValue(EV_AIRPLANE_STEER_RIGHT);
     float sum_steer = -tmp_left + tmp_right;
-    airplane->ar_hydro_speed_coupling = !(airplane->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && airplane->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
+    airplane->ar_hydro_speed_coupling_active = !(airplane->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && airplane->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
     
     // pitch
     float tmp_pitch_up = airplane->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
@@ -1907,7 +1907,7 @@ void GameContext::UpdateTruckInputEvents(float dt, ActorPtr truck)
 
     truck->ar_hydro_dir_command = Ogre::Math::Clamp(sum, -1.0f, 1.0f);
 
-    truck->ar_hydro_speed_coupling = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
+    truck->ar_hydro_speed_coupling_active = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
 
     if (truck->ar_engine)
     {
