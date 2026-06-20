@@ -2003,6 +2003,19 @@ int main(int argc, char *argv[])
             }
 #endif // USE_SOCKETW
 
+            // Set arcade controls and hydro coupling settings for player actors
+            // Default to false for other actors.
+            if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+            {
+                ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                {
+                    bool is_player_actor = player_actor != nullptr && actor->getInstanceId() == player_actor->getInstanceId();
+                    actor->ar_arcade_controls = is_player_actor && App::io_arcade_controls->getBool();
+                    actor->ar_hydro_speed_coupling_enabled = is_player_actor && App::io_hydro_coupling->getBool();
+                }
+            }
+
             // Process input events
             if (dt != 0.f)
             {
