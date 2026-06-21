@@ -47,7 +47,7 @@ public:
     quaternion getOrientation();
     
     /**
-    * Gets the vehicle speed, in meters per second.
+    * Returns the current physical speed of the vehicle, in meters per second.
     */
     float getSpeed();
     
@@ -305,6 +305,8 @@ public:
     /**
      * Returns the simulated value associated to the given `eventID`.
      * If `eventID` is not simulated, returns the same value as `InputEngineClass.getEventValue()`.
+     * @param pure When `true`, the returned input value won't be adjusted for parameters such as deadzone or linearity on joysticks.
+     * @param valueSource Indicates the type of input device the event value should be retrieved from.
      */
     float getEventValue(inputEvents eventID, bool pure = false, inputSourceType valueSource = inputSourceType::IST_ANY);
 
@@ -318,7 +320,7 @@ public:
     /**
      * Returns `true` if the given input event is active and the bouncing on/off cycle is in 'on' state.
      *
-     * If the `eventID` is simulated, it behaves the samw way as `getEventBoolValue()`, ignoring the `time` parameter.
+     * If the `eventID` is simulated, it behaves the same way as `getEventBoolValue()`, ignoring the `time` parameter.
      */
     bool getEventBoolValueBounce(inputEvents eventID, float time = 0.2f);
 

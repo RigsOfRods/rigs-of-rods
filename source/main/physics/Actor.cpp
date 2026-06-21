@@ -4585,6 +4585,8 @@ Actor::Actor(
     , ar_engine_hydraulics_ready(true) // !!
     , ar_guisettings_use_engine_max_rpm(false)
     , ar_hydro_speed_coupling_active(false)
+    , ar_hydro_speed_coupling_enabled(false)
+    , ar_arcade_controls(false)
     , ar_collision_relevant(false)
     , ar_is_police(false)
     , ar_rescuer_flag(false)

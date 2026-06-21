@@ -47,6 +47,8 @@ public:
 
         /**
          * @return The current event input value.
+         * @param pure When `true`, the returned input value won't be adjusted for parameters such as deadzone or linearity on joysticks.
+         * @param valueSource Indicates the type of input device the event value should be retrieved from.
          */
         float getEventValue(inputEvents eventID, bool pure = false, inputSourceType valueSource = inputSourceType::IST_ANY);
 
