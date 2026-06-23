@@ -42,6 +42,7 @@
 #include "PlatformUtils.h"
 #include "Replay.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
@@ -295,9 +296,15 @@ void TopMenubar::Draw(float dt)
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+        if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+        {
             m_daytime = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        }
 #endif // USE_CAELUM
+        if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+        {
+            m_daytime = App::GetGameContext()->GetTerrain()->getSkyXManager()->GetCaelumPortTime();
+        }
     }
 
     ImGui::SameLine();
@@ -577,124 +584,34 @@ void TopMenubar::Draw(float dt)
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Settings menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            // AUDIO SETTINGS
-            ImGui::Separator();
-            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
-            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
-            DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
-
-            // RENDER SETTINGS
-            ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
-            if (App::gfx_envmap_enabled->getBool())
+            if (this->DrawSettingsMenuBeginTabBar())
             {
-                DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 2);
-            }
-            DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
-
-            // SIM SETTINGS
-            ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
-            float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Slow motion"), &slowmotion, 0.01f, 1.0f))
-            {
-                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(slowmotion);
-            }
-            float timelapse = std::max(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
-            if (ImGui::SliderFloat(_LC("TopMenubar", "Time lapse"), &timelapse, 1.0f, 10.0f))
-            {
-                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
+                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "General")))
+                {
+                    this->DrawSettingsMenuGeneralControls();
+                    ImGui::EndTabItem();
+                }
+                if (this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Sky & Weather")))
+                {
+                    this->DrawSettingsMenuSkyControls();
+                    ImGui::EndTabItem();
+                }
+                if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
+                    && App::GetGameContext()->GetTerrain()->getWater()
+                    && App::GetGameContext()->GetTerrain()->GetDef()->has_water
+                    && this->DrawSettingsMenuBeginTabItem(_LC("TopMenubarSettings", "Water")))
+                {
+                    this->DrawSettingsMenuWaterControls();
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
             }
 
-            // CAMERA SETTINGS
-            if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
-                DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
-                DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
-            }
-            else
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
-                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-                {
-                    int fov = App::gfx_fov_internal->getInt();
-                    if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
-                    {
-                        App::gfx_fov_internal->setVal(fov);
-                    }
-                }
-                else
-                {
-                    int fov = App::gfx_fov_external->getInt();
-                    if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
-                    {
-                        App::gfx_fov_external->setVal(fov);
-                    }
-                }
-                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
-                {
-                    DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
-                }
-            }
-
-            // SKY SETTINGS
-#ifdef USE_CAELUM
-            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
-                float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
-                if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
-                {
-                    App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
-                }
-                ImGui::SameLine();
-                DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
-                if (App::gfx_sky_time_cycle->getBool())
-                {
-                    DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
-                }
-            }       
-#endif // USE_CAELUM
-
-            // WATER SETTINGS
-            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
-            {
-                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
-                {
-                    ImGui::PushID("waves");
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
-                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
-                    {
-                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
-                    }
-                    ImGui::PopID();
-                }
-            }    
-            
-            // VEHICLE CONTROL SETTINGS
-            if (current_actor != nullptr)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
-                DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
-            }
-
-            // MULTIPLAYER SETTINGS
-            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Multiplayer:"));
-                DrawGCheckbox(App::mp_pseudo_collisions, _LC("TopMenubar", "Collisions"));
-                DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
-            }
-            ImGui::PopItemWidth();
+            // Menu window epilogue
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_max.y += MENU_SKYCOMBO_EXTRAPAD; // The sky mode combo extends beyond normal menu height
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
@@ -2828,4 +2745,398 @@ bool TopMenubar::IsMenuEnabled(TopMenu which)
     default:
         return true;
     }
+}
+
+void TopMenubar::DrawSettingsMenuSkyControls()
+{
+    ImGui::PushID("sky");
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH);
+
+    if (sky_mode_combostring == "")
+    {
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::NONE));
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SANDSTORM));
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::CAELUM));
+        ImAddItemToComboboxString(sky_mode_combostring, ToLocalizedString(GfxSkyMode::SKYX));
+        ImTerminateComboboxString(sky_mode_combostring);
+    }
+
+    const bool sky_reinit_combo = DrawGCombo(App::gfx_sky_mode, _LC("TopMenubar", "Mode"), sky_mode_combostring.c_str());
+    bool sky_reinit_btn = false;
+    if (sky_show_advanced)
+    { 
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f,0.1f,0.1f,1.f));
+        sky_reinit_btn = ImGui::SmallButton(_LC("TopMenubar", "Reload"));
+        ImGui::PopStyleColor(); // ImGuiCol_Button
+    }
+    if (sky_reinit_combo || sky_reinit_btn)
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_SKY_REQUESTED));
+    }
+
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::SKYX)
+    {
+        auto skyx_mgr = App::GetGameContext()->GetTerrain()->getSkyXManager();
+
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time:"));
+        float time = App::GetGameContext()->GetTerrain()->getSkyXManager()->GetCaelumPortTime();
+        std::string prettytime = skyx_mgr->GetCaelumPortPrettyTime();
+        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, prettytime.c_str()))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->SetCaelumPortTime(time);
+        }
+        ImGui::SameLine();
+        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+        if (App::gfx_sky_time_cycle->getBool())
+        {
+            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+        }
+
+        // sub-sliders have custom style
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+
+        if (sky_show_advanced)
+        { 
+            float lattitude = skyx_mgr->GetSkyX()->getCaelumPort()->getObserverLatitude().valueDegrees();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Lattitude"), &lattitude, 0.f, 90.f, "%.2f"))
+            {
+                skyx_mgr->GetSkyX()->getCaelumPort()->setObserverLatitude(Ogre::Degree(lattitude));
+            }
+
+            float longitude = skyx_mgr->GetSkyX()->getCaelumPort()->getObserverLongitude().valueDegrees();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Longitude"), &longitude, -180.f, 180.f, "%.2f"))
+            {
+                skyx_mgr->GetSkyX()->getCaelumPort()->setObserverLongitude(Ogre::Degree(longitude));
+            }
+
+            float timefactor = skyx_mgr->GetSkyX()->getTimeMultiplier();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Time factor"), &timefactor, 0.001, 0.05, "%.3f"))
+            {
+                // this sets CaelumPort's time factor
+                skyx_mgr->GetSkyX()->setTimeMultiplier(timefactor);
+            }
+        }
+        // reset sub-slider style
+        ImGui::PopStyleVar(); // FramePadding
+
+        // SkyX volumetric clouds
+        ImGui::Separator();
+        ImGui::TextDisabled("%s", _LC("TopMenubar", "Clouds:"));
+        if (skyx_mgr->GetSkyX()->getVCloudsManager())
+        {
+            SkyX::VClouds::VClouds* vclouds = skyx_mgr->GetSkyX()->getVCloudsManager()->getVClouds();
+
+            // X = humidity, meaning cloud density, Y = avg.cloud size (both 0-1)
+            Ogre::Vector2 wheater = vclouds->getWheater();
+            float cloud_coverage = wheater.x; // best effect is archieved by updating both at once
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Coverage"), &cloud_coverage, 0.0f, 1.0f, "%.2f"))
+            {
+                vclouds->setWheater(cloud_coverage, cloud_coverage, /* DelayedResponse = */ true);
+            }
+            ImGui::SameLine();
+            ImGui::TextDisabled("%s", _LC("TopMenubar", "(has delay)"));
+
+            // sub-sliders have custom style
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+
+            // wind speed (float)
+            float windspd = skyx_mgr->GetSkyX()->getVCloudsManager()->getWindSpeed();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind speed"), &windspd, 0.0f, 150.0f, "%.1f"))
+            {
+                skyx_mgr->GetSkyX()->getVCloudsManager()->setWindSpeed(windspd);
+            }
+
+            // wind direction (degree)
+            Ogre::Degree winddir = vclouds->getWindDirection();
+            float winddir_deg = winddir.valueDegrees();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Wind direction"), &winddir_deg, 0.0f, 360.0f, "%.1f"))
+            {
+                vclouds->setWindDirection(Ogre::Degree(winddir_deg));
+            }
+            ImGui::SameLine();
+            const char* wind_hint = "(?)";
+            ImGui::TextDisabled(wind_hint);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled("%s", _LC("TopMenubar", "Wind direction"));
+                ImGui::Text("0 = West");
+                ImGui::Text("90 = North");
+                ImGui::Text("180 = East");
+                ImGui::Text("270 = South");
+                ImGui::EndTooltip();
+            }
+
+            if (sky_show_advanced)
+            {
+                // vHeight: x = Cloud field altitude, y: Cloud field height (both in meters)
+                Ogre::Vector2 vHeight = skyx_mgr->GetSkyX()->getVCloudsManager()->getHeight();
+                float height_val = vHeight.x;
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Altitude"), &height_val, 100.0f, 2000.0f, "%.1f"))
+                {
+                    vHeight.x = height_val;
+                    skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
+                }
+                float thickness_val = vHeight.y;
+                if (ImGui::SliderFloat(_LC("TopMenubar", "Thickness"), &thickness_val, 1000.0f, 6000.0f, "%.1f"))
+                {
+                    vHeight.y = thickness_val;
+                    skyx_mgr->GetSkyX()->getVCloudsManager()->setHeight(vHeight);
+                }
+
+                // light response (vector4)
+                Ogre::Vector4 lightresp = vclouds->getLightResponse();
+                if (ImGui::DragFloat4(_LC("TopMenubar", "Light response"), (float*)&lightresp, 0.01f))
+                {
+                    vclouds->setLightResponse(lightresp);
+                }
+
+                // ambient factors (vector4)
+                Ogre::Vector4 ambfactors = vclouds->getAmbientFactors();
+                if (ImGui::DragFloat4(_LC("TopMenubar", "Ambient factors"), (float*)&ambfactors, 0.01f))
+                {
+                    vclouds->setAmbientFactors(ambfactors);
+                }
+            }
+            // reset sub-slider style
+            ImGui::PopStyleVar(); // FramePadding
+        }
+
+
+        // Weather controls (precipitation system ported from caelum)
+        ImGui::Separator();
+        ImGui::TextDisabled("%s", _LC("TopMenubar", "Weather:"));
+
+        if (skyx_mgr->GetSkyX()->getPrecipitationController())
+        {
+            auto* pc = skyx_mgr->GetSkyX()->getPrecipitationController();
+
+            // Preset combo (shows "Custom" when user-tweaked)
+            static const char* kPresetNames[] = {
+                "Drizzle", "Rain", "Snow", "Snow grains", "Ice crystals", "Ice pellets", "Hail", "Small hail"
+            };
+            SkyX::PrecipitationType curType = pc->getPresetType();
+            int selectedIndex = -1;
+            const char* preview = "Custom";
+            if (curType >= SkyX::PRECTYPE_DRIZZLE && curType <= SkyX::PRECTYPE_SMALLHAIL)
+            {
+                selectedIndex = static_cast<int>(curType);
+                preview = kPresetNames[selectedIndex];
+            }
+            if (ImGui::BeginCombo(_LC("TopMenubar", "Preset"), preview))
+            {
+                for (int i = (int)SkyX::PRECTYPE_DRIZZLE; i <= (int)SkyX::PRECTYPE_SMALLHAIL; ++i)
+                {
+                    bool is_selected = (selectedIndex == i);
+                    if (ImGui::Selectable(kPresetNames[i], is_selected))
+                    {
+                        pc->setPresetType(static_cast<SkyX::PrecipitationType>(i));
+                    }
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            // Intensity
+            float intensity = pc->getIntensity();
+            if (ImGui::SliderFloat(_LC("TopMenubar", "Intensity"), &intensity, 0.0f, 1.0f, "%.2f"))
+            {
+                pc->setIntensity(intensity);
+            }
+            
+            if (sky_show_advanced)
+            {
+                // Color (RGBA)
+                {
+                    Ogre::ColourValue col = pc->getColour();
+                    float col4[4] = { col.r, col.g, col.b, col.a };
+                    if (ImGui::ColorEdit4(_LC("TopMenubar", "Color"), col4, ImGuiColorEditFlags_Float))
+                    {
+                        pc->setColour(Ogre::ColourValue(col4[0], col4[1], col4[2], col4[3]));
+                    }
+                }
+
+                // Falling speed
+                {
+                    float spd = pc->getSpeed();
+                    if (ImGui::SliderFloat(_LC("TopMenubar", "Falling speed"), &spd, 0.0f, 2.0f, "%.3f"))
+                    {
+                        pc->setSpeed(spd);
+                    }
+                }
+
+                // Camera influence (uniform scale)
+                {
+                    Ogre::Vector3 css = pc->getCameraSpeedScale();
+                    float camInfluence = css.x; // assume uniform
+                    if (ImGui::SliderFloat(_LC("TopMenubar", "Camera influence"), &camInfluence, 0.0f, 0.7f, "%.2f"))
+                    {
+                        pc->setCameraSpeedScale(camInfluence);
+                    }
+                }
+            }
+        }
+    }
+#ifdef USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->GetActiveSkyMode() == GfxSkyMode::CAELUM)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
+        float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
+        if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+        {
+            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
+        }
+        ImGui::SameLine();
+        DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+        if (App::gfx_sky_time_cycle->getBool())
+        {
+            DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+        }
+    }
+#endif // USE_CAELUM
+
+    // advanced controls checkbox
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+    ImGui::Checkbox(_LC("TopMenubar", "Advanced"), &sky_show_advanced);
+    ImGui::PopStyleVar(); // FramePadding
+
+    ImGui::PopID(); // "sky"
+}
+
+void TopMenubar::DrawSettingsMenuWaterControls()
+{
+    ImGui::PushID("water");
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH);
+
+    Wavefield* iwater = App::GetGameContext()->GetTerrain()->getWater();
+
+    if (iwater 
+        && RoR::App::gfx_water_waves->getBool())
+    {
+        float water_waves_height = iwater->GetWavesHeight();
+        if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
+        {
+            App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);
+        }
+    }
+    ImGui::PopID(); // "water"
+}
+
+void TopMenubar::DrawSettingsMenuGeneralControls()
+{
+    ImGui::PushID("general");
+
+    // AUDIO SETTINGS
+    ImGui::PushItemWidth(SETTINGSMENU_ITEM_WIDTH); // Width includes [+/-] buttons
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
+    DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
+
+    // RENDER SETTINGS
+    ImGui::Separator();
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
+    if (App::gfx_envmap_enabled->getBool())
+    {
+        DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 2);
+    }
+    DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
+
+    // SIM SETTINGS
+    ImGui::Separator();
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
+    float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
+    if (ImGui::SliderFloat(_LC("TopMenubar", "Slow motion"), &slowmotion, 0.01f, 1.0f))
+    {
+        App::GetGameContext()->GetActorManager()->SetSimulationSpeed(slowmotion);
+    }
+    float timelapse = std::max(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
+    if (ImGui::SliderFloat(_LC("TopMenubar", "Time lapse"), &timelapse, 1.0f, 10.0f))
+    {
+        App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
+    }
+
+    // CAMERA SETTINGS
+    if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
+        DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
+        DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
+    }
+    else
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
+        if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+        {
+            int fov = App::gfx_fov_internal->getInt();
+            if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
+            {
+                App::gfx_fov_internal->setVal(fov);
+            }
+        }
+        else
+        {
+            int fov = App::gfx_fov_external->getInt();
+            if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
+            {
+                App::gfx_fov_external->setVal(fov);
+            }
+        }
+        if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+        {
+            DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
+        }
+    }
+
+    // VEHICLE CONTROL SETTINGS
+    if (App::GetGameContext()->GetPlayerActor() != nullptr)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
+        DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
+    }
+
+    // MULTIPLAYER SETTINGS
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+    {
+        ImGui::Separator();
+        ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Multiplayer:"));
+        DrawGCheckbox(App::mp_pseudo_collisions, _LC("TopMenubar", "Collisions"));
+        DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
+    }
+
+    ImGui::PopItemWidth();
+    ImGui::PopID(); // "general"
+}
+
+bool TopMenubar::DrawSettingsMenuBeginTabItem(const char* title)
+{
+    ImGui::PushStyleColor(ImGuiCol_Tab, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Header, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_TabActive, TAB_ACTIVE_BG_COLOR);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, TAB_ITEM_PADDING);
+
+    const bool retval = ImGui::BeginTabItem(title);
+
+    ImGui::PopStyleColor(3); // ImGuiCol_Tab/Header/TabActive
+    ImGui::PopStyleVar();   // ImGuiStyleVar_FramePadding
+
+    return retval;
+}
+
+bool TopMenubar::DrawSettingsMenuBeginTabBar()
+{
+    ImGui::PushStyleColor(ImGuiCol_Tab, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Header, TAB_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_TabActive, TAB_ACTIVE_BG_COLOR);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, TAB_ITEM_PADDING);
+
+    const bool retval = ImGui::BeginTabBar("##SettingsMenuTabBar");
+
+    ImGui::PopStyleColor(3); // ImGuiCol_Tab/Header/TabActive
+    ImGui::PopStyleVar();   // ImGuiStyleVar_FramePadding
+
+    return retval;
 }
