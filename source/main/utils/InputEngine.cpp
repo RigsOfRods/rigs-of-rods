@@ -478,7 +478,12 @@ void InputEngine::setup()
     // then load device (+OS) specific mappings
     for (int i = 0; i < free_joysticks; ++i)
     {
-        this->loadConfigFile(i);
+        LOG(fmt::format("[RoR|InputEngine] Detected device '{}'", this->getJoyVendor(i)));
+        if (!this->loadConfigFile(i))
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load input mapping for device '{}'", this->getJoyVendor(i)));
+        }
     }
     completeMissingEvents();
 }
@@ -1755,7 +1760,7 @@ bool InputEngine::loadMapping(String fileName, int deviceID)
     char line[1025] = "";
     int oldState = uniqueCounter;
 
-    LOG(" * Loading input mapping " + fileName);
+    LOG(fmt::format("[RoR|InputEngine] Loading input mapping '{}'.", fileName));
     {
         DataStreamPtr ds;
         try
@@ -1764,6 +1769,7 @@ bool InputEngine::loadMapping(String fileName, int deviceID)
         }
         catch (...)
         {
+            HandleGenericException("[RoR|InputEngine]", HANDLEGENERICEXCEPTION_CONSOLE);
             return false;
         }
         while (!ds->eof())
@@ -1780,7 +1786,7 @@ bool InputEngine::loadMapping(String fileName, int deviceID)
     }
 
     int newEvents = uniqueCounter - oldState;
-    LOG(" * Input map successfully loaded: " + TOSTRING(newEvents) + " entries");
+    LOG(fmt::format("[RoR|InputEngine] Input mapping '{}' successfully loaded: {} entries.", fileName, newEvents));
     return true;
 }
 
