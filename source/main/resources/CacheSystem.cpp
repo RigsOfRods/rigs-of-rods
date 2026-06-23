@@ -1581,6 +1581,12 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             App::GetContentManager()->AddResourcePack("meshes", group);
             App::GetContentManager()->AddResourcePack("particles", group);
             App::GetContentManager()->AddResourcePack("scripts", group);
+
+            // Terrain bundles often contain actors (loads/fixes/machines etc...), so include actor gamefiles, too.
+            App::GetContentManager()->InitActorManagedMaterials(group);
+            App::GetContentManager()->AddResourcePack("actor_textures", group);
+            App::GetContentManager()->AddResourcePack("actor_materials", group);
+            App::GetContentManager()->AddResourcePack("actor_meshes", group);
         }
         else if (entry->fext == "skin")
         {
