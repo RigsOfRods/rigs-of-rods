@@ -143,7 +143,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         std::string ssmsg = _L("Rotating: ") + axis;
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
     }
-    if (App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
+    if (App::GetInputEngine()->isKeyDownValueBounce(SDLK_SPACE))
     {
         m_object_tracking = !m_object_tracking;
         std::string ssmsg = m_object_tracking ? _L("Enabled object tracking") : _L("Disabled object tracking");

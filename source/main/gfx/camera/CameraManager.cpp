@@ -894,7 +894,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
         ResetCurrentBehavior();
     }
 
-    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(SDLK_SPACE))
     {
         m_cam_limit_movement = !m_cam_limit_movement;
         if (m_cam_limit_movement)
@@ -1182,7 +1182,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 
     m_cam_look_at = m_splinecam_spline->interpolate(m_splinecam_spline_pos);
 
-    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(SDLK_SPACE))
     {
         m_splinecam_auto_tracking = !m_splinecam_auto_tracking;
         if (m_splinecam_auto_tracking)

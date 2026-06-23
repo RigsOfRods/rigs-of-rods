@@ -136,7 +136,7 @@ void RepairMode::UpdateInputEvents(float dt)
 
             m_live_repair_timer = 0.0f;
         }
-        else if (App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
+        else if (App::GetInputEngine()->isKeyDownValueBounce(SDLK_SPACE))
         {
             App::GetGameContext()->GetPlayerActor()->requestAngleSnap(45);
             if (App::sim_soft_reset_mode->getBool())
