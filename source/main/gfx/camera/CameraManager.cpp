@@ -975,8 +975,18 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved(const OgreBites::MouseMotionEv
 
     if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT))
     {
-        m_cam_rot_x += Degree(_arg.xrel * 0.13f);
-        m_cam_rot_y += Degree(-_arg.yrel * 0.13f);
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+        if (App::io_invert_orbitcam->getBool()
+            && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+        {
+            m_cam_rot_x += Degree(_arg.xrel * -0.13f);
+            m_cam_rot_y += Degree(-_arg.yrel * -0.13f);
+        }
+        else
+        {
+            m_cam_rot_x += Degree(_arg.xrel * 0.13f);
+            m_cam_rot_y += Degree(-_arg.yrel * 0.13f);
+        }
         return true;
     }
 
