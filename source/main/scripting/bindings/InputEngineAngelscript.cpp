@@ -26,11 +26,10 @@
 #include "InputEngine.h"
 #include "ScriptEngine.h"
 
-#include <OIS.h>
+#include <SDL2/SDL_keyboard.h>
 
 using namespace AngelScript;
 using namespace RoR;
-using namespace OIS;
 
 void registerInputEngineObject(asIScriptEngine* engine)
 {
@@ -394,99 +393,98 @@ void registerEventTypeEnum(asIScriptEngine* engine)
 
 void registerKeyCodeEnum(asIScriptEngine* engine)
 {
-    // Names are a blend of OIS and SDL.
-    // Values are OIS currently, but can be changed to SDL equivalents.
-    // ----------------------------------------------------------------
+    // Names and values are SDL keycodes (SDLK_* constants).
+    // ------------------------------------------------------
     int result = 0;
 
     result = engine->RegisterEnum("keyCodes"); ROR_ASSERT(result >= 0);
 
     // Numpad
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD1", KC_NUMPAD1); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD2", KC_NUMPAD2); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD3", KC_NUMPAD3); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD4", KC_NUMPAD4); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD5", KC_NUMPAD5); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD6", KC_NUMPAD6); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD7", KC_NUMPAD7); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD8", KC_NUMPAD8); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD9", KC_NUMPAD9); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD0", KC_NUMPAD0); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD1", SDLK_KP_1); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD2", SDLK_KP_2); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD3", SDLK_KP_3); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD4", SDLK_KP_4); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD5", SDLK_KP_5); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD6", SDLK_KP_6); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD7", SDLK_KP_7); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD8", SDLK_KP_8); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD9", SDLK_KP_9); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMPAD0", SDLK_KP_0); ROR_ASSERT(result >= 0);
 
     // Number keys (not the numpad)
-    result = engine->RegisterEnumValue("keyCodes", "KC_1", KC_1); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_2", KC_2); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_3", KC_3); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_4", KC_4); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_5", KC_5); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_6", KC_6); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_7", KC_7); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_8", KC_8); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_9", KC_9); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_0", KC_0); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_1", SDLK_1); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_2", SDLK_2); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_3", SDLK_3); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_4", SDLK_4); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_5", SDLK_5); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_6", SDLK_6); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_7", SDLK_7); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_8", SDLK_8); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_9", SDLK_9); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_0", SDLK_0); ROR_ASSERT(result >= 0);
 
     // Function keys
-    result = engine->RegisterEnumValue("keyCodes", "KC_F1", KC_F1); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F2", KC_F2); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F3", KC_F3); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F4", KC_F4); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F5", KC_F5); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F6", KC_F6); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F7", KC_F7); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F8", KC_F8); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F9", KC_F9); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F10", KC_F10); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F11", KC_F11); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_F12", KC_F12); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F1", SDLK_F1); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F2", SDLK_F2); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F3", SDLK_F3); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F4", SDLK_F4); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F5", SDLK_F5); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F6", SDLK_F6); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F7", SDLK_F7); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F8", SDLK_F8); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F9", SDLK_F9); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F10", SDLK_F10); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F11", SDLK_F11); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_F12", SDLK_F12); ROR_ASSERT(result >= 0);
 
     // Edit keys
-    result = engine->RegisterEnumValue("keyCodes", "KC_INSERT", KC_INSERT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_DELETE", KC_DELETE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_BACKSPACE", KC_BACK); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_CAPSLOCK", KC_CAPITAL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_NUMLOCK", KC_NUMLOCK); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_SCROLLLOCK", KC_SCROLL ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_TAB", KC_TAB); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_INSERT", SDLK_INSERT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_DELETE", SDLK_DELETE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_BACKSPACE", SDLK_BACKSPACE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_CAPSLOCK", SDLK_CAPSLOCK); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_NUMLOCK", SDLK_NUMLOCKCLEAR); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_SCROLLLOCK", SDLK_SCROLLLOCK); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_TAB", SDLK_TAB); ROR_ASSERT(result >= 0);
 
     // Navigation keys
-    result = engine->RegisterEnumValue("keyCodes", "KC_ESCAPE", KC_ESCAPE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RETURN", KC_RETURN); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_LEFT", KC_LEFT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RIGHT", KC_RIGHT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_HOME", KC_HOME); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_UP", KC_UP); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_PGUP", KC_PGUP); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_END", KC_END); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_DOWN", KC_DOWN); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_PGDOWN", KC_PGDOWN); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_PAUSE", KC_PAUSE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_ESCAPE", SDLK_ESCAPE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RETURN", SDLK_RETURN); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_LEFT", SDLK_LEFT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RIGHT", SDLK_RIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_HOME", SDLK_HOME); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_UP", SDLK_UP); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_PGUP", SDLK_PAGEUP); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_END", SDLK_END); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_DOWN", SDLK_DOWN); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_PGDOWN", SDLK_PAGEDOWN); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_PAUSE", SDLK_PAUSE); ROR_ASSERT(result >= 0);
 
     // Modifiers
-    result = engine->RegisterEnumValue("keyCodes", "KC_LCTRL",KC_LCONTROL ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RCTRL",KC_RCONTROL ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_LSHIFT", KC_LSHIFT ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RSHIFT", KC_RSHIFT ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_LALT",KC_LMENU); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RALT",KC_RMENU); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_LWIN", KC_LWIN); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RWIN", KC_RWIN); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_LCTRL", SDLK_LCTRL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RCTRL", SDLK_RCTRL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_LSHIFT", SDLK_LSHIFT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RSHIFT", SDLK_RSHIFT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_LALT", SDLK_LALT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RALT", SDLK_RALT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_LWIN", SDLK_LGUI); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RWIN", SDLK_RGUI); ROR_ASSERT(result >= 0);
 
     // Special characters
-    result = engine->RegisterEnumValue("keyCodes", "KC_MINUS", KC_MINUS); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_EQUALS", KC_EQUALS); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_LBRACKET", KC_LBRACKET ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_RBRACKET", KC_RBRACKET ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_SEMICOLON", KC_SEMICOLON ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_APOSTROPHE", KC_APOSTROPHE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_GRAVE", KC_GRAVE); ROR_ASSERT(result >= 0);    
-    result = engine->RegisterEnumValue("keyCodes", "KC_BACKSLASH", KC_BACKSLASH ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_COMMA", KC_COMMA); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_PERIOD", KC_PERIOD ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_SLASH", KC_SLASH); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_MULTIPLY", KC_MULTIPLY ); ROR_ASSERT(result >= 0);    
-    result = engine->RegisterEnumValue("keyCodes", "KC_SPACE", KC_SPACE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_SUBTRACT", KC_SUBTRACT ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("keyCodes", "KC_ADD", KC_ADD); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_MINUS", SDLK_MINUS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_EQUALS", SDLK_EQUALS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_LBRACKET", SDLK_LEFTBRACKET); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_RBRACKET", SDLK_RIGHTBRACKET); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_SEMICOLON", SDLK_SEMICOLON); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_APOSTROPHE", SDLK_QUOTE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_GRAVE", SDLK_BACKQUOTE); ROR_ASSERT(result >= 0);    
+    result = engine->RegisterEnumValue("keyCodes", "KC_BACKSLASH", SDLK_BACKSLASH); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_COMMA", SDLK_COMMA); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_PERIOD", SDLK_PERIOD); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_SLASH", SDLK_SLASH); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_MULTIPLY", SDLK_ASTERISK); ROR_ASSERT(result >= 0);    
+    result = engine->RegisterEnumValue("keyCodes", "KC_SPACE", SDLK_SPACE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_SUBTRACT", SDLK_KP_MINUS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("keyCodes", "KC_ADD", SDLK_KP_PLUS); ROR_ASSERT(result >= 0);
 }
 
 void RoR::RegisterInputEngine(asIScriptEngine* engine)
