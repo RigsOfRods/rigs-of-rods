@@ -29,6 +29,7 @@
 #include "Language.h"
 
 #include <OgreString.h>
+#include <SDL2/SDL_haptic.h>
 
 namespace RoR {
 
@@ -60,7 +61,7 @@ void ForceFeedback::Setup()
     LOG("ForceFeedback: device found");
 
     // Try to disable auto-centering (may not be supported)
-    if (SDL_HapticSetAutocenterEnabled(m_device, 0) != 0)
+    if (SDL_HapticSetAutocenter(m_device, 0) != 0)
     {
         // Not supported on all platforms, ignore failure
     }
