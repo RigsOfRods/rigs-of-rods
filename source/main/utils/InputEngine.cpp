@@ -28,7 +28,9 @@
 #include "GUIManager.h"
 #include "Language.h"
 
+#include <algorithm>
 #include <regex>
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_mouse.h>
 
@@ -409,13 +411,42 @@ InputEngine::InputEngine() :
      free_joysticks(0)
     , uniqueCounter(0)
 {
+    for (int i = 0; i < MAX_JOYSTICKS; ++i)
+    {
+        m_joysticks[i] = nullptr;
+        m_haptic_devices[i] = nullptr;
+        for (int a = 0; a < MAX_JOYSTICK_AXIS; ++a)
+            m_joy_axis_vals[i][a] = 0;
+        for (int b = 0; b < MAX_JOYSTICK_BUTTONS; ++b)
+            m_joy_button_vals[i][b] = 0;
+        for (int h = 0; h < MAX_JOYSTICK_POVS; ++h)
+            m_joy_hat_vals[i][h] = SDL_HAT_CENTERED;
+    }
     initAllKeys();
     setup();
 }
 
+InputEngine::~InputEngine()
+{
+    for (int i = 0; i < free_joysticks; ++i)
+    {
+        if (m_haptic_devices[i])
+        {
+            SDL_HapticClose(m_haptic_devices[i]);
+            m_haptic_devices[i] = nullptr;
+        }
+        if (m_joysticks[i])
+        {
+            SDL_JoystickClose(m_joysticks[i]);
+            m_joysticks[i] = nullptr;
+        }
+    }
+}
+
 void InputEngine::setup()
 {
-
+    // Ensure SDL joystick and haptic subsystems are initialized
+    SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     if (App::io_input_grab_mode->getEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
@@ -428,6 +459,18 @@ void InputEngine::setup()
     }
 #endif
 
+
+    // Detect and open joysticks
+    int num_joysticks = SDL_NumJoysticks();
+    free_joysticks = std::min(num_joysticks, MAX_JOYSTICKS);
+    for (int i = 0; i < free_joysticks; ++i)
+    {
+        m_joysticks[i] = SDL_JoystickOpen(i);
+        if (m_joysticks[i])
+        {
+            m_haptic_devices[i] = SDL_HapticOpenFromJoystick(m_joysticks[i]);
+        }
+    }
 
     // load default mappings
     this->loadConfigFile(-1);
@@ -459,17 +502,67 @@ String InputEngine::getKeyNameForKeyCode(SDL_Keycode keycode)
 void InputEngine::Capture()
 {
     App::GetAppContext()->pollEvents();
+
+    // Poll joystick state directly for continuous axes/buttons/hats
+    for (int j = 0; j < free_joysticks; ++j)
+    {
+        if (!m_joysticks[j])
+            continue;
+
+        int num_axes = SDL_JoystickNumAxes(m_joysticks[j]);
+        int num_buttons = SDL_JoystickNumButtons(m_joysticks[j]);
+        int num_hats = SDL_JoystickNumHats(m_joysticks[j]);
+
+        for (int a = 0; a < num_axes && a < MAX_JOYSTICK_AXIS; ++a)
+            m_joy_axis_vals[j][a] = SDL_JoystickGetAxis(m_joysticks[j], a);
+
+        for (int b = 0; b < num_buttons && b < MAX_JOYSTICK_BUTTONS; ++b)
+            m_joy_button_vals[j][b] = SDL_JoystickGetButton(m_joysticks[j], b);
+
+        for (int h = 0; h < num_hats && h < MAX_JOYSTICK_POVS; ++h)
+            m_joy_hat_vals[j][h] = SDL_JoystickGetHat(m_joysticks[j], h);
+    }
+}
+
+SDL_Haptic* InputEngine::getForceFeedbackDevice()
+{
+    for (int i = 0; i < free_joysticks; ++i)
+    {
+        if (m_haptic_devices[i])
+            return m_haptic_devices[i];
+    }
+    return nullptr;
 }
 
 /* --- Joystick Events ------------------------------------------ */
 void InputEngine::ProcessJoystickEvent(const OgreBites::AxisEvent& arg)
 {
-    /* FIXME-SDL
-    int i = arg.device->getID();
+    int i = arg.which;
     if (i < 0 || i >= MAX_JOYSTICKS)
-        i = 0;
-    joyState[i] = arg.state;
-    */
+        return;
+    if (arg.axis >= 0 && arg.axis < MAX_JOYSTICK_AXIS)
+        m_joy_axis_vals[i][arg.axis] = arg.value;
+}
+
+void InputEngine::ProcessJoystickButtonPressed(const OgreBites::ButtonEvent& arg)
+{
+    int i = arg.which;
+    if (i >= 0 && i < MAX_JOYSTICKS && arg.button >= 0 && arg.button < MAX_JOYSTICK_BUTTONS)
+        m_joy_button_vals[i][arg.button] = 1;
+}
+
+void InputEngine::ProcessJoystickButtonReleased(const OgreBites::ButtonEvent& arg)
+{
+    int i = arg.which;
+    if (i >= 0 && i < MAX_JOYSTICKS && arg.button >= 0 && arg.button < MAX_JOYSTICK_BUTTONS)
+        m_joy_button_vals[i][arg.button] = 0;
+}
+
+void InputEngine::ProcessHatMoved(const OgreBites::HatEvent& arg)
+{
+    int i = arg.which;
+    if (i >= 0 && i < MAX_JOYSTICKS && arg.hat >= 0 && arg.hat < MAX_JOYSTICK_POVS)
+        m_joy_hat_vals[i][arg.hat] = arg.value;
 }
 
 /* --- Key Events ------------------------------------------ */
@@ -757,44 +850,26 @@ float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSo
                 value = this->isMouseButtonDown(OgreBites::BUTTON_LEFT) || this->isMouseButtonDown(OgreBites::BUTTON_RIGHT);
                 break;
             case ET_JoystickButton:
-                {/* FIXME-SDL
-                    if (t.joystickNumber > free_joysticks || !mJoy[t.joystickNumber])
+                {
+                    if (t.joystickNumber >= free_joysticks || !m_joysticks[t.joystickNumber])
                     {
                         value = 0;
                         continue;
                     }
-                    if (t.joystickButtonNumber >= (int)mJoy[t.joystickNumber]->getNumberOfComponents(OIS_Button))
-                    {
-#ifndef NOOGRE
-                        LOG("*** Joystick has not enough buttons for mapping: need button "+TOSTRING(t.joystickButtonNumber) + ", availabe buttons: "+TOSTRING(mJoy[t.joystickNumber]->getNumberOfComponents(OIS_Button)));
-#endif
-                        value = 0;
-                        continue;
-                    }
-                    value = joyState[t.joystickNumber].mButtons[t.joystickButtonNumber];
-                    */
+                    value = m_joy_button_vals[t.joystickNumber][t.joystickButtonNumber];
                 }
                 break;
             case ET_JoystickPov:
-                { /*FIXME-SDL
-                    if (t.joystickNumber > free_joysticks || !mJoy[t.joystickNumber])
+                {
+                    if (t.joystickNumber >= free_joysticks || !m_joysticks[t.joystickNumber])
                     {
                         value = 0;
                         continue;
                     }
-                    if (t.joystickPovNumber >= (int)mJoy[t.joystickNumber]->getNumberOfComponents(OIS_POV))
-                    {
-#ifndef NOOGRE
-                        LOG("*** Joystick has not enough POVs for mapping: need POV "+TOSTRING(t.joystickPovNumber) + ", availabe POVs: "+TOSTRING(mJoy[t.joystickNumber]->getNumberOfComponents(OIS_POV)));
-#endif
-                        value = 0;
-                        continue;
-                    }
-                    if (joyState[t.joystickNumber].mPOV[t.joystickPovNumber].direction & t.joystickPovDirection)
+                    if (m_joy_hat_vals[t.joystickNumber][t.joystickPovNumber] & t.joystickPovDirection)
                         value = 1;
                     else
                         value = 0;
-                        */
                 }
                 break;
             }
@@ -803,59 +878,36 @@ float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSo
         {
             switch (t.eventtype)
             {
-                /* FIXME-SDL,  unused??
-            case ET_MouseAxisX:
-                value = mouseState.X.abs / 32767;
-                break;
-            case ET_MouseAxisY:
-                value = mouseState.Y.abs / 32767;
-                break;
-            case ET_MouseAxisZ:
-                value = mouseState.Z.abs / 32767;
-                break;
-                */
-
             case ET_JoystickAxisRel:
             case ET_JoystickAxisAbs:
                 {
-                    /* FIXME-SDL
-                    if (t.joystickNumber > free_joysticks || !mJoy[t.joystickNumber])
+                    if (t.joystickNumber >= free_joysticks || !m_joysticks[t.joystickNumber])
                     {
                         value = 0;
                         continue;
                     }
-                    if (t.joystickAxisNumber >= (int)joyState[t.joystickNumber].mAxes.size())
-                    {
-#ifndef NOOGRE
-                        LOG("*** Joystick has not enough axis for mapping: need axe "+TOSTRING(t.joystickAxisNumber) + ", availabe axis: "+TOSTRING(joyState[t.joystickNumber].mAxes.size()));
-#endif
-                        value = 0;
-                        continue;
-                    }
-                    Axis axe = joyState[t.joystickNumber].mAxes[t.joystickAxisNumber];
+
+                    Sint16 axis_val = m_joy_axis_vals[t.joystickNumber][t.joystickAxisNumber];
 
                     if (t.eventtype == ET_JoystickAxisRel)
                     {
-                        value = (float)axe.rel / (float)mJoy[t.joystickNumber]->MAX_AXIS;
+                        value = (float)axis_val / 32767.0f;
                     }
                     else
                     {
-                        value = (float)axe.abs / (float)mJoy[t.joystickNumber]->MAX_AXIS;
+                        value = (float)axis_val / 32767.0f;
                         switch (t.joystickAxisRegion)
                         {
                         case 0:
-                            // normal case, full axis used
                             value = (value + 1) / 2;
                             break;
                         case -1:
-                            // lower range used
                             if (value > 0)
                                 value = 0;
                             else
                                 value = -value;
                             break;
                         case 1:
-                            // upper range used
                             if (value < 0)
                                 value = 0;
                             break;
@@ -863,11 +915,6 @@ float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSo
 
                         if (t.joystickAxisHalf)
                         {
-                            // XXX: TODO: write this
-                            //float a = (double)((value+1.0)/2.0);
-                            //float b = (double)(1.0-(value+1.0)/2.0);
-                            //LOG("half: "+TOSTRING(value)+" / "+TOSTRING(a)+" / "+TOSTRING(b));
-                            //no dead zone in half axis
                             value = (1.0 + value) / 2.0;
                             if (t.joystickAxisReverse)
                                 value = 1.0 - value;
@@ -876,42 +923,34 @@ float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSo
                         }
                         else
                         {
-                            //LOG("not half: "+TOSTRING(value)+" / "+TOSTRING(deadZone(value, t.joystickAxisDeadzone)) +" / "+TOSTRING(t.joystickAxisDeadzone) );
                             if (t.joystickAxisReverse)
                                 value = 1 - value;
                             if (!pure)
-                            // no deadzone when using oure value
                                 value = deadZone(value, t.joystickAxisDeadzone);
                             if (!pure)
                                 value = axisLinearity(value, t.joystickAxisLinearity);
                         }
-                        // digital mapping of analog axis
                         if (t.joystickAxisUseDigital)
                             if (value >= 0.5)
                                 value = 1;
                             else
                                 value = 0;
                     }
-                    */
                 }
                 break;
             case ET_JoystickSliderX:
             case ET_JoystickSliderY:
                 {
-                    /* FIXME-SDL
-                    if (t.joystickNumber > free_joysticks || !mJoy[t.joystickNumber])
+                    if (t.joystickNumber >= free_joysticks || !m_joysticks[t.joystickNumber])
                     {
                         value = 0;
                         continue;
                     }
-                    if (t.eventtype == ET_JoystickSliderX)
-                        value = (float)joyState[t.joystickNumber].mSliders[t.joystickSliderNumber].abX / (float)mJoy[t.joystickNumber]->MAX_AXIS;
-                    else if (t.eventtype == ET_JoystickSliderY)
-                        value = (float)joyState[t.joystickNumber].mSliders[t.joystickSliderNumber].abY / (float)mJoy[t.joystickNumber]->MAX_AXIS;
-                    value = (value + 1) / 2; // full axis
+                    Sint16 slider_val = m_joy_axis_vals[t.joystickNumber][t.joystickSliderNumber];
+                    value = (float)slider_val / 32767.0f;
+                    value = (value + 1) / 2;
                     if (t.joystickSliderReverse)
-                        value = 1.0 - value; // reversed
-                    */
+                        value = 1.0 - value;
                 }
                 break;
             }
@@ -925,12 +964,16 @@ float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSo
 
 bool InputEngine::isKeyDown(OgreBites::Keycode mod)
 {
-    return (SDL_GetModState() & mod) != 0;
+    const auto* state = SDL_GetKeyboardState(nullptr);
+    SDL_Scancode sc = SDL_GetScancodeFromKey(static_cast<SDL_Keycode>(mod));
+    if (sc == SDL_SCANCODE_UNKNOWN)
+        return false;
+    return state[sc] != 0;
 }
 
 bool InputEngine::isMouseButtonDown(OgreBites::ButtonType btn)
 {
-    return (SDL_GetMouseState(nullptr, nullptr) & btn) != 0;
+    return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(btn);
 }
 
 bool InputEngine::isKeyDownEffective(SDL_Keycode mod)
@@ -1342,24 +1385,23 @@ bool InputEngine::processLine(const char* line, int deviceID)
             if (eventID == -1)
                 return false;
 
-            /* FIXME-SDL
-            int direction = OIS::Pov::Centered;
+            int direction = SDL_HAT_CENTERED;
             if (!strcmp(dir, "North"))
-                direction = OIS::Pov::North;
+                direction = SDL_HAT_UP;
             if (!strcmp(dir, "South"))
-                direction = OIS::Pov::South;
+                direction = SDL_HAT_DOWN;
             if (!strcmp(dir, "East"))
-                direction = OIS::Pov::East;
+                direction = SDL_HAT_RIGHT;
             if (!strcmp(dir, "West"))
-                direction = OIS::Pov::West;
+                direction = SDL_HAT_LEFT;
             if (!strcmp(dir, "NorthEast"))
-                direction = OIS::Pov::NorthEast;
+                direction = SDL_HAT_UP | SDL_HAT_RIGHT;
             if (!strcmp(dir, "SouthEast"))
-                direction = OIS::Pov::SouthEast;
+                direction = SDL_HAT_DOWN | SDL_HAT_RIGHT;
             if (!strcmp(dir, "NorthWest"))
-                direction = OIS::Pov::NorthWest;
+                direction = SDL_HAT_UP | SDL_HAT_LEFT;
             if (!strcmp(dir, "SouthWest"))
-                direction = OIS::Pov::SouthWest;
+                direction = SDL_HAT_DOWN | SDL_HAT_LEFT;
 
             event_trigger_t t_pov = newEvent();
             t_pov.configDeviceID = deviceID;
@@ -1374,8 +1416,6 @@ bool InputEngine::processLine(const char* line, int deviceID)
             std::strncpy(t_pov.configline, dir, 128);
             cur_comment = "";
             addEvent(eventID, t_pov);
-            //LOG("added axis: " + TOSTRING(axisNo));
-            */
             return true;
         }
     case ET_JoystickSliderX:
@@ -1432,38 +1472,42 @@ bool InputEngine::processLine(const char* line, int deviceID)
 
 int InputEngine::getCurrentJoyButton(int& joystickNumber, int& button)
 {
-    /* FIXME-SDL
     for (int j = 0; j < free_joysticks; j++)
     {
-        for (int i = 0; i < (int)joyState[j].mButtons.size(); i++)
+        if (!m_joysticks[j])
+            continue;
+        int num_buttons = std::min(SDL_JoystickNumButtons(m_joysticks[j]), MAX_JOYSTICK_BUTTONS);
+        for (int i = 0; i < num_buttons; i++)
         {
-            if (joyState[j].mButtons[i])
+            if (m_joy_button_vals[j][i])
             {
                 joystickNumber = j;
                 button = i;
                 return 1;
             }
         }
-    }*/
+    }
     return 0;
 }
 
 int InputEngine::getCurrentPovValue(int& joystickNumber, int& pov, int& povdir)
 {
-    /* FIXME-SDL
     for (int j = 0; j < free_joysticks; j++)
     {
-        for (int i = 0; i < MAX_JOYSTICK_POVS; i++)
+        if (!m_joysticks[j])
+            continue;
+        int num_hats = std::min(SDL_JoystickNumHats(m_joysticks[j]), MAX_JOYSTICK_POVS);
+        for (int i = 0; i < num_hats; i++)
         {
-            if (joyState[j].mPOV[i].direction != Pov::Centered)
+            if (m_joy_hat_vals[j][i] != SDL_HAT_CENTERED)
             {
                 joystickNumber = j;
                 pov = i;
-                povdir = joyState[j].mPOV[i].direction;
+                povdir = m_joy_hat_vals[j][i];
                 return 1;
             }
         }
-    }*/
+    }
     return 0;
 }
 
@@ -1485,9 +1529,13 @@ event_trigger_t InputEngine::newEvent()
 
 std::string InputEngine::getJoyVendor(int joystickNumber)
 {
-    // FIXME
-        return "unknown";
-
+    if (joystickNumber >= 0 && joystickNumber < free_joysticks && m_joysticks[joystickNumber])
+    {
+        const char* name = SDL_JoystickName(m_joysticks[joystickNumber]);
+        if (name)
+            return std::string(name);
+    }
+    return "unknown";
 }
 
 int InputEngine::getCurrentKeyCombo(String* combo)
@@ -1650,7 +1698,7 @@ bool InputEngine::loadConfigFile(int deviceID)
     {
         ROR_ASSERT(deviceID < free_joysticks);
 
-        String deviceStr; // FIXME-SDL = mJoy[deviceID]->vendor();
+        String deviceStr = this->getJoyVendor(deviceID);
 
         // care about unsuitable chars
         String repl = "\\/ #@?!$%^&*()+=-><.:'|\";";

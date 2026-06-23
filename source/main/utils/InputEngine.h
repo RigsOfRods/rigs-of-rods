@@ -30,11 +30,14 @@
 #include "ForceFeedback.h"
 
 #include <Bites/OgreInput.h>
+#include <SDL2/SDL_joystick.h>
+#include <SDL2/SDL_haptic.h>
 
 #define MAX_JOYSTICKS 10
 #define MAX_JOYSTICK_POVS 4
 #define MAX_JOYSTICK_SLIDERS 4
 #define MAX_JOYSTICK_AXIS 32
+#define MAX_JOYSTICK_BUTTONS 32
 
 namespace RoR {
 
@@ -463,7 +466,7 @@ public:
     static const int         BUILTIN_MAPPING_DEVICEID = -2; //!< virtual device ID for builtin defaults
 
     InputEngine();
-    ~InputEngine() {};
+    ~InputEngine();
 
     /// @name Input processing
     /// @{
@@ -475,6 +478,7 @@ public:
     void                ProcessKeyPress(const OgreBites::KeyboardEvent& arg);
     void                ProcessKeyRelease(const OgreBites::KeyboardEvent& arg);
     void                ProcessJoystickEvent(const OgreBites::AxisEvent& arg);
+    SDL_Haptic*         getForceFeedbackDevice();
 
     /// @}
 
@@ -547,11 +551,21 @@ public:
     std::string         getKeyNameForKeyCode(SDL_Keycode keycode);
     /// @}
 
+public:
+    void ProcessJoystickButtonPressed(const OgreBites::ButtonEvent& arg);
+    void ProcessJoystickButtonReleased(const OgreBites::ButtonEvent& arg);
+    void ProcessHatMoved(const OgreBites::HatEvent& arg);
+
 protected:
 
-    //OIS Input devices
-    int free_joysticks; //!< Number of detected game controllers
-    int uniqueCounter;
+    // SDL2 Input devices
+    int                     free_joysticks; //!< Number of detected game controllers
+    int                     uniqueCounter;
+    SDL_Joystick*           m_joysticks[MAX_JOYSTICKS];
+    SDL_Haptic*             m_haptic_devices[MAX_JOYSTICKS];
+    Sint16                  m_joy_axis_vals[MAX_JOYSTICKS][MAX_JOYSTICK_AXIS];
+    Uint8                   m_joy_button_vals[MAX_JOYSTICKS][MAX_JOYSTICK_BUTTONS];
+    Uint8                   m_joy_hat_vals[MAX_JOYSTICKS][MAX_JOYSTICK_POVS];
 
     // this stores the key/button/axis values
     KeyStateMap keyState;
