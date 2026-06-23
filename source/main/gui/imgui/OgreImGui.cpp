@@ -90,7 +90,14 @@ void OgreImGui::Init()
     // Disable 'imgui.ini' - we don't need to persist window positions.
     io.IniFilename = nullptr;
 
-    // NOTE: Setting up `io.KeyMap` isn't possible with SDL2 because the values must be 0-512 and SDL's Keycodes are bitmasks which are much larger.
+    // Set up `io.KeyMap` as an identity map. So... wecan't use SDL2 keycode directly because
+    // they must fit in 0-512 but they're bitmasks (larger). Instead,
+    // we translate SDL keycodes to `ImGuiKey_` enum values (see `SDL2KeycodeToImGuiKey`) and
+    // index `io.KeysDown[]` by those, so the KeyMap maps each ImGuiKey to itself!
+    for (int i = 0; i < ImGuiKey_COUNT; i++)
+    {
+        io.KeyMap[i] = i;
+    }
 
     // Load font
     m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium");
