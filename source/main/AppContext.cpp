@@ -21,6 +21,8 @@
 
 #include "AppContext.h"
 
+#include <SDL2/SDL.h>
+
 #include "AdvancedScreen.h"
 #include "Actor.h"
 #include "CameraManager.h"
@@ -68,7 +70,7 @@ bool AppContext::SetUpInput()
 
     if (App::io_ffb_enabled->getBool())
     {
-       // FIXME-SDL m_force_feedback.Setup();
+        m_force_feedback.Setup();
     }
     return true;
 }
@@ -175,15 +177,27 @@ bool AppContext::keyReleased(const OgreBites::KeyboardEvent& arg)
     return true;
 }
 
+bool AppContext::textInput(const OgreBites::TextInputEvent& arg)
+{
+    App::GetGuiManager()->GetImGui().InjectTextInput(arg);
+    return true;
+}
+
 bool AppContext::buttonPressed(const OgreBites::ButtonEvent& arg)
 {
- //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    App::GetInputEngine()->ProcessJoystickButtonPressed(arg);
     return true;
 }
 
 bool AppContext::buttonReleased(const OgreBites::ButtonEvent& arg)
 {
- //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    App::GetInputEngine()->ProcessJoystickButtonReleased(arg);
+    return true;
+}
+
+bool AppContext::hatMoved(const OgreBites::HatEvent& arg)
+{
+    App::GetInputEngine()->ProcessHatMoved(arg);
     return true;
 }
 
@@ -237,6 +251,10 @@ void AppContext::SetRenderWindowIcon(Ogre::RenderWindow* rw)
  
 void AppContext::createRoot() // override of OgreBites::ApplicationContext
 {
+    // Disable SDL2 high-DPI support to prevent oversized windows on Win10 with display scaling.
+    // SDL2 high-DPI causes the window to be created in physical pixels, while OGRE expects logical pixels.
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
+
     // Create 'OGRE root' facade
     // * leave 'plugins' param empty, we load manually below
     // * note file 'ogre.cfg' isn't read immediatelly but only after calling 'restoreConfig()' below.

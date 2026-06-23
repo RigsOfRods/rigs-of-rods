@@ -86,9 +86,11 @@ private:
     virtual bool         mouseReleased(const OgreBites::MouseButtonEvent& arg) override;
     virtual bool         keyPressed(const OgreBites::KeyboardEvent& arg) override;
     virtual bool         keyReleased(const OgreBites::KeyboardEvent& arg) override;
+    virtual bool         textInput(const OgreBites::TextInputEvent& arg) override;
     virtual bool         buttonPressed(const OgreBites::ButtonEvent& arg) override;
     virtual bool         buttonReleased(const OgreBites::ButtonEvent& arg) override;
     virtual bool         axisMoved(const OgreBites::AxisEvent& arg) override;
+    virtual bool         hatMoved(const OgreBites::HatEvent& arg) override;
 
     // OgreBites::ApplicationContext
     virtual void         createRoot() override;
