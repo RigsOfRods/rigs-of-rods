@@ -5,8 +5,8 @@ find_package(Threads REQUIRED)
 # --- Ogre 3D graphics engine ---
 find_package(OGRE 14 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
 
-# --- Object Oriented Input System ---
-find_package(OIS REQUIRED)
+# --- Object Oriented Input System (legacy, replaced by SDL via OgreBites) ---
+find_package(OIS QUIET)
 # --- MyGUI - graphical user inferface ---
 find_package(MyGUI REQUIRED)
 # --- fmt - A modern formatting library  ---
