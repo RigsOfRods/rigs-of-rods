@@ -21,29 +21,29 @@
 
 #pragma once
 
-
+#include <SDL2/SDL_haptic.h>
 
 namespace RoR {
 
 class ForceFeedback
 {
 public:
+    ForceFeedback();
+    ~ForceFeedback();
+
     void Setup();
     void SetEnabled(bool v);
 
-    /// Reads data from simulation
     void Update();
 
 private:
-    /// Called by Update(); we take here :
-    /// -roll and pitch inertial forces at the camera: this is not used currently, but it can be used for 2 axes force feedback devices, like FF joysticks, to render shocks
-    /// -wheel speed and direction command, for the artificial auto-centering (which is wheel speed dependant)
-    /// -hydro beam stress, the ideal data source for FF wheels
     void SetForces(float roll, float pitch, float wspeed, float dircommand, float stress);
 
-    //FIXME-SDL    OIS::ForceFeedback* m_device = nullptr;
-    //FIXME-SDL    OIS::Effect*        m_hydro_effect = nullptr;
-    bool                m_enabled = false; /// Disables FF when not in vehicle
+    SDL_Haptic*     m_device;
+    SDL_HapticEffect m_effect;
+    int             m_effect_id;
+    int             m_device_id; // Joystick device index
+    bool            m_enabled;
 };
 
 } // namespace RoR
