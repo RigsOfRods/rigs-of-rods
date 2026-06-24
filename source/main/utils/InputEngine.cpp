@@ -446,7 +446,16 @@ InputEngine::~InputEngine()
 void InputEngine::setup()
 {
     // Ensure SDL joystick and haptic subsystems are initialized
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
+    int joy_error = SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+    if (joy_error < 0)
+    {
+        LOG(fmt::format("[RoR|InputEngine] Failed to initialize SDL joystick subsystem: '{}' (code: {})", SDL_GetError(), joy_error));
+    }
+    int haptic_error = SDL_InitSubSystem(SDL_INIT_HAPTIC);
+    if (haptic_error < 0)
+    {
+        LOG(fmt::format("[RoR|InputEngine] Failed to initialize SDL haptic subsystem: '{}' (code: {})", SDL_GetError(), haptic_error));
+    }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     if (App::io_input_grab_mode->getEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
