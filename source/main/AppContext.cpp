@@ -118,6 +118,8 @@ bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrid
         {
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
+                App::GetInputEngine()->ProcessMouseButtonPress(arg);
+                // The following subsystems query button states from input engine:
                 App::GetGameContext()->GetSceneMouse().handleMousePressed();
                 App::GetCameraManager()->handleMousePressed(arg);
             }
@@ -129,6 +131,7 @@ bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrid
 
 bool AppContext::mouseReleased(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
 {
+    App::GetInputEngine()->ProcessMouseButtonRelease(arg); // always resolve button release events
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().InjectMouseReleased(arg);
 

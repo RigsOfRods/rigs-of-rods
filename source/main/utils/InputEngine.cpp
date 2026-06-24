@@ -590,7 +590,18 @@ void InputEngine::ProcessKeyRelease(const OgreBites::KeyboardEvent& arg)
     keyState[arg.keysym.sym] = false;
 }
 
+/* --- Mouse Events ------------------------------------------ */
+void InputEngine::ProcessMouseButtonPress(const OgreBites::MouseButtonEvent& arg)
+{
+    if (arg.button >= 0 && arg.button < 4)
+        m_mouse_button_down[arg.button] = true;
+}
 
+void InputEngine::ProcessMouseButtonRelease(const OgreBites::MouseButtonEvent& arg)
+{
+    if (arg.button >= 0 && arg.button < 4)
+        m_mouse_button_down[arg.button] = false;
+}
 
 /* --- Custom Methods ------------------------------------------ */
 void InputEngine::resetKeys()
@@ -987,7 +998,7 @@ bool InputEngine::isKeyDown(OgreBites::Keycode mod)
 
 bool InputEngine::isMouseButtonDown(OgreBites::ButtonType btn)
 {
-    return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(btn);
+    return m_mouse_button_down[btn];
 }
 
 bool InputEngine::isKeyDownEffective(SDL_Keycode mod)

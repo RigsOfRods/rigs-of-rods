@@ -475,6 +475,8 @@ public:
     void                resetKeys();
     void                setEventSimulatedValue(events eventID, float value);
     void                setEventStatusSupressed(events eventID, bool supress);
+    void                ProcessMouseButtonPress(const OgreBites::MouseButtonEvent& arg);
+    void                ProcessMouseButtonRelease(const OgreBites::MouseButtonEvent& arg);
     void                ProcessKeyPress(const OgreBites::KeyboardEvent& arg);
     void                ProcessKeyRelease(const OgreBites::KeyboardEvent& arg);
     void                ProcessJoystickEvent(const OgreBites::AxisEvent& arg);
@@ -535,7 +537,7 @@ public:
     /// @name Direct input device states
     /// @{
     bool                isKeyDown(OgreBites::Keycode mod);                  //!< Asks SDL directly; only works for modifier keys.
-    bool                isMouseButtonDown(OgreBites::ButtonType btn);       //!< Asks SDL directly
+    bool                isMouseButtonDown(OgreBites::ButtonType btn);       //!< Actually retrieves cached state from `OgreBites` events, as querying SDL directly is not reliable.
     int                 getCurrentKeyCombo(Ogre::String* combo);            //!< Returns number of non-modifier keys pressed (or modifier count as negative number).
     int                 getCurrentJoyButton(int& joystickNumber, int& button);
     int                 getCurrentPovValue(int& joystickNumber, int& pov, int& povdir);
@@ -566,6 +568,7 @@ protected:
     Sint16                  m_joy_axis_vals[MAX_JOYSTICKS][MAX_JOYSTICK_AXIS];
     Uint8                   m_joy_button_vals[MAX_JOYSTICKS][MAX_JOYSTICK_BUTTONS];
     Uint8                   m_joy_hat_vals[MAX_JOYSTICKS][MAX_JOYSTICK_POVS];
+    std::array<bool, 4>     m_mouse_button_down = {false, false, false, false};  //!< unused, left, middle, right - matches `OgreBites::ButtonType` enum
 
     // this stores the key/button/axis values
     KeyStateMap keyState;
