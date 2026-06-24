@@ -121,7 +121,7 @@ bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrid
                 App::GetInputEngine()->ProcessMouseButtonPress(arg);
                 // The following subsystems query button states from input engine:
                 App::GetGameContext()->GetSceneMouse().handleMousePressed();
-                App::GetCameraManager()->handleMousePressed(arg);
+                App::GetCameraManager()->handleMousePressed();
             }
         }
     }

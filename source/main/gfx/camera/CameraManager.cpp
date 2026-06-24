@@ -620,7 +620,7 @@ bool CameraManager::handleMouseWheelRolled(const OgreBites::MouseWheelEvent& _ar
     }
 }
 
-bool CameraManager::handleMousePressed(const OgreBites::MouseButtonEvent& _arg)
+bool CameraManager::handleMousePressed()
 {
     if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT)
         && App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_MIDDLE))
@@ -632,9 +632,9 @@ bool CameraManager::handleMousePressed(const OgreBites::MouseButtonEvent& _arg)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return false;
     case CAMERA_BEHAVIOR_STATIC:          return false;
-    case CAMERA_BEHAVIOR_VEHICLE:         return this->CameraBehaviorVehicleMousePressed(_arg);
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleMousePressed(_arg);
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return this->CameraBehaviorVehicleMousePressed(_arg);
+    case CAMERA_BEHAVIOR_VEHICLE:         return this->CameraBehaviorVehicleMousePressed();
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleMousePressed();
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return this->CameraBehaviorVehicleMousePressed();
     case CAMERA_BEHAVIOR_FREE:            return false;
     case CAMERA_BEHAVIOR_FIXED:           return false;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
@@ -1128,7 +1128,7 @@ void CameraManager::CameraBehaviorVehicleReset()
 	m_cam_dist = m_cam_dist_min * 1.5f + 2.0f;
 }
 
-bool CameraManager::CameraBehaviorVehicleMousePressed(const OgreBites::MouseButtonEvent& _arg)
+bool CameraManager::CameraBehaviorVehicleMousePressed()
 {
 
 	if ( App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_MIDDLE) && RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) )

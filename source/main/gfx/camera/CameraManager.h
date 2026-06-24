@@ -72,7 +72,7 @@ public:
     void CameraBehaviorOrbitUpdate();
 
     bool handleMouseMoved(const OgreBites::MouseMotionEvent& _arg);
-    bool handleMousePressed(const OgreBites::MouseButtonEvent& _arg);
+    bool handleMousePressed();
     bool handleMouseWheelRolled(const OgreBites::MouseWheelEvent& _arg);
 
     void ResetAllBehaviors();
@@ -96,7 +96,7 @@ protected:
     void UpdateCameraBehaviorFixed();
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
-    bool CameraBehaviorVehicleMousePressed(const OgreBites::MouseButtonEvent& _arg);
+    bool CameraBehaviorVehicleMousePressed();
     void CameraBehaviorVehicleSplineUpdate();
     bool CameraBehaviorVehicleSplineMouseMoved(const OgreBites::MouseMotionEvent& _arg);
     void CameraBehaviorVehicleSplineReset();
