@@ -3055,7 +3055,18 @@ float Actor::getEventSimulatedValue(int eventID)
 
 void Actor::setEventSimulatedValue(int eventID, float value)
 {
-    ar_actor_event_simulated_values[eventID] = value;
+    // Wake up if sleeping.
+    if (ar_state == ActorState::LOCAL_SLEEPING)
+    {
+        ar_state = ActorState::LOCAL_SIMULATED;
+        ar_sleep_counter = 0.0f;
+    }
+
+    // Double check this actor can be controlled.
+    if (ar_state == ActorState::LOCAL_SIMULATED)
+    {
+        ar_actor_event_simulated_values[eventID] = value;
+    }
 }
 
 void Actor::resetEventSimulatedValue(int eventID)
