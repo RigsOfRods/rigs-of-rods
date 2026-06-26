@@ -62,6 +62,7 @@ enum scriptEvents
     SE_GENERIC_MODCACHE_ACTIVITY       = BITMASK(25), //!< Triggered when status of modcache changes, args: #1 type, #2 entry number, for other args see `RoR::modCacheActivityType`
     SE_GENERIC_TRUCK_LINKING_CHANGED   = BITMASK(26), //!< Triggered when 2 actors become linked or unlinked via ties/hooks/ropes/slidenodes; args: #1 state (1=linked, 0=unlinked), #2 action `ActorLinkingRequestType` #3 master ActorInstanceID_t, #4 slave ActorInstanceID_t
     SE_GENERIC_FREEFORCES_ACTIVITY     = BITMASK(27), //!< Triggered on freeforce add/update/delete or breaking; args: #1 `freeForcesActivityType`, #2 freeforce ID
+    SE_GENERIC_GAMESTATE_NOTIFICATION  = BITMASK(28), //!< Triggered by various game state changes; args: #1 `RoR::genericGamestateNotificationType`
 
     SE_ALL_EVENTS                      = 0xffffffff,
     SE_NO_EVENTS                       = 0
@@ -76,6 +77,14 @@ enum angelScriptManipulationType
     ASMANIP_SCRIPT_LOAD_FAILED,           //!< Triggered if the script fails to start at all. Args: #2 unused, #3 RoR::ScriptCategory, #4 unused, #5 filename.
     ASMANIP_SCRIPT_UNLOADING,             //!< Triggered before unloading the script to let it clean up. Args: #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename.
     ASMANIP_ACTORSIMATTR_SET              //!< Triggered when `setSimAttribute()` is called; additional args: #2 `RoR::ActorSimAtrr`, #3 ---, #4 ---, #5 attr name, #6 value converted to string.
+};
+
+/// Argument #1 of script event `RoR::SE_GENERIC_GAMESTATE_NOTIFICATION`
+enum genericGamestateNotificationType
+{
+    GAMESTATE_NOTIFICATION_NONE = 0,
+    GAMESTATE_RACE_LOAD_REQUESTED,       //!< Instructs race manager (TERRAIN script) to load a '*.race' file; args: $5 filename, $6 resource group
+    GAMESTATE_RACE_UNLOAD_REQUESTED,     //!< Instructs race manager to unload race; args: $2 raceID
 };
 
 enum angelScriptThreadStatus

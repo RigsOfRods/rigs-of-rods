@@ -66,7 +66,7 @@ public:
     TerrainEditorObjectPtrVec& GetEditorObjects() { return m_editor_objects; }
     std::vector<TObjDocumentPtr>& GetTobjCache() { return m_tobj_cache; }
     void           LoadTObjFile(Ogre::String filename);
-    bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, EvHandlerFuncID_t scripthandler = EVHANDLERFUNCID_INVALID, bool uniquifyMaterial = false);
     bool           LoadTerrainScript(const Ogre::String& filename);
     void           moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void           destroyObject(const Ogre::String& instancename);

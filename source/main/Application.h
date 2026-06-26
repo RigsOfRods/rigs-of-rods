@@ -481,6 +481,7 @@ enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `G
     LT_AssetPack, // No script alias, invoked manually, ext: assetpack
     LT_DashBoard, // No script alias, invoked manually, ext: dashboard
     LT_Gadget,    // No script alias, invoked manually, ext: gadget
+    LT_Race,      // No script alias, invoked manually, ext: race
 };
 
 enum CacheCategoryId
