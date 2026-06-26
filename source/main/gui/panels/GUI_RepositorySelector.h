@@ -139,6 +139,8 @@ struct ResourcesCollection
 
 typedef std::map<int, Ogre::TexturePtr> RepoAttachmentsMap; //!< Maps attachment ID to Ogre::TexturePtr
 
+const int REPOFILE_MANIFEST_VERSION = 1;
+
 class BBCodeDrawingContext;
 
 class RepositorySelector
@@ -180,6 +182,7 @@ public:
 
 private:
     void                                TryProcessNextQueuedInstallRequest();
+    void                                ProcessContentPackManifest(std::string const& path); //!< Reads a downloaded contentpack manifest.json and queues each listed repo file for install.
     void                                DrawFooterDownloadsInfo();
     bool                                CheckRepoFileIsInstalled(ResourceFiles& resfile, std::string& out_filepath);
 
