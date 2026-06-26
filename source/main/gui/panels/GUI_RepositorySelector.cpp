@@ -43,6 +43,7 @@
 #include <rapidjson/document.h>
 #include <vector>
 #include <fmt/core.h>
+#include <fstream>
 #include <stdio.h>
 #include <OgreFileSystemLayer.h>
 
@@ -450,7 +451,7 @@ void RepositorySelector::Draw()
         for (int i = 0; i < m_data.categories.size(); i++)
         {
             // Skip non mod categories
-            if (m_data.categories[i].resource_category_id >= 8 && m_data.categories[i].resource_category_id <= 13)
+            if (m_data.categories[i].resource_category_id >= 8 && m_data.categories[i].resource_category_id <= 13 && m_data.categories[i].resource_category_id != 10)
             {
                 continue;
             }
@@ -475,7 +476,7 @@ void RepositorySelector::Draw()
             for (int i = 0; i < m_data.categories.size(); i++)
             {
                 // Skip non mod categories
-                if (m_data.categories[i].resource_category_id >= 8 && m_data.categories[i].resource_category_id <= 13)
+                if (m_data.categories[i].resource_category_id >= 8 && m_data.categories[i].resource_category_id <= 13 && m_data.categories[i].resource_category_id != 10)
                 {
                     continue;
                 }
@@ -646,7 +647,7 @@ void RepositorySelector::Draw()
             for (int i = 0; i < m_data.items.size(); i++)
             {
                 // Skip items from non mod categories
-                if (m_data.items[i].resource_category_id >= 8 && m_data.items[i].resource_category_id <= 13)
+                if (m_data.items[i].resource_category_id >= 8 && m_data.items[i].resource_category_id <= 13 && m_data.items[i].resource_category_id != 10)
                 {
                     continue;
                 }
@@ -1545,6 +1546,95 @@ void RepositorySelector::TryProcessNextQueuedInstallRequest()
     }
 }
 
+void RepositorySelector::ProcessContentPackManifest(std::string const& path)
+{
+    // A contentpack manifest lists other repo files to install, e.g:
+    // { 
+    //     "version": 1, 
+    //     "resources": 
+    //     [ 
+    //         { 
+    //             "resource_id": 1234,
+    //             "file_id": 5678,
+    //             "filename": "coolcar.zip" 
+    //         }
+    //     ] 
+    // }
+    std::ifstream ifs(path, std::ios::binary);
+    if (!ifs)
+    {
+        LOG("[RoR|Repository] Could not open contentpack manifest: '" + path + "'");
+        return;
+    }
+    std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    ifs.close();
+
+    rapidjson::Document doc;
+    doc.Parse(json.c_str());
+    // Check the version
+    if (!doc.HasMember("version") || !doc["version"].IsInt() || doc["version"].GetInt() != REPOFILE_MANIFEST_VERSION)
+    {
+        LOG("[RoR|Repository] Unsupported contentpack manifest version (expected 'version' = " + std::to_string(REPOFILE_MANIFEST_VERSION) + "): '" + path + "'");
+        return;
+    }
+
+    // Check the resources array
+    if (doc.HasParseError() || !doc.IsObject() || !doc.HasMember("resources") || !doc["resources"].IsArray())
+    {
+        LOG("[RoR|Repository] Invalid contentpack manifest (expected a 'resources' array): '" + path + "'");
+        return;
+    } 
+
+    LOG("[RoR|Repository] Processing contentpack manifest: '" + path + "'");
+    RoR::LogFormat("[RoR|Repository] Manifest lists %d resource(s)", doc["resources"].Size());
+
+    const std::string mods_dir = PathCombine(App::sys_user_dir->getStr(), "mods");
+    rapidjson::Value& j_resources = doc["resources"];
+    int queued = 0;
+    for (rapidjson::SizeType i = 0; i < j_resources.Size(); i++)
+    {
+        rapidjson::Value& j_res = j_resources[i];
+        if (!j_res.IsObject()
+            || !j_res.HasMember("resource_id") || !j_res["resource_id"].IsInt()
+            || !j_res.HasMember("file_id")     || !j_res["file_id"].IsInt()
+            || !j_res.HasMember("filename")    || !j_res["filename"].IsString())
+        {
+            LOG("[RoR|Repository] Skipping malformed entry in contentpack manifest: '" + path + "'");
+            continue;
+        }
+
+        LOG("[RoR|Repository] Manifest entry resource_id=" + std::to_string(j_res["resource_id"].GetInt())
+            + ", file_id=" + std::to_string(j_res["file_id"].GetInt())
+            + ", filename='" + j_res["filename"].GetString() + "'");
+
+        const std::string filename = j_res["filename"].GetString();
+
+        std::string installed_path;
+        if (App::GetCacheSystem()->IsRepoFileInstalled(filename, installed_path))
+        {
+            // Skip anything already installed
+            LOG("[RoR|Repository] Skipping already installed file from contentpack manifest: '" + filename + "'");
+            continue;
+        }
+
+        // Queue via message (same path as the Install button) - avoids reentering the install queue from within it.
+        RepoFileInstallRequest* request = new RepoFileInstallRequest();
+        request->rfir_install_request_id = this->GetNextInstallRequestId();
+        request->rfir_resource_id = j_res["resource_id"].GetInt();
+        request->rfir_repofile_id = j_res["file_id"].GetInt();
+        request->rfir_filename = filename;
+        request->rfir_filepath = PathCombine(mods_dir, filename);
+        if (j_res.HasMember("size") && j_res["size"].IsInt())
+        {
+            request->rfir_filesize_bytes = j_res["size"].GetInt();
+        }
+        App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOFILE_REQUESTED, request));
+        queued++;
+    }
+
+    RoR::LogFormat("[RoR|Repository] Contentpack manifest queued %d file(s) for install from '%s'", queued, path.c_str());
+}
+
 void RepositorySelector::InstallDownloadedRepoFile(MsgType result, RepoFileInstallRequest* request)
 {
     if (m_active_install_request_id != REPOFILEINSTALLREQUESTID_INVALID)
@@ -1561,16 +1651,26 @@ void RepositorySelector::InstallDownloadedRepoFile(MsgType result, RepoFileInsta
                 Ogre::FileSystemLayer::removeFile(request->rfir_filepath);
             }
             Ogre::FileSystemLayer::renameFile(request->rfir_filepath + ".part", request->rfir_filepath);
-            App::GetCacheSystem()->ParseSingleZip(request->rfir_filepath);
 
-            // Update the installation status
-            auto itor = std::find_if(m_data.files.begin(), m_data.files.end(),
-                [request](ResourceFiles const& file) { return file.id == request->rfir_repofile_id; });
-            ROR_ASSERT(itor != m_data.files.end());
-            if (itor != m_data.files.end())
+            // A contentpack is a manifest.json file (not a mod zip) which just lists other repo files to install
+            if (Ogre::StringUtil::endsWith(request->rfir_filename, ".json"))
             {
-                itor->cached_install_status = ResFileInstallStatus::RFIS_INSTALLED;
-                itor->cached_install_path = request->rfir_filepath;
+                this->ProcessContentPackManifest(request->rfir_filepath);
+                Ogre::FileSystemLayer::removeFile(request->rfir_filepath); // The manifest has served its purpose.
+            }
+            else
+            {
+                App::GetCacheSystem()->ParseSingleZip(request->rfir_filepath);
+
+                // Update the installation status. Background dependency installs (queued by a contentpack manifest)
+                // are not part of the currently-viewed resource, so a missing entry here is expected - don't assert.
+                auto itor = std::find_if(m_data.files.begin(), m_data.files.end(),
+                    [request](ResourceFiles const& file) { return file.id == request->rfir_repofile_id; });
+                if (itor != m_data.files.end())
+                {
+                    itor->cached_install_status = ResFileInstallStatus::RFIS_INSTALLED;
+                    itor->cached_install_path = request->rfir_filepath;
+                }
             }
         }
 
