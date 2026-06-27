@@ -31,7 +31,7 @@ IN(vec4 uv0, TEXCOORD0)
 
 OUT(vec4 oUV, TEXCOORD0)
 OUT(vec4 oColour, COLOR)
-OUT(float oFogCoord, FOG)
+OUT(float oFogCoord, TEXCOORD3) // For consistency with BatchPage_vp which uses TEXCOORD 1 and 2
 
 MAIN_DECLARATION
 {

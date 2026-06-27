@@ -10,7 +10,7 @@ OGRE_UNIFORMS(
 MAIN_PARAMETERS
     IN(vec4 oUV, TEXCOORD0)
     IN(vec4 oColour, COLOR)
-    IN(float oFogCoord, FOG)
+    IN(float oFogCoord, TEXCOORD3) // For consistency with BatchPage_vp which uses TEXCOORD 1 and 2
 MAIN_DECLARATION
 {
     gl_FragColor = texture2D(texMap, oUV.xy);

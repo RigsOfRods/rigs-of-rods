@@ -36,7 +36,7 @@ IN(vec4 uv2, TEXCOORD2)
 
 OUT(vec4 oUV, TEXCOORD0)
 OUT(vec4 oColour, COLOR)
-OUT(float oFogCoord, FOG)
+OUT(float oFogCoord, TEXCOORD3)
 MAIN_DECLARATION
 {
 #ifdef LIGHTING
