@@ -597,10 +597,15 @@ public:
     /// @name Race system
     /// @{
 
-    void stopTimer();
-    void startTimer(int id);
+    void stopTimer(int actorID);
+    void startTimer(int raceID, int actorID);
+    void setTimer(int actorID, float time, bool raceIsInProgress);
     void setTimeDiff(float diff);
     void setBestLapTime(float time);
+    
+    // Overloads for backwards compatibility with earlier community Angelscript files
+    void stopTimer() { stopTimer(ACTORINSTANCEID_INVALID); }
+    void startTimer(int race_id) { startTimer(race_id, ACTORINSTANCEID_INVALID); }
 
     ///@}
 
