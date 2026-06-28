@@ -691,7 +691,7 @@ void SurveyMap::CacheMapIcon(SurveyMapEntity& e)
         return;
 
     if (e.resource_group == "")
-        e.resource_group = ContentManager::ResourcePack::TEXTURES.resource_group_name;
+        e.resource_group = RGN_DEFAULT;
 
     if (e.filename != "")
     {
@@ -710,7 +710,7 @@ void SurveyMap::CacheMapIcon(SurveyMapEntity& e)
         try
         {
             e.cached_icon = Ogre::TextureManager::getSingleton().load(
-                "icon_missing.dds", ContentManager::ResourcePack::TEXTURES.resource_group_name);
+                "icon_missing.dds", RGN_DEFAULT);
             e.filename = "icon_missing.dds"; // Prevent constant reloading
         }
         catch (Ogre::FileNotFoundException)

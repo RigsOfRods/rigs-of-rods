@@ -26,78 +26,105 @@
 #include "Console.h"
 #include "GameContext.h"
 #include "InputEngine.h"
+#include "Language.h"
 
-#include <OISForceFeedback.h>
 #include <OgreString.h>
+#include <SDL2/SDL_haptic.h>
 
 namespace RoR {
 
+ForceFeedback::ForceFeedback()
+    : m_device(nullptr)
+    , m_effect_id(-1)
+    , m_device_id(-1)
+    , m_enabled(false)
+{
+    memset(&m_effect, 0, sizeof(m_effect));
+}
+
+ForceFeedback::~ForceFeedback()
+{
+    if (m_device && m_effect_id >= 0)
+    {
+        SDL_HapticDestroyEffect(m_device, m_effect_id);
+    }
+}
+
 void ForceFeedback::Setup()
 {
-    using namespace Ogre;
     m_device = App::GetInputEngine()->getForceFeedbackDevice();
     if (!m_device)
     {
         return;
     }
-    LOG(String("ForceFeedback: ")+TOSTRING(m_device->getFFAxesNumber())+" axe(s)");
 
-    m_device->setAutoCenterMode(false);
-    m_device->setMasterGain(0.0);
+    LOG("ForceFeedback: device found");
 
-    //do not load effect now, its too early
+    // Try to disable auto-centering (may not be supported)
+    if (SDL_HapticSetAutocenter(m_device, 0) != 0)
+    {
+        // Not supported on all platforms, ignore failure
+    }
+
+    // Set initial gain to 0 (will be enabled later)
+    SDL_HapticSetGain(m_device, 0);
+
+    // Set up constant force effect
+    m_effect.type = SDL_HAPTIC_CONSTANT;
+    m_effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+    m_effect.constant.direction.dir[0] = 0; // X axis
+    m_effect.constant.direction.dir[1] = 0;
+    m_effect.constant.direction.dir[2] = 0;
+    m_effect.constant.length = SDL_HAPTIC_INFINITY;
+    m_effect.constant.level = 0;
+    m_effect.constant.attack_length = 0;
+    m_effect.constant.attack_level = 0;
+    m_effect.constant.fade_length = 0;
+    m_effect.constant.fade_level = 0;
+
+    m_effect_id = SDL_HapticNewEffect(m_device, &m_effect);
+    if (m_effect_id < 0)
+    {
+        LOG("ForceFeedback: failed to create effect: " + std::string(SDL_GetError()));
+        m_device = nullptr;
+    }
 }
 
 void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dircommand, float stress)
 {
-    if (!m_device) { return; }
+    if (!m_device || m_effect_id < 0)
+        return;
 
-    //LOG(String("ForceFeedback: R=")+TOSTRING(roll)+" D="+TOSTRING(dir)+" S="+TOSTRING(wspeed)+" H="+TOSTRING(stress));
-    if (!m_hydro_effect)
-    {
-        //we create effect at the last moment, because it does not works otherwise
-        m_hydro_effect = new OIS::Effect(OIS::Effect::ConstantForce, OIS::Effect::Constant);
-        m_hydro_effect->direction = OIS::Effect::North;
-        m_hydro_effect->trigger_button = 0;
-        m_hydro_effect->trigger_interval = 0;
-        m_hydro_effect->replay_length = OIS::Effect::OIS_INFINITE; // Linux/Win32: Same behaviour as 0.
-        m_hydro_effect->replay_delay = 0;
-        m_hydro_effect->setNumAxes(1);
-        OIS::ConstantEffect* hydroConstForce = dynamic_cast<OIS::ConstantEffect*>(m_hydro_effect->getForceEffect());
-        if (hydroConstForce != nullptr)
-        {
-            hydroConstForce->level = 0; //-10K to +10k
-            hydroConstForce->envelope.attackLength = 0;
-            hydroConstForce->envelope.attackLevel = (unsigned short)hydroConstForce->level;
-            hydroConstForce->envelope.fadeLength = 0;
-            hydroConstForce->envelope.fadeLevel = (unsigned short)hydroConstForce->level;
-        }
-        m_device->upload(m_hydro_effect);
-    }
+    float stress_gain = App::io_ffb_stress_gain->getFloat();
+    float centering_gain = App::io_ffb_center_gain->getFloat();
 
-    OIS::ConstantEffect* hydroConstForce = dynamic_cast<OIS::ConstantEffect*>(m_hydro_effect->getForceEffect());
-    if (hydroConstForce != nullptr)
+    // Compute force in OIS convention: -10000 to +10000
+    float ff = -stress * stress_gain + dircommand * 100.0f * centering_gain * wspeed * wspeed;
+    if (ff > 10000.0f)  ff = 10000.0f;
+    if (ff < -10000.0f) ff = -10000.0f;
+
+    // Scale to SDL haptic level: -32768 to +32767
+    Sint16 sdl_level = static_cast<Sint16>(ff * 32767.0f / 10000.0f);
+
+    m_effect.constant.level = sdl_level;
+
+    if (SDL_HapticUpdateEffect(m_device, m_effect_id, &m_effect) != 0)
     {
-        float stress_gain = App::io_ffb_stress_gain->getFloat();
-        float centering_gain = App::io_ffb_center_gain->getFloat();
-        float ff = -stress * stress_gain + dircommand * 100.0 * centering_gain * wspeed * wspeed;
-        if (ff > 10000)
-            ff = 10000;
-        if (ff < -10000)
-            ff = -10000;
-        hydroConstForce->level = ff; //-10K to +10k
+        // Fallback: destroy and recreate (needed on macOS)
+        SDL_HapticDestroyEffect(m_device, m_effect_id);
+        m_effect_id = SDL_HapticNewEffect(m_device, &m_effect);
     }
-    m_device->modify(m_hydro_effect);
 }
 
 void ForceFeedback::SetEnabled(bool b)
 {
-    if (!m_device) { return; }
+    if (!m_device)
+        return;
 
     if (b != m_enabled)
     {
-        float gain = (b) ? App::io_ffb_master_gain->getFloat() : 0.f;
-        m_device->setMasterGain(gain);
+        Uint16 gain = (b) ? static_cast<Uint16>(App::io_ffb_master_gain->getFloat() * 100.0f) : 0;
+        SDL_HapticSetGain(m_device, gain);
     }
     m_enabled = b;
 }

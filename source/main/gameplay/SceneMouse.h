@@ -29,7 +29,8 @@
 #include "Application.h"
 #include "SimData.h"
 
-#include <OIS.h>
+
+
 #include <Ogre.h>
 
 namespace RoR {
@@ -40,7 +41,7 @@ public:
 
     SceneMouse();
 
-    bool handleMouseMoved();
+    bool handleMouseMoved(const OgreBites::MouseMotionEvent& _arg);
     bool handleMousePressed();
     bool handleMouseReleased();
 
@@ -60,6 +61,11 @@ protected:
     ActorPtr grab_truck;
     Ogre::Vector3 lastgrabpos;
     int lastMouseX, lastMouseY;
+
+    // Cached mouse state from OgreBites::InputListener, to minimize code changes
+    int m_mouse_x = 0;
+    int m_mouse_y = 0;
+    // END cached
 
     void releaseMousePick();
     Ogre::Ray getMouseRay();

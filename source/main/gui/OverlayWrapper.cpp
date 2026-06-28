@@ -146,27 +146,22 @@ Ogre::TextureUnitState* GetTexUnit(Ogre::String material_name) // Internal helpe
 
 int OverlayWrapper::init()
 {
-    m_machine_dashboard_overlay = loadOverlay("tracks/MachineDashboardOverlay");
+    
     m_aerial_dashboard.dash_overlay = loadOverlay("tracks/AirDashboardOverlay", false);
     m_aerial_dashboard.needles_overlay = loadOverlay("tracks/AirNeedlesOverlay", false);
-    m_marine_dashboard_overlay = loadOverlay("tracks/BoatDashboardOverlay");
-    m_marine_dashboard_needles_overlay = loadOverlay("tracks/BoatNeedlesOverlay");
 
+    m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
+    m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
 
     //adjust dashboard size for screen ratio
     resizePanel(loadOverlayElement("tracks/pressureo"));
     resizePanel(loadOverlayElement("tracks/pressureneedle"));
+
     MaterialPtr m = MaterialManager::getSingleton().getByName("tracks/pressureneedle_mat");
     if (m)
         pressuretexture = m->getTechnique(0)->getPass(0)->getTextureUnitState(0);
     else
         pressuretexture = nullptr;
-
-    resizePanel(loadOverlayElement("tracks/machineinstructions"));
-    resizePanel(loadOverlayElement("tracks/machinehelppanel"));
-
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashbar"));
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashfiller"));
 
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/airdashbar"));
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/airdashfiller"));
@@ -215,7 +210,6 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/altimeter"));
     resizePanel(loadOverlayElement("tracks/altimeter_val"));
     m_aerial_dashboard.alt_value_textarea = (TextAreaOverlayElement*)loadOverlayElement("tracks/altimeter_val");
-    boat_depth_value_taoe = (TextAreaOverlayElement*)loadOverlayElement("tracks/boatdepthmeter_val");
     resizePanel(loadOverlayElement("tracks/adi-tape"));
     resizePanel(loadOverlayElement("tracks/adi"));
     resizePanel(loadOverlayElement("tracks/adi-bugs"));
@@ -253,28 +247,7 @@ int OverlayWrapper::init()
     m_aerial_dashboard.gpws.Setup("tracks/ap_gpws_but", "tracks/gpws-on", "tracks/gpws-off");
     m_aerial_dashboard.brks.Setup("tracks/ap_brks_but", "tracks/brks-on", "tracks/brks-off");
 
-    //boat
-    resizePanel(loadOverlayElement("tracks/boatdashbar"));
-    resizePanel(loadOverlayElement("tracks/boatdashfiller"));
-    resizePanel(loadOverlayElement("tracks/boatthrusttrack1"));
-    resizePanel(loadOverlayElement("tracks/boatthrusttrack2"));
-
-    //resizePanel(boatmapo=loadOverlayElement("tracks/boatmap"));
-    //resizePanel(boatmapdot=loadOverlayElement("tracks/boatreddot"));
-
-    resizePanel(bthro1 = loadOverlayElement("tracks/boatthrust1"));
-    resizePanel(bthro2 = loadOverlayElement("tracks/boatthrust2"));
-
-    resizePanel(loadOverlayElement("tracks/boatspeed"));
-    resizePanel(loadOverlayElement("tracks/boatsteer"));
-    resizePanel(loadOverlayElement("tracks/boatspeedneedle"));
-    resizePanel(loadOverlayElement("tracks/boatsteer/fg"));
-    boatspeedtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatspeedneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    boatsteertexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatsteer/fg_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
     //prepare needles
-    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    tachotexture  = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat"))) ->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 
     resizePanel(loadOverlayElement("tracks/airspeedneedle"));
     m_aerial_dashboard.airspeedtexture = GetTexUnit("tracks/airspeedneedle_mat");
@@ -314,17 +287,6 @@ int OverlayWrapper::init()
     m_aerial_dashboard.engines[2].torque_texture = GetTexUnit("tracks/airtorque3needle_mat");
     resizePanel(loadOverlayElement("tracks/airtorque4needle"));
     m_aerial_dashboard.engines[3].torque_texture = GetTexUnit("tracks/airtorque4needle_mat");
-
-    guiGear = loadOverlayElement("tracks/Gear");
-
-    guiAuto[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearR");
-    guiAuto[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearN");
-    guiAuto[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearD");
-    guiAuto[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear2");
-    guiAuto[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear1");
-
-    m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
-    m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
 
     m_racing_overlay = loadOverlay("tracks/Racing", false);
     laptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/LapTime");
@@ -384,34 +346,13 @@ void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
             m_aerial_dashboard.needles_overlay->show();
             m_aerial_dashboard.dash_overlay->show();
         }
-        else if (mode == BOAT)
-        {
-            m_marine_dashboard_needles_overlay->show();
-            m_marine_dashboard_overlay->show();
-        }
-        else if (mode == MACHINE)
-        {
-            Ogre::OverlayElement* help_elem = OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel");
-            if (actor->GetGfxActor()->GetHelpMat())
-            {
-                help_elem->setMaterial(actor->GetGfxActor()->GetHelpMat());
-            }
-            else
-            {
-                help_elem->setMaterialName("tracks/black");
-            }
-            m_machine_dashboard_overlay->show();
-        }
     }
     else
     {
         m_aerial_dashboard.needles_overlay->hide();
         m_aerial_dashboard.dash_overlay->hide();
 
-        m_marine_dashboard_needles_overlay->hide();
-        m_marine_dashboard_overlay->hide();
-
-        m_machine_dashboard_overlay->hide();
+        
     }
 }
 
@@ -490,11 +431,10 @@ bool OverlayWrapper::handleMousePressed()
         || !m_aerial_dashboard.hovered_widget)
         return false;
 
-    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
-    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
-    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
     bool res = false;
-    if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
+    const Ogre::Vector2 mouseNorm = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    if (player_actor->ar_driveable == AIRPLANE
+        && App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT))
     {
         const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
 
@@ -612,6 +552,7 @@ bool OverlayWrapper::handleMousePressed()
     return res;
 }
 
+
 bool OverlayWrapper::handleMouseMoved()
 {
     ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
@@ -643,11 +584,8 @@ bool OverlayWrapper::handleMouseMoved()
 
 bool OverlayWrapper::handleMouseReleased()
 {
-    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
-    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
-    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
-    if (!ms.buttonDown(OIS::MB_Left))
+    if (!App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT))
     {
         m_aerial_dashboard.mouse_drag_in_progress = false;
     }
@@ -668,75 +606,6 @@ void OverlayWrapper::UpdatePressureOverlay(RoR::GfxActor* ga)
     {
         this->showPressureOverlay(false);
     }
-}
-
-void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
-{
-    // gears
-    int vehicle_getgear = ga->GetSimDataBuffer().simbuf_gear;
-    if (vehicle_getgear > 0)
-    {
-        size_t numgears = ga->GetSimDataBuffer().simbuf_num_gears;
-        String gearstr = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
-        guiGear->setCaption(gearstr);
-    }
-    else if (vehicle_getgear == 0)
-    {
-        guiGear->setCaption("N");
-    }
-    else
-    {
-        guiGear->setCaption("R");
-    }
-
-    //autogears
-    int cg = ga->GetSimDataBuffer().simbuf_autoshift;
-    for (int i = 0; i < 5; i++)
-    {
-        if (i == cg)
-        {
-            if (i == 1)
-            {
-                guiAuto[i]->setColourTop(ColourValue(1.0, 0.2, 0.2, 1.0));
-                guiAuto[i]->setColourBottom(ColourValue(0.8, 0.1, 0.1, 1.0));
-            }
-            else
-            {
-                guiAuto[i]->setColourTop(ColourValue(1.0, 1.0, 1.0, 1.0));
-                guiAuto[i]->setColourBottom(ColourValue(0.8, 0.8, 0.8, 1.0));
-            }
-        }
-        else
-        {
-            if (i == 1)
-            {
-                guiAuto[i]->setColourTop(ColourValue(0.4, 0.05, 0.05, 1.0));
-                guiAuto[i]->setColourBottom(ColourValue(0.3, 0.02, 0.2, 1.0));
-            }
-            else
-            {
-                guiAuto[i]->setColourTop(ColourValue(0.4, 0.4, 0.4, 1.0));
-                guiAuto[i]->setColourBottom(ColourValue(0.3, 0.3, 0.3, 1.0));
-            }
-        }
-    }
-
-    // speedo / calculate speed
-    Real guiSpeedFactor = 7.0 * (140.0 / ga->GetSimDataBuffer().simbuf_speedo_highest_kph);
-    Real angle = 140 - fabs(ga->GetSimDataBuffer().simbuf_wheel_speed * guiSpeedFactor);
-    angle = std::max(-140.0f, angle);
-    speedotexture->setTextureRotate(Degree(angle));
-
-    // calculate tach stuff
-    Real tachoFactor = 0.072;
-    if (ga->GetSimDataBuffer().simbuf_speedo_use_engine_max_rpm)
-    {
-        tachoFactor = 0.072 * (3500 / ga->GetSimDataBuffer().simbuf_engine_max_rpm);
-    }
-    angle = 126.0 - fabs(ga->GetSimDataBuffer().simbuf_engine_rpm * tachoFactor);
-    angle = std::max(-120.0f, angle);
-    angle = std::min(angle, 121.0f);
-    tachotexture->setTextureRotate(Degree(angle));
 }
 
 void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
@@ -920,37 +789,6 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         m_aerial_dashboard.vs_trim.DisplayFormat("+%i00", simbuf.simbuf_ap_vs_value / 100);
 }
 
-void OverlayWrapper::UpdateMarineHUD(ActorPtr vehicle)
-{
-    // throttles
-    bthro1->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[0]->getThrottle() / 2.0) - 1.0);
-    if (vehicle->ar_num_screwprops > 1)
-    {
-        bthro2->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[1]->getThrottle() / 2.0) - 1.0);
-    }
-
-    // depth
-    char tmp[50] = "";
-    float height = vehicle->getHeightAboveGround();
-    if (height > 0.1 && height < 99.9)
-    {
-        sprintf(tmp, "%2.1f", height);
-        boat_depth_value_taoe->setCaption(tmp);
-    }
-    else
-    {
-        boat_depth_value_taoe->setCaption("--.-");
-    }
-
-    // water speed
-    Vector3 cam_dir = vehicle->getDirection();
-    Vector3 velocity = vehicle->ar_nodes[vehicle->ar_main_camera_node_pos].Velocity;
-    float kt = cam_dir.dotProduct(velocity) * 1.9438;
-    float angle = kt * 4.2;
-    boatspeedtexture->setTextureRotate(Degree(-angle));
-    boatsteertexture->setTextureRotate(Degree(vehicle->ar_screwprops[0]->getRudder() * 170));
-}
-
 void OverlayWrapper::ShowRacingOverlay()
 {
     m_racing_overlay->show();
@@ -1069,7 +907,8 @@ void AeroEngineWidget::Setup(std::string const& engfire_elemname, std::string co
 AeroEngineWidget::~AeroEngineWidget()
 {
     // Remove cloned materials
-    Ogre::MaterialManager::getSingleton().remove(thr_material);
+    if (thr_material)
+        Ogre::MaterialManager::getSingleton().remove(thr_material);
 }
 
 bool AeroEngineWidget::UpdateMouseHover()
@@ -1111,8 +950,10 @@ void AeroSwitchWidget::Setup(std::string const & elem_name, std::string const & 
 AeroSwitchWidget::~AeroSwitchWidget()
 {
     // Remove cloned materials
-    Ogre::MaterialManager::getSingleton().remove(on_material);
-    Ogre::MaterialManager::getSingleton().remove(off_material);
+    if (on_material)
+        Ogre::MaterialManager::getSingleton().remove(on_material);
+    if (off_material)
+        Ogre::MaterialManager::getSingleton().remove(off_material);
 }
 
 bool AeroSwitchWidget::UpdateMouseHover()
@@ -1156,8 +997,10 @@ void AeroTrimWidget::Setup(std::string const & up, std::string const & dn, std::
 AeroTrimWidget::~AeroTrimWidget()
 {
     // Remove cloned materials
-    Ogre::MaterialManager::getSingleton().remove(up_material);
-    Ogre::MaterialManager::getSingleton().remove(down_material);
+    if (up_material)
+        Ogre::MaterialManager::getSingleton().remove(up_material);
+    if (down_material)
+        Ogre::MaterialManager::getSingleton().remove(down_material);
 }
 
 bool AeroTrimWidget::UpdateMouseHover()

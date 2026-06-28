@@ -1,0 +1,324 @@
+
+material dashboard
+{
+ receive_shadows off
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dashboard.dds
+			}
+		}
+	}
+}
+
+
+material renderdash
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture FilledAtSpawn
+			}
+		}
+	}
+}
+
+
+material mirror
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture mirror.dds
+			}
+		}
+		pass
+		{
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture mirrorlayer.dds
+			}
+		}
+	}
+}
+
+material dirwheel
+{
+ receive_shadows off
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dirwheel.dds
+			}
+		}
+	}
+}
+
+material tracks/beam
+{
+ receive_shadows off
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture RustySteel.dds
+			}
+		}
+	}
+}
+
+material tracks/invisible
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.0 0.0 0.0 0.0 0.0
+			}
+		}
+	}
+	technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+            lighting off
+            texture_unit
+            {
+                colour_op_ex modulate src_manual src_current 0 0 0
+            }
+        }
+    } 
+}
+
+
+material tracks/Chrome // Used for hydraulic beams (hydros/shocks/commands)
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture EnvironmentTexture cubic
+				env_map cubic_reflection 
+			}
+		}
+	}
+}
+
+material tracks/chrome: tracks/Chrome
+
+
+material seat
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture seat.dds
+			}
+		}
+	}
+}
+
+material driversseat
+{
+	technique
+	{
+		pass
+		{
+//			scene_blend alpha_blend
+//			depth_write off
+			texture_unit
+			{
+				texture seat.dds
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material beacon
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			texture_unit
+			{
+				texture beacon.dds
+			}
+		}
+	}
+}
+
+material redbeacon
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			texture_unit
+			{
+				texture redbeacon.dds
+			}
+		}
+	}
+}
+
+material lightbar
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			texture_unit
+			{
+				texture lightbar.dds
+			}
+		}
+	}
+}
+
+material prop
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture prop.dds
+			}
+		}
+	}
+}
+
+material tracks/nozzle
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture nozzle.dds
+			}
+		}
+	}
+}
+
+material tracks/abflame
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+     	    cull_hardware none
+		    
+			texture_unit
+			{
+				texture abflame.dds
+			}
+		}
+	}
+}
+
+
+
+material tracks/spinprop
+{
+	receive_shadows off
+	//transparency_casts_shadows on
+	technique
+	{
+		pass
+		{
+			lighting on
+     	   cull_hardware none
+		   
+			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+
+			texture_unit
+			{
+				texture spinprop.dds
+				tex_address_mode border
+				tex_border_colour 0 0 0 0
+				rotate_anim 1.0
+			}
+		}
+	}
+}
+
+material tracks/beamblack
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 0.0 0.0 0.0 0.0 0.0
+			}
+		}
+	}
+}
+
+// Instantiated per-managedmaterial, globally
+// This is necessary to load meshes with original material names (= unchanged managed mat names)
+// - if not found, OGRE substitutes them with 'BaseDiffuseWhite' which breaks subsequent processing.
+// See `RigSpawner::ProcessManagedMaterial()` in RigSpawner.cpp
+material rigsofrods/managedmaterial-placeholder
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            texture_unit
+            {
+                // Awful bright pink to be easily visible, see http://wiki.ogre3d.org/Materials#Solid_colour
+                colour_op_ex source1 src_manual src_current 1 0 0.7
+            }
+        }
+    }
+}
+

@@ -245,10 +245,10 @@ void GUIManager::SetUpMenuWallpaper()
 {
     // Determine image filename
     using namespace Ogre;
-    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
+    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_WALLPAPERS, "*.jpg", false);
     if (!files || files->empty())
     {
-        files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
+        files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_WALLPAPERS, "*.png", false);
     }
     srand ( time(NULL) );
 
@@ -259,7 +259,7 @@ void GUIManager::SetUpMenuWallpaper()
     // Set up wallpaper
     // ...texture...
     Ogre::ResourceManager::ResourceCreateOrRetrieveResult wp_tex_result
-        = Ogre::TextureManager::getSingleton().createOrRetrieve(files->at(num).filename, "Wallpapers");
+        = Ogre::TextureManager::getSingleton().createOrRetrieve(files->at(num).filename, RGN_WALLPAPERS);
     Ogre::TexturePtr wp_tex = Ogre::static_pointer_cast<Ogre::Texture>(wp_tex_result.first);
     // ...material...
     Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", Ogre::RGN_DEFAULT);
@@ -325,12 +325,11 @@ void GUIManager::UpdateMouseCursorVisibility()
 void GUIManager::NewImGuiFrame(float dt)
 {
     ImGuiIO& io = ImGui::GetIO();
-    OIS::Keyboard* kb = App::GetInputEngine()->GetOisKeyboard();
 
      // Read keyboard modifiers inputs
-    io.KeyCtrl = kb->isKeyDown(OIS::KC_LCONTROL);
-    io.KeyShift = kb->isKeyDown(OIS::KC_LSHIFT);
-    io.KeyAlt = kb->isKeyDown(OIS::KC_LMENU);
+    io.KeyCtrl = App::GetInputEngine()->isKeyDown(SDLK_LCTRL);
+    io.KeyShift = App::GetInputEngine()->isKeyDown(SDLK_LSHIFT);
+    io.KeyAlt = App::GetInputEngine()->isKeyDown(SDLK_LALT);
     io.KeySuper = false;
 
     // Call IMGUI
