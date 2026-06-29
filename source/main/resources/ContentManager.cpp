@@ -88,7 +88,8 @@ void ContentManager::InitContentManager()
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_savegames_dir->getStr(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_scripts_dir->getStr(), "FileSystem", RGN_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
+        App::sys_scripts_dir->getStr(), "FileSystem", RGN_USER_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
+    this->AddResourcePack("scripts", RGN_GAME_SCRIPTS);
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_logs_dir->getStr(), "FileSystem", RGN_LOGS, /*recursive:*/false, /*readonly:*/false);
 
