@@ -56,7 +56,9 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "Utils.h"
+#include <Ogre.h>
 #include <Overlay/OgreOverlaySystem.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <ctime>
 #include <iomanip>
 #include <string>
@@ -140,6 +142,12 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
+#ifdef USE_CAELUM
+        // Initialize CaelumPlugin, must happen before initialising resource groups
+        new Caelum::CaelumPlugin();
+        Caelum::CaelumPlugin::getSingleton().initialise();
+#endif //USE_CAELUM
+
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Deploy base config files from 'skeleton.zip'
@@ -173,13 +181,27 @@ int main(int argc, char *argv[])
             Ogre::TextureManager::getSingleton()._getWarningTexture()->getBuffer()->blitFromMemory(pixels);
         }
 
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FONTS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-
+        // Use 'General' group (aka RGN_DEFAULT)
+        App::GetContentManager()->AddResourcePack("fonts");
+        App::GetContentManager()->AddResourcePack("OgreCore");
+        App::GetContentManager()->AddResourcePack("caelum");
+        App::GetContentManager()->AddResourcePack("hydrax");
+        App::GetContentManager()->AddResourcePack("skyx");
+        App::GetContentManager()->AddResourcePack("paged");
+        App::GetContentManager()->AddResourcePack("overlays");
+        App::GetContentManager()->AddResourcePack("rtshader");
+        // Always load PSSM shared params to RGN_DEFAULT
+        Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
+        
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_UI_ICONS, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
+        App::GetContentManager()->AddResourcePack("icons", RGN_UI_ICONS);
+        App::GetContentManager()->AddResourcePack("famicons", RGN_UI_ICONS);
+        App::GetContentManager()->AddResourcePack("flags", RGN_UI_ICONS);
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_COUNTRIES, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
+        App::GetContentManager()->AddResourcePack("flags", RGN_COUNTRIES); // Only for MP country selector to list countries from, files are always loaded from RGN_UI_ICONS defined below.
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_WALLPAPERS, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
+        App::GetContentManager()->AddResourcePack("wallpapers", RGN_WALLPAPERS); // For random menu wallpaper selection.
+        
 #ifndef NOLANG
         App::GetLanguageEngine()->setup();
 #endif // NOLANG
@@ -192,6 +214,17 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        //Note: for DirectX this needs to happen early
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            ErrorUtils::ShowError(_L("Startup error"), _L("Failed to setup RTShader system"));
+            return -1;
+        }
+
+        auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+        mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
+        mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
 
         App::CreateGuiManager(); // Needs scene manager
 
@@ -967,7 +1000,6 @@ int main(int argc, char *argv[])
                     {
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                         App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
-                        App::GetContentManager()->LoadGameplayResources();
 
                         if (App::GetGameContext()->LoadTerrain(m.description))
                         {

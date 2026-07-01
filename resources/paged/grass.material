@@ -6,7 +6,7 @@ material grass1
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -24,7 +24,7 @@ material grass2
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -41,7 +41,7 @@ material grass3
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -58,7 +58,7 @@ material grass4
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -75,7 +75,7 @@ material grass5
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -93,7 +93,7 @@ material grass6
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -111,7 +111,7 @@ material grass7
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -129,7 +129,7 @@ material tumbleweed
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{
@@ -147,7 +147,7 @@ material seaweed
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			alpha_rejection greater 128
 			texture_unit
 			{

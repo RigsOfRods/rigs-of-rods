@@ -5,30 +5,10 @@ abstract technique Shadows/managed/base_receiver
 			ambient 1 1 1 1
 			diffuse 1 1 1 1
 			
-			vertex_program_ref PSSM/shadow_receiver_vs {}
-			fragment_program_ref PSSM/shadow_receiver_ps {}
-			
-			texture_unit shadow_tex0
-			{
-				content_type shadow
-				tex_address_mode clamp
-				tex_border_colour 1.0 1.0 1.0 1.0
-				filtering anisotropic anisotropic none
-			}
-			texture_unit shadow_tex1
-			{
-				content_type shadow
-				tex_address_mode clamp
-				tex_border_colour 1.0 1.0 1.0 1.0
-				filtering anisotropic anisotropic none
-			}
-			texture_unit shadow_tex2
-			{
-				content_type shadow
-				tex_address_mode clamp
-				tex_border_colour 1.0 1.0 1.0 1.0
-				filtering anisotropic anisotropic none
-			}
+			rtshader_system
+            {
+                shadow_mapping light_count 4 filter pcf16
+            }
 			
 			texture_unit Diffuse_Map
 			{

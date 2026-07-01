@@ -1,6 +1,6 @@
 import * from "managed_mats.material"
 
-material largedocks: RoR/Managed_Mats/Base
+material largedocks: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex largedocksdiffuse.dds
+	set $diffuse_tex largedocksdiffuse.dds
 }
