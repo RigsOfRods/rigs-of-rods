@@ -26,12 +26,7 @@
 
 #include <Terrain/OgreTerrain.h>
 #include <OgreShadowCameraSetupPSSM.h>
-#include <Terrain/OgreTerrainMaterialGeneratorA.h>
-
 #include "Application.h"
-#include "Application.h"
-
-#include "OgreTerrainPSSMMaterialGenerator.h"
 
 namespace RoR {
 
@@ -44,10 +39,11 @@ public:
 
     void setupShadows();
 
+    Ogre::PSSMShadowCameraSetup* pssmSetup = nullptr;
+
 protected:
 
     void processPSSM();
-    void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 };
 
 /// @} // addtogroup Gfx

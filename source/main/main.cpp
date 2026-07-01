@@ -56,7 +56,9 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "Utils.h"
+#include <Ogre.h>
 #include <Overlay/OgreOverlaySystem.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <ctime>
 #include <iomanip>
 #include <string>
@@ -187,9 +189,9 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack("skyx");
         App::GetContentManager()->AddResourcePack("paged");
         App::GetContentManager()->AddResourcePack("overlays");
+        App::GetContentManager()->AddResourcePack("rtshader");
         // Always load PSSM shared params to RGN_DEFAULT
         Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem");
         
         Ogre::ResourceGroupManager::getSingleton().createResourceGroup(RGN_UI_ICONS, /*inGlobalPool:*/ false); // 'inGlobalPool=false' is default for OGRE_RESOURCEMANAGER_STRICT>0
         App::GetContentManager()->AddResourcePack("icons", RGN_UI_ICONS);
@@ -212,6 +214,17 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        //Note: for DirectX this needs to happen early
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            ErrorUtils::ShowError(_L("Startup error"), _L("Failed to setup RTShader system"));
+            return -1;
+        }
+
+        auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+        mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
+        mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
 
         App::CreateGuiManager(); // Needs scene manager
 

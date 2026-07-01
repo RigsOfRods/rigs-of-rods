@@ -31,11 +31,12 @@
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "ShadowManager.h"
-#include "OgreTerrainPSSMMaterialGenerator.h"
 #include "OTCFileFormat.h"
 
 #include <OgreLight.h>
 #include <Terrain/OgreTerrainGroup.h>
+#include <terrain/OgreTerrainMaterialGeneratorA.h>
+#include <OgreRTShaderSystem.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -421,8 +422,9 @@ void TerrainGeometryManager::configureTerrainDefaults()
     else
     {
         terrainOptions->setDefaultMaterialGenerator(
-            Ogre::TerrainMaterialGeneratorPtr(new Ogre::TerrainPSSMMaterialGenerator()));
+            Ogre::TerrainMaterialGeneratorPtr(new Ogre::TerrainMaterialGeneratorA()));
     }
+
     // Configure global
     terrainOptions->setMaxPixelError(m_spec->max_pixel_error);
 
@@ -449,7 +451,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
     // optimizations
     if (custom_mat.empty())
     {
-        TerrainPSSMMaterialGenerator* matProfile = static_cast<TerrainPSSMMaterialGenerator*>(terrainOptions->getDefaultMaterialGenerator().get());
+        TerrainMaterialGeneratorA::SM2Profile* matProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
         if (matProfile)
         {
             matProfile->setLightmapEnabled(m_spec->lightmap_enabled);
@@ -464,14 +466,17 @@ void TerrainGeometryManager::configureTerrainDefaults()
                 matProfile->setLayerNormalMappingEnabled(m_spec->norm_map_enabled);
                 matProfile->setLayerSpecularMappingEnabled(m_spec->spec_map_enabled);
             }
-            matProfile->setLayerParallaxMappingEnabled(m_spec->parallax_enabled);
-            matProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
-            matProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
-
-            terrainOptions->setCastsDynamicShadows(true);
+            matProfile->setReceiveDynamicShadowsPSSM(App::GetGameContext()->GetTerrain()->getShadowManager()->pssmSetup);
+            if (matProfile->getReceiveDynamicShadowsPSSM())
+            {
+                terrainOptions->setCastsDynamicShadows(true);
+            }
         }
     }
 
+    // Enable multiple lights in RTSS Terrain.
+    // See https://ogrecave.github.io/ogre/api/13/class_ogre_1_1_r_t_shader_1_1_render_state.html#acb10ca9d88182aa3051086c5acee656f for light types 
+    static_cast<TerrainMaterialGeneratorA*>(terrainOptions->getDefaultMaterialGenerator().get())->getMainRenderState()->setLightCount(16);
     terrainOptions->setLayerBlendMapSize   (m_spec->layer_blendmap_size);
     terrainOptions->setCompositeMapSize    (m_spec->composite_map_size);
     terrainOptions->setCompositeMapDistance(m_spec->composite_map_distance);
