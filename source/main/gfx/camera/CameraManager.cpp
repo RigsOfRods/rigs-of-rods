@@ -431,7 +431,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
 
         m_cct_player_actor->prepareInside(true);
 
-        if ( RoR::App::GetOverlayWrapper() != nullptr )
+        if ( RoR::App::GetOverlayWrapper() != nullptr && App::ui_dashboard_cinecam->getBool() )
         {
             bool visible = m_cct_player_actor->ar_driveable == AIRPLANE && !App::GetGuiManager()->IsGuiHidden();
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(visible, m_cct_player_actor);

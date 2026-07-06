@@ -284,6 +284,7 @@ CVar* ui_default_truck_dash;
 CVar* ui_legacy_truck_renderdash;
 CVar* ui_default_boat_dash;
 CVar* ui_always_show_fullsize;
+CVar* ui_dashboard_cinecam;
 
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };

@@ -831,6 +831,7 @@ extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard'
 extern CVar* ui_legacy_truck_renderdash;   //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_always_show_fullsize;
+extern CVar* ui_dashboard_cinecam;
 
 // ------------------------------------------------------------------------------------------------
 // Global objects

@@ -224,6 +224,7 @@ void Console::cVarSetupBuiltins()
     App::ui_legacy_truck_renderdash        = this->cVarCreate("ui_legacy_truck_renderdash",        "", CVAR_ARCHIVE, "rdd_classic.dashboard");
     App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
     App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
+    App::ui_dashboard_cinecam              = this->cVarCreate("ui_dashboard_cinecam", "Hide dashboard in cinecam view", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,
