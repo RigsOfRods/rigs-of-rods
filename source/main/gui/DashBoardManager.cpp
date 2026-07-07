@@ -52,6 +52,7 @@ DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(acto
     INITDATA(DD_ENGINE_TURBO            , DC_FLOAT, "engine_turbo");
     INITDATA(DD_ENGINE_IGNITION         , DC_BOOL , "engine_ignition");
     INITDATA(DD_ENGINE_RUNNING          , DC_BOOL , "engine_running");
+    INITDATA(DD_ENGINE_OFF              , DC_BOOL , "engine_off");
     INITDATA(DD_ENGINE_BATTERY          , DC_BOOL , "engine_battery");
     INITDATA(DD_ENGINE_CLUTCH_WARNING   , DC_BOOL , "engine_clutch_warning");
     INITDATA(DD_ENGINE_GEAR             , DC_INT  , "engine_gear");

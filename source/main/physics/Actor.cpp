@@ -4123,6 +4123,10 @@ void Actor::updateDashBoards(float dt)
         bool engRun = ar_engine->isRunning();
         ar_dashboard->setBool(DD_ENGINE_RUNNING, engRun);
 
+        // engine off
+        bool engOff = !ar_engine->isRunning();
+        ar_dashboard->setBool(DD_ENGINE_OFF, engOff);
+
         // turbo
         float turbo = ar_engine->getTurboPSI() * 3.34f; // MAGIC :/
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
