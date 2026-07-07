@@ -1296,6 +1296,7 @@ void Parser::ParseDirectiveAddAnimation()
                     else if (value == "signalstalk")   { animation.source |= Animation::SOURCE_SIGNALSTALK;       }
                     else if (value == "gearreverse")   { animation.source |= Animation::SOURCE_GEAR_REVERSE;      }
                     else if (value == "gearneutral")   { animation.source |= Animation::SOURCE_GEAR_NEUTRAL;      }
+                    else if (value == "ignition")      { animation.source |= Animation::SOURCE_IGNITION;          }
 
                     else
                     {

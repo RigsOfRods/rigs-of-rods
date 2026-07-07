@@ -2036,6 +2036,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_GEAR);
             anim.animOpt3 = 0;
         }
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_IGNITION)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_IGNITION);
+        }
 
         /* Motor/Gear-indexed sources */
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
