@@ -46,6 +46,7 @@ public:
     float getThrottle();
     float getRudder();
     float getMaxPower() { return fullpower; }
+    void setMaxPower(float power);
     bool getReverse() { return reverse; }
     void reset();
     void toggleReverse();

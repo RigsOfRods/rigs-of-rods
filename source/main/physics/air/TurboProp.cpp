@@ -456,6 +456,14 @@ void Turboprop::setRPM(float _rpm)
     rpm = _rpm;
 }
 
+void Turboprop::setMaxPower(float power)
+{
+    if (power >= 0)
+    {
+        fullpower = power;
+    }
+}
+
 void Turboprop::reset()
 {
     rpm = 0;

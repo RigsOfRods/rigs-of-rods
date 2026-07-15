@@ -85,6 +85,8 @@ public:
     float getMaxDryThrust() { return m_max_dry_thrust; };
     float getAfterburner() { return (float)m_afterburner_active; };
     float getAfterburnThrust() const { return m_afterburn_thrust; }
+    void setMaxDryThrust(float thrust);
+    void setAfterburnThrust(float abThrust);
     float getExhaustVelocity() const { return m_exhaust_velocity; }
     float getRPM() { return m_rpm_percent; }; // FIXME - bad func name
     float getRPMpc() { return m_rpm_percent; };
