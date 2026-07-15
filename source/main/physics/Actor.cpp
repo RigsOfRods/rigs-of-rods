@@ -5082,64 +5082,101 @@ int Actor::getShockNode2(int shock_number)
     return -1.f;
 }
 
-void Actor::setSimAttribute(ActorSimAttr attr, float val)
+bool Actor::shouldSetSimAttribute(ActorSimAttr attr, float val, int index)
 {
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
             "Cannot change simulation attributes in multiplayer mode.");
-        return;
+        return false;
     }
 
-    LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
-
-    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, 0, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
-
-    // PLEASE maintain the same order as in `enum ActorSimAttr`
-    switch (attr)
+    if (index >= 0)
     {
+        LOG(fmt::format("[RoR|Actor] setIndexedSimAttribute: '{}' @ {} = {}", ActorSimAttrToString(attr), index, val));
+        TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, index, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
+        TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, -1, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
+    }
+
+    return true;
+}
+
+void Actor::setSimAttribute(ActorSimAttr attr, float val)
+{
+    if (shouldSetSimAttribute(attr, val))
+    {
+        // PLEASE maintain the same order as in `enum ActorSimAttr`
+        switch (attr)
+        {
         // TractionControl
-    case ACTORSIMATTR_TC_RATIO: tc_ratio = val; return;
-    case ACTORSIMATTR_TC_PULSE_TIME: tc_pulse_time = val; return;
-    case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: tc_wheelslip_constant = val; return;
+        case ACTORSIMATTR_TC_RATIO: tc_ratio = val; return;
+        case ACTORSIMATTR_TC_PULSE_TIME: tc_pulse_time = val; return;
+        case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: tc_wheelslip_constant = val; return;
 
         // Engine
-    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { ar_engine->m_engine_min_rpm = val; } return;
-    case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { ar_engine->m_engine_max_rpm = val; } return;
-    case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { ar_engine->m_engine_torque = val; } return;
-    case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { ar_engine->m_diff_ratio = val; } return;
-    case ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY: return;
+        case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { ar_engine->m_engine_min_rpm = val; } return;
+        case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { ar_engine->m_engine_max_rpm = val; } return;
+        case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { ar_engine->m_engine_torque = val; } return;
+        case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { ar_engine->m_diff_ratio = val; } return;
+        case ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY: return;
 
         // Engoption
-    case ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA:   if (ar_engine) { ar_engine->m_engine_inertia = val; } return;
-    case ACTORSIMATTR_ENGOPTION_ENGINE_TYPE:      if (ar_engine) { ar_engine->m_engine_type = (char)val; } return;
-    case ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE:     if (ar_engine) { ar_engine->m_clutch_force = val; } return;
-    case ACTORSIMATTR_ENGOPTION_SHIFT_TIME:       if (ar_engine) { ar_engine->m_shift_time = val; } return;
-    case ACTORSIMATTR_ENGOPTION_CLUTCH_TIME:      if (ar_engine) { ar_engine->m_clutch_time = val; } return;
-    case ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME:  if (ar_engine) { ar_engine->m_post_shift_time = val; } return;
-    case ACTORSIMATTR_ENGOPTION_STALL_RPM:        if (ar_engine) { ar_engine->m_engine_stall_rpm = val; } return;
-    case ACTORSIMATTR_ENGOPTION_IDLE_RPM:         if (ar_engine) { ar_engine->m_engine_idle_rpm = val; } return;
-    case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_max_idle_mixture = val; } return;
-    case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_min_idle_mixture = val; } return;
-    case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { ar_engine->m_braking_torque = val; } return;
+        case ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA:   if (ar_engine) { ar_engine->m_engine_inertia = val; } return;
+        case ACTORSIMATTR_ENGOPTION_ENGINE_TYPE:      if (ar_engine) { ar_engine->m_engine_type = (char)val; } return;
+        case ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE:     if (ar_engine) { ar_engine->m_clutch_force = val; } return;
+        case ACTORSIMATTR_ENGOPTION_SHIFT_TIME:       if (ar_engine) { ar_engine->m_shift_time = val; } return;
+        case ACTORSIMATTR_ENGOPTION_CLUTCH_TIME:      if (ar_engine) { ar_engine->m_clutch_time = val; } return;
+        case ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME:  if (ar_engine) { ar_engine->m_post_shift_time = val; } return;
+        case ACTORSIMATTR_ENGOPTION_STALL_RPM:        if (ar_engine) { ar_engine->m_engine_stall_rpm = val; } return;
+        case ACTORSIMATTR_ENGOPTION_IDLE_RPM:         if (ar_engine) { ar_engine->m_engine_idle_rpm = val; } return;
+        case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_max_idle_mixture = val; } return;
+        case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_min_idle_mixture = val; } return;
+        case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { ar_engine->m_braking_torque = val; } return;
 
         // Engturbo2 (actually 'engturbo' with type=2) 
-    case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_inertia_factor = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_NUM_TURBOS:          if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_num_turbos = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_MAX_RPM:             if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_max_turbo_rpm = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_engine_rpm_operation = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_BOV_ENABLED:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_bov = (bool)val; } return;
-    case ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_bov_psi = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_wastegate = (bool)val; } return;
-    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_wastegate_psi = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_n = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_p = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_antilag = (bool)val; } return;
-    case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_rand_chance = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_min_rpm = val; } return;
-    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_power_factor = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_inertia_factor = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_NUM_TURBOS:          if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_num_turbos = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_MAX_RPM:             if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_max_turbo_rpm = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_engine_rpm_operation = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_BOV_ENABLED:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_bov = (bool)val; } return;
+        case ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_bov_psi = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_wastegate = (bool)val; } return;
+        case ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_wastegate_psi = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_n = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_p = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_antilag = (bool)val; } return;
+        case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_rand_chance = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_min_rpm = val; } return;
+        case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_power_factor = val; } return;
 
-    default: return;
+        default: return;
+        }
+    }
+}
+
+void Actor::setIndexedSimAttribute(ActorSimAttr attr, float val, int index)
+{
+    if (index >= 0 && shouldSetSimAttribute(attr, val, index))
+    {
+        // PLEASE maintain the same order as in `enum ActorSimAttr`
+        switch (attr)
+        {
+        // Turbojets
+        case ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST:     if (index < getAircraftEngineCount() && ar_aeroengines[index]->getType() == AeroEngineType::AE_TURBOJET) { dynamic_cast<Turbojet*>(ar_aeroengines[index].GetRef())->setMaxDryThrust(val); } return;
+        case ACTORSIMATTR_TURBOJET_MAX_WET_THRUST:     if (index < getAircraftEngineCount() && ar_aeroengines[index]->getType() == AeroEngineType::AE_TURBOJET) { dynamic_cast<Turbojet*>(ar_aeroengines[index].GetRef())->setAfterburnThrust(val); } return;
+
+        // Propeller engines
+        case ACTORSIMATTR_PROPENGINE_MAX_POWER:        if (index < getAircraftEngineCount() && ar_aeroengines[index]->getType() == AeroEngineType::AE_XPROP) { dynamic_cast<Turboprop*>(ar_aeroengines[index].GetRef())->setMaxPower(val); } return;
+        
+        // Screwprops
+        case ACTORSIMATTR_SCREWPROP_MAX_POWER:        if (index < getScrewpropCount()) { ar_screwprops[index]->setMaxPower(val); } return;
+
+        default: return;
+        }
     }
 }
 
@@ -5191,6 +5228,29 @@ float Actor::getSimAttribute(ActorSimAttr attr)
 
     default: return 0.f;
     }
+}
+
+float Actor::getIndexedSimAttribute(ActorSimAttr attr, int index)
+{
+    if (index >= 0)
+    {
+        // PLEASE maintain the same order as in `enum ActorSimAttr`
+        switch (attr)
+        {
+            // Turbojets
+        case ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST:     if (index < getAircraftEngineCount() && ar_aeroengines[index]->getType() == AeroEngineType::AE_TURBOJET) { return dynamic_cast<Turbojet*>(ar_aeroengines[index].GetRef())->getMaxDryThrust(); }
+        case ACTORSIMATTR_TURBOJET_MAX_WET_THRUST:     if (index < getAircraftEngineCount() && ar_aeroengines[index]->getType() == AeroEngineType::AE_TURBOJET) { return dynamic_cast<Turbojet*>(ar_aeroengines[index].GetRef())->getAfterburnThrust(); }
+
+            // Propeller engines
+        case ACTORSIMATTR_PROPENGINE_MAX_POWER:        if (index < getAircraftEngineCount() && ar_aeroengines[index]->getType() == AeroEngineType::AE_XPROP) { return dynamic_cast<Turboprop*>(ar_aeroengines[index].GetRef())->getMaxPower(); }
+
+            // Screwprops
+        case ACTORSIMATTR_SCREWPROP_MAX_POWER:        if (index < getScrewpropCount()) { return ar_screwprops[index]->getMaxPower(); }
+
+        }
+    }
+
+    return 0.f;
 }
 
 void Actor::setForcedCinecam(CineCameraID_t cinecam_id, BitMask_t flags)

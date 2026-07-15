@@ -145,7 +145,9 @@ public:
     void              setNodeMass(int nodeNumber, float m);
     void              setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass);
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
+    void              setIndexedSimAttribute(ActorSimAttr attr, float val, int index); //!< - Sets a sim attribute for a particular object (e.g. aircraft engine) at the specified index.
     float             getSimAttribute(ActorSimAttr attr);
+    float             getIndexedSimAttribute(ActorSimAttr attr, int index);
     void              recalculateNodeMasses();
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
@@ -154,6 +156,7 @@ public:
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
     void              updateInitPosition();
     void              propagateNodeBeamChangesToDef(); //!< Back-propagates changes done by N/B-utils UI to the def-document.
+    bool              shouldSetSimAttribute(ActorSimAttr attr, float val, int index = -1);
     /// @}
 
     /// @name User interaction

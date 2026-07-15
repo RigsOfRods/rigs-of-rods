@@ -119,6 +119,13 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER); ROR_ASSERT(result >= 0);
+    // ... Turbojets
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST", (int)ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TURBOJET_MAX_WET_THRUST", (int)ACTORSIMATTR_TURBOJET_MAX_WET_THRUST); ROR_ASSERT(result >= 0);
+    // ... Turboprops/Pistonprops
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_PROPENGINE_MAX_POWER", (int)ACTORSIMATTR_PROPENGINE_MAX_POWER); ROR_ASSERT(result >= 0);
+    // ... Screwprops
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_SCREWPROP_MAX_POWER", (int)ACTORSIMATTR_SCREWPROP_MAX_POWER); ROR_ASSERT(result >= 0);
 
     // class Actor (historically Beam)
     Actor::RegisterRefCountingObject(engine, "BeamClass");
@@ -166,7 +173,9 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void setNodeMass(int, float)", asMETHOD(Actor, setNodeMass), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void setNodeMassOptions(int, bool, bool)", asMETHOD(Actor, setNodeMassOptions), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void setSimAttribute(ActorSimAttr, float)", asMETHOD(Actor, setSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setIndexedSimAttribute(ActorSimAttr, float, int)", asMETHOD(Actor, setIndexedSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSimAttribute(ActorSimAttr)", asMETHOD(Actor, getSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getIndexedSimAttribute(ActorSimAttr, int)", asMETHOD(Actor, getIndexedSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void recalculateNodeMasses()", asMETHOD(Actor,recalculateNodeMasses), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setAirbrakeIntensity(float)", asMETHOD(Actor,setAirbrakeIntensity), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setAircraftFlaps(int)", asMETHOD(Actor,setAircraftFlaps), asCALL_THISCALL); ROR_ASSERT(result>=0);
