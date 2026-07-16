@@ -236,6 +236,10 @@ public:
      * @brief Sets the flaps level for aircraft, from 0 (flaps up) to 5 (flaps fully down).
      */
     void setAircraftFlaps(int level);
+
+    void wakeUp();
+
+    void sendToSleep();
     
     //! @}
     
@@ -244,12 +248,32 @@ public:
     // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'  
 
     /**
+     * Returns whether the parking brake is engaged.
+     */
+    bool getParkingBrake();
+
+    /**
+     * Returns whether traction control is enabled.
+     */
+    bool getTractionControl();
+
+    /**
+     * Returns whether the anti-lock brake system (ABS) is enabled.
+     */
+    bool getAntiLockBrake();
+
+    /**
+     * Returns whether cruise control is engaged.
+     */
+    bool getCruiseControl();
+
+    /**
      * Toggles the parking brake.
      */
     void parkingbrakeToggle();
     
     /**
-     * Toggles the tracktion control.
+     * Toggles the traction control.
      */
     void tractioncontrolToggle();
 
@@ -257,6 +281,11 @@ public:
      * Toggles the anti-lock brakes.
      */
     void antilockbrakeToggle();
+
+    /**
+     * Toggles the cruise control.
+     */
+    void cruisecontrolToggle();
 
     /**
      * Toggles the custom particles.
@@ -297,6 +326,26 @@ public:
     * Reports number of installed cinecams.
     */
     int getNumCinecams() const;
+
+    /**
+    * Reports number of installed cameras.
+    */
+    int getCameraCount() const;
+
+    /**
+    * Returns the position node number for the camera at the specified index.
+    */
+    int getCameraPosNode(int camIndex) const;
+
+    /**
+    * Returns the direction node number for the camera at the specified index.
+    */
+    int getCameraDirNode(int camIndex) const;
+
+    /**
+    * Returns the roll node number for the camera at the specified index.
+    */
+    int getCameraRollNode(int camIndex) const;
     
     //! @}
 

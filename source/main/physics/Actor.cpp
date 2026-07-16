@@ -2995,6 +2995,23 @@ void Actor::setAircraftFlaps(int flapsLevel)
     ar_aerial_flap = flapsLevel;
 }
 
+void Actor::wakeUp()
+{
+    if (ar_state == ActorState::LOCAL_SLEEPING)
+    {
+        ar_state = ActorState::LOCAL_SIMULATED;
+        ar_sleep_counter = 0.0f;
+    }
+}
+
+void Actor::sendToSleep()
+{
+    if (ar_state == ActorState::LOCAL_SIMULATED)
+    {
+        ar_state = ActorState::LOCAL_SLEEPING;
+    }
+}
+
 float Actor::getEventValue(int eventID, bool pure, InputSourceType valueSource)
 {
     std::map<int, float>::const_iterator simulated_value_info =

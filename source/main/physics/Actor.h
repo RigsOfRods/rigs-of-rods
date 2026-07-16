@@ -151,6 +151,8 @@ public:
     void              recalculateNodeMasses();
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
+    void              wakeUp();
+    void              sendToSleep();
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -162,9 +164,14 @@ public:
     /// @name User interaction
     /// @{
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    bool              getParkingBrake() { return ar_parking_brake; }
+    bool              getTractionControl() { return tc_mode; }
+    bool              getAntiLockBrake() { return alb_mode; }
+    bool              getCruiseControl() { return cc_mode; }
     void              parkingbrakeToggle();
     void              tractioncontrolToggle();
     void              antilockbrakeToggle();
+    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     bool              isLocked();                          //!< Are hooks locked?
@@ -172,6 +179,10 @@ public:
     void              clearForcedCinecam();
     bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
     int               getNumCinecams() { return ar_num_cinecams; }
+    int               getCameraCount() { return ar_num_cameras; }
+    int               getCameraPosNode(int camIndex) { return camIndex >= 0 && camIndex < ar_num_cameras ? ar_camera_node_pos[camIndex] : NODENUM_INVALID; }
+    int               getCameraDirNode(int camIndex) { return camIndex >= 0 && camIndex < ar_num_cameras ? ar_camera_node_dir[camIndex] : NODENUM_INVALID; }
+    int               getCameraRollNode(int camIndex) { return camIndex >= 0 && camIndex < ar_num_cameras ? ar_camera_node_roll[camIndex] : NODENUM_INVALID; }
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
@@ -180,8 +191,6 @@ public:
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
-    bool              getParkingBrake() { return ar_parking_brake; }
-    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
     int               getAxleDiffMode() { return m_num_axle_diffs; }
@@ -195,9 +204,6 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
-    bool              isEventAnalog(int eventID);
-    bool              isEventDefined(int eventID);
-    float             getEventBounceTime(int eventID);
     //! @}
 
     /// @name Input engine overrides
@@ -218,6 +224,9 @@ public:
     // other than the player actor, without it being affected by InputEngine
     // values.
     bool              ShouldAllowNonSimulatedInputs();
+    bool              isEventAnalog(int eventID);
+    bool              isEventDefined(int eventID);
+    float             getEventBounceTime(int eventID);
     //! @}
 
     /// @name Vehicle lights
