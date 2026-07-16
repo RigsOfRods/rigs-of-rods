@@ -62,8 +62,10 @@ void eventCallbackEx(scriptEvents ev, int a1, int a2, int a3, int a4, string a5,
         }
         else if (a1 == ASMANIP_ACTORSIMATTR_SET)
         {
-            log(" - Attribute number: " + formatInt(a2) + isItMe);
+            log(" - Attribute number: " + formatInt(a2));
             log(" - Attribute name: " + a5);
+            if (a3 >= 0)
+                log(" - Attribute index: " + a3);
         }
     }
 }
