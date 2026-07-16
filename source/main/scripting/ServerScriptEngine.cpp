@@ -700,11 +700,17 @@ void ServerScriptEngine::playerDeleted(int uid, int crash, bool doNestedCall /*=
     return;
 }
 
-void ServerScriptEngine::playerAdded(int uid) {
-
+void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user) // RIGSOFRODS: Assigns the UID
+{
     // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
     // All script callbacks must be invoked while clients-mutex is locked
     std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
+    // RIGSOFRODS: register the new client - in rorserver it's handled by `Sequencer::createClient()`
+    user.uniqueid = m_free_user_id++;
+    ServerScriptClient* client_record = new ServerScriptClient();
+    client_record->user = user;
+    m_clients.push_back(client_record);
 
     if (!engine) return;
     if (!context) context = engine->CreateContext();
@@ -726,7 +732,7 @@ void ServerScriptEngine::playerAdded(int uid) {
         }
 
         // Set the arguments
-        context->SetArgDWord(0, uid);
+        context->SetArgDWord(0, user.uniqueid);
 
         // Execute it
         r = context->Execute();

@@ -400,7 +400,9 @@ void GUIManager::DrawCommonGui()
     // UI usable in both main menu and simulation
     // ------------------------------------------
 
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !App::ui_hide_gui->getBool() && !this->SurveyMap.IsVisible())
+    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED || App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
+        && !App::ui_hide_gui->getBool()
+        && !this->SurveyMap.IsVisible())
     {
         this->MpClientList.Draw();
     }

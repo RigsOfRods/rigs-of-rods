@@ -878,4 +878,14 @@ std::string Network::UserAuthToStringLong(RoRnet::UserInfo const &user)
     else                                      { return _LC("NetUserAuth","Guest");                  }
 }
 
+// ============================================
+// Plumbing for local serverscripts and AI bots
+
+void Network::SetLocalUserData(RoRnet::UserInfo const& user)
+{
+    ROR_ASSERT(App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT);
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    m_userdata = user;
+}
+
 #endif // USE_SOCKETW

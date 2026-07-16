@@ -144,6 +144,11 @@ public:
     std::string          UserAuthToStringShort(RoRnet::UserInfo const &user);
     std::string          UserAuthToStringLong(RoRnet::UserInfo const &user);
 
+    /// @name Plumbing for local serverscripts and AI bots
+    /// @{
+    void                 SetLocalUserData(RoRnet::UserInfo const& user);
+    /// @}
+
 private:
     void                 PushNetMessage(MsgType type, std::string const & message);
     void                 SetNetQuality(int quality);

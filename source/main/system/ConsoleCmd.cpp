@@ -499,6 +499,25 @@ public:
             else
             {
                 App::mp_state->setVal(MpState::LOCAL_SCRIPT);
+
+                // Construct user credentials
+                RoRnet::UserInfo c;
+                memset(&c, 0, sizeof(RoRnet::UserInfo));
+                strncpy(c.username, App::mp_player_name->getStr().substr(0, RORNET_MAX_USERNAME_LEN).c_str(), RORNET_MAX_USERNAME_LEN);
+                strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
+                strncpy(c.clientname, "LocalPlayer", 10);
+                std::string language = App::app_language->getStr().substr(0, 2);
+                std::string country = App::app_country->getStr().substr(0, 2);
+                strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
+                strcpy(c.sessiontype, "normal");
+                c.authstatus = RoRnet::AUTH_ADMIN; // Register player as admin - serverscript engine assigns UID but doesn't do auth.
+                // Notify serverscript engine that player is added (assigns UID)
+                App::GetServerScriptEngine()->playerAdded(c);
+                // Save user data locally to display in Player List UI.
+                App::GetNetwork()->SetLocalUserData(c);
+                // Refresh PlayerList UI to show local player.
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
                 reply << fmt::format(_L("Server script '{}' started"), args[1]);
             }

@@ -96,6 +96,10 @@ enum broadcastType {
 
 // constant for functions that receive an uid for sending something
 static const int TO_ALL = -1;
+
+struct ServerScriptClient { // Bare minimum from `class Client` in rorserver.
+    RoRnet::UserInfo user;  //!< user information
+};
 // END 'sequencer.h'
 
 // RIGSOFRODS: From 'config.h'
@@ -104,6 +108,7 @@ enum ServerType {
     SERVER_INET,
     SERVER_AUTO
 };
+// END 'config.h'
 
 class ServerScriptEngine {
 public:
@@ -127,7 +132,7 @@ public:
 
     void playerDeleted(int uid, int crash, bool doNestedCall = false);
 
-    void playerAdded(int uid);
+    void playerAdded(RoRnet::UserInfo& user); // RIGSOFRODS: Assigns the UID
 
     int streamAdded(int uid, RoRnet::StreamRegister *reg);
 
@@ -220,7 +225,10 @@ protected:
     ThreadState m_timer_thread_state = ThreadState::NOT_RUNNING;
     std::mutex  m_timer_thread_mutex;
 
-    std::mutex m_clients_mutex;  //!< RIGSOFRODS: from `class Sequencer`, guards (among else) execution of script callbacks.
+    // Sequencer context
+    std::mutex m_clients_mutex;  //!< guards access to `m_clients` and execution of script callbacks.
+    std::vector<ServerScriptClient *> m_clients;
+    unsigned int m_free_user_id = 1;
 
     /**
      * This function initialzies the engine and registeres all types
