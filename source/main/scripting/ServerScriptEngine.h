@@ -123,16 +123,16 @@ public:
 
     ~ServerScriptEngine();
 
-    /// @name callbacks
-    /// @{
-
     int loadScript(std::string scriptName);
 
     void unloadScript(); // RIGSOFRODS: Unload the script (only one can run at a time).
 
-    void playerDeleted(int uid, int crash, bool doNestedCall = false);
+    /// @name callbacks
+    /// @{
 
-    void playerAdded(RoRnet::UserInfo& user); // RIGSOFRODS: Assigns the UID
+    void playerDeleted(int uid, int crash = 0);
+
+    void playerAdded(RoRnet::UserInfo& user); // RIGSOFRODS: Fills UID and color
 
     int streamAdded(int uid, RoRnet::StreamRegister *reg);
 
@@ -214,6 +214,10 @@ public:
     void        EnsureTimerThreadRunning();
     void        StopTimerThread();
     ThreadState GetTimerThreadState();
+
+    // Sequencer context
+    unsigned int GetFreeUserId() { return m_free_user_id++; }
+    int GetFreePlayerColour();
 
 protected:
     AngelScript::asIScriptEngine *engine;                //!< instance of the scripting engine

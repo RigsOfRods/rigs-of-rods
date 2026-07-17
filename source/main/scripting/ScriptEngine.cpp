@@ -54,6 +54,7 @@
 #include "PlatformUtils.h"
 #include "ScriptEvents.h"
 #include "ScriptUtils.h"
+#include "ServerScriptEngine.h"
 #include "Utils.h"
 #include "VehicleAI.h"
 
@@ -833,7 +834,7 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
 
 ScriptUnitID_t ScriptEngine::loadScript(
     String scriptOrGadgetFileName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
-    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
+    ActorPtr associatedActor /*= nullptr*/, int32_t associatedNetUid /* = -1*/, std::string buffer /* =""*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
@@ -884,6 +885,10 @@ ScriptUnitID_t ScriptEngine::loadScript(
     else if (category == ScriptCategory::ACTOR)
     {
         m_script_units[unit_id].associatedActor = associatedActor;
+    }
+    else if (category == ScriptCategory::AI_BOT)
+    {
+        m_script_units[unit_id].associatedNetUid = associatedNetUid;
     }
 
     // Perform the actual script loading, building and running main().
@@ -1097,6 +1102,23 @@ void ScriptEngine::unloadScript(ScriptUnitID_t nid)
     {
         m_terrain_script_unit = SCRIPTUNITID_INVALID;
     }
+}
+
+void ScriptEngine::kickBotByUid(int32_t bot_net_uid)
+{
+    for (const auto& pair: m_script_units)
+    {
+        const ScriptUnit& unit = pair.second;
+        if (unit.scriptCategory == ScriptCategory::AI_BOT && unit.associatedNetUid == bot_net_uid)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(pair.first)));
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                fmt::format("Unloading AI bot script with net UID {} (script unit ID {})", bot_net_uid, pair.first));
+            return;
+        }
+    }
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+        fmt::format("No AI bot script found with net UID {}", bot_net_uid));
 }
 
 void ScriptEngine::setForwardScriptLogToConsole(bool doForward)

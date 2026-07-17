@@ -147,6 +147,8 @@ public:
     /// @name Plumbing for local serverscripts and AI bots
     /// @{
     void                 SetLocalUserData(RoRnet::UserInfo const& user);
+    void                 AddBotUserInfo(RoRnet::UserInfo const& user);
+    void                 RemoveBotUserInfo(int uid);
     /// @}
 
 private:

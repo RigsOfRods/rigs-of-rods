@@ -51,6 +51,7 @@
 #include "RigDef_Serializer.h"
 #include "ActorSpawner.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "ThreadPool.h"
@@ -610,6 +611,19 @@ void ActorManager::UpdateNetTimeOffset(int sourceid, int offset)
 
 RoRnet::UiStreamsHealth ActorManager::CheckNetworkStreamsOk(int sourceid)
 {
+    // Special case - local serverscript
+    if (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
+    {
+        // Mismatches can't happen, just check if any actor is spawned
+        for (ActorPtr& actor: m_actors)
+        {
+            if (actor->ar_driveable == ActorType::AI && actor->ar_net_source_id == sourceid)
+            {
+                return RoRnet::UiStreamsHealth::ALL_OK;
+            }
+        }
+    }
+
     if (!m_stream_mismatches[sourceid].empty())
         return RoRnet::UiStreamsHealth::MISMATCHES;
 

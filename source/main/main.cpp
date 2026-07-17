@@ -481,8 +481,35 @@ int main(int argc, char *argv[])
                     try
                     {
                         ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
+                        int32_t netuid = -1;
+                        if (request->lsr_category == ScriptCategory::AI_BOT)
+                        {
+                            // Network user must be registered before script's `main()` runs.
+                            ROR_ASSERT(App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT && "AI_BOT scripts can only be loaded under 'mp_state = LOCAL_SCRIPT (3)'.");
+                            RoRnet::UserInfo u;
+                            std::memset(&u, 0, sizeof(u));
+                            strcpy(u.username, "Bot");
+                            strcpy(u.language, "cz_CZ");
+                            strcpy(u.sessiontype, "normal");
+                            strcpy(u.clientname, "Script");
+                            strcpy(u.clientversion, "Script");
+                            u.authstatus = RoRnet::AUTH_RANKED;
+                            // Register with server script - fills UID and color
+                            App::GetServerScriptEngine()->playerAdded(u);
+                            netuid = u.uniqueid;
+                            // Register locally
+                            App::GetNetwork()->AddBotUserInfo(u);
+                            App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_LOAD_SCRIPT_REQUESTED
+                        }
                         // Notifications for script manipulations are sent by loadScript().
-                        App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
+                        ScriptUnitID_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, netuid, request->lsr_buffer);
+                        if (nid == SCRIPTUNITID_INVALID && request->lsr_category == ScriptCategory::AI_BOT)
+                        {
+                            // AI_BOT failed, clean up network user
+                            App::GetServerScriptEngine()->playerDeleted(netuid);
+                            App::GetNetwork()->RemoveBotUserInfo(netuid);
+                            App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_LOAD_SCRIPT_REQUESTED
+                        }
                     }
                     catch (...)
                     {
@@ -497,8 +524,25 @@ int main(int argc, char *argv[])
                     ScriptUnitID_t* id = static_cast<ScriptUnitID_t*>(m.payload);
                     try
                     {
+                        ScriptCategory cat = App::GetScriptEngine()->getScriptUnit(*id).scriptCategory;
+                        int32_t netuid = App::GetScriptEngine()->getScriptUnit(*id).associatedNetUid;
                         // Notifications for script manipulations are sent by unloadScript().
                         App::GetScriptEngine()->unloadScript(*id);
+                        if (cat == ScriptCategory::AI_BOT)
+                        {
+                            // AI_BOT script unloaded, clean up network user
+                            App::GetServerScriptEngine()->playerDeleted(netuid);
+                            App::GetNetwork()->RemoveBotUserInfo(netuid);
+                            App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_UNLOAD_SCRIPT_REQUESTED
+                            // Also clean up any actors spawned by the bot
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                            {
+                                if (actor->ar_driveable == AI && actor->ar_net_source_id == netuid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                                }
+                            }
+                        }
                     }
                     catch (...)
                     {
@@ -1279,10 +1323,11 @@ int main(int argc, char *argv[])
                     try
                     {
                         ROR_ASSERT(actor_ptr);
-                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
-                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        ActorPtr actor = *actor_ptr;
+                        const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        if (valid_remote_actor || valid_ai_actor)
                         {
-                            ActorPtr actor = *actor_ptr;
                             actor->ar_muted_by_peeropt = true;
                             actor->muteAllSounds();
                         }
@@ -1301,10 +1346,11 @@ int main(int argc, char *argv[])
                     try
                     {
                         ROR_ASSERT(actor_ptr);
-                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
-                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        ActorPtr actor = *actor_ptr;
+                        const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        if (valid_remote_actor || valid_ai_actor)
                         {
-                            ActorPtr actor = *actor_ptr;
                             actor->ar_muted_by_peeropt = false;
                             actor->unmuteAllSounds();
                         }

@@ -42,6 +42,8 @@ along with Foobar. If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformUtils.h" // RIGSOFRODS: For PathCombine
 #include "Application.h" // RIGSOFRODS: For App::sys_logs_dir
 #include "Console.h" // RIGSOFRODS: For putNetMessage()
+#include "ScriptEngine.h" // RIGSOFRODS: For ScriptEngine::kickBotByUid()
+#include "Utils.h"
 
 #include <cstdio>
 #include <stdlib.h>
@@ -108,6 +110,27 @@ ServerScriptEngine::~ServerScriptEngine() {
     deleteAllCallbacks();
     if (engine) engine->Release();
     if (context) context->Release();
+}
+
+// RIGSOFRODS: From 'sequencer.cpp' as-is
+int ServerScriptEngine::GetFreePlayerColour() {
+    // WARNING: be sure that this is only called within a clients_mutex lock!
+
+    int col = 0;
+    for (;;) // TODO: How many colors ARE there?
+    {
+        bool collision = false;
+        for (unsigned int i = 0; i < m_clients.size(); i++) {
+            if (m_clients[i]->user.colournum == col) {
+                collision = true;
+                break;
+            }
+        }
+        if (!collision) {
+            return col;
+        }
+        col++;
+    }
 }
 
 void ServerScriptEngine::deleteAllCallbacks() {
@@ -651,7 +674,7 @@ int ServerScriptEngine::frameStep(float dt) {
     return 0;
 }
 
-void ServerScriptEngine::playerDeleted(int uid, int crash, bool doNestedCall /*= false*/) {
+void ServerScriptEngine::playerDeleted(int uid, int crash) {
 
     // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
     // All script callbacks must be invoked while clients-mutex is locked
@@ -660,12 +683,6 @@ void ServerScriptEngine::playerDeleted(int uid, int crash, bool doNestedCall /*=
     if (!engine) return;
     if (!context) context = engine->CreateContext();
     int r;
-
-    // Push the state of the context if this is a nested call
-    if (doNestedCall) {
-        r = context->PushState();
-        if (r < 0) return;
-    }
 
     // Copy the callback list, because the callback list itself may get changed while executing the script
     callbackList queue(callbacks["playerDeleted"]);
@@ -690,17 +707,13 @@ void ServerScriptEngine::playerDeleted(int uid, int crash, bool doNestedCall /*=
         r = context->Execute();
     }
 
-    // Pop the state of the context if this is was a nested call
-    if (doNestedCall) {
-        r = context->PopState();
-        if (r < 0) return;
-    }
-
+    // RIGSOFRODS: Remove the client from the list
+    EraseIf(m_clients, [uid](ServerScriptClient* client) { return client->user.uniqueid == uid; });
 
     return;
 }
 
-void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user) // RIGSOFRODS: Assigns the UID
+void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user) // RIGSOFRODS: Assigns the UID and color
 {
     // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
     // All script callbacks must be invoked while clients-mutex is locked
@@ -708,6 +721,7 @@ void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user) // RIGSOFRODS: Assi
 
     // RIGSOFRODS: register the new client - in rorserver it's handled by `Sequencer::createClient()`
     user.uniqueid = m_free_user_id++;
+    user.colournum = this->GetFreePlayerColour();
     ServerScriptClient* client_record = new ServerScriptClient();
     client_record->user = user;
     m_clients.push_back(client_record);
@@ -789,6 +803,23 @@ int ServerScriptEngine::playerChat(int uid, std::string msg) {
     // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
     // All script callbacks must be invoked while clients-mutex is locked
     std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
+
+    // Handle server commands
+    if (msg == "!help")
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NETCHAT, "Server commands: !help, !kick <uid>");
+        return 0;
+    }
+    if (msg.substr(0, 6) == "!kick ") {
+        int kuid = -1;
+        int res = sscanf(msg.substr(6).c_str(), "%d", &kuid);
+        if (res != 1 || kuid == -1) {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NETCHAT, "!kick <uid> ~ kick a bot");
+        } else {
+            App::GetScriptEngine()->kickBotByUid(kuid);
+            return 0;
+        }
+    }
 
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();

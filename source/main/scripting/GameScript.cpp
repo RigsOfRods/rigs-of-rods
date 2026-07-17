@@ -1097,6 +1097,31 @@ ActorPtr GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogr
     return App::GetGameContext()->SpawnActor(rq);
 }
 
+void spawnTruckAiBotHelper(ActorSpawnRequest& rq, const ScriptUnit& unit)
+{
+    // Fill network info to the spawn request ~ this will not trigger networking because 'origin' remains 'AI'.
+    ROR_ASSERT(unit.associatedNetUid != -1);
+    rq.net_source_id = unit.associatedNetUid;
+    RoRnet::UserInfo user_info;
+    if (App::GetNetwork()->GetAnyUserInfo(unit.associatedNetUid, user_info))
+    {
+        rq.asr_net_color = user_info.colournum;
+        rq.asr_net_username = user_info.username;
+        App::GetNetwork()->GetUserPeerOpts(unit.associatedNetUid, /* [out] */rq.asr_net_peeropts);
+    }
+
+    // Fabricate rornet message and send to serverscript
+    RoRnet::ActorStreamRegister reg;
+    reg.origin_sourceid = unit.associatedNetUid;
+    strcpy(reg.name, rq.asr_filename.c_str());
+    strcpy(reg.sectionconfig, rq.asr_config.c_str());
+    if (rq.asr_skin_entry)
+    {
+        strcpy(reg.skin, rq.asr_skin_entry->dname.c_str());
+    }
+    App::GetServerScriptEngine()->streamAdded(unit.associatedNetUid, (RoRnet::StreamRegister*)&reg);
+}
+
 ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x)
 {
     try
@@ -1128,11 +1153,21 @@ ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, O
         rq.asr_config = truckSectionConfig;
         rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(truckSkin);
         rq.asr_origin = ActorSpawnRequest::Origin::AI;
+
+        // Check if spawned by AI_BOT
+        ScriptUnitID_t nid = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        ROR_ASSERT(nid != SCRIPTUNITID_INVALID);
+        ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(nid);
+        if (unit.scriptCategory == ScriptCategory::AI_BOT)
+        {
+            spawnTruckAiBotHelper(rq, unit);
+        }
+
         return App::GetGameContext()->SpawnActor(rq);
     }
     catch (...)
     {
-        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialTextureScale()");
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::spawnTruckAI()");
         return ActorPtr();
     }
 }
