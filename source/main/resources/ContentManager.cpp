@@ -154,9 +154,22 @@ void ContentManager::InitContentManager()
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_scripts_dir->getStr(), "FileSystem", RGN_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_server_scripts_dir->getStr(), "FileSystem", RGN_SERVER_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
-    ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_logs_dir->getStr(), "FileSystem", RGN_LOGS, /*recursive:*/false, /*readonly:*/false);
+
+    // Server scripts must be isolated from any others.
+    ResourceGroupManager::getSingleton().createResourceGroup(RGN_SERVER_SCRIPTS, /* inGlobalPool: */false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_server_scripts_dir->getStr(), "FileSystem", RGN_SERVER_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
+    // Recurse one level down, that's all the https://github.com/RigsOfRods/RoRServerScripts package needs.
+    // NOTE: We can't use OGRE's 'recursive' mode because it prepends subdir names to the resource name, and we need bare filenames.
+    FileInfoListPtr dirs = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_SERVER_SCRIPTS, "*", /*dirs:*/true);
+    for (const auto& dir_fileinfo : *dirs)
+    {
+        if (!dir_fileinfo.archive)
+            continue;
+        String fullpath = PathCombine(dir_fileinfo.archive->getName(), dir_fileinfo.filename);
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_SERVER_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
+    }
 
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
@@ -302,7 +315,7 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), "content") , "FileSystem", RGN_TEMP, true);
 
     // Traverse RGN_TEMP and add all subdirectories to RGN_CONTENT.
-    // (TBD: why not just make RGN_CONTENT itself recursive? -- ohlidalp, 10/2023)
+    // NOTE we can't use OGRE's 'recursive' mode because it prepends subdir names to the resource name, and we need bare filenames.
 
     FileInfoListPtr dirs = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_TEMP, "*", /*dirs:*/true);
     for (const auto& dir_fileinfo : *dirs)

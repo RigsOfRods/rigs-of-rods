@@ -75,7 +75,7 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
         {
             ds = Ogre::ResourceGroupManager::getSingleton().openResource(
                 devel_filename,
-                Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
+                mResourceGroup,
                 /*resourceBeingLoaded: */nullptr,
                 /*throwOnFailure:*/false);
 
@@ -99,10 +99,7 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
     {
         try
         {
-            ds = Ogre::ResourceGroupManager::getSingleton().openResource(filename, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-
-                     //TODO: do not use `AUTODETECT_RESOURCE_GROUP_NAME`, use specific group, lookups are slow!
-                     //see also https://github.com/OGRECave/ogre/blob/master/Docs/1.10-Notes.md#resourcemanager-strict-mode ~ ohlidalp, 08/2017
+            ds = Ogre::ResourceGroupManager::getSingleton().openResource(filename, mResourceGroup);
         }
         catch (Ogre::Exception& e)
         {

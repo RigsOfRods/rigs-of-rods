@@ -379,6 +379,69 @@ public:
     void curlRequestAsync(std::string url, std::string displayname);
 };
 
+// RIGSOFRODS: from rorserver's 'ScriptFileSafe.h'
+// copied from the angelscript library and edited for use in Rigs of Rods Multiplayer Server ~ 01 Jan 2012
+// Copied from rorserver and modified to use `Ogre::DataStream` instead of `FILE*` ~ ohlidalp, 2026-07-17
+class ScriptFileSafe {
+public:
+    ScriptFileSafe();
+
+    void AddRef() const;
+
+    void Release() const;
+
+    // TODO: Implement the "r+", "w+" and "a+" modes
+    // mode = "r" -> open the file for reading
+    //        "w" -> open the file for writing (overwrites existing file)
+    //        "a" -> open the file for appending
+    int Open(const std::string &filename, const std::string &mode);
+
+    int Close();
+
+    int GetSize() const;
+
+    bool IsEOF() const;
+
+    // Reading
+    int ReadString(unsigned int length, std::string &str);
+
+    int ReadLine(std::string &str);
+
+    AngelScript::asINT64 ReadInt(AngelScript::asUINT bytes);
+
+    AngelScript::asQWORD ReadUInt(AngelScript::asUINT bytes);
+
+    float ReadFloat();
+
+    double ReadDouble();
+
+    // Writing
+    int WriteString(const std::string &str);
+
+    int WriteInt(AngelScript::asINT64 v, AngelScript::asUINT bytes);
+
+    int WriteUInt(AngelScript::asQWORD v, AngelScript::asUINT bytes);
+
+    int WriteFloat(float v);
+
+    int WriteDouble(double v);
+
+    // Cursor
+    int GetPos() const;
+
+    int SetPos(int pos);
+
+    int MovePos(int delta);
+
+protected:
+    ~ScriptFileSafe();
+
+    mutable int refCount;
+    Ogre::DataStreamPtr m_stream;
+};
+
+void RegisterScriptFile_Native(AngelScript::asIScriptEngine *engine);
+
 } // namespace RoR
 
 #endif // USE_ANGELSCRIPT
