@@ -42,6 +42,7 @@
 #include "Network.h"
 #include "ScriptEngine.h"
 #include "ServerScriptEngine.h"
+#include "ServerScriptSequencer.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "ThreadPool.h"
@@ -69,7 +70,7 @@ static MumbleIntegration*   g_mumble = nullptr;
 static OverlayWrapper*      g_overlay_wrapper = nullptr;
 static OutGauge             g_out_gauge;
 static ScriptEngine*        g_script_engine = nullptr;
-static ServerScriptEngine*  g_server_script_engine = nullptr;
+static ServerScriptSequencer*  g_server_script_sequencer = nullptr;
 static SoundScriptManager*  g_sound_script_manager = nullptr;
 static Terrain*             g_sim_terrain = nullptr;
 static ThreadPool*          g_thread_pool = nullptr;
@@ -304,7 +305,7 @@ GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
 SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager; }
 LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 ScriptEngine*          GetScriptEngine       () { return g_script_engine; }
-ServerScriptEngine*    GetServerScriptEngine()  { return g_server_script_engine; }
+ServerScriptSequencer* GetServerScript       ()  { return g_server_script_sequencer; }
 GameContext*           GetGameContext        () { return &g_game_context; }
 OutGauge*              GetOutGauge           () { return &g_out_gauge; }
 DiscordRpc*            GetDiscordRpc         () { return &g_discord_rpc; }
@@ -375,11 +376,11 @@ void CreateScriptEngine()
 #endif
 }
 
-void CreateServerScriptEngine()
+void CreateServerScript()
 {
 #if USE_ANGELSCRIPT
     ROR_ASSERT(!g_server_script_engine);
-    g_server_script_engine = new ServerScriptEngine();
+    g_server_script_sequencer = new ServerScriptSequencer();
 #endif
 }
 

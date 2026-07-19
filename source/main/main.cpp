@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
         CreateFolder(App::sys_scripts_dir->getStr());
         App::CreateScriptEngine();
         CreateFolder(App::sys_server_scripts_dir->getStr());
-        App::CreateServerScriptEngine();
+        App::CreateServerScript();
         CreateFolder(App::sys_projects_dir->getStr());
 #endif
 
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
                             strcpy(u.clientversion, "Script");
                             u.authstatus = RoRnet::AUTH_RANKED;
                             // Register with server script - fills UID and color
-                            App::GetServerScriptEngine()->playerAdded(u);
+                            App::GetServerScript()->createClient(u);
                             netuid = u.uniqueid;
                             // Register locally
                             App::GetNetwork()->AddBotUserInfo(u);
@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
                         if (nid == SCRIPTUNITID_INVALID && request->lsr_category == ScriptCategory::AI_BOT)
                         {
                             // AI_BOT failed, clean up network user
-                            App::GetServerScriptEngine()->playerDeleted(netuid);
+                            App::GetServerScript()->queueMessageUserLeave(netuid);
                             App::GetNetwork()->RemoveBotUserInfo(netuid);
                             App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_LOAD_SCRIPT_REQUESTED
                         }
@@ -530,8 +530,7 @@ int main(int argc, char *argv[])
                         App::GetScriptEngine()->unloadScript(*id);
                         if (cat == ScriptCategory::AI_BOT)
                         {
-                            // AI_BOT script unloaded, clean up network user
-                            App::GetServerScriptEngine()->playerDeleted(netuid);
+                            // AI_BOT script unloaded, clean up local network user
                             App::GetNetwork()->RemoveBotUserInfo(netuid);
                             App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_UNLOAD_SCRIPT_REQUESTED
                             // Also clean up any actors spawned by the bot
@@ -592,11 +591,11 @@ int main(int argc, char *argv[])
 #if USE_SOCKETW
                     try
                     {
-                        if (App::GetServerScriptEngine()->GetTimerThreadState() == ServerScriptEngine::ThreadState::RUNNING)
+                        if (App::GetServerScript()->IsRunning())
                         {
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
                                 _L("Stopping local server script engine before connecting to remote server."));
-                            App::GetServerScriptEngine()->StopTimerThread();
+                            App::GetServerScript()->Close();
                             App::mp_state->setVal((int)MpState::DISABLED);
                         }
                         App::GetNetwork()->StartConnecting();

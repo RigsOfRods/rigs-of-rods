@@ -1104,7 +1104,7 @@ void ScriptEngine::unloadScript(ScriptUnitID_t nid)
     }
 }
 
-void ScriptEngine::kickBotByUid(int32_t bot_net_uid)
+void ScriptEngine::unloadBotByUid(int32_t bot_net_uid)
 {
     for (const auto& pair: m_script_units)
     {

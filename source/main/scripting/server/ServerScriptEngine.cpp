@@ -37,12 +37,14 @@ along with Foobar. If not, see <http://www.gnu.org/licenses/>.
 #include "scriptany/scriptany.h" // angelscript addon
 #include "SocketW.h"
 
-#include "CurlHelpers.h" // RIGSOFRODS: This is actually the client's header with same name as server header. Both implement the same functionality but with cosmetic differences.
+#include "ServerScriptCurlHelpers.h"
+#include "ServerScriptConfig.h"
+#include "ServerScriptFileSafe.h"
 #include "OgreScriptBuilder.h" // RIGSOFRODS: Use OGRE to load files.
 #include "PlatformUtils.h" // RIGSOFRODS: For PathCombine
-#include "Application.h" // RIGSOFRODS: For App::sys_logs_dir
+#include "ScriptEngine.h" // RIGSOFRODS: For ScriptEngine::unloadBotByUid()
+
 #include "Console.h" // RIGSOFRODS: For putNetMessage()
-#include "ScriptEngine.h" // RIGSOFRODS: For ScriptEngine::kickBotByUid()
 #include "Utils.h"
 
 #include <cstdio>
@@ -66,25 +68,7 @@ using namespace RoR;
 #include <thread>
 #include <future>
 
-static Ogre::Log* sServerLog = nullptr;
 
-void Logger::Log(LogLevel level, const char *format, ...)
-{
-    // Format the message
-    const int BUF_LEN = 4000; // hard limit
-    char buffer[BUF_LEN] = {}; // zeroed memory
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, BUF_LEN, format, args);
-    va_end(args);
-    // Log the message
-    sServerLog->logMessage(std::string(buffer));
-}
-
-void Logger::Log(LogLevel level, std::string const& msg)
-{
-    sServerLog->logMessage(msg);
-}
 
 
 // Stream_register_t wrapper
@@ -94,11 +78,11 @@ std::string stream_register_get_name(RoRnet::StreamRegister *reg) {
 
 
 
-ServerScriptEngine::ServerScriptEngine() :
+ServerScriptEngine::ServerScriptEngine(ServerScriptSequencer* sequencer) :
+                                             seq(sequencer),
                                              engine(0),
                                              context(0)
 {
-    sServerLog = Ogre::LogManager::getSingleton().createLog(RoR::PathCombine(App::sys_logs_dir->getStr(), "RoRServerScript.log"));
     init();
 }
 
@@ -110,27 +94,6 @@ ServerScriptEngine::~ServerScriptEngine() {
     deleteAllCallbacks();
     if (engine) engine->Release();
     if (context) context->Release();
-}
-
-// RIGSOFRODS: From 'sequencer.cpp' as-is
-int ServerScriptEngine::GetFreePlayerColour() {
-    // WARNING: be sure that this is only called within a clients_mutex lock!
-
-    int col = 0;
-    for (;;) // TODO: How many colors ARE there?
-    {
-        bool collision = false;
-        for (unsigned int i = 0; i < m_clients.size(); i++) {
-            if (m_clients[i]->user.colournum == col) {
-                collision = true;
-                break;
-            }
-        }
-        if (!collision) {
-            return col;
-        }
-        col++;
-    }
 }
 
 void ServerScriptEngine::deleteAllCallbacks() {
@@ -506,7 +469,7 @@ void ServerScriptEngine::init() {
     result = engine->RegisterObjectMethod("ServerScriptClass", "int rangeRandomInt(int, int)",
                                           asMETHOD(ServerScript, rangeRandomInt), asCALL_THISCALL);
     assert_net(result >= 0);
-    ServerScript *serverscript = new ServerScript(this);
+    ServerScript *serverscript = new ServerScript(this, seq);
     result = engine->RegisterGlobalProperty("ServerScriptClass server", serverscript);
     assert_net(result >= 0);
 
@@ -618,29 +581,8 @@ void ServerScriptEngine::msgCallback(const asSMessageInfo *msg) {
     Logger::Log(LOG_INFO, "ScriptEngine: %s (%d, %d): %s = %s", msg->section, msg->row, msg->col, type, msg->message);
 }
 
-// unused method
-int ServerScriptEngine::loadScriptFile(const char *fileName, string &script) {
-    FILE *f = fopen(fileName, "rb");
-    if (!f) return 1;
-
-    // Determine the size of the file
-    fseek(f, 0, SEEK_END);
-    int len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    // Load the entire file in one call
-    script.resize(len);
-    fread(&script[0], len, 1, f);
-
-    fclose(f);
-    return 0;
-}
-
 int ServerScriptEngine::frameStep(float dt) {
 
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
 
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
@@ -676,9 +618,6 @@ int ServerScriptEngine::frameStep(float dt) {
 
 void ServerScriptEngine::playerDeleted(int uid, int crash) {
 
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
 
     if (!engine) return;
     if (!context) context = engine->CreateContext();
@@ -707,24 +646,13 @@ void ServerScriptEngine::playerDeleted(int uid, int crash) {
         r = context->Execute();
     }
 
-    // RIGSOFRODS: Remove the client from the list
-    EraseIf(m_clients, [uid](ServerScriptClient* client) { return client->user.uniqueid == uid; });
+
 
     return;
 }
 
-void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user) // RIGSOFRODS: Assigns the UID and color
+void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user)
 {
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
-
-    // RIGSOFRODS: register the new client - in rorserver it's handled by `Sequencer::createClient()`
-    user.uniqueid = m_free_user_id++;
-    user.colournum = this->GetFreePlayerColour();
-    ServerScriptClient* client_record = new ServerScriptClient();
-    client_record->user = user;
-    m_clients.push_back(client_record);
 
     if (!engine) return;
     if (!context) context = engine->CreateContext();
@@ -755,10 +683,6 @@ void ServerScriptEngine::playerAdded(RoRnet::UserInfo& user) // RIGSOFRODS: Assi
 }
 
 int ServerScriptEngine::streamAdded(int uid, RoRnet::StreamRegister *reg) {
-
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
 
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
@@ -800,27 +724,6 @@ int ServerScriptEngine::streamAdded(int uid, RoRnet::StreamRegister *reg) {
 
 int ServerScriptEngine::playerChat(int uid, std::string msg) {
 
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
-
-    // Handle server commands
-    if (msg == "!help")
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NETCHAT, "Server commands: !help, !kick <uid>");
-        return 0;
-    }
-    if (msg.substr(0, 6) == "!kick ") {
-        int kuid = -1;
-        int res = sscanf(msg.substr(6).c_str(), "%d", &kuid);
-        if (res != 1 || kuid == -1) {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NETCHAT, "!kick <uid> ~ kick a bot");
-        } else {
-            App::GetScriptEngine()->kickBotByUid(kuid);
-            return 0;
-        }
-    }
-
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
     int r;
@@ -861,10 +764,6 @@ int ServerScriptEngine::playerChat(int uid, std::string msg) {
 
 void ServerScriptEngine::gameCmd(int uid, const std::string &cmd) {
 
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
-
     if (!engine) return;
     if (!context) context = engine->CreateContext();
     int r;
@@ -895,16 +794,12 @@ void ServerScriptEngine::gameCmd(int uid, const std::string &cmd) {
     return;
 }
 
-void ServerScriptEngine::curlStatus(RoRServerCurlStatusType type, int n1, int n2, string displayname, string message)
+void ServerScriptEngine::curlStatus(ServerScriptCurlStatusType type, int n1, int n2, string displayname, string message)
 {
     // Params `n1` and `n2` depend on status type :
     // - for CURL_STATUS_PROGRESS, n1 = bytes downloaded, n2 = total bytes,
     // - otherwise, n1 = CURL return code, n2 = HTTP result code.
     // -------------------------------------------------------------------
-
-    // RIGSOFRODS: In RoRServer this mutex is handled by `class Sequencer`, here we must manage it ourselves.
-    // All script callbacks must be invoked while clients-mutex is locked
-    std::lock_guard<std::mutex> scoped_lock(m_clients_mutex);
 
     if (!engine) return;
     if (!context) context = engine->CreateContext();
@@ -947,7 +842,7 @@ void ServerScriptEngine::TimerThreadMain() {
 #endif // _WIN32
 
         // call script
-        this->frameStep(200.f); //RIGSOFRODS //seq->frameStepScripts(200);
+        seq->frameStepScripts(200);
     }
 }
 
@@ -1168,623 +1063,4 @@ bool ServerScriptEngine::callbackExists(const std::string &type, asIScriptFuncti
     }
     return false;
 }
-
-/* class that implements the interface for the scripts */
-ServerScript::ServerScript(ServerScriptEngine *se) : mse(se) {
-}
-
-ServerScript::~ServerScript() {
-}
-
-void ServerScript::log(std::string &msg) {
-    Logger::Log(LOG_INFO, "SCRIPT|%s", msg.c_str());
-}
-
-void ServerScript::say(std::string &msg, int uid, int type) {
-    // RIGSOFRODS: Do what rorserver's `Sequencer::serverSay()` does.
-    switch (type) {
-        case FROM_SERVER:
-            msg = std::string("SERVER: ") + msg;
-            break;
-
-        case FROM_HOST:
-            if (uid == -1) {
-                msg = std::string("Host(general): ") + msg;
-            } else {
-                msg = std::string("Host(private): ") + msg;
-            }
-            break;
-
-        case FROM_RULES:
-            msg = std::string("Rules: ") + msg;
-            break;
-
-        case FROM_MOTD:
-            msg = std::string("MOTD: ") + msg;
-            break;
-    }
-    // RIGSOFRODS: Post message directly to console (thread safe)
-    App::GetConsole()->putNetMessage(uid, Console::CONSOLE_SYSTEM_NETCHAT, msg.c_str());
-}
-
-void ServerScript::kick(int kuid, std::string &msg) {
-    /* RIGSOFRODS: STUB
-    seq->QueueClientForDisconnect(kuid, msg.c_str(), false, false);
-    mse->playerDeleted(kuid, 0, true);
-    */
-}
-
-void ServerScript::ban(int buid, std::string &msg) {
-    /* RIGSOFRODS: STUB
-    seq->SilentBan(buid, msg.c_str(), false);
-    mse->playerDeleted(buid, 0, true);
-    */
-}
-
-bool ServerScript::unban(int buid) {
-    return true; //RIGSOFRODS STUB // return seq->UnBan(buid);
-}
-
-std::string ServerScript::getUserName(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return "";
-
-
-    return Str::SanitizeUtf8(c->user.username);
-    */
-    return "";
-}
-
-void ServerScript::setUserName(int uid, const string &username) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return;
-    std::string username_sane = Str::SanitizeUtf8(username.begin(), username.end());
-    strncpy(c->user.username, username_sane.c_str(), RORNET_MAX_USERNAME_LEN);
-    */
-}
-
-std::string ServerScript::getUserAuth(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return "none";
-    if (c->user.authstatus & RoRnet::AUTH_ADMIN) return "admin";
-    else if (c->user.authstatus & RoRnet::AUTH_MOD) return "moderator";
-    else if (c->user.authstatus & RoRnet::AUTH_RANKED) return "ranked";
-    else if (c->user.authstatus & RoRnet::AUTH_BOT) return "bot";
-    //else if(c->user.authstatus & RoRnet::AUTH_NONE)
-    */
-    return "none";
-}
-
-int ServerScript::getUserAuthRaw(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return RoRnet::AUTH_NONE;
-    return c->user.authstatus;
-    */
-    return 0;
-}
-
-void ServerScript::setUserAuthRaw(int uid, int authmode) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return;
-    c->user.authstatus = authmode & ~(RoRnet::AUTH_RANKED | RoRnet::AUTH_BANNED);
-    */
-}
-
-int ServerScript::getUserColourNum(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return 0;
-    return c->user.colournum;
-    */
-    return 0;
-}
-
-void ServerScript::setUserColourNum(int uid, int num) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return;
-    c->user.colournum = num;
-    */
-}
-
-std::string ServerScript::getUserToken(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return "";
-    return std::string(c->user.usertoken, 40);
-    */
-    return "";
-}
-
-std::string ServerScript::getUserVersion(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *c = seq->getClient(uid);
-    if (!c) return "";
-    return std::string(c->user.clientversion, 25);
-    */
-    return "";
-}
-
-std::string ServerScript::getUserIPAddress(int uid) {
-    /* RIGSOFRODS: STUB
-    Client *client = seq->getClient(uid);
-    if (client != nullptr) {
-        return client->GetIpAddress();
-    }
-    */
-    return "";
-}
-
-std::string ServerScript::getServerTerrain() {
-    return ""; // RIGSOFRODS: STUB // return Config::getTerrainName();
-}
-
-int ServerScript::sendGameCommand(int uid, std::string cmd) {
-    return 0; // RIGSOFRODS: STUB // return seq->sendGameCommand(uid, cmd);
-}
-
-void ServerScript::curlRequestAsync(std::string url, string displayname) {
-#if WITH_CURL
-    CurlTaskContext context;
-    context.ctc_url = url;
-    context.ctc_displayname = displayname;
-    context.ctc_script_engine = this->mse;
-
-    std::packaged_task<void(CurlTaskContext)> pktask(CurlRequestThreadFunc);
-    std::thread(std::move(pktask), context).detach();
-#endif
-}
-
-int ServerScript::getNumClients() {
-    return 0; // RIGSOFRODS: STUB //  seq->getNumClients();
-}
-
-int ServerScript::getStartTime() {
-    return 0; // RIGSOFRODS: STUB //  seq->getStartTime();
-}
-
-int ServerScript::getTime() {
-    return 0; // RIGSOFRODS: STUB //  Messaging::getTime();
-}
-
-void ServerScript::deleteCallback(const std::string &type, const std::string &func, void *obj, int refTypeId) {
-    if (refTypeId & asTYPEID_SCRIPTOBJECT && (refTypeId & asTYPEID_OBJHANDLE)) {
-        mse->deleteCallbackScript(type, func, *(asIScriptObject **) obj);
-    } else if (refTypeId == asTYPEID_VOID) {
-        mse->deleteCallbackScript(type, func, NULL);
-    } else if (refTypeId & asTYPEID_SCRIPTOBJECT) {
-        // We received an object instead of a handle of the object.
-        // We cannot allow this because this will crash if the deleteCallback is called from inside a constructor of a global variable.
-        mse->setException(
-                "server.deleteCallback should be called with a handle of the object! (that is: put an @ sign in front of the object)");
-
-        // uncomment to enable anyway:
-        //mse->deleteCallbackScript(type, func, (asIScriptObject*)obj);
-    } else {
-        mse->setException("The object for the callback has to be a script-class or null!");
-    }
-}
-
-void ServerScript::setCallback(const std::string &type, const std::string &func, void *obj, int refTypeId) {
-    if (refTypeId & asTYPEID_SCRIPTOBJECT && (refTypeId & asTYPEID_OBJHANDLE)) {
-        mse->addCallbackScript(type, func, *(asIScriptObject **) obj);
-    } else if (refTypeId == asTYPEID_VOID) {
-        mse->addCallbackScript(type, func, NULL);
-    } else if (refTypeId & asTYPEID_SCRIPTOBJECT) {
-        // We received an object instead of a handle of the object.
-        // We cannot allow this because this will crash if the setCallback is called from inside a constructor of a global variable.
-        mse->setException(
-                "server.setCallback should be called with a handle of the object! (that is: put an @ sign in front of the object)");
-
-        // uncomment to enable anyway:
-        //mse->addCallbackScript(type, func, (asIScriptObject*)obj);
-    } else {
-        mse->setException("The object for the callback has to be a script-class or null!");
-    }
-}
-
-void ServerScript::throwException(const std::string &message) {
-    mse->setException(message);
-}
-
-std::string ServerScript::get_version() {
-    return "";  // RIGSOFRODS: STUB // std::string(VERSION);
-}
-
-std::string ServerScript::get_asVersion() {
-    return std::string(ANGELSCRIPT_VERSION_STRING);
-}
-
-std::string ServerScript::get_protocolVersion() {
-    return std::string(RORNET_VERSION);
-}
-
-unsigned int ServerScript::get_maxClients() { return 0; } // RIGSOFRODS: STUB // return Config::getMaxClients(); }
-
-std::string ServerScript::get_serverName() { return ""; } // RIGSOFRODS: STUB // Config::getServerName(); }
-
-std::string ServerScript::get_IPAddr() { return ""; } // RIGSOFRODS: STUB // Config::getIPAddr(); }
-
-unsigned int ServerScript::get_listenPort() { return 0u; } // RIGSOFRODS: STUB // return Config::getListenPort(); }
-
-int ServerScript::get_serverMode() { return 0; } // RIGSOFRODS: STUB //  (int)Config::getServerMode(); }
-
-std::string ServerScript::get_owner() { return ""; } // RIGSOFRODS: STUB // Config::getOwner(); }
-
-std::string ServerScript::get_website() { return ""; } // RIGSOFRODS: STUB // Config::getWebsite(); }
-
-std::string ServerScript::get_ircServ() { return ""; } // RIGSOFRODS: STUB // Config::getIRC(); }
-
-std::string ServerScript::get_voipServ() { return ""; } // RIGSOFRODS: STUB // Config::getVoIP(); }
-
-int ServerScript::rangeRandomInt(int from, int to) {
-    return (int) (from + (to - from) * ((float) rand() / (float) RAND_MAX));
-}
-
-void ServerScript::broadcastUserInfo(int uid) {
-    // RIGSOFRODS: STUB // seq->broadcastUserInfo(uid);
-}
-
-// RIGSOFRODS: from rorserver's 'ScriptFileSafe.cpp'
-
-ScriptFileSafe *ScriptFile_Factory() {
-    return new ScriptFileSafe();
-}
-
-void RoR::RegisterScriptFile_Native(asIScriptEngine *engine) {
-    int r;
-
-    r = engine->RegisterObjectType("file", 0, asOBJ_REF);
-    assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("file", asBEHAVE_FACTORY, "file @f()", asFUNCTION(ScriptFile_Factory),
-                                        asCALL_CDECL);
-    assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("file", asBEHAVE_ADDREF, "void f()", asMETHOD(ScriptFileSafe, AddRef),
-                                        asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("file", asBEHAVE_RELEASE, "void f()", asMETHOD(ScriptFileSafe, Release),
-                                        asCALL_THISCALL);
-    assert(r >= 0);
-
-    r = engine->RegisterObjectMethod("file", "int open(const string &in, const string &in)",
-                                     asMETHOD(ScriptFileSafe, Open), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int close()", asMETHOD(ScriptFileSafe, Close), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int getSize() const", asMETHOD(ScriptFileSafe, GetSize), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "bool isEndOfFile() const", asMETHOD(ScriptFileSafe, IsEOF),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int readString(uint, string &out)", asMETHOD(ScriptFileSafe, ReadString),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int readLine(string &out)", asMETHOD(ScriptFileSafe, ReadLine),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int64 readInt(uint)", asMETHOD(ScriptFileSafe, ReadInt), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "uint64 readUInt(uint)", asMETHOD(ScriptFileSafe, ReadUInt),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "float readFloat()", asMETHOD(ScriptFileSafe, ReadFloat), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "double readDouble()", asMETHOD(ScriptFileSafe, ReadDouble),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-
-    r = engine->RegisterObjectMethod("file", "int writeString(const string &in)", asMETHOD(ScriptFileSafe, WriteString),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int writeInt(int64, uint)", asMETHOD(ScriptFileSafe, WriteInt),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int writeUInt(uint64, uint)", asMETHOD(ScriptFileSafe, WriteUInt),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int writeFloat(float)", asMETHOD(ScriptFileSafe, WriteFloat),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int writeDouble(double)", asMETHOD(ScriptFileSafe, WriteDouble),
-                                     asCALL_THISCALL);
-    assert(r >= 0);
-
-    r = engine->RegisterObjectMethod("file", "int getPos() const", asMETHOD(ScriptFileSafe, GetPos), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int setPos(int)", asMETHOD(ScriptFileSafe, SetPos), asCALL_THISCALL);
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("file", "int movePos(int)", asMETHOD(ScriptFileSafe, MovePos), asCALL_THISCALL);
-    assert(r >= 0);
-
-    assert(r >= 0);
-}
-
-
-ScriptFileSafe::ScriptFileSafe() {
-    refCount = 1;
-}
-
-ScriptFileSafe::~ScriptFileSafe() {
-    Close();
-}
-
-void ScriptFileSafe::AddRef() const {
-    ++refCount;
-}
-
-void ScriptFileSafe::Release() const {
-    if (--refCount == 0)
-        delete this;
-}
-
-int ScriptFileSafe::Open(const std::string &filename, const std::string &mode) {
-    // Close the previously opened file handle
-    if (m_stream)
-        m_stream->close();
-
-    // Validate the mode
-    string m;
-#if AS_WRITE_OPS == 1
-    if (mode != "r" && mode != "w" && mode != "a")
-#else
-        if( mode != "r" )
-#endif
-        return -2;
-    else
-        m = mode;
-
-    // By default windows translates "\r\n" to "\n", but we want to read the file as-is.
-    m += "b";
-
-    std::string myFilename = filename;
-
-    // Remove the possible .asdata extension
-    if (myFilename.length() > 7 && myFilename.substr(myFilename.length() - 7, 7) == ".asdata")
-        myFilename = myFilename.substr(0, myFilename.length() - 7);
-
-    // Replace all forbidden characters in the filename	
-    std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
-    for (std::string::iterator it = myFilename.begin(); it < myFilename.end(); ++it) {
-        if (allowedChars.find(*it) == std::string::npos)
-            *it = '_';
-    }
-
-    // Open the file
-    try
-    {
-        m_stream = Ogre::ResourceGroupManager::getSingleton().openResource(myFilename, RGN_SERVER_SCRIPTS);
-    }
-    catch (...)
-    {
-        HandleGenericException("file.open()");
-        return -3;
-    }
-
-    return 0;
-}
-
-int ScriptFileSafe::Close() {
-    if (!m_stream)
-        return -1;
-
-    m_stream->close();
-    return 0;
-}
-
-int ScriptFileSafe::GetSize() const {
-    if (!m_stream)
-        return -1;
-
-    return m_stream->size();
-}
-
-int ScriptFileSafe::GetPos() const {
-    if (!m_stream)
-        return -1;
-
-    return m_stream->tell();
-}
-
-int ScriptFileSafe::SetPos(int pos) {
-    if (!m_stream)
-        return -1;
-
-    m_stream->seek(pos);
-
-    return 0;
-}
-
-int ScriptFileSafe::MovePos(int delta) {
-    if (!m_stream)
-        return -1;
-
-    m_stream->seek(m_stream->tell() + delta);
-
-    return 0;
-}
-
-int ScriptFileSafe::ReadString(unsigned int length, std::string &str) {
-    if (!m_stream)
-        return 0;
-
-    // Read the string
-    str.resize(length);
-    size_t size = (int)m_stream->read(&str[0], length);
-    str.resize(size);
-
-    return static_cast<int>(size);
-}
-
-int ScriptFileSafe::ReadLine(std::string &str) {
-    if (!m_stream)
-        return 0;
-
-    char buf[2000] = {};
-    size_t count = m_stream->readLine(buf, 2000);
-    str.assign(buf, count);
-
-    return static_cast<int>(count);
-}
-
-asINT64 ScriptFileSafe::ReadInt(asUINT bytes) {
-    if (!m_stream)
-        return 0;
-
-    if (bytes > 8) bytes = 8;
-    if (bytes == 0) return 0;
-
-    unsigned char buf[8];
-    size_t r = m_stream->read(buf, bytes);
-    if (r == 0) return 0;
-
-    asINT64 val = 0;
-
-        unsigned int n = 0;
-        for (; n < bytes; n++)
-            val |= asQWORD(buf[n]) << (n * 8);
-        if (buf[0] & 0x80)
-            for (; n < 8; n++)
-                val |= asQWORD(0xFF) << (n * 8);
-
-
-    return val;
-}
-
-asQWORD ScriptFileSafe::ReadUInt(asUINT bytes) {
-    if (!m_stream)
-        return 0;
-
-    if (bytes > 8) bytes = 8;
-    if (bytes == 0) return 0;
-
-    unsigned char buf[8];
-    size_t r = m_stream->read(buf, bytes);
-    if (r == 0) return 0;
-
-    asQWORD val = 0;
-
-        unsigned int n = 0;
-        for (; n < bytes; n++)
-            val |= asQWORD(buf[n]) << (n * 8);
-
-
-    return val;
-}
-
-float ScriptFileSafe::ReadFloat() {
-    if (!m_stream)
-        return 0;
-
-    unsigned char buf[4];
-    size_t r = m_stream->read(buf, 4);
-    if (r == 0) return 0;
-
-    asUINT val = 0;
-
-        unsigned int n = 0;
-        for (; n < 4; n++)
-            val |= asUINT(buf[n]) << (n * 8);
-
-
-    return *reinterpret_cast<float *>(&val);
-}
-
-double ScriptFileSafe::ReadDouble() {
-    if (!m_stream)
-        return 0;
-
-    unsigned char buf[8];
-    size_t r = m_stream->read(buf, 8);
-    if (r == 0) return 0;
-
-    asQWORD val = 0;
-
-        unsigned int n = 0;
-        for (; n < 8; n++)
-            val |= asQWORD(buf[n]) << (n * 8);
-
-
-    return *reinterpret_cast<double *>(&val);
-}
-
-bool ScriptFileSafe::IsEOF() const {
-    if (!m_stream)
-        return true;
-
-    return m_stream->eof();
-}
-
-int ScriptFileSafe::WriteString(const std::string &str) {
-    if (!m_stream)
-        return -1;
-
-    // Write the entire string
-    size_t r = m_stream->write(&str[0], str.length());
-    return int(r);
-}
-
-int ScriptFileSafe::WriteInt(asINT64 val, asUINT bytes) {
-    if (!m_stream)
-        return 0;
-
-    unsigned char buf[8];
-
-        for (unsigned int n = 0; n < bytes; n++)
-            buf[n] = (val >> (n * 8)) & 0xFF;
-
-
-    size_t r = m_stream->write(&buf, bytes);
-    return int(r);
-}
-
-int ScriptFileSafe::WriteUInt(asQWORD val, asUINT bytes) {
-    if (!m_stream)
-        return 0;
-
-    unsigned char buf[8];
-
-        for (unsigned int n = 0; n < bytes; n++)
-            buf[n] = (val >> (n * 8)) & 0xFF;
-
-
-    size_t r = m_stream->write(&buf, bytes);
-    return int(r);
-}
-
-int ScriptFileSafe::WriteFloat(float f) {
-    if (!m_stream)
-        return 0;
-
-    unsigned char buf[4];
-    asUINT val = *reinterpret_cast<asUINT *>(&f);
-
-        for (unsigned int n = 0; n < 4; n++)
-            buf[n] = (val >> (n * 8)) & 0xFF;
-    
-
-    size_t r = m_stream->write(&buf, 4);
-    return int(r);
-}
-
-int ScriptFileSafe::WriteDouble(double d) {
-    if (!m_stream)
-        return 0;
-
-    unsigned char buf[8];
-    asQWORD val = *reinterpret_cast<asQWORD *>(&d);
-    
-        for (unsigned int n = 0; n < 8; n++)
-            buf[n] = (val >> (n * 8)) & 0xFF;
-    
-
-    size_t r = m_stream->write(&buf, 8);
-    return int(r);
-}
-
-#endif //USE_ANGELSCRIPT
-
+#endif // USE_ANGELSCRIPT

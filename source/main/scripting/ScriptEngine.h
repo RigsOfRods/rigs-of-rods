@@ -204,7 +204,7 @@ public:
     /**
     * Helper for ServerScriptEngine - requests unloading the AI_BOT script.
     */
-    void kickBotByUid(int32_t bot_net_uid);
+    void unloadBotByUid(int32_t bot_net_uid);
 
     /**
      * Calls the script's framestep function to be able to use timed things inside the script

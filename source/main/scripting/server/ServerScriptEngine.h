@@ -28,7 +28,10 @@ along with Foobar. If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef USE_ANGELSCRIPT
 
-#include "CurlHelpers.h" // RIGSOFRODS: This is actually the client's header with same name as server header. Both implement the same functionality but with cosmetic differences.
+#include "ServerScriptCurlHelpers.h"
+#include "ServerScriptLogger.h"
+#include "ServerScriptSequencer.h"
+#include "ServerScript.h"
 #include <map>
 #include <mutex>
 #include <thread>
@@ -47,68 +50,6 @@ struct rorserver_callback_t {
 };
 typedef std::vector<rorserver_callback_t> callbackList;
 
-// RIGSOFRODS: Brought from rorserver's 'CurlHelpers.h' (see above)
-enum RoRServerCurlStatusType
-{
-    CURL_STATUS_INVALID,  //!< Should never be reported.
-    CURL_STATUS_START,    //!< New CURL request started, n1/n2 both 0.
-    CURL_STATUS_PROGRESS, //!< Download in progress, n1 = bytes downloaded, n2 = total bytes.
-    CURL_STATUS_SUCCESS,  //!< CURL request finished, n1 = CURL return code, n2 = HTTP result code, message = received payload.
-    CURL_STATUS_FAILURE,  //!< CURL request finished, n1 = CURL return code, n2 = HTTP result code, message = CURL error string.
-};
-
-// RIGSOFRODS: Brought from rorserver's 'logger.h'
-enum LogLevel {
-    LOG_STACK = 0,
-    LOG_DEBUG,
-    LOG_VERBOSE,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
-    LOG_NONE
-};
-
-namespace Logger {
-
-    void Log(LogLevel level, const char *format, ...);
-
-    void Log(LogLevel level, std::string const& msg);
-}
-// END 'logger.h'
-
-// RIGSOFRODS: Brought from 'sequencer.h'
-// This is used to define who says it, when the server says something
-enum serverSayType {
-    FROM_SERVER = 0,
-    FROM_HOST,
-    FROM_MOTD,
-    FROM_RULES
-};
-
-enum broadcastType {
-// order: least restrictive to most restrictive!
-            BROADCAST_AUTO = -1,  // Do not edit the publishmode (for scripts only)
-    BROADCAST_ALL,        // broadcast to all clients including sender
-    BROADCAST_NORMAL,     // broadcast to all clients except sender
-    BROADCAST_AUTHED,     // broadcast to authed users (bots)
-    BROADCAST_BLOCK       // no broadcast
-};
-
-// constant for functions that receive an uid for sending something
-static const int TO_ALL = -1;
-
-struct ServerScriptClient { // Bare minimum from `class Client` in rorserver.
-    RoRnet::UserInfo user;  //!< user information
-};
-// END 'sequencer.h'
-
-// RIGSOFRODS: From 'config.h'
-enum ServerType {
-    SERVER_LAN = 0,
-    SERVER_INET,
-    SERVER_AUTO
-};
-// END 'config.h'
 
 class ServerScriptEngine {
 public:
@@ -119,7 +60,7 @@ public:
         STOP_REQUESTED
     };
 
-    ServerScriptEngine();
+    ServerScriptEngine(ServerScriptSequencer* sequencer);
 
     ~ServerScriptEngine();
 
@@ -132,7 +73,7 @@ public:
 
     void playerDeleted(int uid, int crash = 0);
 
-    void playerAdded(RoRnet::UserInfo& user); // RIGSOFRODS: Fills UID and color
+    void playerAdded(RoRnet::UserInfo& user);
 
     int streamAdded(int uid, RoRnet::StreamRegister *reg);
 
@@ -146,7 +87,7 @@ public:
      * - CURL_STATUS_SUCCESS: n1 = CURL return code, n2 = HTTP result code, message = payload as string
      * - CURL_STATUS_FAILURE: n1 = CURL return code, n2 = HTTP result code, message = CURL error string
      */
-    void curlStatus(RoRServerCurlStatusType type, int n1, int n2, std::string displayname, std::string message);
+    void curlStatus(ServerScriptCurlStatusType type, int n1, int n2, std::string displayname, std::string message);
 
     int frameStep(float dt);
 
@@ -215,11 +156,8 @@ public:
     void        StopTimerThread();
     ThreadState GetTimerThreadState();
 
-    // Sequencer context
-    unsigned int GetFreeUserId() { return m_free_user_id++; }
-    int GetFreePlayerColour();
-
 protected:
+    ServerScriptSequencer* seq;
     AngelScript::asIScriptEngine *engine;                //!< instance of the scripting engine
     AngelScript::asIScriptContext *context;              //!< context in which all scripting happens
     std::map<std::string, callbackList> callbacks; //!< A map containing the script callbacks by type.
@@ -228,11 +166,6 @@ protected:
     std::thread m_timer_thread;
     ThreadState m_timer_thread_state = ThreadState::NOT_RUNNING;
     std::mutex  m_timer_thread_mutex;
-
-    // Sequencer context
-    std::mutex m_clients_mutex;  //!< guards access to `m_clients` and execution of script callbacks.
-    std::vector<ServerScriptClient *> m_clients;
-    unsigned int m_free_user_id = 1;
 
     /**
      * This function initialzies the engine and registeres all types
@@ -246,14 +179,6 @@ protected:
      * @param param unkown?
      */
     void msgCallback(const AngelScript::asSMessageInfo *msg);
-
-    /**
-     * This function reads a file into the provided string.
-     * @param filename filename of the file that should be loaded into the script string
-     * @param script reference to a string where the contents of the file is written to
-     * @return 0 on success, everything else on error
-     */
-    int loadScriptFile(const char *fileName, std::string &script);
 
     /**
      * This callback gets called when an exception occurs in the script.
@@ -280,167 +205,6 @@ protected:
      */
     void TimerThreadMain();
 };
-
-class ServerScript {
-protected:
-    ServerScriptEngine *mse;              //!< local script engine pointer, used as proxy mostly
-
-public:
-    ServerScript(ServerScriptEngine *se);
-
-    ~ServerScript();
-
-    void log(std::string &msg);
-
-    void say(std::string &msg, int uid = -1, int type = 0);
-
-    void kick(int kuid, std::string &msg);
-
-    void ban(int kuid, std::string &msg);
-
-    bool unban(int kuid);
-
-    int playerChat(int uid, char *str);
-
-    std::string getServerTerrain();
-
-    int sendGameCommand(int uid, std::string cmd);
-
-    std::string getUserName(int uid);
-
-    void setUserName(int uid, const std::string &username);
-
-    std::string getUserAuth(int uid);
-
-    int getUserAuthRaw(int uid);
-
-    void setUserAuthRaw(int uid, int authmode);
-
-    int getUserColourNum(int uid);
-
-    void setUserColourNum(int uid, int num);
-
-    std::string getUserToken(int uid);
-
-    std::string getUserVersion(int uid);
-
-    std::string getUserIPAddress(int uid);
-
-    int getUserPosition(int uid, Ogre::Vector3 &v);
-
-    int getNumClients();
-
-    int getStartTime();
-
-    int getTime();
-
-    std::string get_version();
-
-    std::string get_asVersion();
-
-    std::string get_protocolVersion();
-
-    void setCallback(const std::string &type, const std::string &func, void *obj, int refTypeId);
-
-    void deleteCallback(const std::string &type, const std::string &func, void *obj, int refTypeId);
-
-    void throwException(const std::string &message);
-
-    unsigned int get_maxClients();
-
-    std::string get_serverName();
-
-    std::string get_IPAddr();
-
-    unsigned int get_listenPort();
-
-    int get_serverMode();
-
-    std::string get_owner();
-
-    std::string get_website();
-
-    std::string get_ircServ();
-
-    std::string get_voipServ();
-
-    int rangeRandomInt(int from, int to);
-
-    void broadcastUserInfo(int uid);
-
-    /**
-     * Launches a background task, use `curlStatus` callback to monitor progress and receive result.
-     * @param displayname The "correlation ID" - the label passed to the callback to identify the transfer.
-     * @remark Callback signature: `curlStatus(curlStatusType, int n1, int n2, string displayname, string message)`
-     * - CURL_STATUS_PROGRESS: n1 = bytes downloaded, n2 = total bytes, message = empty
-     * - CURL_STATUS_SUCCESS: n1 = CURL return code, n2 = HTTP result code, message = payload as string
-     * - CURL_STATUS_FAILURE: n1 = CURL return code, n2 = HTTP result code, message = CURL error string
-     */
-    void curlRequestAsync(std::string url, std::string displayname);
-};
-
-// RIGSOFRODS: from rorserver's 'ScriptFileSafe.h'
-// copied from the angelscript library and edited for use in Rigs of Rods Multiplayer Server ~ 01 Jan 2012
-// Copied from rorserver and modified to use `Ogre::DataStream` instead of `FILE*` ~ ohlidalp, 2026-07-17
-class ScriptFileSafe {
-public:
-    ScriptFileSafe();
-
-    void AddRef() const;
-
-    void Release() const;
-
-    // TODO: Implement the "r+", "w+" and "a+" modes
-    // mode = "r" -> open the file for reading
-    //        "w" -> open the file for writing (overwrites existing file)
-    //        "a" -> open the file for appending
-    int Open(const std::string &filename, const std::string &mode);
-
-    int Close();
-
-    int GetSize() const;
-
-    bool IsEOF() const;
-
-    // Reading
-    int ReadString(unsigned int length, std::string &str);
-
-    int ReadLine(std::string &str);
-
-    AngelScript::asINT64 ReadInt(AngelScript::asUINT bytes);
-
-    AngelScript::asQWORD ReadUInt(AngelScript::asUINT bytes);
-
-    float ReadFloat();
-
-    double ReadDouble();
-
-    // Writing
-    int WriteString(const std::string &str);
-
-    int WriteInt(AngelScript::asINT64 v, AngelScript::asUINT bytes);
-
-    int WriteUInt(AngelScript::asQWORD v, AngelScript::asUINT bytes);
-
-    int WriteFloat(float v);
-
-    int WriteDouble(double v);
-
-    // Cursor
-    int GetPos() const;
-
-    int SetPos(int pos);
-
-    int MovePos(int delta);
-
-protected:
-    ~ScriptFileSafe();
-
-    mutable int refCount;
-    Ogre::DataStreamPtr m_stream;
-};
-
-void RegisterScriptFile_Native(AngelScript::asIScriptEngine *engine);
 
 } // namespace RoR
 

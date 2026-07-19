@@ -164,7 +164,7 @@ void GameChatBox::Draw()
             }
             else if (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
             {
-                App::GetServerScriptEngine()->playerChat(-1, m_msg_buffer.GetBuffer());
+                App::GetServerScript()->queueMessagePlayerChat(-1, m_msg_buffer.GetBuffer());
             }
             m_msg_buffer.Clear();
             this->SetVisible(false);

@@ -483,14 +483,14 @@ public:
             reply_type = Console::CONSOLE_SYSTEM_ERROR;
             reply << _L("Not allowed while connected to network.");
         }
-        else if (App::GetServerScriptEngine()->GetTimerThreadState() == ServerScriptEngine::ThreadState::RUNNING)
+        else if (App::GetServerScript()->IsRunning())
         {
             reply_type = Console::CONSOLE_SYSTEM_ERROR;
             reply << _L("Server script is already running.");
         }
         else
         {
-            int result = App::GetServerScriptEngine()->loadScript(args[1]);
+            int result = App::GetServerScript()->Initialize(args[1]);
             if (result != 0)
             {
                 reply_type = Console::CONSOLE_SYSTEM_ERROR;
@@ -512,7 +512,7 @@ public:
                 strcpy(c.sessiontype, "normal");
                 c.authstatus = RoRnet::AUTH_ADMIN; // Register player as admin - serverscript engine assigns UID but doesn't do auth.
                 // Notify serverscript engine that player is added (assigns UID)
-                App::GetServerScriptEngine()->playerAdded(c);
+                App::GetServerScript()->createClient(c);
                 // Save user data locally to display in Player List UI.
                 App::GetNetwork()->SetLocalUserData(c);
                 // Refresh PlayerList UI to show local player.
@@ -543,14 +543,14 @@ public:
         Console::MessageType reply_type;
 
 #ifdef USE_ANGELSCRIPT
-        if (App::GetServerScriptEngine()->GetTimerThreadState() != ServerScriptEngine::ThreadState::RUNNING)
+        if (!App::GetServerScript()->IsRunning())
         {
             reply_type = Console::CONSOLE_SYSTEM_ERROR;
             reply << _L("Server script was not running.");
         }
         else
         {
-            App::GetServerScriptEngine()->unloadScript();
+            App::GetServerScript()->Close();
             App::mp_state->setVal(MpState::DISABLED);
             reply_type = Console::CONSOLE_SYSTEM_REPLY;
             reply << _L("Server script stopped.");

@@ -840,7 +840,7 @@ void Network::BroadcastChatMsg(const char* msg)
 {
     if (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
     {
-        App::GetServerScriptEngine()->playerChat(m_uid, msg);
+        App::GetServerScript()->queueMessagePlayerChat(m_uid, msg);
     }
     else
     {

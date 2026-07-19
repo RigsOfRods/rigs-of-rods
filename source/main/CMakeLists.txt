@@ -232,7 +232,6 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
             scripting/OgreScriptBuilder.{h,cpp}
-            scripting/ServerScriptEngine.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
             scripting/ScriptUtils.h
             scripting/bindings/AngelScriptBindings.h
@@ -258,6 +257,13 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/TurbojetAngelscript.cpp
             scripting/bindings/TurbopropAngelscript.cpp
             scripting/bindings/VehicleAiAngelscript.cpp
+            scripting/server/ServerScript.{h,cpp}
+            scripting/server/ServerScriptConfig.h
+            scripting/server/ServerScriptCurlHelpers.{h,cpp}
+            scripting/server/ServerScriptEngine.{h,cpp}
+            scripting/server/ServerScriptFileSafe.{h,cpp}
+            scripting/server/ServerScriptLogger.{h,cpp}
+            scripting/server/ServerScriptSequencer.{h,cpp}
             )
 endif ()
 
@@ -367,6 +373,7 @@ target_include_directories(${BINNAME} PRIVATE
         system
         scripting
         scripting/bindings
+        scripting/server
         terrain
         terrain/map
         threadpool

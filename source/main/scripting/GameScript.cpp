@@ -1022,7 +1022,7 @@ int GameScript::sendGameCmd(const String& message)
 #endif // USE_SOCKETW
     if (RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::LOCAL_SCRIPT)
     {
-        App::GetServerScriptEngine()->gameCmd(-1, message);
+        App::GetServerScript()->queueMessageGameCmd(-1, message);
         return 0;
     }
 
@@ -1119,7 +1119,7 @@ void spawnTruckAiBotHelper(ActorSpawnRequest& rq, const ScriptUnit& unit)
     {
         strcpy(reg.skin, rq.asr_skin_entry->dname.c_str());
     }
-    App::GetServerScriptEngine()->streamAdded(unit.associatedNetUid, (RoRnet::StreamRegister*)&reg);
+    App::GetServerScript()->queueMessageStreamRegister(unit.associatedNetUid, (RoRnet::StreamRegister*)&reg);
 }
 
 ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x)
