@@ -38,7 +38,11 @@ SERVER COMMANDS
 ===============
 
 !help ~ prints built-in commands.
-!kick <uid> ~ kicks a bot. Unlike in rorserver, kick message isn't supported.
+!version ~ prints "Local script"
+!list ~ lists connected users.
+!kick <uid> <message> ~ kicks a bot. Unlike in rorserver, kick message isn't supported.
+!say <uid> <message> ~ currently dummy because bots cannot receive chat messages or game commands yet.
+
 No other commmads are built-in, but may be provided by the script.
 
 LOCAL PEEROPTIONS
@@ -50,15 +54,13 @@ No other peeropts are supported.
 SCRIPT CALLBACKS
 ================
 
-Supported:
+All existing callbacks are supported:
     void main() ~ required to exist as global function, invoked on startup.
     void playerAdded(int uid) ~ executed when player or bot joins. Player auto-joins when the server script is started.
     void playerDeleted(int uid, int crashed) ~ executed when bot leaves by any means. NOTE: RoRserver doesn't seem to invoke 'playerDeleted' on clean disconnect by player, but we do it for consistency
     int streamAdded(int uid, StreamRegister@ reg) ~ executed when player or bot spawns an actor. Returns `broadcastType` which determines how the message is treated.
     int playerChat(int uid, const string &in msg) ~ ONLY ONE AT A TIME ~ executed when player sends a chat message. Returns `broadcastType` which determines how the message is treated.
     void gameCmd(int uid, const string &in cmd) ~ ONLY ONE AT A TIME ~ invoked when a script running on client calls `game.sendGameCmd()`
-    
-To be added:
     void frameStep(float dt_millis) ~ executed periodically, the parameter is delta time (time since last execution) in milliseconds.
     void curlStatus(curlStatusType type, int n1, int n2, string displayname, string message) ~ Provides progress and result info, see `server.curlRequestAsync()`; for CURL_STATUS_PROGRESS, n1 = bytes downloaded, n2 = total bytes; otherwise n1 = CURL return code, n2 = HTTP result code.
 
@@ -67,7 +69,7 @@ SCRIPT FUNCTIONS
 
 Most functions work just like they do in rorserver.
     
-These are stubs, doing nothing and returning 0 or "":
+The following are stubs, doing nothing and returning 0 or "":
     game.getServerIpAddress()
     game.getUserIpAddress(int uid)
     game.get_version()

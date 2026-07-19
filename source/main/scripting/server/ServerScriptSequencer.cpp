@@ -344,7 +344,7 @@ void ServerScriptSequencer::queueMessagePlayerChat(int uid, const std::string & 
 
     if (str == "!help") {
         serverSay(std::string("builtin commands:"), uid);
-        serverSay(std::string("!version, !list, !say, !kick"), uid);
+        serverSay(std::string("!help !version, !list, !say, !kick"), uid);
     }
 
     if (str == "!version") {; 
