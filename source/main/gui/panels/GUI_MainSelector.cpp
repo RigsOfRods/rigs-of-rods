@@ -163,14 +163,38 @@ void MainSelector::Draw()
     m_searchbox_was_active = ImGui::IsItemActive();
     const ImVec2 separator_cursor = ImGui::GetCursorPos()
         + ImVec2(0, ImGui::GetStyle().WindowPadding.y - ImGui::GetStyle().ItemSpacing.y);
-    
-    // advanced search hint
-    const char* searchbox_hint = "(?)";
-    ImGui::SetCursorPos(searchbox_cursor + ImVec2(searchbox_width - (ImGui::CalcTextSize(searchbox_hint).x + ImGui::GetStyle().FramePadding.x), ImGui::GetStyle().FramePadding.y));
-    ImGui::TextDisabled(searchbox_hint);
-    if (ImGui::IsItemHovered())
+
+    if (!m_settings_icon)
     {
-        ImGui::BeginTooltip();
+        try
+        {
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+            m_settings_icon = Ogre::TextureManager::getSingleton().load(
+                "cog.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
+        }
+        catch (...) {} // Logged by OGRE
+    }
+
+    // search settings
+    ImGui::SetItemAllowOverlap();
+    ImVec2 p_min = ImGui::GetItemRectMin();
+    ImVec2 p_max = ImGui::GetItemRectMax();
+    ImGui::SetCursorScreenPos(ImVec2(
+        p_max.x - 16.0f - ImGui::GetStyle().FramePadding.x,
+        p_min.y + ImGui::GetStyle().FramePadding.y - 3.0f));
+    if (m_settings_icon)
+    {
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_settings_icon->getHandle()), ImVec2(16, 16)))
+        {
+            ImGui::OpenPopup("##SelectorSearchSettings");
+        }
+    }
+
+    ImGui::SetNextWindowPos(ImGui::GetItemRectMin(), ImGuiCond_Always);
+    if (ImGui::BeginPopup("##SelectorSearchSettings", ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
+    {
+        ImGui::TextDisabled("Search settings");
+        ImGui::Separator();
         ImGui::TextDisabled("Fulltext search:");
         ImGui::Text("~ partial name, filename, description, author name or e-mail");
         ImGui::TextDisabled("Advanced search:");
@@ -178,7 +202,7 @@ void MainSelector::Draw()
         ImGui::Text("author: ~ partial author name or e-mail");
         ImGui::Text("wheels: ~ wheel configuration (i.e. 4x4)");
         ImGui::Text("file: ~ partial file name");
-        ImGui::EndTooltip();
+        ImGui::EndPopup();
     }
     
     ImGui::SetCursorPos(separator_cursor);

@@ -92,6 +92,7 @@ private:
     std::string        m_search_string;
     std::string        m_filter_guid;                //!< Used for skins
     Str<500>           m_search_input;
+    Ogre::TexturePtr   m_settings_icon;
     bool               m_show_details = false;
     bool               m_searchbox_was_active = false;
     CacheEntryPtr      m_advertised_entry; //!< Always shown on top, even if not existing in modcache (i.e. dummy default skin)
