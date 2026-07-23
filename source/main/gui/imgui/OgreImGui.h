@@ -29,8 +29,7 @@
 
 #include <imgui.h>
 #include <Ogre.h>
-#include <OISMouse.h>
-#include <OISKeyboard.h>
+#include <Bites/OgreInput.h>
 #include <memory>
 
 // DearIMGUI math functions, copypasted from <imgui_internal.h>
@@ -57,11 +56,13 @@ public:
     void Init();
 
     // Input-injecting functions
-    void InjectMouseMoved( const OIS::MouseEvent &arg );
-    void SetMouseButtonState(OIS::MouseButtonID id, bool down);
-    void ResetAllMouseButtons();
-    void InjectKeyPressed( const OIS::KeyEvent &arg );
-    void InjectKeyReleased( const OIS::KeyEvent &arg );
+    void InjectMouseMoved(const OgreBites::MouseMotionEvent& arg);
+    void InjectMouseWheelRolled(const OgreBites::MouseWheelEvent& arg);
+    void InjectMousePressed(const OgreBites::MouseButtonEvent& arg);
+    void InjectMouseReleased(const OgreBites::MouseButtonEvent& arg);
+    void InjectKeyPressed(const OgreBites::KeyboardEvent& arg);
+    void InjectKeyReleased(const OgreBites::KeyboardEvent& arg);
+    void InjectTextInput(const OgreBites::TextInputEvent& arg);
 
     // Ogre::RenderQueueListener
     virtual void renderQueueStarted(Ogre::uint8 queueGroupId,

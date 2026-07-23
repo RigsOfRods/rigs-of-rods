@@ -494,8 +494,7 @@ bool Network::ConnectThread()
     // Construct user credentials
     RoRnet::UserInfo c;
     memset(&c, 0, sizeof(RoRnet::UserInfo));
-    // Cut off the UTF string on the highest level, otherwise you will break UTF info
-    strncpy(c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN).c_str(), RORNET_MAX_USERNAME_LEN);
+    // TODO: Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy(c.serverpassword, Sha1Hash(m_password).c_str(), size_t(40));
     strncpy(c.usertoken, Sha1Hash(m_token).c_str(), size_t(40));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));

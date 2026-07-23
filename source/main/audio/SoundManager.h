@@ -30,7 +30,7 @@
 #include "Sound.h"
 #include "SoundScriptManager.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <OgreString.h>
 
 #ifdef __APPLE__

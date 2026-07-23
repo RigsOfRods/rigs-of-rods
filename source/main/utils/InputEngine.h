@@ -29,17 +29,15 @@
 #include "Application.h"
 #include "ForceFeedback.h"
 
-#include "OISEvents.h"
-#include "OISForceFeedback.h"
-#include "OISInputManager.h"
-#include "OISJoyStick.h"
-#include "OISKeyboard.h"
-#include "OISMouse.h"
+#include <Bites/OgreInput.h>
+#include <SDL2/SDL_joystick.h>
+#include <SDL2/SDL_haptic.h>
 
 #define MAX_JOYSTICKS 10
 #define MAX_JOYSTICK_POVS 4
 #define MAX_JOYSTICK_SLIDERS 4
 #define MAX_JOYSTICK_AXIS 32
+#define MAX_JOYSTICK_BUTTONS 32
 
 namespace RoR {
 
@@ -421,13 +419,11 @@ struct event_trigger_t
     enum eventtypes eventtype;
     int configDeviceID;            //!< For which device (which config file) was this binding defined?
     // keyboard
-    int keyCode;
+    SDL_Keycode keyCode;
     bool explicite;
     bool ctrl;
     bool shift;
     bool alt;
-    //mouse
-    int mouseButtonNumber;
     //joystick buttons
     int joystickNumber;
     int joystickButtonNumber;
@@ -462,6 +458,8 @@ class InputEngine
 public:
     typedef std::vector<event_trigger_t> TriggerVec;
     typedef std::map<int, TriggerVec> EventMap;
+    typedef std::map<std::string, SDL_Keycode> KeyCodeMap;
+    typedef std::map<SDL_Keycode, bool> KeyStateMap;
 
     static const std::string DEFAULT_MAPFILE; //!< = "input.map";
     static const int         DEFAULT_MAPFILE_DEVICEID = -1; //!< virtual device ID for "input.map" entries
@@ -470,34 +468,26 @@ public:
     InputEngine();
     ~InputEngine();
 
-    /// @name Setup
-    /// @{
-    void                SetKeyboardListener(OIS::KeyListener* obj);
-    OIS::Keyboard*      GetOisKeyboard() { return mKeyboard; }
-    void                SetMouseListener(OIS::MouseListener* obj);
-    void                SetJoystickListener(OIS::JoyStickListener* obj);
-    void                destroy();
-    /// @}
-
     /// @name Input processing
     /// @{
     void                Capture();
     void                updateKeyBounces(float dt);
-    void                processMouseMotionEvent(const OIS::MouseEvent& arg);
-    void                processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id);
-    void                processMouseReleaseEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id);
-    void                ProcessKeyPress(const OIS::KeyEvent& arg);
-    void                ProcessKeyRelease(const OIS::KeyEvent& arg);
-    void                ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
-    void                resetKeysAndMouseButtons();
+    void                resetKeys();
     void                setEventSimulatedValue(events eventID, float value);
     void                setEventStatusSupressed(events eventID, bool supress);
+    void                ProcessMouseButtonPress(const OgreBites::MouseButtonEvent& arg);
+    void                ProcessMouseButtonRelease(const OgreBites::MouseButtonEvent& arg);
+    void                ProcessKeyPress(const OgreBites::KeyboardEvent& arg);
+    void                ProcessKeyRelease(const OgreBites::KeyboardEvent& arg);
+    void                ProcessJoystickEvent(const OgreBites::AxisEvent& arg);
+    SDL_Haptic*         getForceFeedbackDevice();
+
     /// @}
 
     /// @name Event info
     /// @{
     Ogre::String        getKeyForCommand(int eventID);
-    Ogre::String        getModifierKeyName(OIS::KeyCode key);
+    Ogre::String        getModifierKeyName(SDL_Keymod key);
     Ogre::String        getDeviceName(event_trigger_t const& evt);
     Ogre::String        getEventCommand(int eventID);
     std::string         getEventCommandTrimmed(int eventID);                //!< Omits 'EXPL' modifier
@@ -506,7 +496,6 @@ public:
     Ogre::String        getEventDefaultConfig(int eventID);
     bool                isEventDefined(int eventID);
     int                 getKeboardKeyForCommand(int eventID);               //!< Returns -1 if not Keyboard
-    int                 getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
     std::string         getJoyVendor(int joystickNumber);
     int                 getNumJoysticks() { return free_joysticks; }
     EventMap&           getEvents() { return events; };
@@ -541,15 +530,14 @@ public:
     bool                isEventAnalog(int eventID);
     bool                getEventBoolValueBounce(int eventID, float time = 0.2f);
     float               getEventBounceTime(int eventID);
-    bool                isKeyDownEffective(OIS::KeyCode mod);               //!< Reads RoR internal buffer
-    bool                isKeyDownValueBounce(OIS::KeyCode mod, float time = 0.2f);
+    bool                isKeyDownEffective(SDL_Keycode mod);               //!< Reads RoR internal buffer
+    bool                isKeyDownValueBounce(SDL_Keycode, float time = 0.2f);
     /// @}
 
     /// @name Direct input device states
     /// @{
-    OIS::JoyStickState* getCurrentJoyState(int joystickNumber);
-    OIS::MouseState     getMouseState();
-    bool                isKeyDown(OIS::KeyCode mod);                        //!< Asks OIS directly
+    bool                isKeyDown(OgreBites::Keycode mod);                  //!< Asks SDL directly; only works for modifier keys.
+    bool                isMouseButtonDown(OgreBites::ButtonType btn);       //!< Actually retrieves cached state from `OgreBites` events, as querying SDL directly is not reliable.
     int                 getCurrentKeyCombo(Ogre::String* combo);            //!< Returns number of non-modifier keys pressed (or modifier count as negative number).
     int                 getCurrentJoyButton(int& joystickNumber, int& button);
     int                 getCurrentPovValue(int& joystickNumber, int& pov, int& povdir);
@@ -562,33 +550,31 @@ public:
     static int          resolveEventName(Ogre::String eventName);
     static Ogre::String eventIDToName(int eventID);
     static Ogre::String eventIDToDescription(int eventID);
-    std::string         getKeyNameForKeyCode(OIS::KeyCode keycode);
+    std::string         getKeyNameForKeyCode(SDL_Keycode keycode);
     /// @}
 
-    /// @name Misc
-    /// @{
-    void windowResized(Ogre::RenderWindow* rw);
-    OIS::ForceFeedback* getForceFeedbackDevice() { return mForceFeedback; };
-    /// @}
+public:
+    void ProcessJoystickButtonPressed(const OgreBites::ButtonEvent& arg);
+    void ProcessJoystickButtonReleased(const OgreBites::ButtonEvent& arg);
+    void ProcessHatMoved(const OgreBites::HatEvent& arg);
 
 protected:
 
-    //OIS Input devices
-    OIS::InputManager* mInputManager;
-    OIS::Mouse* mMouse;
-    OIS::Keyboard* mKeyboard;
-    OIS::JoyStick* mJoy[MAX_JOYSTICKS];
-    int free_joysticks; //!< Number of detected game controllers
-    OIS::ForceFeedback* mForceFeedback;
-    int uniqueCounter;
+    // SDL2 Input devices
+    int                     free_joysticks; //!< Number of detected game controllers
+    int                     uniqueCounter;
+    SDL_Joystick*           m_joysticks[MAX_JOYSTICKS];
+    SDL_Haptic*             m_haptic_devices[MAX_JOYSTICKS];
+    Sint16                  m_joy_axis_vals[MAX_JOYSTICKS][MAX_JOYSTICK_AXIS];
+    Uint8                   m_joy_button_vals[MAX_JOYSTICKS][MAX_JOYSTICK_BUTTONS];
+    Uint8                   m_joy_hat_vals[MAX_JOYSTICKS][MAX_JOYSTICK_POVS];
+    std::array<bool, 4>     m_mouse_button_down = {false, false, false, false};  //!< unused, left, middle, right - matches `OgreBites::ButtonType` enum
 
     // this stores the key/button/axis values
-    std::map<int, bool> keyState;
-    OIS::JoyStickState joyState[MAX_JOYSTICKS];
-    OIS::MouseState mouseState;
+    KeyStateMap keyState;
 
     // define event aliases
-    std::map<int, std::vector<event_trigger_t>> events;
+    EventMap events;
     std::map<int, float> event_values_simulated;
     std::map<int, float> event_times;
     std::map<int, bool> event_states_supressed;
@@ -599,8 +585,8 @@ protected:
 
     void initAllKeys();
     void setup();
-    std::map<std::string, OIS::KeyCode> allkeys;
-    std::map<std::string, OIS::KeyCode>::iterator allit;
+    KeyCodeMap allkeys;
+    KeyCodeMap::iterator allit;
 
     float deadZone(float axis, float dz);
     float axisLinearity(float axisValue, float linearity);
@@ -611,13 +597,6 @@ protected:
     std::string composeEventCommandString(event_trigger_t const& trig);
 
     event_trigger_t newEvent();
-
-    // OIS WORKAROUND: After a window focus is restored for the 2nd+ time, OIS delivers a fabricated 'LMB pressed' event,
-    //    without ever sending matching 'LMB released', see analysis: https://github.com/RigsOfRods/rigs-of-rods/pull/3184#issuecomment-2380397463
-    // This has a very prominent negative effect, see https://github.com/RigsOfRods/rigs-of-rods/issues/2468
-    // There's no way to recognize the event as fake, we must track number of frames and LMB presses since last reset.
-    size_t m_oisworkaround_frames_since_reset = 0u;
-    size_t m_oisworkaround_lmbdowns_since_reset = 0u;
 };
 
 /// @} // @addtogroup Input

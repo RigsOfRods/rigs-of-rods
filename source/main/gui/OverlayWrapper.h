@@ -30,7 +30,7 @@
 #include "Application.h"
 
 #include <Overlay/OgreTextAreaOverlayElement.h>
-#include <OIS.h>
+#include <Bites/OgreInput.h>
 
 namespace RoR {
 
@@ -169,9 +169,7 @@ public:
 
     void UpdatePressureOverlay(RoR::GfxActor* ga);
     void update(float dt);
-    void UpdateLandVehicleHUD(RoR::GfxActor* ga);
     void UpdateAerialHUD(RoR::GfxActor* ga);
-    void UpdateMarineHUD(ActorPtr vehicle);
 
     void ShowRacingOverlay();
     void HideRacingOverlay();
@@ -187,6 +185,7 @@ protected:
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
     void updateStats(bool detailed=false);
     void showPressureOverlay(bool show);
+    bool mouseChanged();
 
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 
@@ -205,46 +204,20 @@ protected:
 
     AeroDashOverlay m_aerial_dashboard;
 
-    Ogre::Overlay *m_marine_dashboard_overlay = nullptr;
-    Ogre::Overlay *m_marine_dashboard_needles_overlay = nullptr;
-
-    Ogre::Overlay *m_machine_dashboard_overlay = nullptr;
-
-    // Misc
     Ogre::Overlay *m_racing_overlay = nullptr;
 
     // -------------------------------------------------------------
     // Overlay elements
     // -------------------------------------------------------------
 
-    // Truck
-    Ogre::OverlayElement* guiGear = nullptr;
-
-    // Marine overlay elements
-    Ogre::OverlayElement *bthro1 = nullptr;
-    Ogre::OverlayElement *bthro2 = nullptr;
-
-    // Truck
-    Ogre::TextAreaOverlayElement* guiAuto[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
-
-    // Truck (racing overlay)
+    // racing overlay
     Ogre::TextAreaOverlayElement* laptime = nullptr;
     Ogre::TextAreaOverlayElement* bestlaptime = nullptr;
-
-    Ogre::TextAreaOverlayElement* boat_depth_value_taoe = nullptr; //!< Marine
-
-    // truck
-    Ogre::TextureUnitState *speedotexture = nullptr;
-    Ogre::TextureUnitState *tachotexture = nullptr;
-
-    // Marine
-    Ogre::TextureUnitState *boatspeedtexture = nullptr;
-    Ogre::TextureUnitState *boatsteertexture = nullptr;
 
     // Truck
     Ogre::TextureUnitState *pressuretexture = nullptr;
 
-    // Marine: Written in init(), read-only in simulation.
+    // Aerial: Written in init(), read-only in simulation.
     float thrtop = 0.f;
     float thrheight = 0.f;
     float throffset = 0.f;

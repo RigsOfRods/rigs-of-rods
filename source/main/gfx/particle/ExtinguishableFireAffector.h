@@ -23,8 +23,7 @@
 #ifdef USE_ANGELSCRIPT
 
 #include <OgreParticleAffector.h>
-#include <OgreVector3.h>
-#include <OgreVector2.h>
+#include <Ogre.h>
 
 namespace Ogre {
 

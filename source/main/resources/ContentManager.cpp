@@ -24,11 +24,9 @@
 
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
 
 
 #include "Application.h"
-#include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
 #include "SkinFileFormat.h"
@@ -61,87 +59,25 @@
 using namespace Ogre;
 using namespace RoR;
 
-// ================================================================================
-// Static variables
-// ================================================================================
-
-#define DECLARE_RESOURCE_PACK(_FIELD_, _NAME_, _RESOURCE_GROUP_) \
-    const ContentManager::ResourcePack ContentManager::ResourcePack::_FIELD_(_NAME_, _RESOURCE_GROUP_);
-
-DECLARE_RESOURCE_PACK( OGRE_CORE,             "OgreCore",             "OgreCoreRG");
-DECLARE_RESOURCE_PACK( WALLPAPERS,            "wallpapers",           "Wallpapers");
-DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsRG");
-DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
-DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
-DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
-DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
-DECLARE_RESOURCE_PACK( FLAGS,                 "flags",                "FlagsRG");
-DECLARE_RESOURCE_PACK( FONTS,                 "fonts",                "FontsRG");
-DECLARE_RESOURCE_PACK( HYDRAX,                "hydrax",               "HydraxRG");
-DECLARE_RESOURCE_PACK( ICONS,                 "icons",                "IconsRG");
-DECLARE_RESOURCE_PACK( MATERIALS,             "materials",            "MaterialsRG");
-DECLARE_RESOURCE_PACK( MESHES,                "meshes",               "MeshesRG");
-DECLARE_RESOURCE_PACK( MYGUI,                 "mygui",                "MyGuiRG");
-DECLARE_RESOURCE_PACK( OVERLAYS,              "overlays",             "OverlaysRG");
-DECLARE_RESOURCE_PACK( PAGED,                 "paged",                "PagedRG");
-DECLARE_RESOURCE_PACK( PARTICLES,             "particles",            "ParticlesRG");
-DECLARE_RESOURCE_PACK( PSSM,                  "pssm",                 "PssmRG");
-DECLARE_RESOURCE_PACK( RTSHADER,              "rtshader",             "RtShaderRG");
-DECLARE_RESOURCE_PACK( SCRIPTS,               "scripts",              "ScriptsRG");
-DECLARE_RESOURCE_PACK( SOUNDS,                "sounds",               "SoundsRG");
-DECLARE_RESOURCE_PACK( TEXTURES,              "textures",             "TexturesRG");
-DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
-
-// ================================================================================
-// Functions
-// ================================================================================
-
-void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::string const& override_rgn)
+void ContentManager::AddResourcePack(std::string const& resource_pack, std::string const& override_rgn)
 {
-    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+    Ogre::String rg_name = (override_rgn != "")
+        ? override_rgn
+        : Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
 
-    Ogre::String rg_name;
-    if (!override_rgn.empty()) // Custom RG defined?
-    {
-        rg_name = override_rgn;
-    }
-    else // Use default RG
-    {
-        if (rgm.resourceGroupExists(resource_pack.resource_group_name)) // Already loaded?
-        {
-            return; // Nothing to do, nothing to report
-        }
-        rg_name = resource_pack.resource_group_name;
-    }
-
-    std::stringstream log_msg;
-    log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" to group \"" << rg_name << "\"";
-    std::string dir_path = PathCombine(App::sys_resources_dir->getStr(), resource_pack.name);
-    std::string zip_path = dir_path + ".zip";
+    const std::string dir_path = PathCombine(App::sys_resources_dir->getStr(), resource_pack);
+    const std::string zip_path = dir_path + ".zip";
     if (FileExists(zip_path))
     {
-        log_msg << " (ZIP archive)";
-        LOG(log_msg.str());
-        rgm.addResourceLocation(zip_path, "Zip", rg_name);
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(zip_path, "Zip", rg_name);
+    }
+    else if (FolderExists(dir_path))
+    {
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dir_path, "FileSystem", rg_name);
     }
     else
     {
-        if (FolderExists(dir_path))
-        {
-            log_msg << " (directory)";
-            LOG(log_msg.str());
-            rgm.addResourceLocation(dir_path, "FileSystem", rg_name);
-        }
-        else
-        {
-            log_msg << " failed, data not found.";
-            throw std::runtime_error(log_msg.str());
-        }
-    }
-
-    if (override_rgn.empty()) // Only init the default RG
-    {
-        rgm.initialiseResourceGroup(rg_name);
+        throw std::runtime_error(fmt::format("[RoR|ContentManager] Loading resource pack '{}' failed, data not found (neither ZIP nor directory).", resource_pack));
     }
 }
 
@@ -158,12 +94,6 @@ void ContentManager::InitContentManager()
 
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
-    // Initialize "managed materials" first
-    //   These are base materials referenced by user content
-    //   They must be initialized before any content is loaded,
-    //   otherwise material links are unresolved and loading ends with an exception
-    this->InitManagedMaterials(RGN_MANAGED_MATS);
-
     // set listener if none has already been set
     if (!Ogre::ResourceGroupManager::getSingleton().getLoadingListener())
         Ogre::ResourceGroupManager::getSingleton().setLoadingListener(this);
@@ -172,8 +102,7 @@ void ContentManager::InitContentManager()
     Ogre::MovableObject::setDefaultVisibilityFlags(DEPTHMAP_ENABLED);
 
 
-    this->AddResourcePack(ResourcePack::MYGUI);
-    this->AddResourcePack(ResourcePack::DASHBOARDS);
+    this->AddResourcePack("mygui");
 
 
 #ifdef _WIN32
@@ -207,14 +136,10 @@ void ContentManager::InitContentManager()
     App::GetSoundScriptManager()->setLoadingBaseSounds(true);
 #endif // USE_OPENAL
 
-    AddResourcePack(ResourcePack::SOUNDS);
+    AddResourcePack("sounds");
 
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
-
-    LOG("RoR|ContentManager: Registering colored text overlay factory");
-    ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
-    OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
     // set default mipmap level (NB some APIs ignore this)
     if (TextureManager::getSingletonPtr())
@@ -378,17 +303,18 @@ bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *
     return false; // Report "not handled"
 }
 
-void ContentManager::InitManagedMaterials(std::string const & rg_name)
+void ContentManager::InitBaseManagedMaterials(std::string const & rg_name)
 {
+    //   These are base materials referenced by user content
+    //   They must be initialized before any content is loaded,
+    //   otherwise material links are unresolved and loading ends with an exception
+    // ============================================================================
+
     Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
 
     //Dirty, needs to be improved
     if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
     {
-        if (rg_name == RGN_MANAGED_MATS) // Only load shared resources on startup
-        {
-            ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem", rg_name);
-        }
         ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
     }
     else
@@ -400,37 +326,29 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 
     // Last
     ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", rg_name);
-
-    if (rg_name == RGN_MANAGED_MATS) // Only initialize the global resource group
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
 }
 
-void ContentManager::LoadGameplayResources()
+void ContentManager::InitActorManagedMaterials(std::string const & rg_name)
 {
-    if (!m_base_resource_loaded)
+    // Base materials for the 'managedmaterials' section of truck fileformat.
+    // Must be loaded before the actor is spawned.
+    // ======================================================================
+
+    Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
+
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "vehicles"), "FileSystem", rg_name);
+
+    // We can't have `EnvironmentTexture` both use shaders (nicemetal) and not use shaders (alternate).
+    // RoR.log: Error: ScriptCompiler - invalid parameters in texture_manager.material(16): 
+    //          overriding previous declarations of texture 'EnvironmentTexture' with different parameters
+    if (App::gfx_alt_actor_materials->getBool())
     {
-        this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
-        this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
-        this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-        this->AddResourcePack(ContentManager::ResourcePack::MESHES);
-        this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-        this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
-
-        m_base_resource_loaded = true;
+        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "vehicles/alternate"), "FileSystem", rg_name);
     }
-
-    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
-        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-        this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
-
-    if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
-        this->AddResourcePack(ContentManager::ResourcePack::PAGED);
+    else
+    {
+        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "vehicles/nicemetal"), "FileSystem", rg_name);
+    }
 }
 
 std::string ContentManager::ListAllUserContent()

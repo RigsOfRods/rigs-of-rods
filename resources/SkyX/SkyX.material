@@ -175,8 +175,7 @@ material SkyX_VolClouds
 			depth_write off
 			depth_check on
 			
-			cull_hardware none 
-			cull_software none
+			cull_hardware none
 			
 			scene_blend alpha_blend
 			alpha_rejection greater 0
@@ -290,8 +289,7 @@ material SkyX_VolClouds_Lightning
 			depth_write off
 			depth_check on
 			
-			cull_hardware none 
-			cull_software none
+			cull_hardware none
 			
 			scene_blend alpha_blend
 			alpha_rejection greater 0

@@ -30,7 +30,7 @@
 #include "TerrainEditor.h"
 #include "Wavefield.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <string>
 
 namespace RoR {

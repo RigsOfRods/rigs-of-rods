@@ -4,7 +4,7 @@
 
 
 #include <OgreParticleSystemRenderer.h>
-#include <OgreVector2.h>
+#include <Ogre.h>
 
 namespace Ogre {
 
@@ -182,17 +182,15 @@ namespace Ogre {
         /// @name Ogre::ParticleSystemRenderer interface
         /// @{
         virtual const String& getType(void) const override;
-        virtual void _updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually) override;
+        virtual void _updateRenderQueue(RenderQueue* queue, std::vector<Particle*>& currentParticles, bool cullIndividually) override;
         virtual void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables = false) override;
         virtual void _setMaterial(MaterialPtr& mat) override;
         virtual void _notifyCurrentCamera(Camera* cam) override;
-        virtual void _notifyParticleRotated(void) override;
-        virtual void _notifyParticleResized(void) override;
+        virtual void _notifyParticleRotated(void); // GCC says it does not override
+        virtual void _notifyParticleResized(void); // GCC says it does not override
         virtual void _notifyParticleQuota(size_t quota) override;
         virtual void _notifyAttached(Node* parent, bool isTagPoint = false) override;
         virtual void _notifyDefaultDimensions(Real width, Real height) override;
-        virtual ParticleVisualData* _createVisualData(void) override;
-        virtual void _destroyVisualData(ParticleVisualData* vis) override;
         virtual void setRenderQueueGroup(uint8 queueID) override;
         virtual void setKeepParticlesInLocalSpace(bool keepLocal) override;
         virtual SortMode _getSortMode(void) const override;
