@@ -27,6 +27,7 @@
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "Terrain.h"
 
 #include <OgreOverlaySystem.h>
@@ -243,6 +244,11 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
             App::GetGameContext()->GetTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]);
         }
 #endif // USE_CAELUM
+        // Same applies to CaelumPort in SkyX
+        if (App::GetGameContext()->GetTerrain()->getSkyXManager())
+        {
+            App::GetGameContext()->GetTerrain()->getSkyXManager()->NotifyCaelumPortCameraChanged(m_cameras[m_update_round]);
+        }
         m_render_targets[m_update_round]->update();
         m_update_round = (m_update_round + 1) % NUM_FACES;
     }
@@ -252,6 +258,10 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
         App::GetGameContext()->GetTerrain()->getSkyManager()->NotifySkyCameraChanged(App::GetCameraManager()->GetCamera());
     }
 #endif // USE_CAELUM
+    if (App::GetGameContext()->GetTerrain()->getSkyXManager())
+    {
+        App::GetGameContext()->GetTerrain()->getSkyXManager()->NotifyCaelumPortCameraChanged(App::GetCameraManager()->GetCamera());
+    }
 
     if (gfx_actor != nullptr)
     {

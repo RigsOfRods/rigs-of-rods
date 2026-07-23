@@ -166,6 +166,7 @@ enum MsgType
     MSG_EDI_ADD_FREEBEAMGFX_REQUESTED,     //!< Payload = RoR::FreeBeamGfxRequest* (owner)
     MSG_EDI_MODIFY_FREEBEAMGFX_REQUESTED,  //!< Payload = RoR::FreeBeamGfxRequest* (owner)
     MSG_EDI_DELETE_FREEBEAMGFX_REQUESTED,  //!< Payload = RoR::FreeBeamGfxID_t* (owner)
+    MSG_EDI_REINIT_SKY_REQUESTED,
 };
 
 const char* MsgTypeToString(MsgType type);
@@ -413,6 +414,7 @@ std::string ToLocalizedString(GfxWaterMode e);
 
 enum class GfxSkyMode
 {
+    NONE,       //!< No sky (simple color)
     SANDSTORM,  //!< Sandstorm (fastest)
     CAELUM,     //!< Caelum (best looking, slower)
     SKYX,       //!< SkyX (best looking, slower)

@@ -171,6 +171,40 @@ void drawTreeNodeOgreSceneNodeRecursive(Ogre::SceneNode@ snode)
     }
 }
 
+void drawOgreLightDetails(Ogre::Light@ light) // helper for `drawTreeNodeOgreMovableObject()`
+{
+    ImGui::PushID(light.__getUniqueName());
+    
+    // Log light information
+    ImGui::BulletText("  Type: " + formatLightType(light.getType()) + " (" + light.getType() + ")");
+    ImGui::BulletText("  Derived Position: " + light.getDerivedPosition().x + ", " +       light.getDerivedPosition().y + ", " + light.getDerivedPosition().z);
+    ImGui::BulletText("  Derived Direction: " + light.getDerivedDirection().x + ", " +       light.getDerivedDirection().y + ", " + light.getDerivedDirection().z);
+    
+    if (ImGui::CollapsingHeader("Nodeless positioning"))
+    {
+        ImGui::BulletText("  Position: " + light.getPosition().x + ", " +       light.getPosition().y + ", " + light.getPosition().z );
+        ImGui::BulletText("  Direction: " + light.getDirection().x + ", " +       light.getDirection().y + ", " + light.getDirection().z);
+    }
+    
+    // ambient light
+    color dColor = light.getDiffuseColour();
+    if (ImGui::ColorEdit3("Diffuse Color", dColor))
+    {
+        light.setDiffuseColour(dColor);
+    }
+    
+    // specular reflections
+    color sColor = light.getSpecularColour();
+    if (ImGui::ColorEdit3("Specular Color", sColor))
+    {
+        light.setSpecularColour(sColor);
+    }
+    
+    ImGui::BulletText("Power scale:" + light.getPowerScale());
+    
+    ImGui::PopID(); //light.__getUniqueName()
+}
+
 void drawTreeNodeOgreMovableObject(Ogre::MovableObject@ movable)
 {
     if (ImGui::TreeNode(movable.__getUniqueName()))
@@ -207,15 +241,7 @@ void drawTreeNodeOgreMovableObject(Ogre::MovableObject@ movable)
             Ogre::Light@ light = cast<Ogre::Light>(movable);
             if (light !is null)
             {
-                // Log light information
-                ImGui::BulletText("  Type: " + formatLightType(light.getType()) + " (" + light.getType() + ")");
-                ImGui::BulletText("  Position: " + light.getPosition().x + ", " +       light.getPosition().y + ", " + light.getPosition().z);
-                // ambient light
-                color dColor = light.getDiffuseColour();
-                if (ImGui::ColorEdit3("Diffuse Color", dColor))
-                {
-                    light.setDiffuseColour(dColor);
-                }     
+                drawOgreLightDetails(light);
             }
             else
             {

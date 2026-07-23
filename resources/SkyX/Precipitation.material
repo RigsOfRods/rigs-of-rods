@@ -1,0 +1,110 @@
+//
+// This file is part of Caelum.
+// See http://www.ogre3d.org/wiki/index.php/Caelum 
+// 
+// Copyright (c) 2008 Caelum team. See Contributors.txt for details.
+// 
+// Caelum is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Caelum is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with Caelum. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// --- vert ---
+
+vertex_program Caelum/PrecipitationVP unified
+{
+    delegate Caelum/PrecipitationVP_GLSL
+    delegate Caelum/PrecipitationVP_HLSL
+}
+
+vertex_program Caelum/PrecipitationVP_GLSL glsl
+{
+    source PrecipitationMainVP.glsl
+    profiles vp40
+    
+    default_params
+    {
+        param_named_auto worldviewproj_matrix worldviewproj_matrix
+    }
+}
+
+vertex_program Caelum/PrecipitationVP_HLSL hlsl
+{
+    source Precipitation.hlsl
+    target vs_3_0
+	entry_point MainVP
+    
+    default_params
+    {
+        param_named_auto worldviewproj_matrix worldviewproj_matrix
+    }
+}
+
+// --- frag ---
+
+fragment_program Caelum/PrecipitationFP unified
+{
+    delegate Caelum/PrecipitationFP_GLSL
+    delegate Caelum/PrecipitationFP_HLSL
+}
+
+fragment_program Caelum/PrecipitationFP_GLSL glsl
+{
+    source PrecipitationMainFP.glsl
+    profiles fp40
+    
+    default_params
+    {
+    }
+}
+
+fragment_program Caelum/PrecipitationFP_HLSL hlsl
+{
+    source Precipitation.hlsl
+    target ps_3_0
+	entry_point MainFP
+    
+    default_params
+    {
+    }
+}
+
+// --- mat ---
+
+material Caelum/PrecipitationMaterial
+{
+    technique Default
+    {
+        pass Main
+        {
+            vertex_program_ref Caelum/PrecipitationVP
+            {
+            }
+            
+            fragment_program_ref Caelum/PrecipitationFP
+            {
+                param_named samplerScene int 0
+                param_named samplerPrec  int 1
+            }
+            
+            texture_unit Scene
+            {           
+            }
+            
+            texture_unit Precipitation
+            {
+                texture precipitation_drizzle.png
+                filtering trilinear
+            }
+        }
+    }
+}

@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "Application.h"
+#include "CameraManager.h"
 
 #include "gfx/skyx/SkyX.h"
 
@@ -29,42 +30,41 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
+static const std::string SKYX_DEFAULT_CONFIG_FILE = "SkyXDefault.skx"; // fallback, in game resources.
+static const std::string SKYX_USER_CONFIG_FILE = "skyx.cfg"; // primary, in user's /config dir.
+
 class SkyXManager
 {
 public:
-	SkyXManager(Ogre::String configFile);
-	~SkyXManager();
+    SkyXManager(Ogre::String configFile);
+    ~SkyXManager();
 
-	Ogre::Vector3 getMainLightDirection();
+    Ogre::Light* getMainLight();
 
-	Ogre::Light* getMainLight();
+    bool update( float dt );
 
-	bool update( float dt );
+    SkyX::SkyX* GetSkyX() { return mSkyX; }
 
-	bool InitLight();
-
-	size_t getMemoryUsage();
-
-	void freeResources();
-
-	bool UpdateSkyLight();
-
-	SkyX::SkyX* GetSkyX() { return mSkyX; }
+    // CaelumPort updates ported from `SkyManager`
+    void NotifyCaelumPortCameraChanged(Ogre::Camera* newCamera);
+    void DetectTerrainLightmapUpdateFromCaelumPort();
+    std::string GetCaelumPortPrettyTime();
+    double GetCaelumPortTime();
+    void SetCaelumPortTime(double time);
+    Ogre::Light* GetCaelumPortMainLight();
 
 protected:
-	Ogre::Light *mLight0 = nullptr;
-	Ogre::Light *mLight1 = nullptr;
-	
-	SkyX::SkyX* mSkyX = nullptr;
-	SkyX::BasicController* mBasicController = nullptr;
+    void DetectPlayerMovement(float dt);
 
-	SkyX::ColorGradient mWaterGradient, 
-		                mSunGradient, 
-						mAmbientGradient;
+    SkyX::SkyX* mSkyX = nullptr;
+    Ogre::SceneNode* mGroupingSceneNode = nullptr;
 
-	SkyX::CfgFileManager* mCfgFileManager = nullptr;
+    SkyX::CfgFileManager* mCfgFileManager = nullptr;
 
-    int mLastHour = 0;
+    CaelumPort::LongReal mLastLightmapUpdateCaelumClock = 0.0;
+    ActorPtr mLastPlayerActor;
+    CameraManager::CameraBehaviors mLastCameraBehavior = CameraManager::CAMERA_BEHAVIOR_INVALID;
+    Ogre::Vector3 mLastPlayerPosition = Ogre::Vector3::ZERO;
 };
 
 /// @} // addtogroup Gfx

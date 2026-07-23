@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier VerguÌn Gonz·lez <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Vergu√≠n Gonz√°lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,72 +28,72 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX { namespace VClouds{
 
-	class VClouds;
+    class VClouds;
 
-	class GeometryBlock
-	{
-	public:
-		/** Vertex struct
-		 */
-		struct VERTEX
-		{	      // Position
-			float x,y,z,
-				  // 3D Coords
-				  xc, yc, zc,
-				  // Noise coords
-				  u, v,
-				  // Opacity
-				  o;
-		};
-
-		/** Constructor
-			@param vc VClouds pointer
-			@param Height Field height (in woorld coordinates)
-			@param Alpha Alpha angle
-			@param Beta Beta angle
-			@param Radius Total radius
-			@param Phi Actimutal angle
-			@param Na Number of slices in A zone
-			@param Nb Number of slices in B zone
-			@param Nc Number of slices in C zone
-			@param A A radius
-			@param B B radius
-			@param C C radius
-		 */
-		GeometryBlock(VClouds *vc,
-			const float& Height, const Ogre::Radian& Alpha, const Ogre::Radian& Beta, 
-			const float& Radius, const Ogre::Radian& Phi, const int& Na, 
-			const int& Nb, const int& Nc, const int& A, 
-			const int& B, const int& C, const int& Position);
-
-		/** Destructor
-		 */
-		~GeometryBlock();
-
-		/** Create
-		 */
-		void create();
-
-		/** Remove
-		 */
-		void remove();
-
-		/** Update geometry
-		    @param c Camera
-		    @param displacement Current offset in world units per zone
-			@param distance Current camera to cloud field distance
+    class GeometryBlock
+    {
+    public:
+        /** Vertex struct
          */
-		void updateGeometry(Ogre::Camera* c, const Ogre::Vector3& displacement, const Ogre::Vector3& distance);
+        struct VERTEX
+        {	      // Position
+            float x,y,z,
+                  // 3D Coords
+                  xc, yc, zc,
+                  // Noise coords
+                  u, v,
+                  // Opacity
+                  o;
+        };
 
-		/** Has been create() already called?
-		    @return true if created() have been already called, false if not
-		 */
-		inline const bool& isCreated() const
-		{
-			return mCreated;
-		}
+        /** Constructor
+            @param vc VClouds pointer
+            @param Height Field height (in woorld coordinates)
+            @param Alpha Alpha angle
+            @param Beta Beta angle
+            @param Radius Total radius
+            @param Phi Actimutal angle
+            @param Na Number of slices in A zone
+            @param Nb Number of slices in B zone
+            @param Nc Number of slices in C zone
+            @param A A radius
+            @param B B radius
+            @param C C radius
+         */
+        GeometryBlock(VClouds *vc,
+            const float& Height, const Ogre::Radian& Alpha, const Ogre::Radian& Beta, 
+            const float& Radius, const Ogre::Radian& Phi, const int& Na, 
+            const int& Nb, const int& Nc, const int& A, 
+            const int& B, const int& C, const int& Position);
 
-		/** Get mesh
+        /** Destructor
+         */
+        ~GeometryBlock();
+
+        /** Create
+         */
+        void create();
+
+        /** Remove
+         */
+        void remove();
+
+        /** Update geometry
+            @param c Camera
+            @param displacement Current offset in world units per zone
+            @param distance Current camera to cloud field distance
+         */
+        void updateGeometry(Ogre::Camera* c, const Ogre::Vector3& displacement, const Ogre::Vector3& distance);
+
+        /** Has been create() already called?
+            @return true if created() have been already called, false if not
+         */
+        inline const bool& isCreated() const
+        {
+            return mCreated;
+        }
+
+        /** Get mesh
             @return Mesh
          */
         inline Ogre::MeshPtr getMesh()
@@ -117,7 +117,7 @@ namespace SkyX { namespace VClouds{
             return mEntity;
         }
 
-		/** Get hardware vertex buffer reference
+        /** Get hardware vertex buffer reference
             @return Ogre::HardwareVertexBufferSharedPtr reference
          */
         inline Ogre::HardwareVertexBufferSharedPtr &getHardwareVertexBuffer()
@@ -125,72 +125,79 @@ namespace SkyX { namespace VClouds{
             return mVertexBuffer;
         }
 
-		/** Get hardware index buffer reference
-		    @return Ogre::HardwareIndexBufferSharedPtr reference
-		 */
-		inline Ogre::HardwareIndexBufferSharedPtr &getHardwareIndexBuffer()
-		{
-			return mIndexBuffer;
-		}
+        /** Get hardware index buffer reference
+            @return Ogre::HardwareIndexBufferSharedPtr reference
+         */
+        inline Ogre::HardwareIndexBufferSharedPtr &getHardwareIndexBuffer()
+        {
+            return mIndexBuffer;
+        }
 
-		/** Set world offset
-		    @param WorldOffset World offset
-		 */
-		inline void setWorldOffset(const Ogre::Vector2& WorldOffset)
-		{
-			mWorldOffset = WorldOffset;
-		}
+        /** Set world offset
+            @param WorldOffset World offset
+         */
+        inline void setWorldOffset(const Ogre::Vector2& WorldOffset)
+        {
+            mWorldOffset = WorldOffset;
+        }
 
-		/** Is the geometry block inside the camera frustum?
-		    @param c Camera
-			@return true if yes, false if not
-		 */
-		const bool isInFrustum(Ogre::Camera *c) const;
+        /** Is the geometry block inside the camera frustum?
+            @param c Camera
+            @return true if yes, false if not
+         */
+        const bool isInFrustum(Ogre::Camera *c) const;
 
-	private:
-		/** Build axis aligned box
-		    @param fd Falling distance (Positive values for falling geometry, negative for reverse falling geometry)
-		 */
-		const Ogre::AxisAlignedBox _buildAABox(const float& fd) const;
+        /// RIGSOFRODS: Added for dynamic height change
+        void changeHeight(float newHeight)
+        {
+            mHeight = newHeight;
+            // Processed every frame in `_UpdateZone[ABC]Slice()`
+        }
 
-		/** Calculate data size
-		 */
-		void _calculateDataSize();
+    private:
+        /** Build axis aligned box
+            @param fd Falling distance (Positive values for falling geometry, negative for reverse falling geometry)
+         */
+        const Ogre::AxisAlignedBox _buildAABox(const float& fd) const;
 
-		/** Create geometry
-		 */
-		void _createGeometry();
+        /** Calculate data size
+         */
+        void _calculateDataSize();
 
-		/** Update geometry
-		 */
-		void _updateGeometry();
+        /** Create geometry
+         */
+        void _createGeometry();
 
-		/** Update zone C slice
-		    @param n Number of slice
-		 */
-		void _updateZoneCSlice(const int& n);
-		
-		/** Update zone B slice
-		    @param n Number of slice
-		 */
-		void _updateZoneBSlice(const int& n);
+        /** Update geometry
+         */
+        void _updateGeometry();
 
-		/** Update zone A slice
-		    @param n Number of slice
-		 */
-		void _updateZoneASlice(const int& n);
+        /** Update zone C slice
+            @param n Number of slice
+         */
+        void _updateZoneCSlice(const int& n);
+        
+        /** Update zone B slice
+            @param n Number of slice
+         */
+        void _updateZoneBSlice(const int& n);
 
-		/** Set vertex data
-			@param index Vertex index
-			@param o Slice opacity
-			@param p Position
-		 */
-		void _setVertexData(const int& index, const Ogre::Vector3& p, const float& o);
+        /** Update zone A slice
+            @param n Number of slice
+         */
+        void _updateZoneASlice(const int& n);
 
-		/// Has been create() already called?
-		bool mCreated;
+        /** Set vertex data
+            @param index Vertex index
+            @param o Slice opacity
+            @param p Position
+         */
+        void _setVertexData(const int& index, const Ogre::Vector3& p, const float& o);
 
-		/// Ogre::MeshPtr
+        /// Has been create() already called?
+        bool mCreated;
+
+        /// Ogre::MeshPtr
         Ogre::MeshPtr mMesh;
         /// Ogre::Submesh pointer
         Ogre::SubMesh *mSubMesh;
@@ -202,52 +209,52 @@ namespace SkyX { namespace VClouds{
         /// Index buffer
         Ogre::HardwareIndexBufferSharedPtr  mIndexBuffer;
 
-		/// Vertices pointer
-		VERTEX *mVertices;
+        /// Vertices pointer
+        VERTEX *mVertices;
 
-		/// Current number of triangles
-		int mNumberOfTriangles;
-		/// Vertex count
-		int mVertexCount;
+        /// Current number of triangles
+        int mNumberOfTriangles;
+        /// Vertex count
+        int mVertexCount;
 
-		/// Height
-		float mHeight;
-		/// Angles
-		Ogre::Radian mAlpha, mBeta;
-		/// Radius
-		float mRadius;
-		/// Acimutal angle
-		Ogre::Radian mPhi;
-		/// Number of slices per geometry zone
-		int mNa, mNb, mNc;
-		/// A, B and C radius
-		float mA, mB, mC;
-		/// Number of block(Position)
-		int mPosition;
+        /// Height
+        float mHeight;
+        /// Angles
+        Ogre::Radian mAlpha, mBeta;
+        /// Radius
+        float mRadius;
+        /// Acimutal angle
+        Ogre::Radian mPhi;
+        /// Number of slices per geometry zone
+        int mNa, mNb, mNc;
+        /// A, B and C radius
+        float mA, mB, mC;
+        /// Number of block(Position)
+        int mPosition;
 
-		/// Precomputed Cos/Sin vectors
-		Ogre::Vector2 mV2Cos;
-		Ogre::Vector2 mV2Sin;
-		/// PI - Beta, PI - Alpha Sin
-		float mBetaSin;
-		float mAlphaSin;
+        /// Precomputed Cos/Sin vectors
+        Ogre::Vector2 mV2Cos;
+        Ogre::Vector2 mV2Sin;
+        /// PI - Beta, PI - Alpha Sin
+        float mBetaSin;
+        float mAlphaSin;
 
-		/// Displacement
-		Ogre::Vector3 mDisplacement;
-		/// World coords offset
-		Ogre::Vector2 mWorldOffset;
+        /// Displacement
+        Ogre::Vector3 mDisplacement;
+        /// World coords offset
+        Ogre::Vector2 mWorldOffset;
 
-		/// VClouds pointer
-		VClouds *mVClouds;
-		/// Current rendering camera
-		Ogre::Camera* mCamera;
+        /// VClouds pointer
+        VClouds *mVClouds;
+        /// Current rendering camera
+        Ogre::Camera* mCamera;
 
-		/// Current distance
-		Ogre::Vector3 mDistance;
+        /// Current distance
+        Ogre::Vector3 mDistance;
 
-		/// Last falling distance
-		float mLastFallingDistance;
-	};
+        /// Last falling distance
+        float mLastFallingDistance;
+    };
 
 
 }}

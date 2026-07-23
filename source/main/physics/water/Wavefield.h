@@ -37,6 +37,7 @@ public:
     float GetStaticWaterHeight(); //!< Returns static water level configured in 'terrn2'
     void  SetStaticWaterHeight(float value);
     void  SetWavesHeight(float);
+    float GetWavesHeight() { return m_waves_height; }
     float CalcWavesHeight(Vec3 pos, float timeshift_sec = 0.f);
     Vec3  CalcWavesVelocity(Vec3 pos, float timeshift_sec = 0.f);
     void  FrameStepWaveField(float dt);

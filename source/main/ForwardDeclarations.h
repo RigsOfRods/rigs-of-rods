@@ -293,6 +293,11 @@ namespace RigDef
     typedef std::shared_ptr<Document> DocumentPtr;
 }
 
+namespace SkyX
+{
+    class SkyX;
+}
+
 #ifdef USE_SOCKETW
 class SWBaseSocket;
 #endif // USE_SOCKETW
