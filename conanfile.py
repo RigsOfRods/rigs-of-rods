@@ -24,15 +24,16 @@ class RoR(ConanFile):
         self.requires("ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable")
         self.requires("ogre3d/1.11.6.1@anotherfoxguy/stable", force=True)
         self.requires("ois/1.4.1@rigsofrods/custom")
-        self.requires("openal-soft/1.22.2")
+        self.requires("openal-soft/1.24.3")
         self.requires("openssl/3.1.2", force=True)
         self.requires("rapidjson/cci.20211112", force=True)
         self.requires("socketw/3.11.0@anotherfoxguy/stable")
 
         self.requires("jasper/4.2.4", override=True)
-        self.requires("libpng/1.6.39", override=True)
-        self.requires("libwebp/1.3.2", override=True)
-        self.requires("zlib/1.2.13", override=True)
+        self.requires("libpng/1.6.58", override=True)
+        self.requires("libwebp/1.6.0", override=True)
+        self.requires("zlib/1.3.2", override=True)
+        self.requires("zziplib/0.13.78@anotherfoxguy/stable", override=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
