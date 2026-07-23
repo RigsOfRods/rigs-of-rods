@@ -5126,6 +5126,7 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
     case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_max_idle_mixture = val; } return;
     case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_min_idle_mixture = val; } return;
     case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { ar_engine->m_braking_torque = val; } return;
+    case ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE:  if (ar_engine) { ar_engine->m_air_intake_node = (int)val; } return; // -1 = no air intake node (casted to `NodeNum_t` produces 65535 which is NODENUM_INVALID)
 
         // Engturbo2 (actually 'engturbo' with type=2) 
     case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_inertia_factor = val; } return;
@@ -5176,6 +5177,7 @@ float Actor::getSimAttribute(ActorSimAttr attr)
     case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { return ar_engine->m_max_idle_mixture; } return 0.f;
     case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { return ar_engine->m_min_idle_mixture; } return 0.f;
     case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { return ar_engine->m_braking_torque; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE:  if (ar_engine) { return (ar_engine->m_air_intake_node == NODENUM_INVALID) ? -1.f : (float)ar_engine->m_air_intake_node; } return 0.f; // -1 = no air intake node (casted to `NodeNum_t` produces 65535 which is NODENUM_INVALID)
 
         // Engturbo2 (actually 'engturbo' with type=2) 
     case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_inertia_factor; } return 0.f;

@@ -104,6 +104,7 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE", (int)ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE", (int)ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE", (int)ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE", (int)ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE); ROR_ASSERT(result >= 0);
         // ... Engturbo2 (actually'engturbo'withtype=2)
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR", (int)ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_NUM_TURBOS", (int)ACTORSIMATTR_ENGTURBO2_NUM_TURBOS); ROR_ASSERT(result >= 0);

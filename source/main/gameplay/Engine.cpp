@@ -257,6 +257,16 @@ void Engine::SetEngineOptions(float einertia, char etype, float eclutch, float c
 
 void Engine::UpdateEngine(float dt, int doUpdate)
 {
+    // if engine air intake is defined and under water, stop engine
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    if (m_air_intake_node != NODENUM_INVALID && water)
+    {
+        if (water->IsUnderWater(m_actor->ar_nodes[m_air_intake_node].AbsPosition))
+        {
+            this->stopEngine();
+        }
+    }
+
     float acc = m_cur_acc;
 
     acc = std::max(getIdleMixture(), acc);

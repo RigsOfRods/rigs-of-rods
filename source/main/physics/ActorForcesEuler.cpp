@@ -1685,11 +1685,7 @@ void Actor::CalcNodes()
                     // basic buoyance
                     ar_nodes[i].Forces += ar_nodes[i].buoyancy * Vector3::UNIT_Y;
                 }
-                // engine stall
-                if (i == ar_cinecam_node[0] && ar_engine)
-                {
-                    ar_engine->stopEngine();
-                }
+                // NOTE: Engine stalling in water is now checked in `Engine::UpdateEngine()` and controlled by `Engine::m_air_intake_node`
             }
             ar_nodes[i].nd_under_water = is_under_water;
         }
