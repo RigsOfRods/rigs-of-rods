@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack("skyx");
         App::GetContentManager()->AddResourcePack("paged");
         App::GetContentManager()->AddResourcePack("overlays");
+        App::GetContentManager()->AddResourcePack("character");
         // Always load PSSM shared params to RGN_DEFAULT
         Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem");
