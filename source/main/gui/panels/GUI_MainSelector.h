@@ -106,6 +106,7 @@ private:
     std::map<LoaderType, int> m_last_selected_category; //!< Last category-combobox position for each loader type
     std::map<LoaderType, int> m_last_selected_cid;      //!< Last selected category-ID for each loader type
     std::map<LoaderType, int> m_last_selected_entry;    //!< Stores the last manually selected entry index for each loader type
+    std::map<LoaderType, std::string> m_kept_searchstring; //!< Stays empty if 'ui_keep_search' is false
 };
 
 } // namespace GUI

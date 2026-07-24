@@ -225,6 +225,7 @@ void Console::cVarSetupBuiltins()
     App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
     App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
     App::ui_dashboard_cinecam              = this->cVarCreate("ui_dashboard_cinecam", "Hide dashboard in cinecam view", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
+    App::ui_keep_search                    = this->cVarCreate("ui_keep_search",       "Retain selector search text",    CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,
