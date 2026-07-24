@@ -234,6 +234,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/OgreScriptBuilder.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
             scripting/ScriptUtils.h
+            scripting/autowrapper/aswrappedcall.h
             scripting/bindings/AngelScriptBindings.h
             scripting/bindings/ActorAngelscript.cpp
             scripting/bindings/AircraftEngineAngelscript.cpp
