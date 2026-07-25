@@ -18,8 +18,8 @@ enum asEMsgType
 };
 // from rigs of rods
 int SCRIPTUNITID_INVALID = -1;
-const string RGN_SCRIPTS = "Scripts";
-const string RGN_RESOURCES_SCRIPTS = "ScriptsRG";
+const string RGN_USER_SCRIPTS = "User Scripts";
+const string RGN_GAME_SCRIPTS = "Game Scripts";
 // others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
 const string TABBAR_ID = "##scriptEditorTabs";
@@ -212,9 +212,9 @@ class ScriptEditorWindow
     void refreshLocalFileList()
     {
         //NOTE: `recentScriptsRecord` is constructed manually.
-        this.localScriptsRecord.scanResourceGroup(RGN_SCRIPTS, "*.as*");
-        this.exampleScriptsRecord.scanResourceGroup(RGN_RESOURCES_SCRIPTS, "example_*.*");
-        this.includeScriptsRecord.scanResourceGroup(RGN_RESOURCES_SCRIPTS, "*_utils.*");
+        this.localScriptsRecord.scanResourceGroup(RGN_USER_SCRIPTS, "*.as*");    
+        this.exampleScriptsRecord.scanResourceGroup(RGN_GAME_SCRIPTS, "example_*.*");
+        this.includeScriptsRecord.scanResourceGroup(RGN_GAME_SCRIPTS, "*_utils.*");
     }
 
     void addTab(const string&in tabName, const string&in buffer)
@@ -350,7 +350,7 @@ class ScriptEditorWindow
                         /*game.log("DBG script editor: open file menu: file '"+fileNameBuf+"' is an autosave, loading as '"+tabName+"'");*/
                     }
 
-                    this.addTab(tabName, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
+                    this.addTab(tabName, game.loadTextResourceAsString(fileNameBuf, RGN_USER_SCRIPTS));
                     this.currentTab = this.tabs.length() - 1; // Focus the new tab
                     this.addRecentScript(fileNameBuf);
                 }
@@ -408,7 +408,7 @@ class ScriptEditorWindow
 
                 if (loadExampleFile)
                 {
-                    this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_GAME_SCRIPTS));
                     this.currentTab = this.tabs.length() - 1; // Focus the new tab
                 }
 
@@ -427,7 +427,7 @@ class ScriptEditorWindow
 
                 if (loadIncludeFile)
                 {
-                    this.addTab(includeNameBuf, game.loadTextResourceAsString(includeNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.addTab(includeNameBuf, game.loadTextResourceAsString(includeNameBuf, RGN_GAME_SCRIPTS));
                     this.currentTab = this.tabs.length() - 1; // Focus the new tab
                 }
 
@@ -1937,7 +1937,7 @@ private void saveFileInternal() // Do not invoke while drawing! use `requestSave
     // Write out the file
     string strData = this.buffer.substr(0, this.totalChars);
     bool savedOk = game.createTextResourceFromString(
-    strData, editorWindow.saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
+    strData, editorWindow.saveFileNameBuf, RGN_USER_SCRIPTS, saveShouldOverwrite);
     editorWindow.saveFileResult = savedOk ? 1 : -1;
     if (savedOk)
     {
@@ -1968,7 +1968,7 @@ private void autosaveFileInternal() // Do not invoke while drawing! use `request
     // Write out the file
     string strData = this.buffer.substr(0, this.totalChars);
     bool savedOk = game.createTextResourceFromString(
-    strData, autosaveFilename, RGN_SCRIPTS, /*overwrite:*/true);
+    strData, autosaveFilename, RGN_USER_SCRIPTS, /*overwrite:*/true);
     this.autosaveResult = savedOk ? 1 : -1;
     this.restoreRegionFoldStates();
 }

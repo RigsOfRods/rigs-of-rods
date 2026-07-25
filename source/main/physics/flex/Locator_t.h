@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <SimData.h>
 
 #include <algorithm>

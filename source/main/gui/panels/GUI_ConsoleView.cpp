@@ -175,31 +175,27 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     {
         if (m.cm_icon != "")
         {
-            try
-            {
-                icon = Ogre::TextureManager::getSingleton().load(m.cm_icon, "IconsRG");
-            }
-            catch (...) {}
+            icon = FetchIcon(m.cm_icon.c_str());
         }
         else if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
         {
-            icon = Ogre::TextureManager::getSingleton().load("script.png", "IconsRG");
+            icon = FetchIcon("script.png");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE)
         {
-            icon = Ogre::TextureManager::getSingleton().load("information.png", "IconsRG");
+            icon = FetchIcon("information.png");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_WARNING)
         {
-            icon = Ogre::TextureManager::getSingleton().load("error.png", "IconsRG");
+            icon = FetchIcon("error.png");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_ERROR)
         {
-            icon = Ogre::TextureManager::getSingleton().load("cancel.png", "IconsRG");
+            icon = FetchIcon("cancel.png");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
         {
-            icon = Ogre::TextureManager::getSingleton().load("comment.png", "IconsRG");
+            icon = FetchIcon("comment.png");
         }
     }
 

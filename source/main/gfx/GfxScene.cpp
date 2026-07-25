@@ -79,6 +79,7 @@ void GfxScene::ClearScene()
     // Recover from the wipe
     App::GetCameraManager()->ReCreateCameraNode();
     App::GetGuiManager()->DirectionArrow.CreateArrow();
+    App::GetGfxScene()->GetEnvMap().CreateSceneNodes();
     m_gfx_freebeams_grouping_node = m_scene_manager->getRootSceneNode()->createChildSceneNode("FreeBeam Visuals");
 }
 
@@ -240,12 +241,8 @@ void GfxScene::UpdateScene(float dt)
         float dt_actor = (!player_gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
         player_gfx_actor->UpdateVideoCameras(dt_actor);
 
-        // The old-style render-to-texture dashboard (based on OGRE overlays)
-        if (m_simbuf.simbuf_player_actor->ar_driveable == TRUCK && m_simbuf.simbuf_player_actor->ar_engine != nullptr)
-        {
-            RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(player_gfx_actor);
-        }
-        else if (m_simbuf.simbuf_player_actor->ar_driveable == AIRPLANE)
+        // The old OGRE overlays
+        if (m_simbuf.simbuf_player_actor->ar_driveable == AIRPLANE)
         {
             RoR::App::GetOverlayWrapper()->UpdateAerialHUD(player_gfx_actor);
         }

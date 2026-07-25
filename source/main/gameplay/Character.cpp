@@ -72,8 +72,15 @@ Character::~Character()
 {
     if (m_gfx_character != nullptr)
     {
-        App::GetGfxScene()->RemoveGfxCharacter(m_gfx_character);
-        delete m_gfx_character;
+        try
+        {
+            App::GetGfxScene()->RemoveGfxCharacter(m_gfx_character);
+            delete m_gfx_character;
+        }
+        catch (...)
+        {
+            HandleGenericException("Character destructor");
+        }
     }
 }
 
@@ -551,7 +558,7 @@ ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
 
 GfxCharacter* Character::SetupGfx()
 {
-    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(m_instance_name + "_mesh", "character.mesh");
+    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(m_instance_name + "_mesh", "character.mesh", RGN_DEFAULT);
     m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
 
     // fix disappearing mesh
@@ -566,7 +573,7 @@ GfxCharacter* Character::SetupGfx()
     scenenode->setVisible(false);
 
     // setup colour
-    MaterialPtr mat1 = MaterialManager::getSingleton().getByName("tracks/character");
+    MaterialPtr mat1 = MaterialManager::getSingleton().getByName("tracks/character", RGN_DEFAULT);
     MaterialPtr mat2 = mat1->clone("tracks/" + m_instance_name);
     entity->setMaterialName("tracks/" + m_instance_name);
 

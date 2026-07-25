@@ -23,7 +23,7 @@ material SOLID/TEX/Leaves.png
 
 			texture_unit
 			{
-				texture leaves.png alpha
+				texture leaves.png PF_A8
 			}
 		}
 	}
@@ -40,7 +40,7 @@ material SOLID/TEX/PineLeaves.png
 
 			texture_unit
 			{
-				texture pineleaves.png alpha
+				texture pineleaves.png PF_A8
 			}
 		}
 	}

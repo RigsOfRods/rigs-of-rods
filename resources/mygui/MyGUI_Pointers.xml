@@ -31,7 +31,7 @@
 		<Property key="Resource" value="SizeVertPointerImage"/>
 	</Resource>
 	<Resource type="ResourceImageSetPointer" name="hand">
-		<Property key="Point" value="1 1"/>
+		<Property key="Point" value="16 16"/>
 		<Property key="Size" value="32 32"/>
 		<Property key="Resource" value="HandPointerImage"/>
 	</Resource>

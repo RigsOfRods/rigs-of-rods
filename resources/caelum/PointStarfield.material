@@ -1,28 +1,12 @@
-//
-//This file is part of Caelum.
-//See http://www.ogre3d.org/wiki/index.php/Caelum 
-//
-//Copyright (c) 2008 Caelum team. See Contributors.txt for details.
-//
-//Caelum is free software: you can redistribute it and/or modify
-//it under the terms of the GNU Lesser General Public License as published
-//by the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//Caelum is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU Lesser General Public License for more details.
-//
-//You should have received a copy of the GNU Lesser General Public License
-//along with Caelum. If not, see <http://www.gnu.org/licenses/>.
-//
+// This file is part of the Caelum project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution.
 
 vertex_program Caelum/StarPointVP cg
 {
 	source CaelumPointStarfield.cg
 	entry_point StarPointVP
-	profiles vs_2_0 arbvp1 vp30
+	profiles vs_2_0 arbvp1 vp30 glslv
 
 	default_params
 	{
@@ -42,7 +26,7 @@ fragment_program Caelum/StarPointFP cg
 {
 	source CaelumPointStarfield.cg
 	entry_point StarPointFP
-	profiles ps_2_0 arbfp1 fp30
+	profiles ps_2_0 arbfp1 fp30 glslf
 
 	default_params
 	{

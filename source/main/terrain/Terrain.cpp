@@ -57,7 +57,6 @@ RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2DocumentPtr def)
     , m_shadow_manager(0)
     , m_sky_manager(0)
     , SkyX_manager(0)
-    , m_sight_range(1000)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
     , m_cur_gravity(DEFAULT_GRAVITY)
@@ -233,27 +232,7 @@ void RoR::Terrain::initCamera()
     App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def->ambient_color);
     App::GetCameraManager()->GetCameraNode()->setPosition(m_def->start_position);
 
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-    {
-        m_sight_range = 5000;  //Force unlimited for SkyX, lower settings are glitchy
-    } 
-    else
-    {
-        m_sight_range = App::gfx_sight_range->getInt();
-    } 
-
-    if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
-    {
-        App::GetCameraManager()->GetCamera()->setFarClipDistance(m_sight_range);
-    }
-    else
-    {
-        // disabled in global config
-        if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX)
-            App::GetCameraManager()->GetCamera()->setFarClipDistance(0); //Unlimited
-        else
-            App::GetCameraManager()->GetCamera()->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
-    }
+    // NOTE: camera far clip distance isn't linked to 'sight range'.
 }
 
 void RoR::Terrain::initSkySubSystem()
@@ -322,22 +301,27 @@ void RoR::Terrain::initLight()
         m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
         //directional light for shadow
         m_main_light->setType(Light::LT_DIRECTIONAL);
-        m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
         m_main_light->setDiffuseColour(m_def->ambient_color);
         m_main_light->setSpecularColour(m_def->ambient_color);
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
+
+        // attach to scene node (can be retrieved by Ogre::Light::getParentSceneNode())
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(m_main_light);
+        snode->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
     }
 }
 
 void RoR::Terrain::initFog()
 {
-    if (m_sight_range >= UNLIMITED_SIGHTRANGE)
+    int sight_range = App::gfx_sight_range->getInt();
+    if (sight_range >= UNLIMITED_SIGHTRANGE)
         App::GetGfxScene()->GetSceneManager()->setFog(FOG_NONE);
     else
-        App::GetGfxScene()->GetSceneManager()->setFog(FOG_LINEAR, m_def->ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
+        App::GetGfxScene()->GetSceneManager()->setFog(FOG_LINEAR, m_def->ambient_color, 0.000f, sight_range * 0.65f, sight_range*0.9);
 }
 
 void RoR::Terrain::initVegetation()
@@ -435,7 +419,7 @@ void RoR::Terrain::initWater()
 void RoR::Terrain::initShadows()
 {
     m_shadow_manager = new ShadowManager();
-    m_shadow_manager->loadConfiguration();
+    m_shadow_manager->setupShadows();
 }
 
 void RoR::Terrain::loadTerrainObjects()

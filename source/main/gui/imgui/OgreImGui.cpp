@@ -77,8 +77,7 @@ void OgreImGui::Init()
     io.KeyMap[ImGuiKey_Slash] = OIS::KC_SLASH;
 
     // Load font
-    m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium",
-        ContentManager::ResourcePack::FONTS.resource_group_name);
+    m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium");
 
     // Start rendering
     m_imgui_overlay->setZOrder(300);

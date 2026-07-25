@@ -1,4 +1,0 @@
-shared_params pssm_params  
-{  
-    shared_param_named pssmSplitPoints float4  
-}  
