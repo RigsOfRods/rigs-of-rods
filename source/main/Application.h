@@ -108,6 +108,7 @@ enum MsgType
     MSG_NET_REFRESH_SERVERLIST_FAILURE,    //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_REFRESH_REPOLIST_SUCCESS,      //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
+    MSG_NET_RESOLVE_CONTENTPACK_SIZES_SUCCESS, //!< Payload = std::vector<GUI::ContentPackEntry>* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
     MSG_NET_DOWNLOAD_REPOIMAGE_SUCCESS,    //!< Payload = RoR::RepoImageDownloadRequest* (owner)

@@ -41,6 +41,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <rapidjson/document.h>
+#include <map>
+#include <set>
 #include <vector>
 #include <fmt/core.h>
 #include <fstream>
@@ -323,6 +325,109 @@ void GetResourceFiles(std::string portal_url, int resource_id)
 
     App::GetGameContext()->PushMessage(
             Message(MSG_NET_OPEN_RESOURCE_SUCCESS, (void*)cdata_ptr));
+}
+
+// Fetches a repo resource and maps each of its current_file `id` -> `size` (bytes).
+// Returns the HTTP status code (0 on curl error). On HTTP 200 but unparseable body, the map is left empty.
+long FetchResourceFileSizes(std::string const& portal_url, int resource_id, std::map<int, int>& out_fileid_to_size)
+{
+    std::string response_payload;
+    std::string resource_url = portal_url + "/resources/" + std::to_string(resource_id);
+    std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+    long response_code = 0;
+
+    CURL* curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, resource_url.c_str());
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
+
+    CURLcode curl_result = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+    curl_easy_cleanup(curl);
+    curl = nullptr;
+
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        return response_code;
+    }
+
+    rapidjson::Document doc;
+    doc.Parse(response_payload.c_str());
+    if (doc.HasParseError() || !doc.IsObject()
+        || !doc.HasMember("resource") || !doc["resource"].IsObject()
+        || !doc["resource"].HasMember("current_files") || !doc["resource"]["current_files"].IsArray())
+    {
+        return response_code; // 200 but no usable data
+    }
+
+    rapidjson::Value& j_files = doc["resource"]["current_files"];
+    for (rapidjson::SizeType i = 0; i < j_files.Size(); i++)
+    {
+        rapidjson::Value& j_row = j_files[i];
+        if (j_row.HasMember("id") && j_row["id"].IsInt() && j_row.HasMember("size") && j_row["size"].IsInt())
+        {
+            out_fileid_to_size[j_row["id"].GetInt()] = j_row["size"].GetInt();
+        }
+    }
+    return response_code;
+}
+
+// Background task: resolve authoritative file sizes from repoAPI for each contentpack entry.
+// Entries whose resource returns HTTP 404 are dropped; other errors leave the size unknown (0).
+void ResolveContentPackSizes(std::string portal_url, std::vector<GUI::ContentPackEntry> entries)
+{
+    std::map<int, std::map<int, int>> resource_files; //!< resource_id -> (file_id -> size)
+    std::set<int>                     not_found;       //!< resource_ids that returned HTTP 404
+
+    // Fetch each unique resource only once
+    for (GUI::ContentPackEntry const& entry : entries)
+    {
+        if (resource_files.count(entry.resource_id) || not_found.count(entry.resource_id))
+        {
+            continue;
+        }
+
+        std::map<int, int> file_sizes;
+        long code = FetchResourceFileSizes(portal_url, entry.resource_id, file_sizes);
+        if (code == 404)
+        {
+            RoR::LogFormat("[RoR|Repository] Contentpack: resource_id=%d not found (HTTP 404), dropping its entries", entry.resource_id);
+            not_found.insert(entry.resource_id);
+        }
+        else
+        {
+            resource_files[entry.resource_id] = file_sizes; // possibly empty on a transient error
+        }
+    }
+
+    // Build the surviving list with resolved sizes
+    std::vector<GUI::ContentPackEntry>* resolved = new std::vector<GUI::ContentPackEntry>();
+    for (GUI::ContentPackEntry entry : entries)
+    {
+        if (not_found.count(entry.resource_id))
+        {
+            continue; // dropped
+        }
+
+        auto res_it = resource_files.find(entry.resource_id);
+        if (res_it != resource_files.end())
+        {
+            auto size_it = res_it->second.find(entry.file_id);
+            if (size_it != res_it->second.end())
+            {
+                entry.size = size_it->second;
+            }
+        }
+        resolved->push_back(entry);
+    }
+
+    App::GetGameContext()->PushMessage(Message(MSG_NET_RESOLVE_CONTENTPACK_SIZES_SUCCESS, (void*)resolved));
 }
 
 void DownloadResourceFile(RepoFileInstallRequest request)
@@ -979,6 +1084,11 @@ void RepositorySelector::Draw()
     {
         this->SetVisible(false);
     }
+
+    // this is drawn at the root scope of the repo window, a hook in the GUIManager
+    // is required if we want this to be drawn outside of the repo window
+    this->DrawContentPackDialog();
+    this->DrawDownloadsQueueWindow();
 }
 
 void RepositorySelector::DrawFooterDownloadsInfo()
@@ -1002,6 +1112,11 @@ void RepositorySelector::DrawFooterDownloadsInfo()
     std::string download_size_text = fmt::format("{} {:.2f} MB", _LC("RepositorySelector", "Total Size:"), total_bytes / (1024.0 * 1024.0));
 
     ImGui::Text("%s (%s)", download_count_text.c_str(), download_size_text.c_str());
+    ImGui::SameLine();
+    if (ImGui::SmallButton(_LC("RepositorySelector", "View queue")))
+    {
+        m_show_downloads_window = true;
+    }
 }
 
 void RepositorySelector::DrawGalleryView()
@@ -1560,6 +1675,7 @@ void RepositorySelector::ProcessContentPackManifest(std::string const& path)
     //         }
     //     ] 
     // }
+    // ----------------------------------------------------------------
     std::ifstream ifs(path, std::ios::binary);
     if (!ifs)
     {
@@ -1588,9 +1704,16 @@ void RepositorySelector::ProcessContentPackManifest(std::string const& path)
     LOG("[RoR|Repository] Processing contentpack manifest: '" + path + "'");
     RoR::LogFormat("[RoR|Repository] Manifest lists %d resource(s)", doc["resources"].Size());
 
-    const std::string mods_dir = PathCombine(App::sys_user_dir->getStr(), "mods");
+    // Build the entries and "tick" those that are not already installed
+    m_contentpack_entries.clear();
     rapidjson::Value& j_resources = doc["resources"];
-    int queued = 0;
+    if (j_resources.Size() > REPOFILE_MANIFEST_MAX_ENTRY)
+    {
+        // too many entries, ignore the manifest
+        RoR::LogFormat("[RoR|Repository] Contentpack manifest lists %d items, exceeding the maximum of %d, ignoring: '%s'",
+            j_resources.Size(), REPOFILE_MANIFEST_MAX_ENTRY, path.c_str());
+        return;
+    }
     for (rapidjson::SizeType i = 0; i < j_resources.Size(); i++)
     {
         rapidjson::Value& j_res = j_resources[i];
@@ -1603,36 +1726,287 @@ void RepositorySelector::ProcessContentPackManifest(std::string const& path)
             continue;
         }
 
-        LOG("[RoR|Repository] Manifest entry resource_id=" + std::to_string(j_res["resource_id"].GetInt())
-            + ", file_id=" + std::to_string(j_res["file_id"].GetInt())
-            + ", filename='" + j_res["filename"].GetString() + "'");
+        ContentPackEntry entry;
+        entry.resource_id = j_res["resource_id"].GetInt();
+        entry.file_id = j_res["file_id"].GetInt();
+        entry.filename = j_res["filename"].GetString();
+        if (j_res.HasMember("size") && j_res["size"].IsInt())
+        {
+            entry.size = j_res["size"].GetInt();
+        }
 
-        const std::string filename = j_res["filename"].GetString();
+        LOG("[RoR|Repository] Manifest entry resource_id=" + std::to_string(entry.resource_id)
+            + ", file_id=" + std::to_string(entry.file_id)
+            + ", filename='" + entry.filename + "'");
 
         std::string installed_path;
-        if (App::GetCacheSystem()->IsRepoFileInstalled(filename, installed_path))
+        entry.already_installed = App::GetCacheSystem()->IsRepoFileInstalled(entry.filename, installed_path);
+
+        // only tick what's missing
+        entry.selected = !entry.already_installed;
+
+        m_contentpack_entries.push_back(entry);
+    }
+
+    if (m_contentpack_entries.empty())
+    {
+        LOG("[RoR|Repository] Contentpack manifest had no valid entries: '" + path + "'");
+        return;
+    }
+
+    // Resolve the file sizes from the repoAPI and drop the entries who resource does not exist
+    // on a background thread, then open the "select" dialog once the results are back.
+#if defined(USE_CURL)
+    m_contentpack_resolving = true;
+    std::packaged_task<void(std::string, std::vector<GUI::ContentPackEntry>)> task(ResolveContentPackSizes);
+    std::thread(std::move(task), App::remote_query_url->getStr(), m_contentpack_entries).detach();
+#else
+    m_contentpack_dialog_open = true;
+#endif // defined(USE_CURL)
+}
+
+void RepositorySelector::OnContentPackSizesResolved(std::vector<ContentPackEntry>* resolved)
+{
+    m_contentpack_resolving = false;
+    m_contentpack_entries = *resolved;
+
+    if (m_contentpack_entries.empty())
+    {
+        LOG("[RoR|Repository] Contentpack had no installable entries after size resolution");
+        return;
+    }
+
+    // Now, let the user select what to install via dialog
+    m_contentpack_dialog_open = true;
+}
+
+void RepositorySelector::QueueSelectedContentPackEntries()
+{
+    const std::string mods_dir = PathCombine(App::sys_user_dir->getStr(), "mods");
+    int queued = 0;
+    for (ContentPackEntry const& entry : m_contentpack_entries)
+    {
+        if (!entry.selected || entry.already_installed)
         {
-            // Skip anything already installed
-            LOG("[RoR|Repository] Skipping already installed file from contentpack manifest: '" + filename + "'");
             continue;
         }
 
         // Queue via message (same path as the Install button) - avoids reentering the install queue from within it.
         RepoFileInstallRequest* request = new RepoFileInstallRequest();
         request->rfir_install_request_id = this->GetNextInstallRequestId();
-        request->rfir_resource_id = j_res["resource_id"].GetInt();
-        request->rfir_repofile_id = j_res["file_id"].GetInt();
-        request->rfir_filename = filename;
-        request->rfir_filepath = PathCombine(mods_dir, filename);
-        if (j_res.HasMember("size") && j_res["size"].IsInt())
-        {
-            request->rfir_filesize_bytes = j_res["size"].GetInt();
-        }
+        request->rfir_resource_id = entry.resource_id;
+        request->rfir_repofile_id = entry.file_id;
+        request->rfir_filename = entry.filename;
+        request->rfir_filepath = PathCombine(mods_dir, entry.filename);
+        request->rfir_filesize_bytes = entry.size;
         App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOFILE_REQUESTED, request));
         queued++;
     }
 
-    RoR::LogFormat("[RoR|Repository] Contentpack manifest queued %d file(s) for install from '%s'", queued, path.c_str());
+    RoR::LogFormat("[RoR|Repository] Contentpack queued %d file(s) for install", queued);
+    m_contentpack_entries.clear();
+}
+
+void RepositorySelector::DrawContentPackDialog()
+{
+    // Repository contentpack selection dialog
+    // ----------------------------------------------------------------
+    const char* RESOLVING_ID = "Content pack##repo-contentpack-resolving";
+    const char* POPUP_ID = "Content pack##repo-contentpack";
+
+    // Resolve file sizes from the repoAPI and block with a spinner until the results
+    // are back.
+    if (m_contentpack_resolving && !ImGui::IsPopupOpen(RESOLVING_ID))
+    {
+        ImGui::OpenPopup(RESOLVING_ID);
+    }
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
+    ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0, 0, 0, 0));
+    if (ImGui::BeginPopupModal(RESOLVING_ID, nullptr,
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+        ImGui::Text("%s", _LC("RepositorySelector", "Resolving content pack, please wait..."));
+        const float spinner_size = 20.f;
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
+        LoadingIndicatorCircle("contentpack-resolving-spinner", spinner_size,
+            theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+        if (!m_contentpack_resolving)
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleColor();
+
+    if (m_contentpack_dialog_open)
+    {
+        ImGui::OpenPopup(POPUP_ID);
+        m_contentpack_dialog_open = false;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(520.f, 420.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
+    // Get rid of the background dimming, we just want the modal window to appear
+    // ontop of whatever the user is looking at
+    ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0, 0, 0, 0));
+    if (!ImGui::BeginPopupModal(POPUP_ID, nullptr, ImGuiWindowFlags_NoCollapse))
+    {
+        return;
+    }
+
+    ImGui::Text("%s", _LC("RepositorySelector", "This content pack contains the following items."));
+    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Deselect anything you don't want, then confirm."));
+    ImGui::Spacing();
+
+    if (ImGui::SmallButton(_LC("RepositorySelector", "Select all")))
+    {
+        for (ContentPackEntry& entry : m_contentpack_entries)
+        {
+            if (!entry.already_installed)
+            { 
+                entry.selected = true; 
+            }
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton(_LC("RepositorySelector", "Select none")))
+    {
+        for (ContentPackEntry& entry : m_contentpack_entries)
+        {
+            entry.selected = false;
+        }
+    }
+
+    ImGui::Separator();
+
+    // Reserve space at the bottom for the summary line and buttons
+    const float footer_height = ImGui::GetFrameHeightWithSpacing() + ImGui::GetTextLineHeightWithSpacing();
+    ImGui::BeginChild("contentpack-list", ImVec2(0.f, -footer_height), true);
+    size_t selected_count = 0;
+    size_t selected_bytes = 0;
+    for (size_t i = 0; i < m_contentpack_entries.size(); i++)
+    {
+        ContentPackEntry& entry = m_contentpack_entries[i];
+        ImGui::PushID(static_cast<int>(i));
+
+        if (entry.already_installed)
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            bool ticked = true; // purely visual
+            ImGui::Checkbox("##sel", &ticked);
+            ImGui::SameLine();
+            ImGui::TextDisabled("%s", entry.filename.c_str());
+            ImGui::SameLine();
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "(already installed)"));
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+        else
+        {
+            ImGui::Checkbox("##sel", &entry.selected);
+            ImGui::SameLine();
+            ImGui::Text("%s", entry.filename.c_str());
+            if (entry.size > 0)
+            {
+                ImGui::SameLine();
+                ImGui::TextDisabled("(%d %s)", entry.size / 1024, "KB");
+            }
+            if (entry.selected)
+            {
+                selected_count++;
+                selected_bytes += entry.size;
+            }
+        }
+
+        ImGui::PopID();
+    }
+    ImGui::EndChild();
+
+    ImGui::Text("%s %zu (%.2f MB)", _LC("RepositorySelector", "Selected:"),
+        selected_count, selected_bytes / (1024.0 * 1024.0));
+
+    ImGui::PushStyleColor(ImGuiCol_Button, RESOURCE_INSTALL_BTN_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+    if (ImGui::Button(_LC("RepositorySelector", "Download selected"), ImVec2(160.f, 0.f)) && selected_count > 0)
+    {
+        this->QueueSelectedContentPackEntries();
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::PopStyleColor(2);
+
+    ImGui::SameLine();
+    if (ImGui::Button(_LC("RepositorySelector", "Cancel"), ImVec2(100.f, 0.f)))
+    {
+        m_contentpack_entries.clear();
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+}
+
+void RepositorySelector::DrawDownloadsQueueWindow()
+{
+    // repository download queue window
+    // ----------------------------------------------------------------
+    if (!m_show_downloads_window)
+    {
+        return;
+    }
+
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    ImGui::SetNextWindowSize(ImVec2(460.f, 320.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+    bool keep_open = true;
+    if (ImGui::Begin(_LC("RepositorySelector", "Repository Download Queue"), &keep_open, ImGuiWindowFlags_NoCollapse))
+    {
+        if (m_queued_install_requests.empty())
+        {
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "No downloads queued."));
+        }
+        else
+        {
+            size_t total_bytes = 0;
+            for (RepoFileInstallRequest const& req : m_queued_install_requests)
+            {
+                total_bytes += req.rfir_filesize_bytes;
+            }
+            ImGui::Text("%s %zu (%.2f MB)", _LC("RepositorySelector", "Queued:"),
+                m_queued_install_requests.size(), total_bytes / (1024.0 * 1024.0));
+            ImGui::Separator();
+
+            ImGui::BeginChild("downloads-queue-list", ImVec2(0.f, 0.f), false);
+            for (size_t i = 0; i < m_queued_install_requests.size(); i++)
+            {
+                RepoFileInstallRequest const& req = m_queued_install_requests[i];
+                const bool is_active = (req.rfir_install_request_id == m_active_install_request_id);
+                ImGui::PushID(static_cast<int>(i));
+
+                ImGui::Text("%s", req.rfir_filename.c_str());
+                ImGui::SameLine();
+                ImGui::TextDisabled("(%d %s)", req.rfir_filesize_bytes / 1024, "KB");
+                ImGui::SameLine();
+                if (is_active)
+                {
+                    ImGui::TextColored(theme.value_blue_text_color, "%s", _LC("RepositorySelector", "Downloading..."));
+                }
+                else
+                {
+                    ImGui::TextDisabled("%s", _LC("RepositorySelector", "Queued"));
+                }
+
+                ImGui::PopID();
+            }
+            ImGui::EndChild();
+        }
+    }
+    ImGui::End();
+
+    if (!keep_open)
+    {
+        m_show_downloads_window = false;
+    }
 }
 
 void RepositorySelector::InstallDownloadedRepoFile(MsgType result, RepoFileInstallRequest* request)

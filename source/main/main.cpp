@@ -755,6 +755,21 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_RESOLVE_CONTENTPACK_SIZES_SUCCESS:
+                {
+                    std::vector<GUI::ContentPackEntry>* entries = static_cast<std::vector<GUI::ContentPackEntry>*>(m.payload);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.OnContentPackSizesResolved(entries);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete entries;
+                    break;
+                }
+
                 case MSG_NET_REFRESH_REPOLIST_FAILURE:
                 {
                     CurlFailInfo* failinfo = static_cast<CurlFailInfo*>(m.payload);
