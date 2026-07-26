@@ -169,10 +169,9 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
     result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
 
-    // Register common bindings
-
     // TODO: Use REGISTER_NATIVE_OR_GENERIC for all bindings
     bool max_portability = strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") != 0;
+    max_portability |= App::diag_force_generic_as_bindings->getBool();
     RegisterOgreObjects(engine);   // vector2/3, degree, radian, quaternion, color
     RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
     RegisterLocalStorage(engine);  // LocalStorage
