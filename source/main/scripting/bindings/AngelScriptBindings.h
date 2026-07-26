@@ -27,11 +27,24 @@
 
 namespace RoR {
 
+/*
+=== NOTE ===
+Register*Common() methods are meant for binding things that are common to both
+native and generic bindings (e.g. enums, constants, etc).
+
+Register*() methods are meant for registering native bindings (which use a native calling convention such as cdecl or thiscall).
+
+Register*Generic() methods are meant for registering generic bindings (which use the asCALL_GENERIC calling convention).
+*/
+
+
 /// @addtogroup Scripting
 /// @{
 
 /// defined in ActorAngelscript.cpp
+void RegisterActorCommon(AngelScript::asIScriptEngine* engine);
 void RegisterActor(AngelScript::asIScriptEngine* engine);
+void RegisterActorGeneric(AngelScript::asIScriptEngine* engine);
 
 /// defined in VehicleAiAngelscript.cpp
 void RegisterVehicleAi(AngelScript::asIScriptEngine* engine);
@@ -46,7 +59,9 @@ void RegisterConsole(AngelScript::asIScriptEngine* engine);
 void RegisterLocalStorage(AngelScript::asIScriptEngine* engine);
 
 /// Registers RoR::GameScript, defined in GameScriptAngelscript.cpp
+void RegisterGameScriptCommon(AngelScript::asIScriptEngine* engine);
 void RegisterGameScript(AngelScript::asIScriptEngine* engine);
+void RegisterGameScriptGeneric(AngelScript::asIScriptEngine* engine);
 
 /// Registers enum scriptEvents, defined in ScriptEventsAngelscript.cpp
 void RegisterScriptEvents(AngelScript::asIScriptEngine* engine);
@@ -88,7 +103,7 @@ void RegisterEngine(AngelScript::asIScriptEngine* engine);
 // Register class DashBoardManager. Defined in DashBoardManagerAngelscript.cpp
 void RegisterDashBoardManager(AngelScript::asIScriptEngine* engine);
 
-// Register class AircraftEngineClass. Defined in AircraftEngineClassAngelscript.cpp
+// Register class AircraftEngineClass. Defined in AircraftEngineAngelscript.cpp
 void RegisterAircraftEngine(AngelScript::asIScriptEngine* engine);
 
 // Register class TurbopropClass. Defined in TurbopropClassAngelscript.cpp
@@ -96,6 +111,7 @@ void RegisterTurboprop(AngelScript::asIScriptEngine* engine);
 
 // Register class TurbojetClass. Defined in TurbojetClassAngelscript.cpp
 void RegisterTurbojet(AngelScript::asIScriptEngine* engine);
+void RegisterTurbojetGeneric(AngelScript::asIScriptEngine* engine);
 
 // Register class AutopilotClass. Defined in AutopilotClassAngelscript.cpp
 void RegisterAutopilot(AngelScript::asIScriptEngine* engine);

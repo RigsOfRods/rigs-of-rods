@@ -60,6 +60,8 @@
 
 #include "InputEngine.h"
 
+#define REGISTER_NATIVE_OR_GENERIC(native, generic) if (max_portability) generic(engine); else native(engine);
+
 using namespace Ogre;
 using namespace RoR;
 using namespace AngelScript;
@@ -167,6 +169,10 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
     result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
 
+    // Register common bindings
+
+    // TODO: Use REGISTER_NATIVE_OR_GENERIC for all bindings
+    bool max_portability = strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") != 0;
     RegisterOgreObjects(engine);   // vector2/3, degree, radian, quaternion, color
     RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
     RegisterLocalStorage(engine);  // LocalStorage
@@ -176,17 +182,19 @@ void ScriptEngine::init()
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
     RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
     RegisterDashBoardManager(engine); // DashBoardManagerClass, DashboardDataTypes
-    RegisterTurbojet(engine); // TurbojetClass
+    REGISTER_NATIVE_OR_GENERIC(RegisterTurbojet, RegisterTurbojetGeneric); // TurbojetClass
     RegisterTurboprop(engine); // TurbopropClass
     RegisterAircraftEngine(engine); // AircraftEngineClass, AircraftEngineTypes
     RegisterAutopilot(engine); // AutopilotClass, APHeadingMode, APAltitudeMode
     RegisterScrewprop(engine); // ScrewpropClass
-    RegisterActor(engine);         // BeamClass
+    RegisterActorCommon(engine);
+    REGISTER_NATIVE_OR_GENERIC(RegisterActor, RegisterActorGeneric);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass
     RegisterMessageQueue(engine);  // enum MsgType
     RegisterSoundScript(engine);   // SoundTriggers, ModulationSource, SoundScriptTemplate...
-    RegisterGameScript(engine);    // GameScriptClass
+    RegisterGameScriptCommon(engine);
+    REGISTER_NATIVE_OR_GENERIC(RegisterGameScript, RegisterGameScriptGeneric);    // GameScriptClass
     RegisterScriptEvents(engine);  // scriptEvents
     RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
 
