@@ -9,17 +9,6 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
  *  @{
  */  
 
-    /// Enumerates the types of light sources available.
-    enum LightTypes
-    {
-        /// Point light sources give off light equally in all directions, so require only position not direction
-        LT_POINT,
-        /// Directional lights simulate parallel light beams from a distant source, hence have direction but no position
-        LT_DIRECTIONAL,
-        /// Spotlights simulate a cone of light from a source so require position and direction, plus extra values for falloff
-        LT_SPOTLIGHT
-    };
-
     /** Representation of a dynamic light source in the scene.
         @remarks
             Lights are added to the scene like any other MovableObject. They contain various 
