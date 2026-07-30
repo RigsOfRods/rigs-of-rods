@@ -29,6 +29,11 @@
 
 using namespace AngelScript;
 
+static CScriptArray* getManagedMaterialNames(RoR::Actor* self)
+{
+    return RoR::VectorToScriptArray(self->getManagedMaterialNames(), "string");
+}
+
 void RoR::RegisterActorGeneric(asIScriptEngine *engine)
 {
     int result;
@@ -131,8 +136,7 @@ void RoR::RegisterActorGeneric(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "int getScrewpropCount()", WRAP_MFN(Actor, getScrewpropCount), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "ScrewpropClassPtr@ getScrewprop(int)", WRAP_MFN(Actor, getScrewprop), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "Ogre::MaterialPtr getManagedMaterialInstance(const string &in)", WRAP_MFN(Actor, getManagedMaterialInstance), asCALL_GENERIC); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "array<string>@ getManagedMaterialNames()", asFUNCTIONPR([](Actor* self) -> CScriptArray*{
-        return RoR::VectorToScriptArray(self->getManagedMaterialNames(), "string"); }, (Actor*), CScriptArray*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "array<string>@ getManagedMaterialNames()", WRAP_OBJ_FIRST(getManagedMaterialNames), asCALL_GENERIC); ROR_ASSERT(result >= 0);
 
     // - lights (PLEASE maintain the same ordering as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "int getBlinkType()", WRAP_MFN(Actor, getBlinkType), asCALL_GENERIC); ROR_ASSERT(result >= 0);
