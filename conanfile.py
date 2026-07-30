@@ -15,7 +15,7 @@ class RoR(ConanFile):
         self.folders.generators = os.path.join(self.folders.build, "generators")
 
     def requirements(self):
-        self.requires("angelscript/2.35.1")
+        self.requires("angelscript/2.38.0")
         self.requires("discord-rpc/3.4.0@anotherfoxguy/stable")
         self.requires("libcurl/8.2.1")
         self.requires("fmt/12.1.0")

@@ -199,10 +199,10 @@ static void RegisterScriptMathComplex_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("complex", "float abs() const", asMETHOD(Complex,length), asCALL_THISCALL); assert( r >= 0 );
 
 	// Register the swizzle operators
-	r = engine->RegisterObjectMethod("complex", "complex get_ri() const", asMETHOD(Complex, get_ri), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("complex", "complex get_ir() const", asMETHOD(Complex, get_ir), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("complex", "void set_ri(const complex &in)", asMETHOD(Complex, set_ri), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("complex", "void set_ir(const complex &in)", asMETHOD(Complex, set_ir), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("complex", "complex get_ri() const property", asMETHOD(Complex, get_ri), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("complex", "complex get_ir() const property", asMETHOD(Complex, get_ir), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("complex", "void set_ri(const complex &in) property", asMETHOD(Complex, set_ri), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("complex", "void set_ir(const complex &in) property", asMETHOD(Complex, set_ir), asCALL_THISCALL); assert( r >= 0 );
 }
 
 void RegisterScriptMathComplex(asIScriptEngine *engine)

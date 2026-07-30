@@ -336,9 +336,12 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitID_t nid)
             AngelScript::asIScriptFunction* func = context->GetExceptionFunction();
             if (func)
             {
+                const char *sectionName;
+                int s_col, s_row;
+                func->GetDeclaredAt(&sectionName, &s_row, &s_col);
                 SLOG("\tcontext.ExceptionFunction.Declaration: " + ptr2str(func->GetDeclaration()));
                 SLOG("\tcontext.ExceptionFunction.ModuleName: " + ptr2str(func->GetModuleName()));
-                SLOG("\tcontext.ExceptionFunction.ScriptSectionName: " + ptr2str(func->GetScriptSectionName()));
+                SLOG("\tcontext.ExceptionFunction.ScriptSectionName: " + ptr2str(sectionName));
                 SLOG("\tcontext.ExceptionFunction.ObjectName: " + ptr2str(func->GetObjectName()));
             }
         }
