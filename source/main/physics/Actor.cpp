@@ -468,6 +468,63 @@ void Actor::pushNetwork(char* data, int size)
 #endif // USE_SOCKETW
 }
 
+void Actor::PushNetForces(ENetPacket* packet)
+{
+    m_net_forces_packets.push_back(packet);
+}
+
+void Actor::CalcNetForces()
+{
+    if (m_net_forces_packets.size() < 2)
+        return;
+
+    int tnow = App::GetGameContext()->GetActorManager()->GetNetTime();
+    int rnow = std::max(0, tnow + App::GetGameContext()->GetActorManager()->GetNetForcesTimeOffset(ar_net_source_id));
+
+    // Find index offset into the stream data for the current time
+    int index_offset = 0;
+    for (int i = 0; i < m_net_forces_packets.size() - 1; i++)
+    {
+        RoRnet::ForcesState* fstate = GetRoRnetForcesState(m_net_forces_packets[i]);
+        if (fstate->time > rnow)
+            break;
+        index_offset = i;
+    }
+
+    ENetPacket* packet1 = m_net_forces_packets[index_offset];
+    ENetPacket* packet2 = m_net_forces_packets[index_offset+1];
+    ROR_ASSERT(packet1->dataLength == sizeof(RoRnet::Header) + m_net_forces_payload_buf.size());
+    ROR_ASSERT(packet2->dataLength == sizeof(RoRnet::Header) + m_net_forces_payload_buf.size());
+    ROR_ASSERT(GetRoRnetHeader(packet1)->size == m_net_forces_payload_buf.size());
+    ROR_ASSERT(GetRoRnetHeader(packet2)->size == m_net_forces_payload_buf.size());
+    RoRnet::ForcesState* fstate1 = GetRoRnetForcesState(packet1);
+    RoRnet::ForcesState* fstate2 = GetRoRnetForcesState(packet2);
+    Ogre::Vector3* forces1 = reinterpret_cast<Ogre::Vector3*>(GetRoRnetBuffer(packet1) + sizeof(RoRnet::ForcesState));
+    Ogre::Vector3* forces2 = reinterpret_cast<Ogre::Vector3*>(GetRoRnetBuffer(packet2) + sizeof(RoRnet::ForcesState));
+
+    float tratio = (float)(rnow - fstate1->time) / (float)(fstate2->time - fstate1->time);
+
+    if (tratio > 4.0f)
+    {
+        m_net_forces_packets.clear();
+        return; // Wait for new data
+    }
+    else if (tratio > 1.0f)
+    {
+        App::GetGameContext()->GetActorManager()->UpdateNetForcesTimeOffset(ar_net_source_id, -std::pow(2, tratio));
+    }
+    else if (index_offset == 0 && (m_net_updates.size() > 5 || (tratio < 0.125f && m_net_updates.size() > 2)))
+    {
+        App::GetGameContext()->GetActorManager()->UpdateNetForcesTimeOffset(ar_net_source_id, +1);
+    }
+
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        // Linear interpolation
+        ar_nodes[i].Forces += forces1[i] + tratio * (forces2[i] - forces1[i]);
+    }
+}
+
 void Actor::calcNetwork()
 {
     using namespace RoRnet;
@@ -1995,42 +2052,59 @@ void Actor::HandleInputEvents(float dt)
 
 void Actor::sendStreamSetup()
 {
-    RoRnet::ActorStreamRegister reg;
-    memset(&reg, 0, sizeof(RoRnet::ActorStreamRegister));
-    reg.status = 0;
-    reg.type = 0;
-    reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
-
-    // Send the filename in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
-    std::string bname;
-    std::string bpath;
-    Ogre::StringUtil::splitFilename(m_used_actor_entry->resource_bundle_path, bname, bpath);
-    std::string bq_filename = fmt::format("{}:{}", bname, ar_filename);
-    strncpy(reg.name, bq_filename.c_str(), 128);
-    
-    // Skin and sectionconfig
-    if (m_used_skin_entry != nullptr)
-    {
-        strncpy(reg.skin, m_used_skin_entry->dname.c_str(), 60);
-    }
-    strncpy(reg.sectionconfig, m_section_config.c_str(), 60);
-
 #ifdef USE_SOCKETW
-    App::GetNetwork()->AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));
-#endif // USE_SOCKETW
+    if (ar_state == ActorState::LOCAL_SIMULATED ||
+        ar_state == ActorState::LOCAL_SLEEPING)
+    {
+        ROR_ASSERT(sizeof(RoRnet::ActorStreamRegister) == sizeof(RoRnet::StreamRegister));
 
-    ar_net_source_id = reg.origin_sourceid;
-    ar_net_stream_id = reg.origin_streamid;
+        RoRnet::ActorStreamRegister reg;
+        memset(&reg, 0, sizeof(RoRnet::ActorStreamRegister));
+        reg.status = 0;
+        reg.type = 0; // Actor positions
+        reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
+
+        // Send the filename in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+        std::string bname;
+        std::string bpath;
+        Ogre::StringUtil::splitFilename(m_used_actor_entry->resource_bundle_path, bname, bpath);
+        std::string bq_filename = fmt::format("{}:{}", bname, ar_filename);
+        strncpy(reg.name, bq_filename.c_str(), 128);
+    
+        // Skin and sectionconfig
+        if (m_used_skin_entry != nullptr)
+        {
+            strncpy(reg.skin, m_used_skin_entry->dname.c_str(), 60);
+        }
+        strncpy(reg.sectionconfig, m_section_config.c_str(), 60);
+
+        App::GetNetwork()->AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));
+
+        ar_net_source_id = reg.origin_sourceid;
+        ar_net_stream_id = reg.origin_streamid;
+    }
+    else if (ar_state == ActorState::NETWORKED_OK && App::mp_pseudo_collisions->getBool())
+    {
+        ROR_ASSERT(sizeof(RoRnet::ForcesStreamRegister) == sizeof(RoRnet::StreamRegister));
+
+        RoRnet::ForcesStreamRegister reg;
+        memset(&reg, 0, sizeof(RoRnet::ForcesStreamRegister));
+        reg.status = 0;
+        reg.type = 4; // Actor forces
+        sprintf_s(reg.name, "%s(Forces)", ar_filename.c_str());
+        reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
+        reg.player_sourceid = ar_net_source_id;
+        reg.player_streamid = ar_net_stream_id;
+
+        App::GetNetwork()->AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ForcesStreamRegister));
+    }
+#endif // USE_SOCKETW
 }
 
-void Actor::sendStreamData()
+void Actor::sendActorStreamData()
 {
     using namespace RoRnet;
 #ifdef USE_SOCKETW
-    if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100)
-        return;
-
-    ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
     if (m_net_total_buffer_size + sizeof(RoRnet::VehicleState) > RORNET_MAX_MESSAGE_LENGTH)
@@ -2157,7 +2231,33 @@ void Actor::sendStreamData()
         }
     }
 
-    App::GetNetwork()->AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_DISCARDABLE, packet_len, send_buffer);
+    App::GetNetwork()->AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_ACTOR, packet_len, send_buffer);
+#endif //SOCKETW
+}
+
+void Actor::SendForcesStreamData()
+{
+    using namespace RoRnet;
+#ifdef USE_SOCKETW
+
+    //look if the packet is too big first
+    if (m_net_forces_buffer_size > RORNET_MAX_MESSAGE_LENGTH)
+    {
+        ErrorUtils::ShowError(_L("Actor is too big to be sent over the net."), _L("Network error!"));
+        exit(126);
+    }
+
+    // Compose payload
+    RoRnet::ForcesState* fstate = reinterpret_cast<RoRnet::ForcesState*>(m_net_forces_payload_buf.data());
+    fstate->time = App::GetGameContext()->GetActorManager()->GetNetTime();
+    Ogre::Vector3* forces = reinterpret_cast<Ogre::Vector3*>(m_net_forces_payload_buf.data() + sizeof(RoRnet::ForcesState));
+    std::memcpy(forces, ar_net_coll_forces, m_net_forces_buffer_size);
+
+    App::GetNetwork()->AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_FORCES,
+        (int)m_net_forces_payload_buf.size(), m_net_forces_payload_buf.data());
+
+    // Reset the buffer
+    memset(ar_net_coll_forces, 0, m_net_forces_buffer_size);
 #endif //SOCKETW
 }
 

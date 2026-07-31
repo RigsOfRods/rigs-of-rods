@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include "NetStats.h"
 #include "RoRnet.h"
 
 #include <Ogre.h>
@@ -40,12 +41,16 @@ class MpClientList
 public:
     void Draw();
     void UpdateClients();
+    void UpdateClientTimeoffsetStats();
 
 private:
     void DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box);
+    bool DrawPlotSmall(const char* label, const char* overlay_text, NetGraphData& graphdata, float width);
+    void DrawPlotBig(const char* label, NetGraphData& graphdata);
     void CacheIcons();
 
     std::vector<RoRnet::UserInfo> m_users; // only updated on demand to reduce mutex locking and vector allocating overhead; see `MSG_GUI_MP_CLIENTS_REFRESH`.
+    std::vector<int> m_users_timeoffsets;  // Snapshots of `ActorManager::GetNetTimeOffset()` for stats display.
     std::vector <BitMask_t> m_users_peeropts; // updated along with `m_users`, see `MSG_GUI_MP_CLIENTS_REFRESH`.
 
     // Peer options menu - opened by [<] button, closes when mouse cursor leaves.

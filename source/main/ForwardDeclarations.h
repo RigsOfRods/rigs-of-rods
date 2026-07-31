@@ -99,6 +99,9 @@ namespace RoR
     typedef int RepoFileInstallRequestID_t; //!< Unique sequentially generated ID of a repository item installation request; use `GUI::RepositorySelector::GetNextInstallRequestId()`.
     static const RepoFileInstallRequestID_t REPOFILEINSTALLREQUESTID_INVALID = -1; //!< Invalid ID for repository item installation request.
 
+    typedef int CollisionCabID_t; //!< Offset into `Actor::m_collcabs`, use `RoR::COLLISIONCABID_INVALID` as empty value
+    static const CollisionCabID_t COLLISIONCABID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

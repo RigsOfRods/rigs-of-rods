@@ -137,7 +137,7 @@ bool Network::SendMessageRaw(char *buffer, int msgsize)
     return true;
 }
 
-bool Network::SendNetMessage(int type, unsigned int streamid, int len, char* content)
+bool Network::SendMessageTcp(int type, unsigned int streamid, int len, char* content)
 {
     RoRnet::Header head;
     memset(&head, 0, sizeof(RoRnet::Header));
@@ -160,17 +160,7 @@ bool Network::SendNetMessage(int type, unsigned int streamid, int len, char* con
     return SendMessageRaw(buffer, msgsize);
 }
 
-void Network::QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len)
-{
-    NetRecvPacket packet;
-    packet.header = header;
-    memcpy(packet.buffer, buffer, std::min(buffer_len, size_t(RORNET_MAX_MESSAGE_LENGTH)));
-
-    std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
-    m_recv_packet_buffer.push_back(packet);
-}
-
-int Network::ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
+int Network::ReceiveMessageTcp(RoRnet::Header *head, char* content, int bufferlen)
 {
     SWBaseSocket::SWBaseError error;
 
@@ -211,171 +201,267 @@ int Network::ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     return 0;
 }
 
-void Network::SendThread()
+void Network::OnPacketReceived(ENetPacket* packet)
 {
-    LOG("[RoR|Networking] SendThread started");
-    while (!m_shutdown)
+    // Sanity check
+    if (packet->dataLength < sizeof(RoRnet::Header))
     {
-        NetSendPacket packet;
-        {
-            std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
-            while (m_send_packet_buffer.empty() && !m_shutdown)
-            {
-                m_send_packet_available_cv.wait(queue_lock);
-            }
-            if (m_shutdown)
-            {
-                break;
-            }
-            packet = m_send_packet_buffer.front();
-            m_send_packet_buffer.pop_front();
-        }
-        SendMessageRaw(packet.buffer, packet.size);
+        this->PushNetMessage(MSG_NET_RECV_ERROR, _LC("Network", "Error receiving data from network"));
+        this->DisconnectENet();
+        return;
     }
-    LOG("[RoR|Networking] SendThread stopped");
-}
 
-void Network::RecvThread()
-{
-    LOG_THREAD("[RoR|Networking] RecvThread starting...");
-
+    // Analyze packet
     RoRnet::Header header;
-
     char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
-
-    while (!m_shutdown)
+    std::memcpy(&header, packet->data, sizeof(RoRnet::Header));
+    if (header.size > 0)
     {
-        int err = ReceiveMessage(&header, buffer, RORNET_MAX_MESSAGE_LENGTH);
-        //LOG("Received data: " + TOSTRING(header.command) + ", source: " + TOSTRING(header.source) + ":" + TOSTRING(header.streamid) + ", size: " + TOSTRING(header.size));
-        if (err != 0)
-        {
-            LOG_THREAD("[RoR|Networking] RecvThread: Error while receiving data: " + TOSTRING(err));
-            m_shutdown = true; // Atomic; instruct sender thread to stop
-            PushNetMessage(MSG_NET_RECV_ERROR, _LC("Network", "Error receiving data from network"));
-            continue; // Stop receiving data
-        }
-
-        if (header.command == MSG2_STREAM_REGISTER)
-        {
-            if (header.source == m_uid)
-                continue;
-
-            RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)buffer;
-
-            LOG(" * received stream registration: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid) + ", type: " + TOSTRING(reg->type));
-        }
-        else if (header.command == MSG2_STREAM_REGISTER_RESULT)
-        {
-            RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)buffer;
-            LOG(" * received stream registration result: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid) + ", status: " + TOSTRING(reg->status));
-        }
-        else if (header.command == MSG2_STREAM_UNREGISTER)
-        {
-            LOG(" * received stream deregistration: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid));
-        }
-        else if (header.command == MSG2_UTF8_CHAT || header.command == MSG2_UTF8_PRIVCHAT)
-        {
-            // Chat message
-        }
-        else if (header.command == MSG2_NETQUALITY && header.source == -1)
-        {
-            if (header.size != sizeof(int))
-            {
-                continue;
-            }
-            int quality = *(int *)buffer;
-            SetNetQuality(quality);
-            continue;
-        }
-        else if (header.command == MSG2_USER_LEAVE)
-        {
-            if (header.source == m_uid)
-            {
-                m_shutdown = true; // Atomic; stop sending/receiving data - server closes the connection quickly after kick.
-
-                std::stringstream msg;
-                msg << _L("disconnected: remote side closed the connection");
-                msg << " ** ";
-                msg << buffer;
-
-                bool was_kick = (std::strstr(buffer, "disconnected on request") == nullptr); // FIXME: Add a reason code to MSG2_USER_LEAVE, this is ugly!
-                PushNetMessage((was_kick) ? MSG_NET_SERVER_KICK : MSG_NET_USER_DISCONNECT, msg.str());
-                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
-
-                Message m((was_kick) ? MSG_NET_USER_DISCONNECT : MSG_NET_SERVER_KICK);
-            }
-            else
-            {
-                std::lock_guard<std::mutex> lock(m_users_mutex);
-                auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo& u) { return static_cast<int>(u.uniqueid) == header.source; });
-                if (user != m_users.end())
-                {
-                    // Console is now threadsafe, no need to send fake chatmessages to ourselves
-                    Str<300> text;
-                    text << _L("left the game");
-                    App::GetConsole()->putNetMessage(user->uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
-                    LOG_THREAD(text);
-
-                    // Erase matching peer options
-                    int peeropt_offset = (int)std::distance(m_users.begin(), user);
-                    auto peeropt_itor = m_users_peeropts.begin() + peeropt_offset;
-                    m_users_peeropts.erase(peeropt_itor);
-
-                    m_disconnected_users.push_back(*user); // Copy
-                    m_users.erase(user);
-                }
-            }
-        }
-        else if (header.command == MSG2_USER_INFO || header.command == MSG2_USER_JOIN)
-        {
-            if (header.source == m_uid)
-            {
-                std::lock_guard<std::mutex> lock(m_userdata_mutex);
-                memcpy(&m_userdata, buffer, sizeof(RoRnet::UserInfo));
-                m_authlevel = m_userdata.authstatus;
-                m_username = std::string(m_userdata.username);
-                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
-                // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
-            }
-            else
-            {
-                RoRnet::UserInfo user_info;
-                if (!GetUserInfo(header.source, user_info)) // Check that user doesn't exist yet.
-                {
-                    memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
-                    Str<300> text;
-                    if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
-                    {
-                        text << "(" << UserAuthToStringShort(user_info) << ") ";
-                    }
-                    text << _L("joined the game");
-                    
-                    // NB: Console is threadsafe
-                    App::GetConsole()->putNetMessage(
-                        user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
-                    // Lock and update userlist
-                    std::lock_guard<std::mutex> lock(m_users_mutex);
-                    m_users.push_back(user_info);
-                    m_users_peeropts.push_back(BitMask_t(0));
-                } // End of lock scope
-            }
-            continue;
-        }
-        else if (header.command == MSG2_GAME_CMD)
-        {
-#ifdef USE_ANGELSCRIPT
-            App::GetScriptEngine()->queueStringForExecution(Ogre::String(buffer));
-#endif // USE_ANGELSCRIPT
-            continue;
-        }
-        //DebugPacket("recv", &header, buffer);
-
-        QueueStreamData(header, buffer, RORNET_MAX_MESSAGE_LENGTH);
+        std::memcpy(buffer, packet->data + sizeof(RoRnet::Header), header.size);
     }
 
-    LOG_THREAD("[RoR|Networking] RecvThread stopped");
+    // Update client state
+    if (m_progress == NetProgress::AWAITING_HELLO_RESPONSE)
+    {
+        LOG("[RoR|Networking|ENet] received response to RoRnet HELLO");
+
+        if (header.command == MSG2_WRONG_VER)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("server uses a different protocol version"));
+            this->DisconnectENet();
+        }
+        
+        if (header.command == MSG2_SERVER_SETTINGS)
+        {
+            // Save server settings
+            std::memcpy(&m_server_settings, buffer, sizeof(RoRnet::ServerInfo));
+
+            // Construct user credentials
+            RoRnet::UserInfo c;
+            memset(&c, 0, sizeof(RoRnet::UserInfo));
+            strncpy(c.username, m_username.c_str(), RORNET_MAX_USERNAME_LEN-1);
+            strncpy(c.serverpassword, Sha1Hash(m_password).c_str(), size_t(40));
+            strncpy(c.usertoken, Sha1Hash(m_token).c_str(), size_t(40));
+            strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
+            strncpy(c.clientname, "RoR", 10);
+            std::string language = App::app_language->getStr().substr(0, 2);
+            std::string country = App::app_country->getStr().substr(0, 2);
+            strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
+            strcpy(c.sessiontype, "normal");
+            this->AddPacket(0, MSG2_USER_INFO, sizeof(RoRnet::UserInfo), (char*)&c);
+
+            m_progress = NetProgress::AWAITING_USER_AUTH_RESPONSE;
+        }
+        else
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, unknown server response"));
+            this->DisconnectENet();
+        }
+        return;
+    }
+
+    if (m_progress == NetProgress::AWAITING_USER_AUTH_RESPONSE)
+    {
+        LOG("[RoR|Networking|ENet] received response to RoRnet USER_INFO");
+
+        if (header.command==MSG2_FULL)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, server has too many players"));
+            LOG("[RoR|Networking|ENet] server responded FULL, disconnecting peer.");
+            this->DisconnectENet();
+        }
+        else if (header.command==MSG2_BANNED)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, you are banned!"));
+            LOG("[RoR|Networking|ENet] server responded BANNED, disconnecting peer.");
+            this->DisconnectENet();
+        }
+        else if (header.command==MSG2_WRONG_PW)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, wrong password!"));
+            LOG("[RoR|Networking|ENet] server responded WRONG_PW, disconnecting peer.");
+            this->DisconnectENet();
+        }
+        else if (header.command==MSG2_WRONG_VER)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, wrong protocol version!"));
+            LOG("[RoR|Networking|ENet] server responded WRONG_VER, disconnecting peer.");
+            this->DisconnectENet();
+        }
+        else if (header.command==MSG2_NO_RANK)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, this server requires a user token!"));
+            // ChainMessage() ensures the MP settings request is handled _after_ the MSG_NET_CONNECT_FAILURE with the text above.
+            App::GetGameContext()->ChainMessage(Message(MSG_GUI_OPEN_MP_SETTINGS_REQUESTED));
+            this->DisconnectENet();
+        }
+
+        if (header.command==MSG2_WELCOME)
+        {
+            LOG("[RoR|Networking|ENet] server said WELCOME");
+            m_uid = header.source;
+
+            // we get our userdata back
+            std::memcpy(&m_userdata, buffer, std::min<int>(sizeof(RoRnet::UserInfo), header.size));
+
+            this->PushNetMessage(MSG_NET_CONNECT_SUCCESS, "");
+            m_progress = NetProgress::PLAYING;
+        }
+        else
+        {
+            LOG("[RoR|Networking|ENet] unexpected server response, disconnecting peer.");
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: sorry, unknown server response"));
+            this->DisconnectENet();
+        }
+        return;
+    }
+
+    // Process the packet
+
+    if (header.command == MSG2_STREAM_REGISTER)
+    {
+        if (header.source == m_uid)
+            return;
+
+        RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)buffer;
+
+        LOG(" * received stream registration: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid) + ", type: " + TOSTRING(reg->type));
+        App::GetGameContext()->PushMessage(Message(MSG_NET_BCAST_PACKET_DISPATCHED, packet));
+        return;
+    }
+    else if (header.command == MSG2_STREAM_REGISTER_RESULT)
+    {
+        RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)buffer;
+        LOG(" * received stream registration result: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid) + ", status: " + TOSTRING(reg->status));
+        App::GetGameContext()->PushMessage(Message(MSG_NET_BCAST_PACKET_DISPATCHED, packet));
+        return;
+    }
+    else if (header.command == MSG2_STREAM_UNREGISTER)
+    {
+        LOG(" * received stream deregistration: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid));
+        App::GetGameContext()->PushMessage(Message(MSG_NET_BCAST_PACKET_DISPATCHED, packet));
+        return;
+    }
+    else if (header.command == MSG2_UTF8_CHAT || header.command == MSG2_UTF8_PRIVCHAT)
+    {
+        // Console is threadsafe
+        ChatSystem::ReceiveStreamData(header.command, header.source, buffer);
+        return;
+    }
+    else if (header.command == MSG2_NETQUALITY && header.source == -1)
+    {
+        if (header.size != sizeof(int))
+        {
+            return;
+        }
+        int quality = *(int *)buffer;
+        SetNetQuality(quality);
+        return;
+    }
+    else if (header.command == MSG2_USER_LEAVE)
+    {
+        if (header.source == m_uid)
+        {
+            m_shutdown = true; // Atomic; stop sending/receiving data - server closes the connection quickly after kick.
+
+            std::stringstream msg;
+            msg << _L("disconnected: remote side closed the connection");
+            msg << " ** ";
+            msg << buffer;
+
+            bool was_kick = (std::strstr(buffer, "disconnected on request") == nullptr); // FIXME: Add a reason code to MSG2_USER_LEAVE, this is ugly!
+            PushNetMessage((was_kick) ? MSG_NET_SERVER_KICK : MSG_NET_USER_DISCONNECT, msg.str());
+            App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+
+            Message m((was_kick) ? MSG_NET_USER_DISCONNECT : MSG_NET_SERVER_KICK);
+        }
+        else
+        {
+            std::lock_guard<std::mutex> lock(m_users_mutex);
+            auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo& u) { return static_cast<int>(u.uniqueid) == header.source; });
+            if (user != m_users.end())
+            {
+                // Console is now threadsafe, no need to send fake chatmessages to ourselves
+                Str<300> text;
+                text << _L("left the game");
+                App::GetConsole()->putNetMessage(user->uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+                LOG_THREAD(text);
+
+                // Erase matching peer options
+                int peeropt_offset = (int)std::distance(m_users.begin(), user);
+                auto peeropt_itor = m_users_peeropts.begin() + peeropt_offset;
+                m_users_peeropts.erase(peeropt_itor);
+
+                m_disconnected_users.push_back(*user); // Copy
+                m_users.erase(user);
+            }
+        }
+        App::GetGameContext()->PushMessage(Message(MSG_NET_BCAST_PACKET_DISPATCHED, packet));
+        return;
+    }
+    else if (header.command == MSG2_USER_INFO || header.command == MSG2_USER_JOIN)
+    {
+        if (header.source == m_uid)
+        {
+            std::lock_guard<std::mutex> lock(m_userdata_mutex);
+            memcpy(&m_userdata, buffer, sizeof(RoRnet::UserInfo));
+            m_authlevel = m_userdata.authstatus;
+            m_username = std::string(m_userdata.username);
+            App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+            // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
+        }
+        else
+        {
+            RoRnet::UserInfo user_info;
+            if (!GetUserInfo(header.source, user_info)) // Check that user doesn't exist yet.
+            {
+                memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
+                Str<300> text;
+                if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
+                {
+                    text << "(" << UserAuthToStringShort(user_info) << ") ";
+                }
+                text << _L("joined the game");
+                    
+                // NB: Console is threadsafe
+                App::GetConsole()->putNetMessage(
+                    user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+                // Lock and update userlist
+                std::lock_guard<std::mutex> lock(m_users_mutex);
+                m_users.push_back(user_info);
+                m_users_peeropts.push_back(BitMask_t(0));
+            } // End of lock scope
+        }
+        return;
+    }
+    else if (header.command == MSG2_GAME_CMD)
+    {
+#ifdef USE_ANGELSCRIPT
+        App::GetScriptEngine()->queueStringForExecution(Ogre::String(buffer));
+#endif // USE_ANGELSCRIPT
+        return;
+    }
+    else if (header.command == MSG2_STREAM_DATA_CHARACTER)
+    {
+        App::GetGameContext()->GetCharacterFactory()->recv_character_packets.Push(packet);
+    }
+    else if (header.command == MSG2_STREAM_DATA_ACTOR)
+    {
+        App::GetGameContext()->GetActorManager()->recv_actor_packets.Push(packet);
+    }
+    else if (header.command == MSG2_STREAM_DATA_FORCES)
+    {
+        App::GetGameContext()->GetActorManager()->recv_forces_packets.Push(packet);
+    }
+
+    // Update stats
+    { // Begin lock scope
+        std::lock_guard<std::mutex> lock(m_recv_client_stats_mutex);
+        NetClientStats& stats = m_recv_client_stats[header.source];
+        stats.combined_ping.AddSample(header.server2source_ping + m_peer->roundTripTime);
+    } // End lock scope
 }
 
 
@@ -391,7 +477,7 @@ void Network::CouldNotConnect(std::string const & msg, bool close_socket /*= tru
     }
 }
 
-bool Network::StartConnecting()
+bool Network::Connect()
 {
     // Shadow vars for threaded access
     m_username = App::mp_player_name->getStr();
@@ -416,14 +502,6 @@ bool Network::StartConnecting()
     }
 }
 
-void Network::StopConnecting()
-{
-    App::mp_state->setVal((int)MpState::DISABLED);
-
-    if (m_connect_thread.joinable())
-        m_connect_thread.join(); // Clean up
-}
-
 bool Network::ConnectThread()
 {
     RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", m_net_host.c_str(), m_net_port);
@@ -440,8 +518,8 @@ bool Network::ConnectThread()
         return false;
     }
 
-    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Getting server info..."));
-    if (!SendNetMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
+    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Checking server version..."));
+    if (!SendMessageTcp(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
     {
         CouldNotConnect(_L("Establishing network session: error sending hello"));
         return false;
@@ -451,7 +529,7 @@ bool Network::ConnectThread()
     char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     // Receive server (rornet protocol) version
-    if (ReceiveMessage(&header, buffer, RORNET_MAX_MESSAGE_LENGTH))
+    if (ReceiveMessageTcp(&header, buffer, RORNET_MAX_MESSAGE_LENGTH))
     {
         CouldNotConnect(_L("Establishing network session: error getting server version"));
         return false;
@@ -470,159 +548,194 @@ bool Network::ConnectThread()
         CouldNotConnect(_L("server uses a different protocol version"));
         return false;
     }
-    if (header.command != MSG2_HELLO)
+    if (header.command != MSG2_VERSION)
     {
-        CouldNotConnect(_L("Establishing network session: error getting server hello"));
+        this->CouldNotConnect(_L("Establishing network session: unexpected response from server"));
         return false;
     }
 
-    // Save server settings
-    memcpy(&m_server_settings, buffer, sizeof(RoRnet::ServerInfo));
+    this->PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Switching to UDP..."));
+    m_socket.disconnect();
 
-    if (strncmp(m_server_settings.protocolversion, RORNET_VERSION, strlen(RORNET_VERSION)))
+    { // Lock scope
+        std::lock_guard<std::mutex> enet_lock(m_enet_mutex);
+
+        m_host = enet_host_create (nullptr /* create a client host */,
+                1 /* only allow 1 outgoing connection */,
+                2 /* allow up 2 channels to be used, 0 and 1 */,
+                0 /* assume any amount of incoming bandwidth */,
+                0 /* assume any amount of outgoing bandwidth */);
+        if (m_host == nullptr)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: could not create ENet client"));
+            return false;
+        }
+
+        ENetAddress address;
+        if (enet_address_set_host(&address, m_net_host.c_str()) != 0)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: ENet rejected the server IP"));
+            return false;
+        }
+        address.port = m_net_port + 1;
+
+        this->PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Connecting via UDP..."));
+        size_t num_channels = 1;
+        m_peer = enet_host_connect(m_host, &address, num_channels, 0);
+        if (m_peer == nullptr)
+        {
+            this->PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Establishing network session: could not connect to server using ENet"));
+            enet_host_destroy(m_host);
+            m_host = nullptr;
+            return false;
+        }
+    
+    } // lock scope
+
+    // Spin the ENet dispatch loop
+    LOG("[RoR|Networking|ENet] dispatch loop is running...");
+    while (!m_shutdown)
     {
-        std::string formatstr = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
-        CouldNotConnect(fmt::format(formatstr, RORNET_VERSION, m_server_settings.protocolversion));
-        return false;
+        NetSendPacket q_packet;
+        { // packet queue lock scope
+            std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
+            while (!m_send_packet_buffer.empty())
+            {
+                q_packet = m_send_packet_buffer.front();
+                
+                { // enet lock scope
+                    std::lock_guard<std::mutex> enet_lock(m_enet_mutex);
+                    enet_uint32 packet_flags = (IsRoRnetDiscardable(q_packet.type)) ? 0 : ENET_PACKET_FLAG_RELIABLE;
+                    ENetPacket* packet = enet_packet_create(q_packet.buffer, q_packet.size, packet_flags);
+                    if (packet == nullptr)
+                    {
+                        LOG("NET send error: could not create ENet packet");
+                        enet_peer_disconnect(m_peer, 0);
+                    }
+                    int result = enet_peer_send(m_peer, 0, packet);
+                    if (result != 0)
+                    {
+                        LOG(fmt::format("NET send error: could not send ENet packet, result: {}", result));
+                        enet_peer_disconnect(m_peer, 0);
+                    }
+                } // END enet lock scope
+
+                m_send_packet_buffer.pop_front();
+            }
+        } // END packet queue lock scope
+
+        ENetEvent ev;
+        enet_uint32 timeout_milisec = 0;
+        { // enet lock scope
+            std::lock_guard<std::mutex> enet_lock(m_enet_mutex);
+            int result = enet_host_service(m_host, &ev, timeout_milisec);
+            if (result < 0)
+            {
+                m_shutdown = true; // Atomic; instruct dispatch loop to quit.
+                this->PushNetMessage(
+                    (m_progress == NetProgress::PLAYING) ? MSG_NET_RECV_ERROR : MSG_NET_CONNECT_FAILURE,
+                    _L("connection error"));
+                continue;
+            }
+        } // END enet lock scope
+
+        switch (ev.type)
+        {
+            case ENET_EVENT_TYPE_CONNECT:
+                LOG("[RoR|Networking|ENet] received event CONNECT");
+                // Send HELLO again, this time using ENet
+                this->AddPacket(0, MSG2_HELLO, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION);
+                { // enet lock scope
+                    std::lock_guard<std::mutex> enet_lock(m_enet_mutex);
+                    m_progress = NetProgress::AWAITING_HELLO_RESPONSE;
+                }
+                this->PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Getting server info..."));
+                break;
+
+            case ENET_EVENT_TYPE_DISCONNECT:
+            {
+                LOG("[RoR|Networking|ENet] received event DISCONNECT");
+                m_shutdown = true; // Atomic; instruct dispatch loop to quit.
+                NetProgress progress = this->GetProgress();
+                if (progress == NetProgress::AWAITING_DISCONNECT)
+                {
+                    LOG("[RoR|Networking|ENet] Disconnected on player request.");
+                    this->PushNetMessage(MSG_NET_USER_DISCONNECT,
+                        "");
+                }
+                else if (progress == NetProgress::PLAYING)
+                {
+                    LOG("[RoR|Networking|ENet] Unexpected disconnect (connection error or kick)");
+                    this->PushNetMessage(MSG_NET_CONNECT_FAILURE,
+                        _L("disconnected: error"));
+                }
+                else
+                {
+                    LOG("[RoR|Networking|ENet] Player rejected by server.");
+                    this->PushNetMessage(MSG_NET_CONNECT_FAILURE,
+                        _L("disconnected: remote side closed the connection"));                    
+                }
+                m_peer = nullptr;
+            }
+                break;
+
+            case ENET_EVENT_TYPE_RECEIVE:
+                this->OnPacketReceived(ev.packet);
+                break;
+
+            default:;
+        }
     }
 
-    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Authorizing..."));
-
-    // First handshake done, increase the timeout, important!
-    m_socket.set_timeout(0, 0);
-
-    // Construct user credentials
-    RoRnet::UserInfo c;
-    memset(&c, 0, sizeof(RoRnet::UserInfo));
-    // Cut off the UTF string on the highest level, otherwise you will break UTF info
-    strncpy(c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN).c_str(), RORNET_MAX_USERNAME_LEN);
-    strncpy(c.serverpassword, Sha1Hash(m_password).c_str(), size_t(40));
-    strncpy(c.usertoken, Sha1Hash(m_token).c_str(), size_t(40));
-    strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
-    strncpy(c.clientname, "RoR", 10);
-    std::string language = App::app_language->getStr().substr(0, 2);
-    std::string country = App::app_country->getStr().substr(0, 2);
-    strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
-    strcpy(c.sessiontype, "normal");
-    if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
-    {
-        CouldNotConnect(_L("Establishing network session: error sending user info"));
-        return false;
-    }
-
-    // Getting authorization
-    if (ReceiveMessage(&header, buffer, RORNET_MAX_MESSAGE_LENGTH))
-    {
-        CouldNotConnect(_L("Establishing network session: error getting server authorization"));
-        return false;
-    }
-
-    if (header.command==MSG2_FULL)
-    {
-        CouldNotConnect(_L("Establishing network session: sorry, server has too many players"));
-        return false;
-    }
-    else if (header.command==MSG2_BANNED)
-    {
-        // Do NOT `disconnect()` the m_socket in this case - causes SocketW to terminate RoR.
-        CouldNotConnect(_L("Establishing network session: sorry, you are banned!"), /*close_socket=*/false);
-        return false;
-    }
-    else if (header.command==MSG2_WRONG_PW)
-    {
-        CouldNotConnect(_L("Establishing network session: sorry, wrong password!"));
-        return false;
-    }
-    else if (header.command==MSG2_WRONG_VER)
-    {
-        CouldNotConnect(_L("Establishing network session: sorry, wrong protocol version!"));
-        return false;
-    }
-    else if (header.command==MSG2_NO_RANK)
-    {
-        CouldNotConnect(_L("Establishing network session: sorry, this server requires a user token!"));
-        // ChainMessage() ensures the MP settings request is handled _after_ the MSG_NET_CONNECT_FAILURE with the text above.
-        App::GetGameContext()->ChainMessage(Message(MSG_GUI_OPEN_MP_SETTINGS_REQUESTED));
-        return false;
-    }
-
-    if (header.command!=MSG2_WELCOME)
-    {
-        CouldNotConnect(_L("Establishing network session: sorry, unknown server response"));
-        return false;
-    }
-
-    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Finishing..."));
-
-    m_uid = header.source;
-
-    // we get our userdata back
-    memcpy(&m_userdata, buffer, std::min<int>(sizeof(RoRnet::UserInfo), header.size));
-
-    m_shutdown = false;
-
-    LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
-    m_send_thread = std::thread(&Network::SendThread, this);
-    m_recv_thread = std::thread(&Network::RecvThread, this);
-    PushNetMessage(MSG_NET_CONNECT_SUCCESS, "");
+    // Clean up
+    //   DO NOT reset 'mp_state' cvar and `m_progress` member here - should be done by main thread after cleanup.
+    enet_host_destroy(m_host);
+    m_host = nullptr;
+    this->SetNetQuality(0);
+    m_users.clear();
+    m_disconnected_users.clear();
+    App::GetConsole()->doCommand("clear net");
+    m_shutdown = false;    
 
     return true;
 }
 
+NetProgress Network::GetProgress()
+{
+    std::lock_guard<std::mutex> enet_lock(m_enet_mutex);
+    return m_progress;
+}
+
+void Network::DisconnectENet()
+{
+    std::lock_guard<std::mutex> enet_lock(m_enet_mutex);
+    enet_peer_disconnect(m_peer, 0);
+}
+
 void Network::Disconnect()
 {
-    LOG("[RoR|Networking] Disconnect() disconnecting...");
-    bool is_clean_disconnect = !m_shutdown; // Hacky detection of invalid network state
+    NetProgress progress = this->GetProgress();
 
-    m_shutdown = true; // Instruct Send/Recv threads to shut down.
-
-    m_send_packet_available_cv.notify_one();
-
-    m_send_thread.join();
-    LOG("[RoR|Networking] Disconnect() sender thread cleaned up");
-
-    m_socket.set_timeout(1, 0);
-
-    if (is_clean_disconnect)
+    if (progress == NetProgress::PLAYING)
     {
-        SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
+        // Mark our state as DISCONNECTING.
+        std::unique_lock<std::mutex> manual_lock(m_enet_mutex);
+        m_progress = NetProgress::AWAITING_DISCONNECT;
+        manual_lock.unlock();
+
+        // Tell server to disconnect us.
+        this->AddPacket(0, MSG2_USER_LEAVE, 0, 0);
     }
 
-    m_recv_thread.join();
-    LOG("[RoR|Networking] Disconnect() receiver thread cleaned up");
-
-    if (is_clean_disconnect)
+    if (m_connect_thread.joinable())
     {
-        m_socket.disconnect();
+        m_connect_thread.join(); // thread will exit on ENET_EVENT_TYPE_DISCONNECT
     }
-    else
-    {
-        m_socket.close_fd();
-    }
-
-    SetNetQuality(0);
-    m_users.clear();
-    m_disconnected_users.clear();
-    m_recv_packet_buffer.clear();
-    m_send_packet_buffer.clear();
-    App::GetConsole()->doCommand("clear net");
-
-    m_shutdown = false;
     App::mp_state->setVal((int)MpState::DISABLED);
-
-    LOG("[RoR|Networking] Disconnect() done");
 }
 
 void Network::AddPacket(int streamid, int type, int len, const char *content)
 {
-    const auto max_len = RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header);
-    if (len > max_len)
-    {
-        LOGSTREAM << "[RoR|Networking] Discarding network packet (StreamID: "
-            <<streamid<<", Type: "<<type<<"), length is " << len << ", max is " << max_len;
-        return;
-    }
-
     NetSendPacket packet;
     memset(&packet, 0, sizeof(NetSendPacket));
 
@@ -631,7 +744,7 @@ void Network::AddPacket(int streamid, int type, int len, const char *content)
     RoRnet::Header *head = (RoRnet::Header *)buffer;
     head->command     = type;
     head->source      = m_uid;
-    head->size        = len;
+    head->size        = (uint32_t)len;
     head->streamid    = streamid;
 
     // then copy the contents
@@ -641,30 +754,28 @@ void Network::AddPacket(int streamid, int type, int len, const char *content)
     // record the packet size
     packet.size = len + sizeof(RoRnet::Header);
 
-    { // Lock scope
-        std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
-        if (type == MSG2_STREAM_DATA_DISCARDABLE)
-        {
-            if (m_send_packet_buffer.size() > m_packet_buffer_size)
-            {
-                // buffer full, discard unimportant data packets
-                return;
-            }
-            auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(),
-                    [&](const NetSendPacket& p) { return !memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)); });
-            if (search != m_send_packet_buffer.end())
-            {
-                // Found outdated discardable streamdata -> replace it
-                (*search) = packet;
-                m_send_packet_available_cv.notify_one();
-                return;
-            }
-        }
-        //DebugPacket("send", head, buffer);
-        m_send_packet_buffer.push_back(packet);
-    }
+    // record also packet type (redundant hack)
+    packet.type = type;
 
-    m_send_packet_available_cv.notify_one();
+    std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
+    if (IsRoRnetDiscardable(type))
+    {
+        if (m_send_packet_buffer.size() > m_packet_buffer_size)
+        {
+            // buffer full, discard unimportant data packets
+            return;
+        }
+        auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(),
+                [&](const NetSendPacket& p) { return !memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)); });
+        if (search != m_send_packet_buffer.end())
+        {
+            // Found outdated discardable streamdata -> replace it
+            (*search) = packet;
+            return;
+        }
+    }
+    //DebugPacket("send", head, buffer);
+    m_send_packet_buffer.push_back(packet);
 }
 
 void Network::AddLocalStream(RoRnet::StreamRegister *reg, int size)
@@ -677,14 +788,6 @@ void Network::AddLocalStream(RoRnet::StreamRegister *reg, int size)
     LOG("adding local stream: " + TOSTRING(m_uid) + ":"+ TOSTRING(m_stream_id) + ", type: " + TOSTRING(reg->type));
 
     m_stream_id++;
-}
-
-std::vector<NetRecvPacket> Network::GetIncomingStreamData()
-{
-    std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
-    std::vector<NetRecvPacket> buf_copy = m_recv_packet_buffer;
-    m_recv_packet_buffer.clear();
-    return buf_copy;
 }
 
 Ogre::String Network::GetTerrainName()
@@ -833,6 +936,18 @@ void Network::RemovePeerOptions(PeerOptionsRequest* rq)
             BITMASK_SET_0(m_users_peeropts[i], rq->por_peeropts);
         }
     }
+}
+
+bool Network::GetUserStats(int uid, NetClientStats& result)
+{
+    std::lock_guard<std::mutex> lock(m_recv_client_stats_mutex);
+    const auto it = m_recv_client_stats.find(uid);
+    const bool found = it != m_recv_client_stats.end();
+    if (found)
+    {
+        result = it->second;
+    }
+    return found;
 }
 
 void Network::BroadcastChatMsg(const char* msg)

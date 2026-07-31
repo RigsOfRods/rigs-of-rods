@@ -108,6 +108,7 @@ CVar* sim_no_self_collisions;
 CVar* sim_gearbox_mode;
 CVar* sim_soft_reset_mode;
 CVar* sim_quickload_dialog;
+CVar* sim_character_collisions;
 CVar* sim_live_repair_interval;
 CVar* sim_tuning_enabled;
 
@@ -125,6 +126,11 @@ CVar* mp_player_name;
 CVar* mp_player_token;
 CVar* mp_api_url;
 CVar* mp_cyclethru_net_actors;
+CVar* mp_actor_send_interval;
+CVar* mp_actor_recv_interval;
+CVar* mp_actor_calc_interval;
+CVar* mp_forces_send_interval;
+CVar* mp_forces_recv_interval;
 
 // New remote API
 CVar* remote_query_url;

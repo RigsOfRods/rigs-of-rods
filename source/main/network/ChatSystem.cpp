@@ -32,19 +32,6 @@ namespace ChatSystem {
 using namespace RoRnet;
 
 #ifdef USE_SOCKETW
-void SendStreamSetup()
-{
-    RoRnet::StreamRegister reg;
-    memset(&reg, 0, sizeof(RoRnet::StreamRegister));
-    reg.status = 1;
-    strcpy(reg.name, "chat");
-    reg.type = 3;
-
-    App::GetNetwork()->AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
-}
-#endif // USE_SOCKETW
-
-#ifdef USE_SOCKETW
 void ReceiveStreamData(unsigned int type, int source, char* buffer)
 {
     if (type != MSG2_UTF8_CHAT && type != MSG2_UTF8_PRIVCHAT)
@@ -65,16 +52,6 @@ void ReceiveStreamData(unsigned int type, int source, char* buffer)
     }
 
     App::GetConsole()->putNetMessage(source, Console::CONSOLE_SYSTEM_NETCHAT, text.c_str());
-}
-#endif // USE_SOCKETW
-
-#ifdef USE_SOCKETW
-void HandleStreamData(std::vector<RoR::NetRecvPacket> packet_buffer)
-{
-    for (auto packet : packet_buffer)
-    {
-        ReceiveStreamData(packet.header.command, packet.header.source, packet.buffer);
-    }
 }
 #endif // USE_SOCKETW
 

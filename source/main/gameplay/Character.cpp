@@ -35,14 +35,13 @@
 #include "Utils.h"
 #include "GfxWater.h"
 
+#include <enet/enet.h>
+
 using namespace Ogre;
 using namespace RoR;
 
-#define LOGSTREAM Ogre::LogManager::getSingleton().stream()
-
 Character::Character(int source, unsigned int streamid, std::string player_name, int color_number, bool is_remote) :
-      m_actor_coupling(nullptr)
-    , m_can_jump(false)
+    m_can_jump(false)
     , m_character_rotation(0.0f)
     , m_character_h_speed(2.0f)
     , m_character_v_speed(0.0f)
@@ -52,8 +51,8 @@ Character::Character(int source, unsigned int streamid, std::string player_name,
     , m_net_last_update_time(0.f)
     , m_net_username(player_name)
     , m_is_remote(is_remote)
-    , m_source_id(source)
-    , m_stream_id(streamid)
+    , cr_net_source_id(source)
+    , cr_net_stream_id(streamid)
     , m_gfx_character(nullptr)
     , m_driving_anim_length(0.f)
     , m_anim_name("Idle_sway")
@@ -82,16 +81,14 @@ void Character::updateCharacterRotation()
     setRotation(m_character_rotation);
 }
 
-void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
+void Character::setPosition(Vector3 position)
 {
-    //ASYNCSCENE OLD m_character_scenenode->setPosition(position);
     m_character_position = position;
     m_prev_position = position;
 }
 
 Vector3 Character::getPosition()
 {
-    //ASYNCSCENE OLDreturn m_character_scenenode->getPosition();
     return m_character_position;
 }
 
@@ -126,9 +123,70 @@ float calculate_collision_depth(Vector3 pos)
     return query.y - pos.y;
 }
 
+Triangle FetchCabTriangle(const ActorPtr& actor, CollisionCabID_t i)
+{
+    int tmpv = actor->ar_collcabs[i] * 3;
+    Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+    Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
+    Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
+    return Triangle(a,b,c);
+}
+
+Triangle FetchCabTriangle(ActorInstanceID_t actor_id, CollisionCabID_t i)
+{
+    ROR_ASSERT(actor_id != ACTORINSTANCEID_INVALID);
+    const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(actor_id);
+    ROR_ASSERT(actor);
+    ROR_ASSERT(actor->ar_state != ActorState::DISPOSED);
+    if (!actor || actor->ar_state == ActorState::DISPOSED)
+    {
+        LOG(fmt::format("[RoR] FetchCabTriangle(): actor instance ID '{}' not valid", actor_id));
+        return Triangle();
+    }
+    return FetchCabTriangle(actor, i);
+}
+
+CharacterCabContactInfo Character::FindContactingCab(const Ogre::Vector3& position)
+{
+    CharacterCabContactInfo contact_info;
+    contact_info.depth = -0.25f;
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+    {
+        if (actor->ar_state == ActorState::DISPOSED || !actor->ar_bounding_box.contains(position))
+        {
+            continue;
+        }
+
+        for (int i = 0; i < actor->ar_num_collcabs; i++)
+        {
+            Triangle triangle = FetchCabTriangle(actor, i);
+            // NOTE: this ray points _upwards_ ~ it's primary function is to make character 'step up' to the elevated cab when coming from ground.
+            //       Let's add negative bias to the ray, to avoid losing contact when already on the cab.
+            const float y_bias = -0.05f; // 5cm
+            auto result = Math::intersects(Ray(position+Vector3(0.f,y_bias,0.f), Vector3::UNIT_Y), triangle.a, triangle.b, triangle.c);
+            result.second+=y_bias;
+            if (result.first)
+            {
+                contact_info.dbg_intersect_cab=i;
+                contact_info.dbg_intersect_depth=result.second;
+            }
+            if (result.first && result.second < 1.8f && result.second > contact_info.depth)
+            {
+                contact_info.contacting_actor = actor->ar_instance_id;
+                contact_info.contacting_cab = i;
+                contact_info.cab_cached_worldpos = triangle;
+                contact_info.chara_localpos = CartesianToTriangleTransform(triangle).WorldToTriangle(position);
+                contact_info.vehicle_rotation = Ogre::Radian(actor->getRotation());
+                contact_info.depth = result.second;
+            }
+        }
+    }
+    return contact_info;
+}
+
 void Character::update(float dt)
 {
-    if (!m_is_remote && (m_actor_coupling == nullptr) && (App::sim_state->getEnum<SimState>() != SimState::PAUSED))
+    if (!m_is_remote && (m_occupied_actor == nullptr) && (App::sim_state->getEnum<SimState>() != SimState::PAUSED))
     {
         // disable character movement when using the free camera mode or when the menu is opened
         // TODO: check for menu being opened
@@ -145,45 +203,54 @@ void Character::update(float dt)
 
         // Trigger script events and handle mesh (ground) collision
         Vector3 query = position;
-        App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query);
+        if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query))
+        {
+            m_inertia = false;
+        }
 
         // Auto compensate minor height differences
-        float depth = calculate_collision_depth(position);
-        if (depth > 0.0f)
+        float terrain_depth = calculate_collision_depth(position);
+        if (terrain_depth > 0.0f)
         {
             m_can_jump = true;
             m_character_v_speed = std::max(0.0f, m_character_v_speed);
-            position.y += std::min(depth, 2.0f * dt);
+            position.y += std::min(terrain_depth, 2.0f * dt);
+            m_inertia = false;
         }
 
         // Submesh "collision"
+        // The collision detection algorithm
+        m_contact_info = this->FindContactingCab(position);
+        if (m_contact_info.depth > 0)
         {
-            float depth = 0.0f;
-            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+            m_can_jump = true;
+            m_character_v_speed = std::max(0.0f, m_character_v_speed);
+            position.y += std::min(m_contact_info.depth, 0.05f);
+
+            if (m_last_contact_info.contacting_actor == ACTORINSTANCEID_INVALID
+                && (m_contact_info.contacting_actor != ACTORINSTANCEID_INVALID))
             {
-                if (actor->ar_bounding_box.contains(position))
-                {
-                    for (int i = 0; i < actor->ar_num_collcabs; i++)
-                    {
-                        int tmpv = actor->ar_collcabs[i] * 3;
-                        Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
-                        Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
-                        Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
-                        auto result = Math::intersects(Ray(position, Vector3::UNIT_Y), a, b, c);
-                        if (result.first && result.second < 1.8f)
-                        {
-                            depth = std::max(depth, result.second);
-                        }
-                    }
-                }
-            }
-            if (depth > 0.0f)
-            {
-                m_can_jump = true;
-                m_character_v_speed = std::max(0.0f, m_character_v_speed);
-                position.y += std::min(depth, 0.05f);
+                // Contact established - reset 'last' values
+                m_last_contact_info = m_contact_info;
             }
         }
+
+        if (m_last_contact_info.contacting_actor != ACTORINSTANCEID_INVALID)
+        {
+            // Last contact is known --> pretend contact was maintained for 2 frames and so update position
+            Triangle cab_worldpos = FetchCabTriangle(m_last_contact_info.contacting_actor, m_last_contact_info.contacting_cab);
+            const Ogre::Vector3 projected_worldoffset = CartesianToTriangleTransform(cab_worldpos).TriangleToWorld(m_last_contact_info.chara_localpos);
+            const Ogre::Vector3 last_worldoffset = CartesianToTriangleTransform(m_last_contact_info.cab_cached_worldpos).TriangleToWorld(m_last_contact_info.chara_localpos);
+            const Ogre::Vector3 cab_translation = (projected_worldoffset - last_worldoffset);
+
+            position += cab_translation;
+
+            m_inertia = true;
+            m_inertia_translation = cab_translation;
+            m_inertia_rotation = (m_contact_info.vehicle_rotation - m_last_contact_info.vehicle_rotation);
+        }
+        m_debug_lastlast_contact_info = m_last_contact_info;
+        m_last_contact_info = m_contact_info;
 
         // Obstacle detection
         if (position != m_prev_position)
@@ -214,6 +281,7 @@ void Character::update(float dt)
             position.y = pheight;
             m_character_v_speed = 0.0f;
             m_can_jump = true;
+            m_inertia = false;
         }
 
         // water stuff
@@ -371,10 +439,13 @@ void Character::update(float dt)
 
         m_character_position = position;
     }
-    else if (m_actor_coupling) // The character occupies a vehicle or machine
+    else if (m_occupied_actor) // The character occupies a vehicle or machine
     {
+        // Reset cab collision - Prevent knockbacks on vehicle exit
+        m_contact_info.contacting_actor = ACTORINSTANCEID_INVALID;
+
         // Animation
-        float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
+        float angle = m_occupied_actor->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
         float anim_time_pos = ((angle + 1.0f) * 0.5f) * m_driving_anim_length;
         // prevent animation flickering on the borders:
         if (anim_time_pos < 0.01f)
@@ -389,6 +460,19 @@ void Character::update(float dt)
         m_anim_time = anim_time_pos;
         m_net_last_anim_time = 0.0f;
     }
+    else if (m_is_remote && m_contact_info.contacting_actor != ACTORINSTANCEID_INVALID)
+    {
+        // Make sure cab index from network is valid (COLLISIONCABID_INVALID means no update arrived yet)
+        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(m_contact_info.contacting_actor);
+        if (actor != nullptr
+            && m_contact_info.contacting_cab != COLLISIONCABID_INVALID
+            && m_contact_info.contacting_cab < actor->ar_num_cabs)
+        {
+            Triangle t = FetchCabTriangle(actor, m_contact_info.contacting_cab);
+            CartesianToTriangleTransform transform(t);
+            this->setPosition(transform.TriangleToWorld(m_contact_info.chara_localpos));
+        }
+    }
 
 #ifdef USE_SOCKETW
     if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && !m_is_remote)
@@ -396,31 +480,26 @@ void Character::update(float dt)
         this->SendStreamData();
     }
 #endif // USE_SOCKETW
+
+    this->DrawDebugUI();
+}
+
+Ogre::Vector3 Character::CalcCabAveragePos(ActorPtr actor, int cab_index)
+{
+    int tmpv = actor->ar_collcabs[cab_index] * 3;
+    Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+    Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
+    Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
+    Vector3 result;
+    result.x = (a.x + b.x + c.x) / 3;
+    result.y = (a.y + b.y + c.y) / 3;
+    result.z = (a.z + b.z + c.z) / 3;
+    return result;
 }
 
 void Character::move(Vector3 offset)
 {
     m_character_position += offset;  //ASYNCSCENE OLD m_character_scenenode->translate(offset);
-}
-
-// Helper function
-void Character::ReportError(const char* detail)
-{
-#ifdef USE_SOCKETW
-    std::string username;
-    RoRnet::UserInfo info;
-    if (!App::GetNetwork()->GetUserInfo(m_source_id, info))
-        username = "~~ERROR getting username~~";
-    else
-        username = info.username;
-
-    char msg_buf[300];
-    snprintf(msg_buf, 300,
-        "[RoR|Networking] ERROR on m_is_remote character (User: '%s', SourceID: %d, StreamID: %d): ",
-        username.c_str(), m_source_id, m_stream_id);
-
-    LOGSTREAM << msg_buf << detail;
-#endif
 }
 
 void Character::SendStreamSetup()
@@ -438,8 +517,8 @@ void Character::SendStreamSetup()
 
     App::GetNetwork()->AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
 
-    m_source_id = reg.origin_sourceid;
-    m_stream_id = reg.origin_streamid;
+    cr_net_source_id = reg.origin_sourceid;
+    cr_net_stream_id = reg.origin_streamid;
 #endif // USE_SOCKETW
 }
 
@@ -449,102 +528,132 @@ void Character::SendStreamData()
     if (m_net_timer.getMilliseconds() - m_net_last_update_time < 100)
         return;
 
-    // do not send position data if coupled to an actor already
-    if (m_actor_coupling)
-        return;
-
     m_net_last_update_time = m_net_timer.getMilliseconds();
 
-    NetCharacterMsgPos msg;
-    msg.command = CHARACTER_CMD_POSITION;
-    msg.pos_x = m_character_position.x;
-    msg.pos_y = m_character_position.y;
-    msg.pos_z = m_character_position.z;
+    RoRnet::CharacterState msg;
+    if (m_contact_info.contacting_actor != ACTORINSTANCEID_INVALID)
+    {
+        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(m_contact_info.contacting_actor);
+
+        msg.coupling_source_id = actor->ar_net_source_id;
+        msg.coupling_stream_id = actor->ar_net_stream_id;
+
+        Triangle net_location = FetchCabTriangle(actor, m_contact_info.contacting_cab);
+        CartesianToTriangleTransform net_transform(net_location);
+        TriangleCoord cablocal_pos = net_transform.WorldToTriangle(m_character_position);
+        msg.pos_x = cablocal_pos.barycentric.alpha;
+        msg.pos_y = cablocal_pos.barycentric.beta;
+        msg.pos_z = cablocal_pos.barycentric.gamma;
+        msg.coupling_cab_num = m_contact_info.contacting_cab;
+    }
+    else if (m_occupied_actor)
+    {
+        msg.coupling_source_id = m_occupied_actor->ar_net_source_id;
+        msg.coupling_stream_id = m_occupied_actor->ar_net_stream_id;
+        msg.coupling_seat_num = m_occupied_seat;
+    }
+    else
+    {
+        msg.pos_x = m_character_position.x;
+        msg.pos_y = m_character_position.y;
+        msg.pos_z = m_character_position.z;
+    }
     msg.rot_angle = m_character_rotation.valueRadians();
     strncpy(msg.anim_name, m_anim_name.c_str(), CHARACTER_ANIM_NAME_LEN);
     msg.anim_time = m_anim_time - m_net_last_anim_time;
 
     m_net_last_anim_time = m_anim_time;
 
-    App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(NetCharacterMsgPos), (char*)&msg);
+    App::GetNetwork()->AddPacket(cr_net_stream_id, RoRnet::MSG2_STREAM_DATA_CHARACTER, sizeof(RoRnet::CharacterState), (char*)&msg);
 #endif // USE_SOCKETW
 }
 
-void Character::receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer)
+void Character::receiveStreamData(ENetPacket* packet)
 {
 #ifdef USE_SOCKETW
-    if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
+    ROR_ASSERT(GetRoRnetHeader(packet)->command == RoRnet::MSG2_STREAM_DATA_CHARACTER);
+    ROR_ASSERT(GetRoRnetHeader(packet)->source == cr_net_source_id);
+    ROR_ASSERT(GetRoRnetHeader(packet)->streamid == cr_net_stream_id);
+
+    RoRnet::CharacterState* msg = GetRoRnetCharacterState(packet);
+
+    if (msg->coupling_source_id != -1 && msg->coupling_stream_id != -1)
     {
-        auto* msg = reinterpret_cast<NetCharacterMsgGeneric*>(buffer);
-        if (msg->command == CHARACTER_CMD_POSITION)
+        if (msg->coupling_cab_num != -1)
         {
-            auto* pos_msg = reinterpret_cast<NetCharacterMsgPos*>(buffer);
-            this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
-            this->setRotation(Ogre::Radian(pos_msg->rot_angle));
-            if (strnlen(pos_msg->anim_name, CHARACTER_ANIM_NAME_LEN) < CHARACTER_ANIM_NAME_LEN)
+            const ActorPtr& cur_actor = App::GetGameContext()->GetActorManager()->GetActorById(m_contact_info.contacting_actor);
+            if (!cur_actor
+                || cur_actor->ar_state == ActorState::DISPOSED
+                || cur_actor->ar_net_source_id != msg->coupling_source_id
+                || cur_actor->ar_net_stream_id != msg->coupling_stream_id)
             {
-                this->SetAnimState(pos_msg->anim_name, pos_msg->anim_time);
+                const ActorPtr& new_actor = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(msg->coupling_source_id, msg->coupling_stream_id);
+                if (new_actor && new_actor->ar_state != ActorState::DISPOSED)
+                {
+                    m_contact_info.contacting_actor = new_actor->ar_instance_id;
+                }
+            }
+
+            if (m_contact_info.contacting_actor != ACTORINSTANCEID_INVALID)
+            {
+                m_contact_info.chara_localpos.barycentric.alpha = msg->pos_x;
+                m_contact_info.chara_localpos.barycentric.beta = msg->pos_y;
+                m_contact_info.chara_localpos.barycentric.gamma = msg->pos_z;
+                m_contact_info.chara_localpos.distance = 0;
+                m_contact_info.contacting_cab = msg->coupling_cab_num;
             }
         }
-        else if (msg->command == CHARACTER_CMD_DETACH)
+        else if (msg->coupling_seat_num != -1)
         {
-            if (m_actor_coupling != nullptr)
-                this->SetActorCoupling(false, nullptr);
-            else
-                this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
-        }
-        else if (msg->command == CHARACTER_CMD_ATTACH)
-        {
-            auto* attach_msg = reinterpret_cast<NetCharacterMsgAttach*>(buffer);
-            ActorPtr beam = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
-            if (beam != nullptr)
+            if (!m_occupied_actor
+                || m_occupied_actor->ar_state == ActorState::DISPOSED
+                || m_occupied_actor->ar_net_source_id != msg->coupling_source_id
+                || m_occupied_actor->ar_net_stream_id != msg->coupling_stream_id)
             {
-                this->SetActorCoupling(true, beam);
-            }
-            else
-            {
-                char err_buf[200];
-                snprintf(err_buf, 200, "Received command `ATTACH` with target{SourceID: %d, StreamID: %d}, "
-                    "but corresponding vehicle doesn't exist. Ignoring command.",
-                    attach_msg->source_id, attach_msg->stream_id);
-                this->ReportError(err_buf);
+                m_occupied_actor = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(msg->coupling_source_id, msg->coupling_stream_id);
+                m_occupied_seat = msg->coupling_seat_num;
             }
         }
-        else
-        {
-            char err_buf[100];
-            snprintf(err_buf, 100, "Received invalid command: %d. Cannot process.", msg->command);
-            this->ReportError(err_buf);
-        }
+    }
+    else
+    {
+        this->setPosition(Ogre::Vector3(msg->pos_x, msg->pos_y, msg->pos_z));
+        this->setRotation(Ogre::Radian(msg->rot_angle));
+    }
+
+    // check the anim name is properly 0-terminated.
+    if (strnlen(msg->anim_name, CHARACTER_ANIM_NAME_LEN) < CHARACTER_ANIM_NAME_LEN)
+    {
+        this->SetAnimState(msg->anim_name, msg->anim_time);
     }
 #endif
 }
 
-void Character::SetActorCoupling(bool enabled, ActorPtr actor)
+ActorPtr Character::GetOccupiedActor()
 {
-    m_actor_coupling = actor;
-#ifdef USE_SOCKETW
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_is_remote)
-    {
-        if (enabled)
-        {
-            NetCharacterMsgAttach msg;
-            msg.command = CHARACTER_CMD_ATTACH;
-            msg.source_id = m_actor_coupling->ar_net_source_id;
-            msg.stream_id = m_actor_coupling->ar_net_stream_id;
-            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgAttach), (char*)&msg);
-        }
-        else
-        {
-            NetCharacterMsgGeneric msg;
-            msg.command = CHARACTER_CMD_DETACH;
-            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgGeneric), (char*)&msg);
-        }
-    }
-#endif // USE_SOCKETW
+    return m_occupied_actor;
 }
 
-ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
+void Character::SetOccupiedActor(const ActorPtr& actor, int seat_num)
+{
+    m_occupied_actor = actor;
+    m_occupied_seat = seat_num;
+}
+
+void Character::DrawDebugUI()
+{
+    if(ImGui::Begin("Character debug"))
+    {
+        ImGui::Text("Last contacting actor: %d", m_debug_lastlast_contact_info.contacting_actor);
+        ImGui::Text("Contacting actor: %d", m_last_contact_info.contacting_actor);
+        ImGui::Text("Contacting depth: %.3f", m_last_contact_info.depth);
+        ImGui::Text("Inertia (bool): %d", (int)m_inertia);
+        ImGui::Separator();
+        ImGui::Text("DBG intersected cab: %d", m_last_contact_info.dbg_intersect_cab);
+        ImGui::Text("DBG intersected depth: %6.3f", m_last_contact_info.dbg_intersect_depth);
+        ImGui::End();
+    }
+}
 
 // --------------------------------
 // GfxCharacter
@@ -596,7 +705,7 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_color_number           = xc_character->GetColorNum();
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_is_remote              = xc_character->GetIsRemote();
-    xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
+    xc_simbuf.simbuf_actor_coupling         = xc_character->GetOccupiedActor();
     xc_simbuf.simbuf_anim_name              = xc_character->GetAnimName();
     xc_simbuf.simbuf_anim_time              = xc_character->GetAnimTime();
 }
@@ -622,7 +731,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
     // Position + Orientation
     Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
-    if (xc_simbuf.simbuf_actor_coupling != nullptr)
+    if (xc_simbuf.simbuf_actor_coupling != nullptr && xc_simbuf.simbuf_actor_coupling->ar_state != ActorState::DISPOSED)
     {
         // We're in vehicle
         GfxActor* gfx_actor = xc_simbuf.simbuf_actor_coupling->GetGfxActor();

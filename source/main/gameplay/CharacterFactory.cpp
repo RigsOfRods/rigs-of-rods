@@ -25,6 +25,7 @@
 #include "Application.h"
 #include "Character.h"
 #include "GfxScene.h"
+#include "NetUtils.h"
 #include "Utils.h"
 
 using namespace RoR;
@@ -68,7 +69,7 @@ void CharacterFactory::removeStreamSource(int sourceid)
 {
     for (auto it = m_remote_characters.begin(); it != m_remote_characters.end(); it++)
     {
-        if ((*it)->getSourceID() == sourceid)
+        if ((*it)->cr_net_source_id == sourceid)
         {
             (*it).reset();
             m_remote_characters.erase(it);
@@ -87,17 +88,6 @@ void CharacterFactory::Update(float dt)
     }
 }
 
-void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
-{
-    for (auto& c : m_remote_characters)
-    {
-        if (c->GetActorCoupling() == actor)
-        {
-            c->SetActorCoupling(false, nullptr);
-        }
-    }
-}
-
 void CharacterFactory::DeleteAllCharacters()
 {
     m_remote_characters.clear(); // std::unique_ptr<> will do the cleanup...
@@ -105,29 +95,36 @@ void CharacterFactory::DeleteAllCharacters()
 }
 
 #ifdef USE_SOCKETW
-void CharacterFactory::handleStreamData(std::vector<RoR::NetRecvPacket> packet_buffer)
+void CharacterFactory::HandleCharacterStreamData()
 {
-    for (auto packet : packet_buffer)
+    while (ENetPacket* packet = recv_character_packets.Pop())
     {
-        if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
+        RoRnet::Header* packet_header = GetRoRnetHeader(packet);
+        for (auto& c : m_remote_characters)
         {
-            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            if (reg->type == 1)
+            if (c->cr_net_source_id == packet_header->source && c->cr_net_stream_id == packet_header->streamid)
             {
-                createRemoteInstance(packet.header.source, packet.header.streamid);
+                c->receiveStreamData(packet);
             }
         }
-        else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
+        enet_packet_destroy(packet);
+    }
+}
+
+void CharacterFactory::HandleBroadcastPacketDispatched(ENetPacket* packet)
+{
+    RoRnet::Header* packet_header = GetRoRnetHeader(packet);
+    if (packet_header->command == RoRnet::MSG2_STREAM_REGISTER)
+    {
+        RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)GetRoRnetBuffer(packet);
+        if (reg->type == 1)
         {
-            removeStreamSource(packet.header.source);
+            createRemoteInstance(packet_header->source, packet_header->streamid);
         }
-        else
-        {
-            for (auto& c : m_remote_characters)
-            {
-                c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
-            }
-        }
+    }
+    else if (packet_header->command == RoRnet::MSG2_USER_LEAVE)
+    {
+        removeStreamSource(packet_header->source);
     }
 }
 #endif // USE_SOCKETW

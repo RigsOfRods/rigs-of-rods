@@ -24,6 +24,7 @@
 #include "Application.h"
 
 #include "Character.h"
+#include "NetUtils.h"
 #include "Network.h"
 
 #include <memory>
@@ -43,11 +44,13 @@ public:
     Character* CreateLocalCharacter();
     Character* GetLocalCharacter() { return m_local_character.get(); }
     void DeleteAllCharacters();
-    void UndoRemoteActorCoupling(ActorPtr actor);
     void Update(float dt);
 #ifdef USE_SOCKETW
-    void handleStreamData(std::vector<RoR::NetRecvPacket> packet);
+    void HandleCharacterStreamData();
+    void HandleBroadcastPacketDispatched(ENetPacket* packet); //!< Handles everything but `MSG2_STREAM_DATA`
 #endif // USE_SOCKETW
+
+    ConcurrentPacketQueue recv_character_packets;
 
 private:
 

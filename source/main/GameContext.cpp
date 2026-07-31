@@ -321,10 +321,6 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
             fresh_actor->ar_engine->autoShiftSet(Engine::DRIVE);
         }
     }
-    else if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
-    {
-        fresh_actor->ar_net_source_id = rq.net_source_id;
-        fresh_actor->ar_net_stream_id = rq.net_stream_id;
 
         if (BITMASK_IS_1(rq.asr_net_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
         {
@@ -334,7 +330,6 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         {
             this->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, new ActorPtr(fresh_actor)));
         }
-    }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::SAVEGAME)
     {
         if (rq.asr_saved_state)
@@ -472,13 +467,6 @@ void GameContext::DeleteActor(ActorPtr actor)
 
     App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
 
-#ifdef USE_SOCKETW
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-    {
-        m_character_factory.UndoRemoteActorCoupling(actor);
-    }
-#endif //SOCKETW
-
     TRIGGER_EVENT_ASYNC(SE_GENERIC_DELETED_TRUCK, actor->ar_instance_id);
 
     m_actor_manager.DeleteActorInternal(actor);
@@ -539,7 +527,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
             Character* player_character = this->GetPlayerCharacter();
             if (player_character)
             {
-                player_character->SetActorCoupling(false, nullptr);
+                player_character->SetOccupiedActor(nullptr, /* seat_num: */-1);
                 player_character->setRotation(Ogre::Radian(rotation));
                 player_character->setPosition(position);
             }
@@ -567,7 +555,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
         Character* player_character = this->GetPlayerCharacter();
         if (player_character)
         {
-            player_character->SetActorCoupling(true, m_player_actor);
+            player_character->SetOccupiedActor(m_player_actor, /* seat_num: */0);
         }
 
         App::GetGuiManager()->FlexbodyDebug.AnalyzeFlexbodies();

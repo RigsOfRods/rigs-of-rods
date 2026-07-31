@@ -29,6 +29,7 @@
 #include "Differentials.h"
 #include "Engine.h"
 #include "GfxActor.h"
+#include "Network.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
 #include "RoRnet.h"
@@ -73,9 +74,12 @@ public:
     /// @name Networking
     /// @{
     void              sendStreamSetup();
-    void              sendStreamData();                    //!< Send outgoing data
-    void              pushNetwork(char* data, int size);   //!< Process incoming data; fills actor's data buffers and flips them. Called by the network thread.//! 
-    void              calcNetwork();
+    void              sendActorStreamData();               //!< Capture simulation state and queue for sending.
+    void              SendForcesStreamData();              //!< Send accumulated collision forces.
+    void              pushNetwork(char* data, int size);   //!< Process incoming MSG2_STREAM_DATA_ACTOR packets.
+    void              PushNetForces(ENetPacket* packet);   //!< Process incoming MSG2_STREAM_DATA_FORCES packets.
+    void              calcNetwork();                       //!< Apply actor stream (type 0); Called by sim. thread.
+    void              CalcNetForces();                     //!< Apply forces stream (type 4); Called by sim. thread.
     /// @}
 
     /// @name Physics state
@@ -520,9 +524,10 @@ public:
     int               ar_airbrake_intensity = 0;          //!< Physics state; values 0-5
     int               ar_net_source_id = 0;               //!< Unique ID of remote player who spawned this actor
     int               ar_net_stream_id = 0;
+    int               ar_net_forces_source_id;       //!< Unique ID of remote player who sends forces to this actor. Always equal to actor source ID.
+    int               ar_net_forces_stream_id;       //!< Incoming collision forces stream (type 4). Valid for LOCAL_*
     std::map<int,int> ar_net_stream_results;
-    Ogre::Timer       ar_net_timer;
-    unsigned long     ar_net_last_update_time = 0;
+    Ogre::Vector3* ar_net_coll_forces = nullptr;   //!< Accumulated correction forces from collision triangles.
     float             ar_collision_range = DEFAULT_COLLISION_RANGE;             //!< Physics attr
     float             ar_top_speed = 0.f;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
@@ -728,7 +733,8 @@ private:
     size_t            m_net_wheel_buf_size = 0;       //!< For incoming/outgoing traffic; calculated on spawn
     size_t            m_net_propanimkey_buf_size = 0; //!< For incoming/outgoing traffic; calculated on spawn
     size_t            m_net_total_buffer_size = 0;    //!< For incoming/outgoing traffic; calculated on spawn
-    float             m_net_node_compression = 0.f;     //!< For incoming/outgoing traffic; calculated on spawn
+    int               m_net_forces_buffer_size;       //!< For incoming/outgoing traffic; calculated on spawn
+    std::vector<char> m_net_forces_payload_buf;       //!< Outgoing forces packet buffer
     int               m_net_first_wheel_node = 0;     //!< Network attr; Determines data buffer layout; calculated on spawn
 
     std::string       m_net_username;
@@ -782,6 +788,7 @@ private:
     };
 
     std::deque<NetUpdate> m_net_updates; //!< Incoming stream of NetUpdates
+    std::vector<ENetPacket*> m_net_forces_packets; //!< Buffered MSG2_STREAM_DATA_FORCES to interpolate from
 };
 
 /// @} // addtogroup Physics

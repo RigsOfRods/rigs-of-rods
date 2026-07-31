@@ -15,7 +15,6 @@ set(SOURCE_FILES
         gameplay/AutoPilot.{h,cpp}
         gameplay/Character.{h,cpp}
         gameplay/CharacterFactory.{h,cpp}
-        gameplay/ChatSystem.{h,cpp}
         gameplay/CruiseControl.cpp
         gameplay/Engine.{h,cpp}
         gameplay/Landusemap.{h,cpp}
@@ -137,8 +136,11 @@ set(SOURCE_FILES
         gui/panels/GUI_ScriptMonitor.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
+        network/ChatSystem.{h,cpp}
         network/CurlHelpers.{h,cpp}
         network/DiscordRpc.{h,cpp}
+        network/NetStats.{h,cpp}
+        network/NetUtils.h
         network/Network.{h,cpp}
         network/OutGauge.{h,cpp}
         network/RoRnet.h
@@ -334,6 +336,7 @@ endif ()
 
 target_include_directories(${BINNAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/external/header_only
+        ${CMAKE_SOURCE_DIR}/external/enet/include
         .
         audio
         datatypes
@@ -405,7 +408,7 @@ else ()
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
-target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
+target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info enet)
 
 
 target_link_libraries(${BINNAME} PRIVATE

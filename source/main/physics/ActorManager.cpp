@@ -44,6 +44,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MovableText.h"
+#include "NetUtils.h"
 #include "Network.h"
 #include "PointColDetector.h"
 #include "Replay.h"
@@ -68,7 +69,6 @@ const ActorPtr ActorManager::ACTORPTR_NULL; // Dummy value to be returned as con
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
-    , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
 {
     // Create worker thread (used for physics calculations)
@@ -88,8 +88,14 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     }
     ActorPtr actor = new Actor(rq.asr_instance_id, static_cast<int>(m_actors.size()), def, rq);
 
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
+        if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
+        {
+            actor->ar_state = ActorState::NETWORKED_OK;
+            actor->ar_net_source_id = rq.net_source_id;
+            actor->ar_net_stream_id = rq.net_stream_id;
+        }
         actor->sendStreamSetup();
     }
 
@@ -287,7 +293,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     }
 
     actor->ar_state = ActorState::LOCAL_SLEEPING;
-
     if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // network buffer layout (without RoRnet::VehicleState):
@@ -312,6 +317,17 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
             if (actor->ar_engine)
             {
                 actor->ar_engine->startEngine();
+            }
+
+            if (App::mp_pseudo_collisions->getBool())
+            {
+                actor->ar_net_coll_forces = new Ogre::Vector3[actor->ar_num_nodes];
+
+                actor->m_net_forces_buffer_size = sizeof(Ogre::Vector3) * actor->ar_num_nodes;
+
+                actor->m_net_forces_payload_buf.resize(actor->m_net_forces_buffer_size + sizeof(RoRnet::ForcesState));
+
+                memset(actor->ar_net_coll_forces, 0, actor->m_net_forces_buffer_size);
             }
         }
 
@@ -435,123 +451,141 @@ void ActorManager::RetryFailedStreamRegistrations(ScriptEventArgs* args)
 }
 
 #ifdef USE_SOCKETW
-void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_buffer)
+void ActorManager::HandleActorStreamData()
 {
-    // Sort by stream source
-    std::stable_sort(packet_buffer.begin(), packet_buffer.end(),
-            [](const RoR::NetRecvPacket& a, const RoR::NetRecvPacket& b)
-            { return a.header.source > b.header.source; });
-    // Compress data stream by eliminating all but the last update from every consecutive group of stream data updates
-    auto it = std::unique(packet_buffer.rbegin(), packet_buffer.rend(),
-            [](const RoR::NetRecvPacket& a, const RoR::NetRecvPacket& b)
-            { return !memcmp(&a.header, &b.header, sizeof(RoRnet::Header)) &&
-            a.header.command == RoRnet::MSG2_STREAM_DATA; });
-    packet_buffer.erase(packet_buffer.begin(), it.base());
-    for (auto& packet : packet_buffer)
+    while (ENetPacket* packet = recv_actor_packets.Pop())
     {
-        if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
+        for (ActorPtr& actor : m_actors)
         {
-            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            if (reg->type == 0)
-            {
-                reg->name[127] = 0;
-                // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
-                std::string filename_maybe_bundlequalified = SanitizeUtf8CString(reg->name);
-                std::string filename;
-                std::string bundlename;
-                SplitBundleQualifiedFilename(filename_maybe_bundlequalified, /*out:*/ bundlename, /*out:*/ filename);
+            if (actor->ar_state != ActorState::NETWORKED_OK)
+                continue;
 
-                RoRnet::UserInfo info;
-                BitMask_t peeropts = BitMask_t(0);
-                if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info)
-                    || !App::GetNetwork()->GetUserPeerOpts(reg->origin_sourceid, peeropts))
+            RoRnet::Header* packet_header = GetRoRnetHeader(packet);
+            if (packet_header->source == actor->ar_net_source_id && packet_header->streamid == actor->ar_net_stream_id)
+            {
+                actor->pushNetwork(GetRoRnetBuffer(packet), packet_header->size);
+                break;
+            }
+        }
+        enet_packet_destroy(packet);
+    }
+}
+
+void ActorManager::HandleForcesStreamData()
+{
+    while (ENetPacket* packet = recv_forces_packets.Pop())
+    {
+        for (ActorPtr& actor : m_actors)
+        {
+            if (actor->ar_state == ActorState::NETWORKED_OK || actor->ar_state == ActorState::NETWORKED_HIDDEN)
+                continue;
+
+            RoRnet::Header* head = GetRoRnetHeader(packet);
+            if (head->source == actor->ar_net_source_id && head->streamid == actor->ar_net_stream_id)
+            {
+                actor->PushNetForces(packet);
+                break;
+            }
+        }
+    }
+}
+
+void ActorManager::HandleBroadcastPacketDispatched(ENetPacket * packet)
+{
+    RoRnet::Header* packet_header = GetRoRnetHeader(packet);
+    if (packet_header->command == RoRnet::MSG2_STREAM_REGISTER)
+    {
+        RoRnet::StreamRegister* reg = (RoRnet::StreamRegister*)GetRoRnetBuffer(packet);
+        if (reg->type == 0) // Actor state and positions
+        {
+            reg->name[127] = 0;
+            // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+            std::string filename_maybe_bundlequalified = SanitizeUtf8CString(reg->name);
+            std::string filename;
+            std::string bundlename;
+            SplitBundleQualifiedFilename(filename_maybe_bundlequalified, /*out:*/ bundlename, /*out:*/ filename);
+
+            RoRnet::UserInfo info;
+            BitMask_t peeropts = BitMask_t(0);
+            if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info)
+                || !App::GetNetwork()->GetUserPeerOpts(reg->origin_sourceid, peeropts))
+            {
+                RoR::LogFormat("[RoR] Invalid STREAM_REGISTER, user id %d does not exist", reg->origin_sourceid);
+                reg->status = -1;
+            }
+            else if (filename.empty())
+            {
+                RoR::LogFormat("[RoR] Invalid STREAM_REGISTER (user '%s', ID %d), filename is empty string", info.username, reg->origin_sourceid);
+                reg->status = -1;
+            }
+            else
+            {
+                auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
+                Str<200> text;
+                text << _L("spawned a new vehicle: ") << filename;
+                App::GetConsole()->putNetMessage(
+                    reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+
+                LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
+
+                // Based on negative user feedback we don't check the bundle in multiplayer.
+                CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename);
+
+                if (!actor_entry)
                 {
-                    RoR::LogFormat("[RoR] Invalid STREAM_REGISTER, user id %d does not exist", reg->origin_sourceid);
-                    reg->status = -1;
-                }
-                else if (filename.empty())
-                {
-                    RoR::LogFormat("[RoR] Invalid STREAM_REGISTER (user '%s', ID %d), filename is empty string", info.username, reg->origin_sourceid);
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                        _L("Mod not installed: ") + filename);
+                    RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename_maybe_bundlequalified.c_str());
+                    this->AddStreamMismatch(actor_reg);
                     reg->status = -1;
                 }
                 else
                 {
-                    auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
-                    Str<200> text;
-                    text << _L("spawned a new vehicle: ") << filename;
-                    App::GetConsole()->putNetMessage(
-                        reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
-
-                    LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
-
-                    // Based on negative user feedback we don't check the bundle in multiplayer.
-                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename);
-
-                    if (!actor_entry)
-                    {
-                        App::GetConsole()->putMessage(
-                            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                            _L("Mod not installed: ") + filename);
-                        RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename_maybe_bundlequalified.c_str());
-                        this->AddStreamMismatch(actor_reg);
-                        reg->status = -1;
-                    }
-                    else
-                    {
-                        RoR::LogFormat("[RoR] Creating remote actor (user id %d, stream id %d) with filename '%s'",
-                            reg->origin_sourceid, reg->origin_streamid, filename_maybe_bundlequalified.c_str());
-                        this->RequestSpawnRemoteActor(actor_reg, actor_entry, info, peeropts);
-                        reg->status = 1; // success
-                    }
+                    RoR::LogFormat("[RoR] Creating remote actor (user id %d, stream id %d) with filename '%s'",
+                        reg->origin_sourceid, reg->origin_streamid, filename_maybe_bundlequalified.c_str());
+                    this->RequestSpawnRemoteActor(actor_reg, actor_entry, info, peeropts);
+                    reg->status = 1; // success
                 }
-
-                App::GetNetwork()->AddPacket(reg->origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
+
+            App::GetNetwork()->AddPacket(reg->origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
         }
-        else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
+        else if (reg->type == 4) // Collision forces
         {
-            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            for (ActorPtr& actor: m_actors)
+            this->HandleForcesStreamRegister((RoRnet::ForcesStreamRegister *)GetRoRnetBuffer(packet));
+        }
+    }
+    else if (packet_header->command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
+    {
+        RoRnet::StreamRegister* reg = (RoRnet::StreamRegister*)GetRoRnetBuffer(packet);
+        for (ActorPtr& actor: m_actors)
+        {
+            if (actor->ar_net_source_id == reg->origin_sourceid && actor->ar_net_stream_id == reg->origin_streamid)
             {
-                if (actor->ar_net_source_id == reg->origin_sourceid && actor->ar_net_stream_id == reg->origin_streamid)
-                {
-                    int sourceid = packet.header.source;
-                    actor->ar_net_stream_results[sourceid] = reg->status;
+                int sourceid = packet_header->source;
+                actor->ar_net_stream_results[sourceid] = reg->status;
 
-                    String message = "";
-                    switch (reg->status)
-                    {
-                        case  1: message = "successfully loaded stream"; break;
-                        case -2: message = "detected mismatch stream"; break;
-                        default: message = "could not load stream"; break;
-                    }
-                    LOG("Client " + TOSTRING(sourceid) + " " + message + " " + TOSTRING(reg->origin_streamid) +
-                            " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
-                    break;
-                }
-            }
-        }
-        else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
-        {
-            this->RemoveStream(packet.header.source, packet.header.streamid);
-        }
-        else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
-        {
-            this->RemoveStreamSource(packet.header.source);
-        }
-        else if (packet.header.command == RoRnet::MSG2_STREAM_DATA)
-        {
-            for (ActorPtr& actor: m_actors)
-            {
-                if (actor->ar_state != ActorState::NETWORKED_OK)
-                    continue;
-                if (packet.header.source == actor->ar_net_source_id && packet.header.streamid == actor->ar_net_stream_id)
+                String message = "";
+                switch (reg->status)
                 {
-                    actor->pushNetwork(packet.buffer, packet.header.size);
-                    break;
+                    case  1: message = "successfully loaded stream"; break;
+                    case -2: message = "detected mismatch stream"; break;
+                    default: message = "could not load stream"; break;
                 }
+                LOG("Client " + TOSTRING(sourceid) + " " + message + " " + TOSTRING(reg->origin_streamid) +
+                        " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
+                break;
             }
         }
+    }
+    else if (packet_header->command == RoRnet::MSG2_STREAM_UNREGISTER)
+    {
+        this->RemoveStream(packet_header->source, packet_header->streamid);
+    }
+    else if (packet_header->command == RoRnet::MSG2_USER_LEAVE)
+    {
+        this->RemoveStreamSource(packet_header->source);
     }
 }
 #endif // USE_SOCKETW
@@ -590,6 +624,46 @@ void ActorManager::AddStreamMismatch(RoRnet::ActorStreamRegister* reg)
     m_stream_mismatched_regs.push_back(*reg);
 }
 
+void ActorManager::HandleForcesStreamRegister(RoRnet::ForcesStreamRegister* reg)
+{
+    if (!App::mp_pseudo_collisions->getBool())
+    {
+        App::GetConsole()->putNetMessage(reg->origin_sourceid,
+            Console::MessageType::CONSOLE_SYSTEM_NOTICE,
+            fmt::format(_LC("Network",
+                "Created collision forces stream (ID {})"
+                " - ignored because net. collisions are disabled"), reg->origin_sourceid).c_str());
+        return;
+    }
+
+    // Find the source actor
+    for (ActorPtr& actor: m_actors)
+    {
+        if ((actor->ar_state == ActorState::LOCAL_SIMULATED ||
+             actor->ar_state == ActorState::LOCAL_SLEEPING) &&
+            actor->ar_net_stream_id == reg->player_streamid &&
+            actor->ar_net_source_id == reg->player_sourceid)
+        {
+            // Register the incoming stream.
+            actor->ar_net_forces_source_id = reg->origin_sourceid;
+            actor->ar_net_forces_stream_id = reg->origin_streamid;
+
+            App::GetConsole()->putNetMessage(reg->origin_sourceid,
+                Console::MessageType::CONSOLE_SYSTEM_NOTICE,
+                fmt::format(_LC("Network", "Created collision forces stream (ID {}) - accepted"), reg->origin_sourceid).c_str());
+
+            return; // Done.
+        }
+    }
+
+    App::GetConsole()->putNetMessage(reg->origin_sourceid,
+        Console::MessageType::CONSOLE_SYSTEM_WARNING,
+        fmt::format(_LC("Network",
+            "Created collision forces stream (ID {})"
+            " - actor (stream: {}, source: {}) not found."),
+            reg->origin_sourceid, reg->player_streamid, reg->player_sourceid).c_str());
+}
+
 int ActorManager::GetNetTimeOffset(int sourceid)
 {
     auto search = m_stream_time_offsets.find(sourceid);
@@ -605,6 +679,24 @@ void ActorManager::UpdateNetTimeOffset(int sourceid, int offset)
     if (m_stream_time_offsets.find(sourceid) != m_stream_time_offsets.end())
     {
         m_stream_time_offsets[sourceid] += offset;
+    }
+}
+
+int ActorManager::GetNetForcesTimeOffset(int sourceid)
+{
+    auto search = m_forces_time_offsets.find(sourceid);
+    if (search != m_forces_time_offsets.end())
+    {
+        return search->second;
+    }
+    return 0;
+}
+
+void ActorManager::UpdateNetForcesTimeOffset(int sourceid, int offset)
+{
+    if (m_forces_time_offsets.find(sourceid) != m_forces_time_offsets.end())
+    {
+        m_forces_time_offsets[sourceid] += offset;
     }
 }
 
@@ -952,7 +1044,7 @@ void ActorManager::CleanUpSimulation() // Called after simulation finishes
         this->DeleteActorInternal(m_actors.back()); // OK to invoke here - CleanUpSimulation() - processing `MSG_SIM_UNLOAD_TERRAIN_REQUESTED`
     }
 
-    m_total_sim_time = 0.f;
+    m_total_physics_steps = 0;
     m_last_simulation_speed = 0.1f;
     m_simulation_paused = false;
     m_simulation_speed = 1.f;
@@ -1113,14 +1205,14 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
     dt *= m_simulation_speed;
 
     dt += m_dt_remainder;
-    m_physics_steps = dt / PHYSICS_DT;
-    if (m_physics_steps == 0)
+    const int pending_physics_steps = dt / PHYSICS_DT;
+    if (pending_physics_steps == 0)
     {
         return;
     }
 
-    m_dt_remainder = dt - (m_physics_steps * PHYSICS_DT);
-    dt = PHYSICS_DT * m_physics_steps;
+    m_dt_remainder = dt - (pending_physics_steps * PHYSICS_DT);
+    dt = PHYSICS_DT * pending_physics_steps;
 
     this->SyncWithSimThread();
 
@@ -1163,14 +1255,6 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
                 actor->updateSkidmarks();
             }
         }
-        if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
-        {
-            // FIXME: Hidden actors must also be updated to workaround a glitch, see https://github.com/RigsOfRods/rigs-of-rods/issues/2911
-            if (actor->ar_state == ActorState::NETWORKED_OK || actor->ar_state == ActorState::NETWORKED_HIDDEN)
-                actor->calcNetwork();
-            else
-                actor->sendStreamData();
-        }
     }
 
     if (player_actor != nullptr)
@@ -1199,7 +1283,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
             player_actor->ar_toggle_ropes = false;
         }
 
-        player_actor->ForceFeedbackStep(m_physics_steps);
+        player_actor->ForceFeedbackStep(pending_physics_steps);
 
         if (player_actor->ar_state == ActorState::LOCAL_REPLAY)
         {
@@ -1207,13 +1291,24 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
         }
     }
 
-    auto func = std::function<void()>([this]()
+    SimulationSteppingContext ctx;
+    ctx.ssc_mp_state = App::mp_state->getEnum<MpState>();
+    ctx.ssc_mp_pseudo_collisions = App::mp_pseudo_collisions->getBool();
+    ctx.ssc_mp_actor_send_interval = App::mp_actor_send_interval->getInt();
+    ctx.ssc_mp_actor_recv_interval = App::mp_actor_recv_interval->getInt();
+    ctx.ssc_mp_actor_calc_interval = App::mp_actor_calc_interval->getInt();
+    ctx.ssc_mp_forces_send_interval = App::mp_forces_send_interval->getInt();
+    ctx.ssc_mp_forces_recv_interval = App::mp_forces_recv_interval->getInt();
+    ctx.ssc_elapsed_physics_steps = m_total_physics_steps;
+    ctx.ssc_pending_physics_steps = pending_physics_steps;
+
+    auto func = std::function<void()>([this, ctx]()
         {
-            this->UpdatePhysicsSimulation();
+            this->UpdatePhysicsSimulation(ctx);
         });
     m_sim_task = m_sim_thread_pool->RunTask(func);
 
-    m_total_sim_time += dt;
+    m_total_physics_steps += pending_physics_steps;
 
     if (!App::app_async_physics->getBool())
         m_sim_task->join();
@@ -1231,23 +1326,57 @@ const ActorPtr& ActorManager::GetActorById(ActorInstanceID_t actor_id)
     return ACTORPTR_NULL;
 }
 
-void ActorManager::UpdatePhysicsSimulation()
+void ActorManager::UpdatePhysicsSimulation(SimulationSteppingContext ctx)
 {
     for (ActorPtr& actor: m_actors)
     {
         actor->UpdatePhysicsOrigin();
     }
-    for (int i = 0; i < m_physics_steps; i++)
+
+    for (int i = 0; i < ctx.ssc_pending_physics_steps; i++)
     {
+        const long long now_microsec = (ctx.ssc_elapsed_physics_steps + i) * static_cast<double>(PHYSICS_DT) * 10000.0;
+
+        // Fetch received network packets (STREAM_DATA_ACTOR) in regular intervals
+        if (ctx.ssc_mp_state == MpState::CONNECTED
+            && now_microsec % (ctx.ssc_mp_actor_recv_interval*10) == 0)
+        {
+            this->HandleActorStreamData();
+        }
+
+        // Fetch received network packets (STREAM_DATA_FORCES) in regular intervals
+        if (ctx.ssc_mp_state == MpState::CONNECTED
+            && now_microsec % (ctx.ssc_mp_forces_recv_interval * 10) == 0)
+        {
+            this->HandleForcesStreamData();
+        }
+
         {
             std::vector<std::function<void()>> tasks;
             for (ActorPtr& actor: m_actors)
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare(i == 0))
                 {
-                    auto func = std::function<void()>([this, i, &actor]()
+                    auto func = std::function<void()>([this, i, ctx, &actor]()
                         {
-                            actor->CalcForcesEulerCompute(i == 0, m_physics_steps);
+                            // Networked collision forces must be incorporated on each physics tick
+                            if (ctx.ssc_mp_pseudo_collisions)
+                            {
+                                actor->CalcNetForces();
+                            }
+                            actor->CalcForcesEulerCompute(i == 0, ctx.ssc_pending_physics_steps);
+                        });
+                    tasks.push_back(func);
+                }
+                // Update networked actors at regular interval
+                // FIXME: Hidden actors must also be updated to workaround a glitch, see https://github.com/RigsOfRods/rigs-of-rods/issues/2911
+                else if (ctx.ssc_mp_state == MpState::CONNECTED
+                    && (actor->ar_state == ActorState::NETWORKED_OK || actor->ar_state == ActorState::NETWORKED_HIDDEN)
+                    && now_microsec % (ctx.ssc_mp_actor_calc_interval*10) == 0)
+                {
+                    auto func = std::function<void()>([&actor]()
+                        {
+                            actor->calcNetwork();
                         });
                     tasks.push_back(func);
                 }
@@ -1265,14 +1394,24 @@ void ActorManager::UpdatePhysicsSimulation()
             std::vector<std::function<void()>> tasks;
             for (ActorPtr& actor: m_actors)
             {
-                if (actor->m_inter_point_col_detector != nullptr && (actor->ar_update_physics ||
-                        (App::mp_pseudo_collisions->getBool() && actor->ar_state == ActorState::NETWORKED_OK)))
+                if (actor->m_inter_point_col_detector != nullptr
+                    && (actor->ar_update_physics
+                        || (ctx.ssc_mp_pseudo_collisions && actor->ar_state == ActorState::NETWORKED_OK)))
                 {
-                    auto func = std::function<void()>([this, &actor]()
+                    auto func = std::function<void()>([this, ctx, &actor]()
                         {
                             actor->m_inter_point_col_detector->UpdateInterPoint();
                             if (actor->ar_collision_relevant)
                             {
+                                // Networked collisions: reset node forces to 0, results of collisions will be recorded below.
+                                if (actor->ar_state == ActorState::NETWORKED_OK && ctx.ssc_mp_pseudo_collisions)
+                                {
+                                    for (int i = 0; i < actor->ar_num_nodes; ++i)
+                                    {
+                                        actor->ar_nodes[i].Forces = Ogre::Vector3::ZERO;
+                                    }
+                                }
+
                                 ResolveInterActorCollisions(PHYSICS_DT,
                                    *actor->m_inter_point_col_detector,
                                     actor->ar_num_collcabs,
@@ -1282,6 +1421,17 @@ void ActorManager::UpdatePhysicsSimulation()
                                     actor->ar_nodes,
                                     actor->ar_collision_range,
                                    *actor->ar_submesh_ground_model);
+
+                                // Networked collisions: accumulate recorded collision forces ~ keep highest value.
+                                if (actor->ar_state == ActorState::NETWORKED_OK && ctx.ssc_mp_pseudo_collisions)
+                                {
+                                    for (int i = 0; i < actor->ar_num_nodes; ++i)
+                                    {
+                                        actor->ar_net_coll_forces[i].x = std::max(actor->ar_net_coll_forces[i].x, actor->ar_nodes[i].Forces.x);
+                                        actor->ar_net_coll_forces[i].y = std::max(actor->ar_net_coll_forces[i].y, actor->ar_nodes[i].Forces.y);
+                                        actor->ar_net_coll_forces[i].z = std::max(actor->ar_net_coll_forces[i].z, actor->ar_nodes[i].Forces.z);
+                                    }
+                                }
                             }
                         });
                     tasks.push_back(func);
@@ -1290,21 +1440,47 @@ void ActorManager::UpdatePhysicsSimulation()
             App::GetThreadPool()->Parallelize(tasks);
         }
 
+        // Send network updates (actor positions) in regular intervals
+        if (ctx.ssc_mp_state == MpState::CONNECTED
+            && now_microsec % (ctx.ssc_mp_actor_send_interval*10) == 0)
+        {
+            for (ActorPtr& actor : m_actors)
+            {
+                if (actor->ar_state != ActorState::NETWORKED_OK && actor->ar_state != ActorState::NETWORKED_HIDDEN)
+                {
+                    actor->sendActorStreamData();
+                }
+            }
+        }
+
+        // Send network updates (forces) in regular intervals
+        if (ctx.ssc_mp_state == MpState::CONNECTED
+            && now_microsec % (ctx.ssc_mp_forces_send_interval * 10) == 0)
+        {
+            for (ActorPtr& actor : m_actors)
+            {
+                if (actor->ar_state == ActorState::NETWORKED_OK && ctx.ssc_mp_pseudo_collisions)
+                {
+                    actor->SendForcesStreamData();
+                }
+            }
+        }
+
         // Apply FreeForces - intentionally as a separate pass over all actors
         this->CalcFreeForces();
     }
     for (ActorPtr& actor: m_actors)
     {
         actor->m_ongoing_reset = false;
-        if (actor->ar_update_physics && m_physics_steps > 0)
+        if (actor->ar_update_physics && ctx.ssc_pending_physics_steps > 0)
         {
-            Vector3  camera_gforces = actor->m_camera_gforces_accu / m_physics_steps;
+            Vector3  camera_gforces = actor->m_camera_gforces_accu / ctx.ssc_pending_physics_steps;
             actor->m_camera_gforces_accu = Vector3::ZERO;
             actor->m_camera_gforces = actor->m_camera_gforces * 0.5f + camera_gforces * 0.5f;
             actor->calculateLocalGForces();
             actor->calculateAveragePosition();
             actor->m_avg_node_velocity  = actor->m_avg_node_position - actor->m_avg_node_position_prev;
-            actor->m_avg_node_velocity /= (m_physics_steps * PHYSICS_DT);
+            actor->m_avg_node_velocity /= (ctx.ssc_pending_physics_steps * PHYSICS_DT);
             actor->m_avg_node_position_prev = actor->m_avg_node_position;
             actor->ar_top_speed = std::max(actor->ar_top_speed, actor->ar_nodes[0].Velocity.length());
         }

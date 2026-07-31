@@ -32,7 +32,7 @@ namespace RoRnet {
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
 #define RORNET_MAX_USERNAME_LEN     40     //!< bytes.
 
-#define RORNET_VERSION              "RoRnet_2.45"
+#define RORNET_VERSION              "RoRnet_2.50"
 
 enum MessageType
 {
@@ -46,7 +46,7 @@ enum MessageType
     MSG2_WELCOME,                      //!< we can proceed
 
     // Technical
-    MSG2_VERSION,                      //!< server responds with its version
+    MSG2_VERSION,                      //!< (repurposed) TCP only; instructs client to reconnect using ENet
     MSG2_SERVER_SETTINGS,              //!< server send client the terrain name: server_info_t
     MSG2_USER_INFO,                    //!< user data that is sent from the server to the clients
     MSG2_MASTERINFO,                   //!< master information response
@@ -63,8 +63,9 @@ enum MessageType
     MSG2_STREAM_REGISTER,              //!< create new stream
     MSG2_STREAM_REGISTER_RESULT,       //!< result of a stream creation
     MSG2_STREAM_UNREGISTER,            //!< remove stream
-    MSG2_STREAM_DATA,                  //!< stream data
-    MSG2_STREAM_DATA_DISCARDABLE,      //!< stream data that is allowed to be discarded
+    MSG2_STREAM_DATA_ACTOR,            //!< stream data (actor state and positions, aka Type 0)
+    MSG2_STREAM_DATA_FORCES,           //!< stream data (actor collision forces, aka Type 4)
+    MSG2_STREAM_DATA_CHARACTER,        //!< stream data (character)
 
     MSG2_NO_RANK,                      //!< client has no ranked status
 
@@ -152,13 +153,14 @@ struct Header                      //!< Common header for every packet
 {
     uint32_t command;              //!< the command of this packet: MSG2_*
     int32_t  source;               //!< source of this command: 0 = server
+    uint32_t server2source_ping;   //!< filled by rorserver with current ENet ping of the source peer.
     uint32_t streamid;             //!< streamid for this command
-    uint32_t size;                 //!< size of the attached data block
+    uint32_t size;                 //!< payload length in bytes
 };
 
 struct StreamRegister              //!< Sent from the client to server and vice versa, to broadcast a new stream
 {
-    int32_t type;                  //!< 0 = Actor, 1 = Character, 3 = ChatSystem
+    int32_t type;                  //!< 0 = Actor, 1 = Character
     int32_t status;                //!< initial stream status
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
@@ -179,6 +181,22 @@ struct ActorStreamRegister         //!< Must preserve mem. layout of RoRnet::Str
     int32_t time;                  //!< initial time stamp
     char    skin[60];              //!< skin
     char    sectionconfig[60];     //!< section configuration
+};
+
+struct ForcesStreamRegister         //!< Must preserve mem. layout of RoRnet::StreamRegister
+{
+    // RoRnet::StreamRegister: Common
+    int32_t type;                  //!< 4
+    int32_t status;                //!< initial stream status
+    int32_t origin_sourceid;       //!< origin sourceid
+    int32_t origin_streamid;       //!< origin streamid
+    char    name[128];             //!< truck file name
+    // RoRnet::StreamRegister: Data buffer (128B)
+    int32_t bufferSize;            //!< initial stream status
+    int32_t time;                  //!< initial time stamp
+    int32_t player_sourceid;       //!< origin sourceid of the actor stream (type 0)
+    int32_t player_streamid;       //!< origin streamid of the actor stream (type 0)
+    char    unused[112];
 };
 
 struct StreamUnRegister            //< sent to remove a stream
@@ -214,8 +232,27 @@ struct VehicleState                  //!< Formerly `oob_t`
     float    hydrodirstate;        //!< the turning direction status
     float    brake;                //!< the brake value
     float    wheelspeed;           //!< the wheel speed value
-    BitMask_t flagmask;             //!< flagmask: NETMASK_*
-    BitMask_t lightmask;            //!< flagmask: LIGHTMASK_*
+    BitMask_t flagmask;            //!< flagmask: NETMASK_*
+    BitMask_t lightmask;           //!< flagmask: LIGHTMASK_*
+};
+
+struct ForcesState                 //!< MSG2_STREAM_DATA_FORCES
+{
+    int32_t  time;                 //!< time data
+};
+
+struct CharacterState
+{
+    // Both on ground and cab:
+    float   pos_x = 0.f, pos_y = 0.f, pos_z = 0.f; //!< Global when on ground, local (barycentric) when on cab.
+    float   rot_angle = 0.f;                       //!< Always global.
+    float   anim_time = 0.f;
+    char    anim_name[CHARACTER_ANIM_NAME_LEN] = {};
+    // Coupling - both seat and cab:
+    int32_t coupling_source_id = -1;
+    int32_t coupling_stream_id = -1;
+    int16_t coupling_cab_num = -1; //!< -1 when not walking on cabs
+    int16_t coupling_seat_num = -1; //!< -1 when not seated
 };
 
 struct ServerInfo

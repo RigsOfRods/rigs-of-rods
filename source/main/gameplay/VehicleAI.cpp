@@ -457,7 +457,7 @@ void VehicleAI::update(float dt, int doUpdate)
             Ogre::Vector3 b = App::GetGameContext()->GetPlayerCharacter()->getPosition() - beam->getPosition();
 
             if (beam->getDirection().angleBetween(b).valueDegrees() < 30 && // Is in front
-                App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling() == nullptr)
+                App::GetGameContext()->GetPlayerCharacter()->GetOccupiedActor() == nullptr)
             {
                 // Character ahead, slow down - distance relative to current speed so the faster we go the earlier we slow down
                 if (beam->getPosition().distance(App::GetGameContext()->GetPlayerCharacter()->getPosition()) < kmh_wheel_speed)
@@ -524,7 +524,7 @@ void VehicleAI::update(float dt, int doUpdate)
             Ogre::Vector3 b = App::GetGameContext()->GetPlayerCharacter()->getPosition() - beam->getPosition();
 
             if (beam->getDirection().angleBetween(b).valueDegrees() < 30 && // Is in front
-                App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling() == nullptr)
+                App::GetGameContext()->GetPlayerCharacter()->GetOccupiedActor() == nullptr)
             {
                 // Too close, stop
                 if (beam->getPosition().distance(App::GetGameContext()->GetPlayerCharacter()->getPosition()) < 20)

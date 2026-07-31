@@ -85,7 +85,7 @@ static bool BackfaceCollisionTest(const float distance,
  * @param local Point in triangle local coordinates.
  * @param margin Range within which a point is considered to be close enough to the triangle plane.
  */
-static bool InsideTriangleTest(const CartesianToTriangleTransform::TriangleCoord &local, const float margin)
+static bool InsideTriangleTest(const TriangleCoord &local, const float margin)
 {
     const auto coord    = local.barycentric;
     const auto distance = local.distance;
@@ -99,12 +99,11 @@ void ResolveCollisionForces(const float penetration_depth,
         const float alpha, const float beta, const float gamma,
         const Vector3 &normal,
         const float dt,
-        const bool remote,
         ground_model_t &submesh_ground_model)
 {
     const auto velocity = hitnode.Velocity - (na.Velocity * alpha + nb.Velocity * beta + no.Velocity * gamma);
     const float tr_mass = na.mass * alpha + nb.mass * beta + no.mass * gamma;
-    const float    mass = remote ? hitnode.mass : (hitnode.mass * tr_mass) / (hitnode.mass + tr_mass);
+    const float    mass = (hitnode.mass * tr_mass) / (hitnode.mass + tr_mass);
 
     auto forcevec = primitiveCollision(&hitnode, velocity, mass, normal, dt, &submesh_ground_model, penetration_depth);
 
@@ -161,7 +160,7 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
                     node_t& hitnode = hit_actor->ar_nodes[hitnode_num];
 
                     // transform point to triangle local coordinates
-                    const auto local_point = transform(hitnode.AbsPosition);
+                    const auto local_point = transform.WorldToTriangle(hitnode.AbsPosition);
 
                     // collision test
                     const bool is_colliding = InsideTriangleTest(local_point, collrange);
@@ -185,10 +184,8 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
 
                         const auto penetration_depth = collrange - distance;
 
-                        const bool remote = (hit_actor->ar_state == ActorState::NETWORKED_OK);
-
                         ResolveCollisionForces(penetration_depth, hitnode, *na, *nb, *no, coord.alpha,
-                                coord.beta, coord.gamma, normal, dt, remote, submesh_ground_model);
+                            coord.beta, coord.gamma, normal, dt, submesh_ground_model);
 
                         hitnode.nd_last_collision_gm = &submesh_ground_model;
                         hitnode.nd_has_mesh_contact = true;
@@ -254,7 +251,7 @@ void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPoi
                 if (no == &hitnode || na == &hitnode || nb == &hitnode) continue;
 
                 // transform point to triangle local coordinates
-                const auto local_point = transform(hitnode.AbsPosition);
+                const auto local_point = transform.WorldToTriangle(hitnode.AbsPosition);
 
                 // collision test
                 const bool is_colliding = InsideTriangleTest(local_point, collrange);
@@ -277,7 +274,7 @@ void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPoi
                     const auto penetration_depth = collrange - distance;
 
                     ResolveCollisionForces(penetration_depth, hitnode, *na, *nb, *no, coord.alpha,
-                            coord.beta, coord.gamma, normal, dt, false, submesh_ground_model);
+                            coord.beta, coord.gamma, normal, dt, submesh_ground_model);
                 }
             }
         }

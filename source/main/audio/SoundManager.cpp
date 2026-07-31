@@ -787,7 +787,7 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsPro
         for (const ActorPtr& actor : actors)
         {
             // ignore own truck if player is driving one
-            if (actor == App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling()) { continue; }
+            if (actor == App::GetGameContext()->GetPlayerCharacter()->GetOccupiedActor()) { continue; }
 
             intersection = ray.intersects(actor->ar_bounding_box);
             if (intersection.first && intersection.second <= max_distance)
@@ -1022,8 +1022,8 @@ bool SoundManager::IsHardwareSourceObstructed(const int hardware_index) const
     if
     (
            App::audio_force_obstruction_inside_vehicles->getBool()
-        && App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling() != nullptr
-        && App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling()->ar_bounding_box.contains(m_listener_position)
+        && App::GetGameContext()->GetPlayerCharacter()->GetOccupiedActor() != nullptr
+        && App::GetGameContext()->GetPlayerCharacter()->GetOccupiedActor()->ar_bounding_box.contains(m_listener_position)
     )
     {
         return true;

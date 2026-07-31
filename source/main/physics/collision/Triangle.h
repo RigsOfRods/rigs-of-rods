@@ -37,35 +37,30 @@ class Triangle
 public:
     /// Construct triangle from three given vertices.
     explicit Triangle(const Ogre::Vector3& a, const Ogre::Vector3& b, const Ogre::Vector3& c)
-        : a{a}, b{b}, c{c}, u{a - c}, v{b - c}, m_initialized{false}
+        : a{a}, b{b}, c{c}, u{a - c}, v{b - c}
     {
     }
 
-    /// Return normal vector of the triangle.
-    ///
-    /// The normal vector has unit length.
-    /// @warning Not thread-safe due to caching implementation!
+    Triangle()
+        :a(Ogre::Vector3::ZERO)
+        ,b(Ogre::Vector3::ZERO)
+        ,c(Ogre::Vector3::ZERO)
+        ,u(Ogre::Vector3::ZERO)
+        ,v(Ogre::Vector3::ZERO)
+    {
+    }
+
     Ogre::Vector3 normal() const
     {
-        if (!m_initialized)
-        {
-            m_normal = u.crossProduct(v);
-            m_normal.normalise();
-            m_initialized = true;
-        }
-        return m_normal;
+        return u.crossProduct(v).normalisedCopy();
     }
 
-    const Ogre::Vector3 a, //!< Vertex a
-                        b, //!< Vertex b
-                        c; //!< Vertex c
+    Ogre::Vector3 a, //!< Vertex a
+                  b, //!< Vertex b
+                  c; //!< Vertex c
 
-    const Ogre::Vector3 u, //!< Span vector u
-                        v; //!< Span vector v
-
-private:
-    mutable bool m_initialized;
-    mutable Ogre::Vector3 m_normal; //!< Cached normal vector
+    Ogre::Vector3 u, //!< Span vector u
+                  v; //!< Span vector v
 };
 
 /// @} // addtogroup Collisions

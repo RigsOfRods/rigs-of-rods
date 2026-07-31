@@ -27,6 +27,7 @@
 #include "Application.h"
 #include "CmdKeyInertia.h"
 #include "Network.h"
+#include "NetUtils.h"
 #include "RigDef_Prerequisites.h"
 #include "ScriptEvents.h"
 #include "SimData.h"
@@ -39,6 +40,22 @@ namespace RoR {
 
 /// @addtogroup Physics
 /// @{
+
+    struct SimulationSteppingContext //!< Param to `UpdatePhysicsSimulation()` - copy variables for thread safety.
+    {
+        // cvars
+        RoR::MpState ssc_mp_state = RoR::MpState::DISABLED;
+        bool ssc_mp_pseudo_collisions = false;
+        int ssc_mp_actor_send_interval = 0;
+        int ssc_mp_actor_recv_interval = 0;
+        int ssc_mp_actor_calc_interval = 0;
+        int ssc_mp_forces_send_interval = 0;
+        int ssc_mp_forces_recv_interval = 0;
+
+        // state
+        long long ssc_elapsed_physics_steps = 0;
+        int ssc_pending_physics_steps = 0;
+    };
 
 /// Builds and manages softbody actors (physics on background thread, networking)
 class ActorManager
@@ -79,16 +96,18 @@ public:
 
     void           UpdateActors(ActorPtr player_actor);
     void           SyncWithSimThread();
-    void           UpdatePhysicsSimulation();
+    void           UpdatePhysicsSimulation(SimulationSteppingContext ctx);
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
+    int            GetNetForcesTimeOffset(int sourceid);
+    void           UpdateNetForcesTimeOffset(int sourceid, int offset);
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
     float          GetSimulationSpeed() const              { return m_simulation_speed; };
     bool           IsSimulationPaused() const              { return m_simulation_paused; }
     void           SetSimulationPaused(bool v)             { m_simulation_paused = v; }
-    float          GetTotalTime() const                    { return m_total_sim_time; }
+    float          GetTotalTime() const                    { return m_total_physics_steps * PHYSICS_DT; }
     RoR::CmdKeyInertiaConfig& GetInertiaConfig()           { return m_inertia_config; }
     
 
@@ -106,7 +125,10 @@ public:
     /// @name Networking
     /// @{
 #ifdef USE_SOCKETW
-    void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
+    void           HandleActorStreamData();
+    void           HandleBroadcastPacketDispatched(ENetPacket* packet); //!< Handles everything but `MSG2_STREAM_DATA`
+    void           HandleForcesStreamRegister(RoRnet::ForcesStreamRegister* reg);
+    void           HandleForcesStreamData();
 #endif
     unsigned long  GetNetTime() { return m_net_timer.getMilliseconds(); };
     int            GetNetTimeOffset(int sourceid);
@@ -132,6 +154,9 @@ public:
     std::map<beam_t*, std::pair<ActorPtr, ActorPtr>> inter_actor_links;
     bool AreActorsDirectlyLinked(const ActorPtr& a1, const ActorPtr& a2);
 
+    ConcurrentPacketQueue recv_actor_packets;
+    ConcurrentPacketQueue recv_forces_packets;
+
     static const ActorPtr ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
 private:
@@ -148,20 +173,20 @@ private:
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
     std::vector<RoRnet::ActorStreamRegister> m_stream_mismatched_regs; //!< Networking: Remember mismatched stream regs to re-process after downloading the missing mods.
-    std::map<int, int>  m_stream_time_offsets;       //!< Networking: A network time offset for each stream source
+    std::map<int, int>  m_stream_time_offsets;       //!< Networking: A MSG2_STREAM_DATA_ACTOR time offset for each stream source
+    std::map<int, int>  m_forces_time_offsets;       //!< Networking: A MSG2_STREAM_DATA_FORCES time offset for each stream source
     Ogre::Timer         m_net_timer;
 
     // Physics
     ActorPtrVec         m_actors;                         //!< Use `MSG_SIM_{SPAWN/DELETE}_ACTOR_REQUESTED`
     ActorInstanceID_t   m_actor_next_instance_id          = 1;     //!< Unique sequential ID for each Actor
     bool                m_forced_awake           = false; //!< disables sleep counters
-    int                 m_physics_steps          = 0;
     float               m_dt_remainder           = 0.f;   //!< Keeps track of the rounding error in the time step calculation
     float               m_simulation_speed       = 1.f;   //!< slow motion < 1.0 < fast motion
     float               m_last_simulation_speed  = 0.1f;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     float               m_simulation_time        = 0.f;   //!< Amount of time the physics simulation is going to be advanced
     bool                m_simulation_paused      = false;
-    float               m_total_sim_time         = 0.f;
+    long long           m_total_physics_steps        = 0;
     FreeForceVec_t      m_free_forces;                    //!< Global forces added ad-hoc by scripts
     FreeForceID_t       m_free_force_next_id     = 0;     //!< Unique ID for each FreeForce
 

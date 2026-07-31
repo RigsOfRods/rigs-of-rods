@@ -78,6 +78,10 @@ int main(int argc, char *argv[])
     curl_global_init(CURL_GLOBAL_ALL); // MUST init before any threads are started
 #endif
 
+#ifdef USE_SOCKETW
+    enet_initialize();
+#endif
+
 #ifndef _DEBUG
     try
     {
@@ -544,7 +548,7 @@ int main(int argc, char *argv[])
 #if USE_SOCKETW
                     try
                     {
-                        App::GetNetwork()->StartConnecting();
+                        App::GetNetwork()->Connect();
                     }
                     catch (...) 
                     {
@@ -559,7 +563,8 @@ int main(int argc, char *argv[])
 #if USE_SOCKETW
                     try
                     {
-                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED ||
+                            App::mp_state->getEnum<MpState>() == MpState::CONNECTING)
                         {
                             App::GetNetwork()->Disconnect();
                             if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
@@ -609,6 +614,12 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_USER_DISCONNECT:
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                    break;
+
                 case MSG_NET_CONNECT_STARTED:
                 {
                     try
@@ -643,9 +654,7 @@ int main(int argc, char *argv[])
                     try
                     {
                         App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                        App::GetNetwork()->StopConnecting();
                         App::mp_state->setVal((int)RoR::MpState::CONNECTED);
-                        RoR::ChatSystem::SendStreamSetup();
                         if (!App::GetMumble())
                         {
                             App::CreateMumble();
@@ -683,7 +692,6 @@ int main(int argc, char *argv[])
                     try
                     {
                         App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                        App::GetNetwork()->StopConnecting();
                         App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                         App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         App::GetGuiManager()->ShowMessageBox(
@@ -694,6 +702,29 @@ int main(int argc, char *argv[])
                         HandleMsgQueueException(m.type);
                     }
 #endif // USE_SOCKETW
+                    break;
+                }
+
+                case MSG_NET_BCAST_PACKET_DISPATCHED:
+                {
+                    ENetPacket* packet = static_cast<ENetPacket*>(m.payload);
+                    try
+                    {
+#ifdef USE_SOCKETW
+                        // Process incoming network traffic
+                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED
+                            && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->GetActorManager()->HandleBroadcastPacketDispatched(packet);
+                            App::GetGameContext()->GetCharacterFactory()->HandleBroadcastPacketDispatched(packet);
+                        }
+#endif // USE_SOCKETW
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    enet_packet_destroy(packet);
                     break;
                 }
 
@@ -1039,6 +1070,11 @@ int main(int argc, char *argv[])
                 {
                     try
                     {
+                        if (!App::GetGameContext()->GetTerrain())
+                        {
+                            break;
+                        }
+
                         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                         {
                             App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteSeparateOutputFile();
@@ -1995,18 +2031,17 @@ int main(int argc, char *argv[])
             // Process incoming network traffic
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
-                std::vector<RoR::NetRecvPacket> packets = App::GetNetwork()->GetIncomingStreamData();
-                if (!packets.empty())
+                App::GetGuiManager()->MpClientList.UpdateClientTimeoffsetStats();
+                if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                 {
-                    RoR::ChatSystem::HandleStreamData(packets);
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-                    {
-                        App::GetGameContext()->GetActorManager()->HandleActorStreamData(packets);
-                        App::GetGameContext()->GetCharacterFactory()->handleStreamData(packets); // Update characters last (or else beam coupling might fail)
-                    }
+                    // NOTE: remote actors are updated directly in physics loop
+                    App::GetGameContext()->GetCharacterFactory()->HandleCharacterStreamData(); // Update characters last (or else beam coupling might fail)
                 }
             }
 #endif // USE_SOCKETW
+
+            // Start imgui early
+            App::GetGuiManager()->NewImGuiFrame(dt);
 
             // Set arcade controls and hydro coupling settings for player actors
             // Default to false for other actors.
@@ -2104,7 +2139,7 @@ int main(int argc, char *argv[])
             }
 
             // Early GUI updates which require halted physics
-            App::GetGuiManager()->NewImGuiFrame(dt);
+            
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 OgreProfile("Scene and GUI");

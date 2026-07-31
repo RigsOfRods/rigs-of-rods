@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2025 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -58,6 +58,7 @@ void Console::cVarSetupBuiltins()
     App::sim_gearbox_mode        = this->cVarCreate("sim_gearbox_mode",        "GearboxMode",                CVAR_ARCHIVE | CVAR_TYPE_INT);
     App::sim_soft_reset_mode     = this->cVarCreate("sim_soft_reset_mode",     "",                                          CVAR_TYPE_BOOL,    "false");
     App::sim_quickload_dialog    = this->cVarCreate("sim_quickload_dialog",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
+    App::sim_character_collisions = this->cVarCreate("sim_character_collisions", "CharacterCollisions",      CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::sim_live_repair_interval = this->cVarCreate("sim_live_repair_interval", "",                         CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "2.f");
     App::sim_tuning_enabled      = this->cVarCreate("sim_tuning_enabled",      "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
 
@@ -74,6 +75,11 @@ void Console::cVarSetupBuiltins()
     App::mp_player_token         = this->cVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
     App::mp_cyclethru_net_actors = this->cVarCreate("mp_cyclethru_net_actors", "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::mp_actor_send_interval  = this->cVarCreate("mp_actor_send_interval",  "Packet send interval (ms)",                 CVAR_TYPE_INT,     "100");
+    App::mp_actor_recv_interval  = this->cVarCreate("mp_actor_recv_interval",  "Packet recv interval (ms)",                 CVAR_TYPE_INT,     "100");
+    App::mp_actor_calc_interval  = this->cVarCreate("mp_actor_calc_interval",  "Actor update interval (ms)",                CVAR_TYPE_INT,     "10");
+    App::mp_forces_send_interval = this->cVarCreate("mp_forces_send_interval", "Forces send interval (ms)",                 CVAR_TYPE_INT,     "50");
+    App::mp_forces_recv_interval = this->cVarCreate("mp_forces_recv_interval", "Forces recv interval (ms)",                 CVAR_TYPE_INT,     "50");
 
     App::remote_query_url        = this->cVarCreate("remote_query_url",        "",                           CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");
 

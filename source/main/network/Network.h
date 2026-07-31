@@ -24,6 +24,7 @@
 #ifdef USE_SOCKETW
 
 #include "Application.h"
+#include "NetStats.h"
 #include "RoRnet.h"
 
 #include <SocketW.h>
@@ -37,6 +38,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <enet/enet.h>
 
 namespace RoR {
 
@@ -54,46 +56,11 @@ struct CurlFailInfo
 
 #pragma pack(push, 1)
 
-enum NetCharacterCmd
-{
-    CHARACTER_CMD_INVALID,
-    CHARACTER_CMD_POSITION,
-    CHARACTER_CMD_ATTACH,
-    CHARACTER_CMD_DETACH
-};
-
-struct NetCharacterMsgGeneric
-{
-    int32_t command;
-};
-
-struct NetCharacterMsgPos
-{
-    int32_t command;
-    float   pos_x, pos_y, pos_z;
-    float   rot_angle;
-    float   anim_time;
-    char    anim_name[CHARACTER_ANIM_NAME_LEN];
-};
-
-struct NetCharacterMsgAttach
-{
-    int32_t command;
-    int32_t source_id;
-    int32_t stream_id;
-    int32_t position;
-};
-
 struct NetSendPacket
 {
     char buffer[RORNET_MAX_MESSAGE_LENGTH];
     int size;
-};
-
-struct NetRecvPacket
-{
-    RoRnet::Header header;
-    char buffer[RORNET_MAX_MESSAGE_LENGTH];
+    int type;
 };
 
 #pragma pack(pop)
@@ -107,17 +74,24 @@ struct PeerOptionsRequest
     BitMask_t por_peeropts; //!< See `RoRnet::PeerOptions`.
 };
 
+enum class NetProgress
+{
+    INVALID,
+    AWAITING_HELLO_RESPONSE,
+    AWAITING_USER_AUTH_RESPONSE,
+    PLAYING,
+    AWAITING_DISCONNECT
+};
+
 class Network
 {
 public:
-    bool                 StartConnecting();    //!< Launches connecting on background.
-    void                 StopConnecting();
+    bool                 Connect();    //!< Launches connecting on background.
     void                 Disconnect();
+    NetProgress          GetProgress();
 
     void                 AddPacket(int streamid, int type, int len, const char *content);
     void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
-
-    std::vector<NetRecvPacket> GetIncomingStreamData();
 
     int                  GetUID();
     int                  GetNetQuality();
@@ -125,7 +99,7 @@ public:
     Ogre::String         GetTerrainName();
 
     int                  GetUserColor();
-    std::string      GetUsername();
+    std::string          GetUsername();
     RoRnet::UserInfo     GetLocalUserData();
     std::vector<RoRnet::UserInfo> GetUserInfos();
     std::vector<BitMask_t> GetAllUsersPeerOpts();
@@ -134,6 +108,7 @@ public:
     bool                 GetDisconnectedUserInfo(int uid, RoRnet::UserInfo &result);
     bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
     bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
+    bool                 GetUserStats(int uid, NetClientStats& result);
     Ogre::ColourValue    GetPlayerColor(int color_num);
     void                 AddPeerOptions(PeerOptionsRequest* rq);
     void                 RemovePeerOptions(PeerOptionsRequest* rq);
@@ -148,18 +123,21 @@ private:
     void                 PushNetMessage(MsgType type, std::string const & message);
     void                 SetNetQuality(int quality);
     bool                 SendMessageRaw(char *buffer, int msgsize);
-    bool                 SendNetMessage(int type, unsigned int streamid, int len, char* content);
-    void                 QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len);
-    int                  ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen);
+    bool                 SendMessageTcp(int type, unsigned int streamid, int len, char* content);
+    void                 DisconnectENet();
+    int                  ReceiveMessageTcp(RoRnet::Header *head, char* content, int bufferlen);
     void                 CouldNotConnect(std::string const & msg, bool close_socket = true);
 
     bool                 ConnectThread();
-    void                 SendThread();
-    void                 RecvThread();
+    void                 OnPacketReceived(ENetPacket* packet);
 
     // Variables
 
     SWInetSocket         m_socket;
+    ENetHost*            m_host = nullptr;
+    ENetPeer*            m_peer = nullptr;
+    NetProgress          m_progress = NetProgress::INVALID;
+    std::mutex           m_enet_mutex;
 
     RoRnet::ServerInfo   m_server_settings;
     RoRnet::UserInfo     m_userdata;
@@ -167,7 +145,7 @@ private:
     std::vector<BitMask_t> m_users_peeropts;  //!< See `RoRnet::PeerOptions`.
     std::vector<RoRnet::UserInfo> m_disconnected_users;
 
-    std::string      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
+    std::string          m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
     std::string          m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
     std::string          m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
     std::string          m_token;    // Shadows GVar 'mp_player_token' for multithreaded access.
@@ -186,13 +164,13 @@ private:
 
     std::mutex           m_users_mutex;
     std::mutex           m_userdata_mutex;
-    std::mutex           m_recv_packetqueue_mutex;
     std::mutex           m_send_packetqueue_mutex;
 
-    std::condition_variable m_send_packet_available_cv;
-
-    std::vector<NetRecvPacket> m_recv_packet_buffer;
     std::deque <NetSendPacket> m_send_packet_buffer;
+
+    // Stats
+    std::unordered_map<int, NetClientStats> m_recv_client_stats;
+    std::mutex                              m_recv_client_stats_mutex;
 };
 
 /// @}   //addtogroup Network

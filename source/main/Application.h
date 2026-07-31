@@ -104,6 +104,7 @@ enum MsgType
     MSG_NET_DISCONNECT_REQUESTED,
     MSG_NET_USER_DISCONNECT,
     MSG_NET_RECV_ERROR,
+    MSG_NET_BCAST_PACKET_DISPATCHED,       //!< Payload = ENetPacket* (owner)
     MSG_NET_REFRESH_SERVERLIST_SUCCESS,    //!< Payload = GUI::MpServerInfoVec* (owner)
     MSG_NET_REFRESH_SERVERLIST_FAILURE,    //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_REFRESH_REPOLIST_SUCCESS,      //!< Payload = GUI::ResourcesCollection* (owner)
@@ -655,6 +656,7 @@ extern CVar* sim_gearbox_mode;
 extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
 extern CVar* sim_live_repair_interval; //!< Hold EV_COMMON_REPAIR_TRUCK to enter LiveRepair mode. 0 or negative interval disables.
+extern CVar* sim_character_collisions;
 extern CVar* sim_tuning_enabled;
 
 // Multiplayer
@@ -671,6 +673,11 @@ extern CVar* mp_player_name;
 extern CVar* mp_player_token;
 extern CVar* mp_api_url;
 extern CVar* mp_cyclethru_net_actors; //!< Include remote actors when cycling through with CTRL + [ and CTRL + ]
+extern CVar* mp_actor_send_interval;
+extern CVar* mp_actor_recv_interval;
+extern CVar* mp_actor_calc_interval;
+extern CVar* mp_forces_send_interval;
+extern CVar* mp_forces_recv_interval;
 
 // New remote API
 extern CVar* remote_query_url;

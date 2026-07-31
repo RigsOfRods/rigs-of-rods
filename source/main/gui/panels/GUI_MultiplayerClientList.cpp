@@ -71,6 +71,18 @@ void MpClientList::UpdateClients()
 #endif // USE_SOCKETW
 }
 
+void MpClientList::UpdateClientTimeoffsetStats()
+{
+    // Must be called while physics thread task `ActorManager::UpdatePhysicsSimulation()` isn't running.
+    // ------------------------------------------------------------------------------------------------
+
+    m_users_timeoffsets.resize(m_users.size());
+    for (int i = 0; i < (int)m_users.size(); i++)
+    {
+        m_users_timeoffsets[i] = App::GetGameContext()->GetActorManager()->GetNetTimeOffset(m_users[i].uniqueid);
+    }
+}
+
 void MpClientList::Draw()
 {
 #if USE_SOCKETW
@@ -86,7 +98,7 @@ void MpClientList::Draw()
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    const float content_width = 225.f;
+    const float content_width = 300.f;
     ImGui::SetNextWindowContentWidth(content_width);
     ImGui::SetNextWindowPos(ImVec2(
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
@@ -104,9 +116,10 @@ void MpClientList::Draw()
     ImGui::Begin("Peers", nullptr, flags);
 
     const RoRnet::UserInfo& local_user = m_users[0]; // See `UpdateClients()`
-    int vectorpos = 0;
-    for (RoRnet::UserInfo const& user: m_users)
+    for (size_t i = 0; i < m_users.size(); i++)
     {
+        RoRnet::UserInfo const& user = m_users[i];
+
         ImGui::PushID(user.uniqueid);
         const ImVec2 hover_tl = ImGui::GetCursorScreenPos();
 
@@ -117,13 +130,13 @@ void MpClientList::Draw()
         }
         else if (ImGui::SmallButton(" < "))
         {
-            if (m_peeropts_menu_active_user_vectorpos == vectorpos)
+            if (m_peeropts_menu_active_user_vectorpos == i)
             {
                 m_peeropts_menu_active_user_vectorpos = -1; // hide menu
             }
             else
             {
-                m_peeropts_menu_active_user_vectorpos = vectorpos; // show menu
+                m_peeropts_menu_active_user_vectorpos = i; // show menu
                 m_peeropts_menu_corner_tl = hover_tl - ImVec2(PEEROPTS_MENU_CONTENT_WIDTH + ImGui::GetStyle().WindowPadding.x*3 + PEEROPTS_MENU_MARGIN, 0);
             }
         }
@@ -156,6 +169,15 @@ void MpClientList::Draw()
             default:;
             }
         }
+
+        // net graphs
+        NetClientStats stats;
+        App::GetNetwork()->GetUserStats(user.uniqueid, /*out*/stats);
+        stats.sim_timeoffset.AddSample(m_users_timeoffsets[i]);
+
+        float combined_ping_val = NetGraphData::ImPlotGetSample(&stats.combined_ping, stats.combined_ping.plotline.size() - 1);
+        this->DrawPlotSmall("##combined_ping", fmt::format("{:.1f}", combined_ping_val).c_str(), stats.combined_ping, 20.f);
+        this->DrawPlotSmall("##sim_timeoffset", "", stats.sim_timeoffset, 20.f);
         // Always invoke to keep usernames aligned
         this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
         this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
@@ -263,12 +285,16 @@ void MpClientList::Draw()
                 case RoRnet::UiStreamsHealth::IDLE:       ImGui::Text("%s", _LC("MultiplayerClientList", "No Trucks loaded")); break;
                 default:; // never happens
                 }
+
+                // Stats
+                ImGui::Separator();
+                this->DrawPlotBig("Time offset (ms)", stats.sim_timeoffset);
+                this->DrawPlotBig("Combined ping (ms)", stats.combined_ping);
             }
 
             ImGui::EndTooltip();
         }
         ImGui::PopID(); // user.uniqueid
-        vectorpos++;
     }
 
     if (App::GetNetwork()->GetNetQuality() != 0)
@@ -384,4 +410,29 @@ void MpClientList::CacheIcons()
     m_icon_warn_triangle   = FetchIcon("error.png");
 
     m_icons_cached = true;
+}
+
+bool MpClientList::DrawPlotSmall(const char* label, const char* overlay_text, NetGraphData& graphdata, float width)
+{
+    graphdata.ImPlotLines(label, overlay_text, ImVec2(width, ImGui::GetTextLineHeight()));
+    ImGui::SameLine();
+    return ImGui::IsItemHovered();
+}
+
+void MpClientList::DrawPlotBig(const char* label, NetGraphData& graphdata)
+{
+    const float PLOT_WIDTH = 125.f;
+
+    // The plot widget
+    const ImVec2 cursor_start = ImGui::GetCursorPos();
+    graphdata.ImPlotLines(label, nullptr, ImVec2(PLOT_WIDTH, 35.f+ ImGui::GetTextLineHeight()));
+    const ImVec2 cursor_end = ImGui::GetCursorPos();
+
+    // The plot scale text
+    const ImVec2 scale_pos = cursor_start + ImVec2(PLOT_WIDTH + 5.f, ImGui::GetTextLineHeight());
+    ImGui::SetCursorPos(scale_pos);
+    ImGui::Text("%.2f", NetGraphData::ImPlotGetSample(&graphdata, graphdata.plotline.size() - 1));
+    ImGui::SetCursorPos(scale_pos+ImVec2(0, ImGui::GetTextLineHeight()));
+    ImGui::TextDisabled("<%d %d>", graphdata.plotline_basemin, graphdata.plotline_basemax);
+    ImGui::SetCursorPos(cursor_end);
 }

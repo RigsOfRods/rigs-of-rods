@@ -28,10 +28,8 @@
 namespace RoR {
 namespace ChatSystem {
 
-void SendStreamSetup();
-
 #ifdef USE_SOCKETW
-void HandleStreamData(std::vector<RoR::NetRecvPacket> packet);
+void ReceiveStreamData(unsigned int type, int source, char* buffer);
 #endif // USE_SOCKETW
 
 } // namespace Chatsystem
