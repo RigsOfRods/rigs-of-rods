@@ -24,6 +24,7 @@
 /// @date   24th of February 2009
 
 #include "ScriptEngine.h"
+#include "autowrapper/aswrappedcall.h"
 
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
@@ -164,8 +165,16 @@ void ScriptEngine::init()
     AngelScript::RegisterScriptDictionary(engine);
 
     // some useful global functions
-    result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
-    result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
+    if (strstr(AngelScript::asGetLibraryOptions(), "AS_MAX_PORTABILITY") || App::diag_angelscript_generic_bind_test->getBool())
+    {
+        result = engine->RegisterGlobalFunction("void log(const string &in)", WRAP_FN(logString), AngelScript::asCALL_GENERIC); ROR_ASSERT(result >= 0);
+        result = engine->RegisterGlobalFunction("void print(const string &in)", WRAP_FN(logString), AngelScript::asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    }
+    else
+    {
+        result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT(result >= 0);
+        result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT(result >= 0);
+    }
 
     RegisterOgreObjects(engine);        // vector2/3, degree, radian, quaternion, color
     RegisterCacheSystem(engine);        // LoaderType, CacheEntryClass, CacheSystemClass
