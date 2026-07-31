@@ -42,7 +42,7 @@ static ProceduralRoad* ProceduralRoadFactory(const std::string& groundmodelName 
     return new ProceduralRoad(groundmodelName);
 }
 
-void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
+void RoR::RegisterProceduralRoadNative(asIScriptEngine* engine)
 {
     int result = 0;
 

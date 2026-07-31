@@ -32,7 +32,7 @@ static LocalStorage* LocalStorageFactory(std::string filename, const std::string
     return new LocalStorage(filename, section_name, rg_name);
 }
 
-void RoR::RegisterLocalStorage(asIScriptEngine *engine)
+void RoR::RegisterLocalStorageNative(asIScriptEngine *engine)
 {
     LocalStorage::RegisterRefCountingObject(engine, "LocalStorageClass");
     LocalStoragePtr::RegisterRefCountingObjectPtr(engine, "LocalStorageClassPtr", "LocalStorageClass");

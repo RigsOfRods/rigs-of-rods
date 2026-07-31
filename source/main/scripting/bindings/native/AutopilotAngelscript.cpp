@@ -7,7 +7,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterAutopilot(asIScriptEngine* engine)
+void RoR::RegisterAutopilotNative(asIScriptEngine* engine)
 {
     int result = 0;
 

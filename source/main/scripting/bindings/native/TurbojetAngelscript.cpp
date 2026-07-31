@@ -7,7 +7,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterTurbojet(asIScriptEngine* engine)
+void RoR::RegisterTurbojetNative(asIScriptEngine* engine)
 {
     int result = 0;
 

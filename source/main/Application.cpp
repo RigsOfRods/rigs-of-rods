@@ -164,7 +164,7 @@ CVar* diag_use_mygui_logfile;
 CVar* diag_load_devel_scripts;
 CVar* diag_profiler_enabled;
 CVar* diag_profiler_rate;
-CVar* diag_force_generic_as_bindings;
+CVar* diag_angelscript_generic_bind_test;
 
 // System
 CVar* sys_process_dir;

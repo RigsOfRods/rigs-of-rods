@@ -25,7 +25,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterConsole(asIScriptEngine *engine)
+void RoR::RegisterConsoleNative(asIScriptEngine *engine)
 {
     int result;
 

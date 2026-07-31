@@ -236,7 +236,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/ScriptUtils.h
             scripting/autowrapper/aswrappedcall.h
 
-            scripting/bindings/AngelScriptBindings.h
+            scripting/bindings/AngelScriptBindings.{h,cpp}
             scripting/bindings/native/ActorAngelscript.cpp
             scripting/bindings/native/AircraftEngineAngelscript.cpp
             scripting/bindings/native/AutopilotAngelscript.cpp

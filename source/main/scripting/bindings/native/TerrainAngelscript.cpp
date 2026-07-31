@@ -31,7 +31,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterTerrain(asIScriptEngine* engine)
+void RoR::RegisterTerrainNative(asIScriptEngine* engine)
 {
     int result = 0;
 
