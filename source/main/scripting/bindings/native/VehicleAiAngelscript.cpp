@@ -25,7 +25,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterVehicleAi(asIScriptEngine *engine)
+void RoR::RegisterVehicleAiNative(asIScriptEngine *engine)
 {
     int result;
 

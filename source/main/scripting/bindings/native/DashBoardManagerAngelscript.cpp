@@ -6,7 +6,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterDashBoardManager(asIScriptEngine* engine)
+void RoR::RegisterDashBoardManagerNative(asIScriptEngine* engine)
 {
     int result = 0;
 

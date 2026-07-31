@@ -725,7 +725,7 @@ void registerOgreGpuProgramParameters(AngelScript::asIScriptEngine* engine);
 void registerOgreLight(AngelScript::asIScriptEngine* engine);
 
 // main registration method
-void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
+void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 {
     int r;
 

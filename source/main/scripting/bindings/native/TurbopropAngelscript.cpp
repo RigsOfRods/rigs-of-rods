@@ -7,7 +7,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterTurboprop(asIScriptEngine* engine)
+void RoR::RegisterTurbopropNative(asIScriptEngine* engine)
 {
     int result = 0;
 

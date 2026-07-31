@@ -28,7 +28,7 @@
 
 using namespace AngelScript;
 
-void RoR::RegisterEngine(asIScriptEngine* engine)
+void RoR::RegisterEngineNative(asIScriptEngine* engine)
 {
     int r;
 

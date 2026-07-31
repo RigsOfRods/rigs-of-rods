@@ -40,7 +40,7 @@ static GenericDocContext* GenericDocContextFactory(GenericDocumentPtr doc)
     return new GenericDocContext(doc);
 }
 
-void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
+void RoR::RegisterGenericFileFormatNative(asIScriptEngine* engine)
 {
     // enum TokenType
     engine->RegisterEnum("TokenType");

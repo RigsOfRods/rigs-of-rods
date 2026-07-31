@@ -499,7 +499,7 @@ void registerKeyCodeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("keyCodes", "KC_ADD", KC_ADD); ROR_ASSERT(result >= 0);
 }
 
-void RoR::RegisterInputEngine(asIScriptEngine* engine)
+void RoR::RegisterInputEngineNative(asIScriptEngine* engine)
 {
     registerInputSourceTypeEnum(engine);
     registerEventTypeEnum(engine);
