@@ -379,7 +379,7 @@ void CreateScriptEngine()
 void CreateServerScript()
 {
 #if USE_ANGELSCRIPT
-    ROR_ASSERT(!g_server_script_engine);
+    ROR_ASSERT(!g_server_script_sequencer);
     g_server_script_sequencer = new ServerScriptSequencer();
 #endif
 }

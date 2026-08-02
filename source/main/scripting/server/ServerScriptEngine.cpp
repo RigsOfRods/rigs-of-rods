@@ -87,8 +87,8 @@ ServerScriptEngine::ServerScriptEngine(ServerScriptSequencer* sequencer) :
 }
 
 ServerScriptEngine::~ServerScriptEngine() {
-    // Stop thread first
-    this->StopTimerThread();
+    // thread must be stopped
+    ROR_ASSERT(this->GetTimerThreadState() == ThreadState::NOT_RUNNING);
 
     // Clean up
     deleteAllCallbacks();

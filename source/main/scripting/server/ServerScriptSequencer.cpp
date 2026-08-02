@@ -59,6 +59,7 @@ int ServerScriptSequencer::Initialize(const std::string& script_filename) {
 
 void ServerScriptSequencer::Close() {
     // stop the script engine
+    m_script_engine->StopTimerThread();
     m_script_engine.reset();
     // delete all clients
     for (unsigned int i = 0; i < m_clients.size(); i++) {
