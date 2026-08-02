@@ -130,20 +130,16 @@ void ServerScriptSequencer::createClient(RoRnet::UserInfo& user) {
         }
     }
 
-    //okay, create the client slot
-    ServerScriptClient *to_add = new ServerScriptClient();
-    user.colournum = ServerScriptSequencer::GetFreePlayerColour();
-    user.authstatus = user.authstatus;
-    to_add->user = user;
-
     // assign unique userid
-    unsigned int client_id = m_free_user_id;
-    to_add->user.uniqueid = client_id;
-
-    // count up unique id
+    user.uniqueid = m_free_user_id;
     m_free_user_id++;
 
-    // add the client to the vector
+    // assign color
+    user.colournum = ServerScriptSequencer::GetFreePlayerColour();
+
+    //okay, create the client slot
+    ServerScriptClient *to_add = new ServerScriptClient();
+    to_add->user = user;
     m_clients.push_back(to_add);
 
     // Do script callback
