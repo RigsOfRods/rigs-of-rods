@@ -1,7 +1,7 @@
 /// \title terrn2 project importer & race converter
-/// \brief imports races from scripts and generates race-def files.
+/// \brief imports races from scripts and generates '.racetrack' files.
 /// uses new section in terrn2 format: [Races]
-/// ^ each line is a tobj-like file with any extension (i.e. *.race) which is loaded by the race system.
+/// ^ each line is a tobj-like file with any extension (i.e. *.racetrack) which is loaded by the race system.
 ///
 /// The program flow of this script got a little crazy, see `enum Stage`
 /// ^ I wanted a fluidly updating UI, performing just one step (1 doc conversion / 1 file write) per frame.
@@ -320,7 +320,7 @@ bool convertNextRace()
         if (@convertedRaces[i] == null)
         {
             @convertedRaces[i] = convertSingleRace(races.raceList[i]);
-            convertedRaceFileNames[i] = generateSafeFileName(races.raceList[i].raceName + ".race");
+            convertedRaceFileNames[i] = generateSafeFileName(races.raceList[i].raceName + ".racetrack");
             return true;
         }
     }
@@ -347,8 +347,8 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
     GenericDocumentClass doc;
     GenericDocContextClass ctx(doc);
 
-    ctx.appendTokComment( " ~~ New 'race-def' format (file extension: .race). ~~");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " Each race file specifies a single race");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " ~~ New '.racetrack' format (file extension: .racetrack). ~~");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " Each file specifies a single race track.");ctx.appendTokLineBreak();
     ctx.appendTokComment( " In .terrn2 file, list the race files under new section [Races]");ctx.appendTokLineBreak();
     ctx.appendTokComment( " Filenames must include extension and end with = (like scripts do)");ctx.appendTokLineBreak();
     ctx.appendTokComment( " Race system supports branching/joining paths!");ctx.appendTokLineBreak();
@@ -356,11 +356,11 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
     ctx.appendTokComment( " By convention, the checkpoint meshes are oriented sideways (facing X axis)");ctx.appendTokLineBreak();
     ctx.appendTokLineBreak();
 
-    appendKeyValuePair(ctx, "race_name", race.raceName);
-    appendKeyValuePair(ctx, "race_laps", race.laps);
-    appendKeyValuePair(ctx, "race_checkpoint_object", race.objNameCheckpoint);
-    appendKeyValuePair(ctx, "race_start_object", race.objNameStart);
-    appendKeyValuePair(ctx, "race_finish_object", race.objNameFinish);
+    appendKeyValuePair(ctx, "racetrack_name", race.raceName);
+    appendKeyValuePair(ctx, "racetrack_laps", race.laps);
+    appendKeyValuePair(ctx, "racetrack_checkpoint_object", race.objNameCheckpoint);
+    appendKeyValuePair(ctx, "racetrack_start_object", race.objNameStart);
+    appendKeyValuePair(ctx, "racetrack_finish_object", race.objNameFinish);
 
     ctx.appendTokLineBreak();
 

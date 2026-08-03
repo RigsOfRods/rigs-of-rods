@@ -200,23 +200,23 @@ shared class racesManager {
 
 			if (ctx.isTokKeyword(0))
 			{
-				if (ctx.isTokString(1) && ctx.getTokKeyword() == "race_name")
+				if (ctx.isTokString(1) && ctx.getTokKeyword() == "racetrack_name")
 				{
 					this.raceList[raceID].raceName = ctx.getTokString(1);
 				}
-				if (ctx.isTokInt(1) && ctx.getTokKeyword() == "race_laps")
+				if (ctx.isTokInt(1) && ctx.getTokKeyword() == "racetrack_laps")
 				{
 					this.raceList[raceID].setLaps(ctx.getTokInt(1));
 				}
-				else if (ctx.isTokString(1) && ctx.getTokKeyword() == "race_checkpoint_object")
+				else if (ctx.isTokString(1) && ctx.getTokKeyword() == "racetrack_checkpoint_object")
 				{
 					this.raceList[raceID].objNameCheckpoint = ctx.getTokString(1);
 				}
-				else if (ctx.isTokString(1) && ctx.getTokKeyword() == "race_start_object")
+				else if (ctx.isTokString(1) && ctx.getTokKeyword() == "racetrack_start_object")
 				{
 					this.raceList[raceID].objNameStart = ctx.getTokString(1);
 				}
-				else if (ctx.isTokString(1) && ctx.getTokKeyword() == "race_finish_object")
+				else if (ctx.isTokString(1) && ctx.getTokKeyword() == "racetrack_finish_object")
 				{
 					this.raceList[raceID].objNameFinish = ctx.getTokString(1);
 				}

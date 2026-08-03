@@ -1235,11 +1235,11 @@ void CacheSystem::FillRaceTrackDetailInfo(CacheEntryPtr& entry, Ogre::DataStream
         {
             std::string keyword = reader->getTokKeyword();
 
-            if (keyword == "race_name")
+            if (keyword == "racetrack_name")
                 entry->dname = reader->getTokString(1);
-            else if (keyword == "race_description")
+            else if (keyword == "racetrack_description")
                 entry->description = reader->getTokString(1);
-            else if (keyword == "race_terrain_guid")
+            else if (keyword == "racetrack_terrain_guid")
                 entry->guid = reader->getTokString(1);
         }
 
