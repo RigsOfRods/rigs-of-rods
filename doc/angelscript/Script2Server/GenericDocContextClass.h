@@ -9,7 +9,7 @@ namespace Script2Server {
  */
 
 /**
- * @brief Binding of RoR::GenericDocContext; Traverses document tokens; See 'demo_script.as' for an example.
+ * @brief Binding of GenericDocContext; Traverses document tokens; See rorserver's 'example-script.as' for an example.
  */
 class GenericDocContextClass
 {
