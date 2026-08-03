@@ -83,7 +83,7 @@ ServerScriptEngine::ServerScriptEngine(ServerScriptSequencer* sequencer) :
                                              engine(0),
                                              context(0)
 {
-    init();
+    // NOTE: we cannot call `init()` from here because `RegisterGenericDocument()` needs the ServerScriptEngine instance available already.
 }
 
 ServerScriptEngine::~ServerScriptEngine() {
