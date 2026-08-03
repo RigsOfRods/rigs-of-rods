@@ -26,6 +26,8 @@
 #include "AngelScriptBindings.h"
 #include "GenericFileFormat.h"
 #include "wrappers/GenericFileFormatAngelscriptWrappers.h"
+#include "ServerScriptSequencer.h"
+#include "ServerScriptEngine.h"
 
 using namespace RoR;
 using namespace AngelScript;
@@ -40,8 +42,17 @@ void RoR::RegisterGenericFileFormatNative(asIScriptEngine* engine)
     GenericDocumentPtr::RegisterRefCountingObjectPtr(engine, "GenericDocumentClassPtr", "GenericDocumentClass");
     engine->RegisterObjectBehaviour("GenericDocumentClass", asBEHAVE_FACTORY, "GenericDocumentClass@+ f()", asFUNCTION(GenericDocumentFactory), asCALL_CDECL);
 
-    engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromResource(string,string,int)", asMETHOD(GenericDocument, loadFromResource), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToResource(string,string)", asMETHOD(GenericDocument, saveToResource), asCALL_THISCALL);
+    // SPECIAL CONDITION - pick API based on which script engine we're registering to.
+    if (App::GetServerScript() && App::GetServerScript()->GetScriptEngine() && engine == App::GetServerScript()->GetScriptEngine()->getEngine())
+    {
+        engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromFile(string const&in,int)", asMETHOD(GenericDocument, loadFromFile), asCALL_THISCALL);
+        engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToFile(string const&in)", asMETHOD(GenericDocument, saveToFile), asCALL_THISCALL);
+    }
+    else
+    {
+        engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromResource(string,string,int)", asMETHOD(GenericDocument, loadFromResource), asCALL_THISCALL);
+        engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToResource(string,string)", asMETHOD(GenericDocument, saveToResource), asCALL_THISCALL);
+    }
 
 
     // class GenericDocContext

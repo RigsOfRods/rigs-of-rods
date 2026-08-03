@@ -84,6 +84,12 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
 
     virtual bool loadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options = 0);
     virtual bool saveToResource(std::string resource_name, std::string resource_group_name);
+
+    /// @name Server script interface (not available for game scripts)
+    /// @{
+    virtual bool loadFromFile(const std::string& filename, BitMask_t options = 0);
+    virtual bool saveToFile(const std::string& filename);
+    /// @}
 };
 
 struct GenericDocContext: public RefCountingObject<GenericDocContext>

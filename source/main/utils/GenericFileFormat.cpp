@@ -1126,6 +1126,16 @@ bool GenericDocument::saveToResource(std::string resource_name, std::string reso
     }
 }
 
+bool GenericDocument::loadFromFile(const std::string& filename, BitMask_t options /* = 0 */)
+{
+    return this->loadFromResource(filename, RGN_SERVER_SCRIPTS, options);
+}
+
+bool GenericDocument::saveToFile(const std::string& filename)
+{
+    return this->saveToResource(filename, RGN_SERVER_SCRIPTS);
+}
+
 bool GenericDocContext::seekNextLine()
 {
     // Skip current line
