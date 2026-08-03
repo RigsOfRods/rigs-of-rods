@@ -45,8 +45,8 @@ void RoR::RegisterGenericFileFormatNative(asIScriptEngine* engine)
     // SPECIAL CONDITION - pick API based on which script engine we're registering to.
     if (App::GetServerScript() && App::GetServerScript()->GetScriptEngine() && engine == App::GetServerScript()->GetScriptEngine()->getEngine())
     {
-        engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromFile(string const&in,int)", asMETHOD(GenericDocument, loadFromFile), asCALL_THISCALL);
-        engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToFile(string const&in)", asMETHOD(GenericDocument, saveToFile), asCALL_THISCALL);
+        engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromFile(const string &in,int)", asMETHOD(GenericDocument, loadFromFile), asCALL_THISCALL);
+        engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToFile(const string &in)", asMETHOD(GenericDocument, saveToFile), asCALL_THISCALL);
     }
     else
     {
