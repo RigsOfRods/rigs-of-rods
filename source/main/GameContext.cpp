@@ -332,7 +332,9 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::AI)
     {
-        fresh_actor->ar_driveable = AI;
+#ifdef USE_ANGELSCRIPT
+        fresh_actor->ar_vehicle_ai = new VehicleAI(fresh_actor);
+#endif // USE_ANGELSCRIPT
         fresh_actor->ar_state = ActorState::LOCAL_SIMULATED;
 
         if (fresh_actor->ar_engine)
@@ -1134,7 +1136,7 @@ void GameContext::UpdateSimInputEvents(float dt)
         {
             if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
                 this->GetPlayerActor()->ar_state == ActorState::NETWORKED_OK || this->GetPlayerActor()->ar_state == ActorState::NETWORKED_HIDDEN ||
-                this->GetPlayerActor()->ar_driveable == AI)
+                this->GetPlayerActor()->ar_vehicle_ai)
             {
                 this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr())));
             }
@@ -1541,7 +1543,7 @@ void GameContext::UpdateCommonInputEvents(float dt, ActorPtr actor)
     // enter/exit truck - Without a delay: the vehicle must brake like braking normally
     if (actor->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK))
     {
-        if (actor->ar_driveable != AI)
+        if (!actor->ar_vehicle_ai)
         {
             actor->ar_brake = 0.66f;
         }

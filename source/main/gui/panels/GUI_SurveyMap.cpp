@@ -508,29 +508,9 @@ const char* SurveyMap::getTypeByDriveable(const ActorPtr& actor)
         return "boat";
     case MACHINE:
         return "machine";
-    case AI:
-        return this->getAIType(actor);
     default:
         return "unknown";
     }
-}
-
-const char* SurveyMap::getAIType(const ActorPtr& actor)
-{
-    if (actor->ar_engine)
-    {
-        return "truck";
-    }
-    else if (actor->ar_num_aeroengines > 0)
-    {
-        return "airplane";
-    }
-    else if (actor->ar_num_screwprops > 0)
-    {
-        return "boat";
-    }
-
-    return "unknown";
 }
 
 void SurveyMap::CycleMode()
