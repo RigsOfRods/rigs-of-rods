@@ -576,7 +576,6 @@ std::string CacheSystem::ActorTypeToName(ActorType driveable)
     case ActorType::AIRPLANE:      return _LC("MainSelector", "Airplane");
     case ActorType::BOAT:          return _LC("MainSelector", "Boat");
     case ActorType::MACHINE:       return _LC("MainSelector", "Machine");
-    case ActorType::AI:            return _LC("MainSelector", "A.I.");
     default:                       return "";
     };
 }

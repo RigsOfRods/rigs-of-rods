@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
                             // Also clean up any actors spawned by the bot
                             for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                             {
-                                if (actor->ar_driveable == AI && actor->ar_net_source_id == netuid)
+                                if (actor->ar_vehicle_ai && actor->ar_net_source_id == netuid)
                                 {
                                     App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                                 }
@@ -1353,7 +1353,7 @@ int main(int argc, char *argv[])
                         ROR_ASSERT(actor_ptr);
                         ActorPtr actor = *actor_ptr;
                         const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
-                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_vehicle_ai;
                         if (valid_remote_actor || valid_ai_actor)
                         {
                             actor->ar_muted_by_peeropt = true;
@@ -1376,7 +1376,7 @@ int main(int argc, char *argv[])
                         ROR_ASSERT(actor_ptr);
                         ActorPtr actor = *actor_ptr;
                         const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
-                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_vehicle_ai;
                         if (valid_remote_actor || valid_ai_actor)
                         {
                             actor->ar_muted_by_peeropt = false;

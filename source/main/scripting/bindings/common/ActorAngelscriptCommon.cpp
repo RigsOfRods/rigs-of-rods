@@ -45,7 +45,6 @@ void RoR::RegisterActorCommon(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("truckTypes", "TT_AIRPLANE", AIRPLANE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("truckTypes", "TT_BOAT", BOAT); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("truckTypes", "TT_MACHINE", MACHINE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("truckTypes", "TT_AI", AI); ROR_ASSERT(result >= 0);
 
     // enum FlareType
     result = engine->RegisterEnum("FlareType"); ROR_ASSERT(result >= 0);

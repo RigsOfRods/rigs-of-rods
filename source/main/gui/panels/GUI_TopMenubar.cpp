@@ -1001,7 +1001,7 @@ void TopMenubar::Draw(float dt)
 
             for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
             {
-                if (actor->ar_driveable == AI)
+                if (actor->ar_vehicle_ai)
                 {
                     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -1100,7 +1100,7 @@ void TopMenubar::Draw(float dt)
 
             for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
             {
-                if (actor->ar_driveable == AI)
+                if (actor->ar_vehicle_ai)
                 {
                     ImGui::PopItemFlag();
                     ImGui::PopStyleVar();
@@ -1242,7 +1242,7 @@ void TopMenubar::Draw(float dt)
                 {
                     for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                     {
-                        if (actor->ar_driveable == AI)
+                        if (actor->ar_vehicle_ai)
                         {
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                         }

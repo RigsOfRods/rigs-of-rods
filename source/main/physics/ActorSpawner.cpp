@@ -339,10 +339,6 @@ void ActorSpawner::InitializeRig()
         m_actor->ar_camera_node_roll[i] = NODENUM_INVALID;
     }
 
-#ifdef USE_ANGELSCRIPT
-    m_actor->ar_vehicle_ai = new VehicleAI(m_actor);
-#endif // USE_ANGELSCRIPT
-
     m_actor->ar_airbrake_intensity = 0;
     m_actor->alb_minspeed = 0.0f;
     m_actor->alb_mode = false;
