@@ -2326,40 +2326,46 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         special_color = ORANGE_TEXT;
         special_text_centering_weight = 0.7f;
     }
-    else if (App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
+    else if (App::GetGameContext()->GetRaceSystem().IsDirArrowVisible())
     {
         m_state_box = StateBox::STATEBOX_RACE;
+        // Race system data ~ we cannot use SimBuffer here because TopMenubar draws before buffering.
+        float data_race_time = App::GetGameContext()->GetRaceSystem().GetRaceTime();
+        float data_race_best_time = App::GetGameContext()->GetRaceSystem().GetRaceBestTime();
+        float data_race_time_diff = App::GetGameContext()->GetRaceSystem().GetRaceTimeDiff();
+        bool data_race_in_progress = App::GetGameContext()->GetRaceSystem().IsRaceInProgress();
+        Ogre::Vector3 data_dir_arrow_target = App::GetGameContext()->GetRaceSystem().GetDirArrowTarget();
+        std::string data_dir_arrow_text = App::GetGameContext()->GetRaceSystem().GetDirArrowText();
+        bool data_dir_arrow_visible = App::GetGameContext()->GetRaceSystem().IsDirArrowVisible();
 
         // Calculate distance
-        GameContextSB& data = App::GetGfxScene()->GetSimDataBuffer();
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
         float distance = 0.0f;
-        ActorPtr player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
-        if (player_actor != nullptr && App::GetGameContext()->GetPlayerActor() &&
-            player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state == ActorState::LOCAL_SIMULATED)
+        ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+        if (player_actor != nullptr && player_actor->ar_state == ActorState::LOCAL_SIMULATED)
         {
-            distance = player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_pos.distance(data.simbuf_dir_arrow_target);
+            distance = player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_pos.distance(data_dir_arrow_target);
         }
         else
         {
-            distance = data.simbuf_character_pos.distance(data.simbuf_dir_arrow_target);
+            distance = App::GetGameContext()->GetPlayerCharacter()->getPosition().distance(data_dir_arrow_target);
         }
 
         // format text
-        special_text = App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_text;
+        special_text = data_dir_arrow_text;
         special_text_b = fmt::format("{:.1f} {}", distance, _LC("DirectionArrow", "meter"));
         content_width = ImGui::CalcTextSize(special_text.c_str()).x + ImGui::CalcTextSize(special_text_b.c_str()).x;
 
-        float time = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_time;
+        float time = data_race_time;
         special_text_c = fmt::format("{:02d}.{:02d}.{:02d}", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
-        float time_diff = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_time_diff;
+        float time_diff = data_race_time_diff;
         special_color_c = (time_diff > 0.0f)
                           ? theme.value_red_text_color
                           : ((time_diff < 0.0f) ? theme.success_text_color : theme.value_blue_text_color);
 
-        if (App::GetGfxScene()->GetSimDataBuffer().simbuf_race_best_time > 0.0f)
+        if (data_race_best_time > 0.0f)
         {
-            float best_time = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_best_time;
+            float best_time = data_race_best_time;
             special_text_d = fmt::format("{:02d}.{:02d}.{:02d}", (int)(best_time) / 60, (int)(best_time) % 60, (int)(best_time * 100.0) % 100);
         }
     }
