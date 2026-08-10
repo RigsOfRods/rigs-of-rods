@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
                         App::GetOutGauge()->Close();
                         App::GetSoundScriptManager()->SetListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
                         App::GetSoundScriptManager()->getSoundManager()->CleanUp();
-                        App::GetGameContext()->GetRaceSystem().ResetRaceUI();
+                        App::GetGameContext()->ResetRaceSystem();
                     }
                     catch (...)
                     {

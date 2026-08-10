@@ -168,6 +168,7 @@ public:
     /// @{
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
+    void                ResetRaceSystem() { m_race_system = RaceSystem(); }
     RepairMode&         GetRepairMode() { return m_recovery_mode; }
     SceneMouse&         GetSceneMouse() { return m_scene_mouse; }
     void                TeleportPlayer(float x, float z);
