@@ -13,14 +13,6 @@ void RoR::RegisterDashBoardManagerNative(asIScriptEngine* engine)
     DashBoardManager::RegisterRefCountingObject(engine, "DashBoardManagerClass");
     DashBoardManagerPtr::RegisterRefCountingObjectPtr(engine, "DashBoardManagerClassPtr", "DashBoardManagerClass");
 
-    // enum DashboardDataTypes
-    result = engine->RegisterEnum("DashboardDataTypes"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("DashboardDataTypes", "DC_BOOL", DC_BOOL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("DashboardDataTypes", "DC_INT", DC_INT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("DashboardDataTypes", "DC_FLOAT", DC_FLOAT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("DashboardDataTypes", "DC_STRING", DC_CHAR); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("DashboardDataTypes", "DC_INVALID", DC_INVALID); ROR_ASSERT(result >= 0);
-
     // PLEASE maintain same order as in 'gui/DashBoardManager.cpp' and 'doc/angelscript/Script2Game/DashBoardManagerClass.h'
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "bool getBool(int key)", asMETHOD(DashBoardManager, _getBool), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "float getNumeric(int key)", asMETHOD(DashBoardManager, getNumeric), asCALL_THISCALL); ROR_ASSERT(result >= 0);

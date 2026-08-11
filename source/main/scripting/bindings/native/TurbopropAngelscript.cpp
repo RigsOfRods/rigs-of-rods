@@ -15,14 +15,9 @@ void RoR::RegisterTurbopropNative(asIScriptEngine* engine)
     AeroEnginePtr::RegisterRefCountingObjectPtr(engine, "TurbopropClassPtr", "TurbopropClass");
 
     // PLEASE maintain same order as in 'physics/air/Turboprop.h' and 'doc/angelscript/Script2Game/TurbopropClass.h'
-    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerPitch()", asFUNCTIONPR([](Turboprop* self) -> float {
-        return self->pitch; }, (Turboprop*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerIndicatedTorque()", asFUNCTIONPR([](Turboprop* self) -> float {
-        return self->indicated_torque; }, (Turboprop*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerMaxTorque()", asFUNCTIONPR([](Turboprop* self) -> float {
-        return self->max_torque; }, (Turboprop*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerMaxPower()", asFUNCTIONPR([](Turboprop* self) -> float {
-        return self->getMaxPower(); }, (Turboprop*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("TurbopropClass", "bool isPistonProp()", asFUNCTIONPR([](Turboprop* self) -> bool {
-        return self->is_piston; }, (Turboprop*), bool), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerPitch()", asMETHOD(Turboprop, getPropellerPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerIndicatedTorque()", asMETHOD(Turboprop, getPropellerIndicatedTorque), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerMaxTorque()", asMETHOD(Turboprop, getPropellerMaxTorque), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbopropClass", "float getPropellerMaxPower()", asMETHOD(Turboprop, getMaxPower), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TurbopropClass", "bool isPistonProp()", asMETHOD(Turboprop, isPistonProp), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

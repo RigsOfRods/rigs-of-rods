@@ -29,17 +29,6 @@ void RoR::RegisterVehicleAiNative(asIScriptEngine *engine)
 {
     int result;
 
-    // enum aiEvents
-    result = engine->RegisterEnum("aiEvents"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("aiEvents", "AI_LIGHTSTOGGLE", AI_LIGHTSTOGGLE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("aiEvents", "AI_WAIT_SECONDS", AI_WAIT_SECONDS); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("aiEvents", "AI_BEACONSTOGGLE", AI_BEACONSTOGGLE); ROR_ASSERT(result >= 0);
-
-    // enum aiEvents
-    result = engine->RegisterEnum("AiValues"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("AiValues", "AI_SPEED", AI_SPEED); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("AiValues", "AI_POWER", AI_POWER); ROR_ASSERT(result >= 0);
-
     // (ref object) VehicleAI
     VehicleAI::RegisterRefCountingObject(engine, "VehicleAIClass");
     VehicleAIPtr::RegisterRefCountingObjectPtr(engine, "VehicleAIClassPtr", "VehicleAIClass");

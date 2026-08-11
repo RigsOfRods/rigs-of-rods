@@ -56,10 +56,13 @@ inline void RegisterActor(AngelScript::asIScriptEngine* engine)
 }
 
 /// defined in VehicleAiAngelscript.cpp
+void RegisterVehicleAiCommon(AngelScript::asIScriptEngine* engine);
 void RegisterVehicleAiNative(AngelScript::asIScriptEngine* engine);
+void RegisterVehicleAiGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterVehicleAi(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("VehicleAi", engine, &RegisterVehicleAiNative, nullptr);
+    RegisterVehicleAiCommon(engine);
+    RegisterAngelScriptBinding("VehicleAi", engine, &RegisterVehicleAiNative, &RegisterVehicleAiGeneric);
 }
 
 /// Registers RoR::InputEngine, defined in InputEngineAngelscript.cpp
@@ -156,31 +159,41 @@ inline void RegisterCacheSystem(AngelScript::asIScriptEngine* engine)
 }
 
 /// Register class Engine and related enums, defined in EngineAngelscript.cpp
+void RegisterEngineCommon(AngelScript::asIScriptEngine* engine);
 void RegisterEngineNative(AngelScript::asIScriptEngine* engine);
+void RegisterEngineGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterEngine(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Engine", engine, &RegisterEngineNative, nullptr);
+    RegisterEngineCommon(engine);
+    RegisterAngelScriptBinding("Engine", engine, &RegisterEngineNative, RegisterEngineGeneric);
 }
 
 // Register class DashBoardManager. Defined in DashBoardManagerAngelscript.cpp
+void RegisterDashBoardManagerCommon(AngelScript::asIScriptEngine* engine);
 void RegisterDashBoardManagerNative(AngelScript::asIScriptEngine* engine);
+void RegisterDashBoardManagerGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterDashBoardManager(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("DashBoardManager", engine, &RegisterDashBoardManagerNative, nullptr);
+    RegisterDashBoardManagerCommon(engine);
+    RegisterAngelScriptBinding("DashBoardManager", engine, &RegisterDashBoardManagerNative, RegisterDashBoardManagerGeneric);
 }
 
 // Register class AircraftEngineClass. Defined in AircraftEngineAngelscript.cpp
+void RegisterAircraftEngineCommon(AngelScript::asIScriptEngine* engine);
 void RegisterAircraftEngineNative(AngelScript::asIScriptEngine* engine);
+void RegisterAircraftEngineGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterAircraftEngine(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("AircraftEngine", engine, &RegisterAircraftEngineNative, nullptr);
+    RegisterAircraftEngineCommon(engine);
+    RegisterAngelScriptBinding("AircraftEngine", engine, &RegisterAircraftEngineNative, &RegisterAircraftEngineGeneric);
 }
 
 // Register class TurbopropClass. Defined in TurbopropAngelscript.cpp
 void RegisterTurbopropNative(AngelScript::asIScriptEngine* engine);
+void RegisterTurbopropGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterTurboprop(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Turboprop", engine, &RegisterTurbopropNative, nullptr);
+    RegisterAngelScriptBinding("Turboprop", engine, &RegisterTurbopropNative, &RegisterTurbopropGeneric);
 }
 
 // Register class TurbojetClass. Defined in TurbojetAngelscript.cpp
@@ -192,17 +205,21 @@ inline void RegisterTurbojet(AngelScript::asIScriptEngine* engine)
 }
 
 // Register class AutopilotClass. Defined in AutopilotAngelscript.cpp
+void RegisterAutopilotCommon(AngelScript::asIScriptEngine* engine);
 void RegisterAutopilotNative(AngelScript::asIScriptEngine* engine);
+void RegisterAutopilotGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterAutopilot(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Autopilot", engine, &RegisterAutopilotNative, nullptr);
+    RegisterAutopilotCommon(engine);
+    RegisterAngelScriptBinding("Autopilot", engine, &RegisterAutopilotNative, &RegisterAutopilotGeneric);
 }
 
 // Register class ScrewpropClass. Defined in ScrewpropAngelscript.cpp
 void RegisterScrewpropNative(AngelScript::asIScriptEngine* engine);
+void RegisterScrewpropGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterScrewprop(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Screwprop", engine, &RegisterScrewpropNative, nullptr);
+    RegisterAngelScriptBinding("Screwprop", engine, &RegisterScrewpropNative, &RegisterScrewpropGeneric);
 }
 
 
