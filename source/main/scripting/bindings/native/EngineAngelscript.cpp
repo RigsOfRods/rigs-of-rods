@@ -32,21 +32,6 @@ void RoR::RegisterEngineNative(asIScriptEngine* engine)
 {
     int r;
 
-    r = engine->RegisterEnum("autoswitch"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("autoswitch", "AUTOSWITCH_REAR", Engine::REAR); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("autoswitch", "AUTOSWITCH_NEUTRAL", Engine::NEUTRAL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("autoswitch", "AUTOSWITCH_DRIVE", Engine::DRIVE); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("autoswitch", "AUTOSWITCH_TWO", Engine::TWO); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("autoswitch", "AUTOSWITCH_ONE", Engine::ONE); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("autoswitch", "AUTOSWITCH_MANUALMODE", Engine::MANUALMODE); ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterEnum("SimGearboxMode"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("SimGearboxMode", "AUTO", static_cast<int>(SimGearboxMode::AUTO)); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("SimGearboxMode", "SEMI_AUTO", static_cast<int>(SimGearboxMode::SEMI_AUTO)); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("SimGearboxMode", "MANUAL", static_cast<int>(SimGearboxMode::MANUAL)); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("SimGearboxMode", "MANUAL_STICK", static_cast<int>(SimGearboxMode::MANUAL_STICK)); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("SimGearboxMode", "MANUAL_RANGES", static_cast<int>(SimGearboxMode::MANUAL_RANGES)); ROR_ASSERT(r >= 0);
-
     // class Engine
     Engine::RegisterRefCountingObject(engine, "EngineClass");
     EnginePtr::RegisterRefCountingObjectPtr(engine, "EngineClassPtr", "EngineClass");

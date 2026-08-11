@@ -14,12 +14,6 @@ void RoR::RegisterAircraftEngineNative(asIScriptEngine* engine)
     AeroEngine::RegisterRefCountingObject(engine, "AircraftEngineClass");
     AeroEnginePtr::RegisterRefCountingObjectPtr(engine, "AircraftEngineClassPtr", "AircraftEngineClass");
 
-    // enum AircraftDataTypes
-    result = engine->RegisterEnum("AircraftEngineTypes"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("AircraftEngineTypes", "AE_UNKNOWN", (int)AeroEngineType::AE_UNKNOWN); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("AircraftEngineTypes", "AE_TURBOJET", (int)AeroEngineType::AE_TURBOJET); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("AircraftEngineTypes", "AE_PROPELLER", (int)AeroEngineType::AE_XPROP); ROR_ASSERT(result >= 0);
-
     // PLEASE maintain same order as in 'physics/air/AeroEngine.h' and 'doc/angelscript/Script2Game/AircraftEngineClass.h'
     result = engine->RegisterObjectMethod("AircraftEngineClass", "void setThrottle(float)", asMETHOD(AeroEngine, setThrottle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("AircraftEngineClass", "float getThrottle()", asMETHOD(AeroEngine, getThrottle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
