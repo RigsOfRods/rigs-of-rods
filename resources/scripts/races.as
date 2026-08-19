@@ -942,7 +942,7 @@ shared class racesManager {
 	}
 
 	// Backwards compatible with former `eventCallback(int eventnum, int value)`
-	// see docs at https://developer.rigsofrods.org/d3/d68/namespace_script2_game.html#a366408518753189dc7895f392b6ce8e6 ~ ohlidalp, 01/2016
+	// see docs at https://developer.rigsofrods.org/d3/d68/namespace_script2_game.html#a366408518753189dc7895f392b6ce8e6 ~ ohlidalp, 01/2026
 	void eventCallback(int eventnum,  int value,int arg2=0,int arg3=0,int arg4=0,  string arg5="",string arg6="",string arg7="",string arg8="")
 	{
 		//debug: game.log("raceManager::eventCallback("+eventnum+",   "+value+", "+arg2+", "+arg3+", "+arg4+",   "+arg5+", "+arg6+", "+arg7+", "+arg8+") called");
@@ -1480,7 +1480,7 @@ shared class raceBuilder {
 		this.objNames[number][this.chpInstances[number]] = objName;
 		if( not this.hidden )
 		{
-			// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+			// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2026
 			game.spawnObject(objName, "checkpoint|"+this.id+"|"+number+"|"+this.chpInstances[number]++, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "!supress");
 		}
 	}
@@ -1610,7 +1610,7 @@ shared class raceBuilder {
 			for( int k = 0; k < this.chpInstances[i]; k++ )
 			{
 				array<double>@ v = this.checkpoints[i][k];
-				// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2016
+				// Note: The '!supress' constant prevents invoking default handler ~ we rely exclusively on `SE_EVENTBOX_ENTER` ~ ohlidalp, 01/2026
 				game.spawnObject(objNames[i][k], "checkpoint|"+this.id+"|"+i+"|"+k, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), "!supress");
 			}
 		}
