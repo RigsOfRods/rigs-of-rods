@@ -35,6 +35,7 @@
 #include "GUIUtils.h"
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
+#include "FlexAirfoilMesh.h"
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
@@ -247,6 +248,7 @@ RoR::GfxActor::~GfxActor()
         }
         i_flexbody++;
     }
+    m_flexbodies.clear();
 
     // Delete old cab mesh
     if (m_cab_mesh != nullptr)
@@ -288,10 +290,11 @@ RoR::GfxActor::~GfxActor()
         }
         catch (...)
         {
-            HandleGenericException(fmt::format("GfxActor::~GfxActor(); instanceID:{}, streamID:{}, filename:{}; deleting exhaust {}/{}.",
-                m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, std::distance(m_exhausts.begin(), it), m_exhausts.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+            const size_t i_exhaust = std::distance(it, m_exhausts.begin());
+            HandleGenericException(WhereFrom(this, fmt::format("deleting exhaust {}/{}.", i_exhaust, m_exhausts.size())), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
+    m_exhausts.clear();
 
     // delete custom particles
     for (int i = 0; i < (int)m_cparticles.size(); i++)
@@ -312,23 +315,43 @@ RoR::GfxActor::~GfxActor()
         }
         catch (...)
         {
-            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting custom particle {}/{}.",
-                m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, i, m_cparticles.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+            HandleGenericException(WhereFrom(this, fmt::format("deleting custom particle {}/{}.", i, m_cparticles.size())), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
+    m_cparticles.clear();
+
+    // Delete wings
+    for (int i = 0; i < (int)m_gfx_wings.size(); i++)
+    {
         try
         {
-            m_particles_drip->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_drip;
-            m_particles_dust->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_dust;
-            m_particles_splash->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_splash;
-            m_particles_ripple->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_ripple;
-            m_particles_sparks->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_sparks;
-            m_particles_clump->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_clump;
+            if (m_gfx_wings[i].cnode)
+            {
+                m_gfx_wings[i].cnode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_gfx_wings[i].cnode);
+            }
         }
         catch (...)
         {
-            HandleGenericException(WhereFrom(this, "deleting per-actor particle pools (spawned with 'gfx_particles_mode=2')"), HANDLEGENERICEXCEPTION_LOGFILE);
+            HandleGenericException(WhereFrom(this, fmt::format("deleting gfx wing {}/{}.", i, m_gfx_wings.size())), HANDLEGENERICEXCEPTION_LOGFILE);
         }
+    }
+    m_gfx_wings.clear();
+
+    // Delete per-actor particles
+    try
+    {
+        m_particles_drip->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_drip;
+        m_particles_dust->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_dust;
+        m_particles_splash->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_splash;
+        m_particles_ripple->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_ripple;
+        m_particles_sparks->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_sparks;
+        m_particles_clump->Discard(App::GetGfxScene()->GetSceneManager()); delete m_particles_clump;
+    }
+    catch (...)
+    {
+        HandleGenericException(WhereFrom(this, "deleting per-actor particle pools (spawned with 'gfx_particles_mode=2')"), HANDLEGENERICEXCEPTION_LOGFILE);
+    }
 }
 
 ActorPtr RoR::GfxActor::GetActor()
@@ -1781,6 +1804,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_driveable = m_actor->ar_driveable;
 
     // Movement
+    m_simbuf.simbuf_origin = m_actor->ar_origin;
     m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_rotation = m_actor->getRotation();
@@ -1800,6 +1824,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     {
         auto node = m_actor->ar_nodes[i];
         m_simbuf.simbuf_nodes[i].AbsPosition = node.AbsPosition;
+        m_simbuf.simbuf_nodes[i].RelPosition = node.RelPosition;
         m_simbuf.simbuf_nodes[i].nd_has_contact = node.nd_has_ground_contact || node.nd_has_mesh_contact;
     }
 
@@ -1826,6 +1851,20 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
     {
         m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->getRatio();
+    }
+
+    // Elements: wings
+    m_simbuf.simbuf_wings.resize(m_actor->ar_num_wings);
+    for (WingID_t i = 0; i < m_actor->ar_num_wings; i++)
+    {
+        m_simbuf.simbuf_wings[i].simbuf_fa_broken = m_actor->ar_wings[i].fa->broken;
+        m_simbuf.simbuf_wings[i].simbuf_fa_isstabilator = m_actor->ar_wings[i].fa->isstabilator;
+        m_simbuf.simbuf_wings[i].simbuf_fa_stabilleft = m_actor->ar_wings[i].fa->stabilleft;
+        m_simbuf.simbuf_wings[i].simbuf_fa_deflection = m_actor->ar_wings[i].fa->deflection;
+        std::memcpy(
+            m_simbuf.simbuf_wings[i].simbuf_fa_airfoilpos,
+            m_actor->ar_wings[i].fa->airfoilpos,
+            sizeof(float)*90);
     }
 
     // Elements: Command keys
@@ -3390,7 +3429,7 @@ void RoR::GfxActor::SetWingsVisible(bool visible)
 {
     for (int i = 0; i < m_actor->ar_num_wings; ++i)
     {
-        m_actor->ar_wings[i].cnode->setVisible(visible);
+        m_gfx_wings[i].cnode->setVisible(visible);
     }
 
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
@@ -3403,9 +3442,8 @@ void RoR::GfxActor::UpdateWingMeshes()
 {
     for (int i = 0; i < m_actor->ar_num_wings; ++i)
     {
-        wing_t& wing = m_actor->ar_wings[i];
-        wing.cnode->setPosition(wing.fa->updateVerticesGfx(this));
-        wing.fa->uploadVertices();
+        m_gfx_wings[i].cnode->setPosition(
+            m_gfx_wings[i].flex_airfoil_mesh->updateVerticesGfx());
     }
 }
 

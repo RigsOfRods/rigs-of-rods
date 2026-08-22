@@ -188,6 +188,7 @@ private:
     std::vector<FlareMaterial>  m_flare_materials;
     std::vector<CParticle>      m_cparticles;
     std::vector<Exhaust>        m_exhausts;
+    std::vector<WingGfx>        m_gfx_wings;
     
     // Particles
     DustPool*                   m_particles_drip = nullptr;

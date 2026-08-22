@@ -191,11 +191,6 @@ void Actor::dispose()
             // flexAirfoil, airfoil
             if (ar_wings[i].fa)
                 delete ar_wings[i].fa;
-            if (ar_wings[i].cnode)
-            {
-                ar_wings[i].cnode->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_wings[i].cnode);
-            }
         }
         catch (...)
         {

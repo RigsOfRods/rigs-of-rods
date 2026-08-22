@@ -47,6 +47,14 @@ set(SOURCE_FILES
         gfx/GfxWater.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
+        gfx/flex/Flexable.h
+        gfx/flex/FlexAirfoilMesh.{h,cpp}
+        gfx/flex/FlexBody.{h,cpp}
+        gfx/flex/FlexFactory.{h,cpp}
+        gfx/flex/FlexMesh.{h,cpp}
+        gfx/flex/FlexMeshWheel.{h,cpp}
+        gfx/flex/FlexObj.{h,cpp}
+        gfx/flex/Locator_t.h        
         gfx/hydrax/CfgFileManager.{h,cpp}
         gfx/hydrax/DecalsManager.{h,cpp}
         gfx/hydrax/Enums.{h,cpp}
@@ -159,6 +167,7 @@ set(SOURCE_FILES
         physics/air/AeroEngine.h
         physics/air/AirBrake.{h,cpp}
         physics/air/Airfoil.{h,cpp}
+        physics/air/FlexAirfoil.{h,cpp}
         physics/air/TurboJet.{h,cpp}
         physics/air/TurboProp.{h,cpp}
         physics/collision/CartesianToTriangleTransform.h
@@ -166,14 +175,6 @@ set(SOURCE_FILES
         physics/collision/DynamicCollisions.{h,cpp}
         physics/collision/PointColDetector.{h,cpp}
         physics/collision/Triangle.h
-        physics/flex/Flexable.h
-        physics/flex/FlexAirfoil.{h,cpp}
-        physics/flex/FlexBody.{h,cpp}
-        physics/flex/FlexFactory.{h,cpp}
-        physics/flex/FlexMesh.{h,cpp}
-        physics/flex/FlexMeshWheel.{h,cpp}
-        physics/flex/FlexObj.{h,cpp}
-        physics/flex/Locator_t.h
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
         physics/water/Wavefield.{h,cpp}
@@ -406,6 +407,7 @@ target_include_directories(${BINNAME} PRIVATE
         gameplay
         gfx
         gfx/camera
+        gfx/flex
         gfx/hydrax
         gfx/particle
         gfx/skyx
@@ -417,7 +419,6 @@ target_include_directories(${BINNAME} PRIVATE
         physics
         physics/air
         physics/collision
-        physics/flex
         physics/utils
         physics/water
         resources

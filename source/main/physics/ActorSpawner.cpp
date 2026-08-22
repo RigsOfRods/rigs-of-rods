@@ -47,6 +47,7 @@
 #include "Differentials.h"
 #include "Engine.h"
 #include "FlexAirfoil.h"
+#include "FlexAirfoilMesh.h"
 #include "FlexBody.h"
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
@@ -971,7 +972,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     NodeNum_t node1 = this->GetNodeIndexOrThrow(def.nodes[1]);
 
     const std::string wing_name = this->ComposeName("wing", m_actor->ar_num_wings);
-    auto flex_airfoil = new FlexAirfoil(
+    FlexAirfoil* flex_airfoil = new FlexAirfoil(
         wing_name,
         m_actor,
         this->GetNodeIndexOrThrow(def.nodes[0]),
@@ -982,11 +983,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         this->GetNodeIndexOrThrow(def.nodes[5]),
         this->GetNodeIndexOrThrow(def.nodes[6]),
         this->GetNodeIndexOrThrow(def.nodes[7]),
-        m_cab_material_name,
-        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
-        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
-        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
-        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7]),
         (char)def.control_surface,
         def.chord_point,
         def.min_deflection,
@@ -1183,8 +1179,23 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
     // Add new wing to rig
     m_actor->ar_wings[m_actor->ar_num_wings].fa = flex_airfoil;
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode->attachObject(entity);
+
+    // Add the visual wing
+    FlexAirfoilMesh* flex_af_mesh = new FlexAirfoilMesh(
+        m_actor,
+        m_actor->ar_num_wings,
+        m_cab_material_name,
+        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
+        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
+        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
+        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7])
+    );
+    WingGfx wing_gfx;
+    wing_gfx.wing_id = m_actor->ar_num_wings;
+    wing_gfx.cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
+    wing_gfx.cnode->attachObject(entity);
+    wing_gfx.flex_airfoil_mesh = flex_af_mesh;
+    m_actor->GetGfxActor()->m_gfx_wings.push_back(wing_gfx);
 
     ++m_actor->ar_num_wings;
 }

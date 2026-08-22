@@ -86,6 +86,7 @@ void GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
     m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager();
+    m_scene_manager->setCameraRelativeRendering(true);
     m_gfx_freebeams_grouping_node = m_scene_manager->getRootSceneNode()->createChildSceneNode("FreeBeam Visuals");
 
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
