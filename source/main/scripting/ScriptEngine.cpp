@@ -966,7 +966,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
             fmt::format("Could not load script '{}' - failed to create module.", moduleName));
         return result;
     }
-    m_script_units[unit_id].scriptModule = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
+    m_script_units[unit_id].scriptModule = builder.GetModule();
 
     // For actor scripts, add global var `thisActor` to the module
     if (m_script_units[unit_id].scriptCategory == ScriptCategory::ACTOR)
