@@ -27,7 +27,7 @@
 using namespace RoR;
 using namespace AngelScript;
 
-void RoR::RegisterSoundScript(AngelScript::asIScriptEngine* engine)
+void RoR::RegisterSoundScriptNative(AngelScript::asIScriptEngine* engine)
 {
     int result = 0;
 

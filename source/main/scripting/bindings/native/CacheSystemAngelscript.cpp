@@ -109,7 +109,7 @@ CScriptDictionary* CacheSystemQueryWrapper(CacheSystem* self, CScriptDictionary*
     return results_dict;
 }
 
-void RoR::RegisterCacheSystem(asIScriptEngine *engine)
+void RoR::RegisterCacheSystemNative(asIScriptEngine *engine)
 {
     CacheEntry::RegisterRefCountingObject(engine, "CacheEntryClass");
     CacheEntryPtr::RegisterRefCountingObjectPtr(engine, "CacheEntryClassPtr", "CacheEntryClass");

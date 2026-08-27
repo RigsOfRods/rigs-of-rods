@@ -24,6 +24,7 @@
 /// @date   24th of February 2009
 
 #include "ScriptEngine.h"
+#include "autowrapper/aswrappedcall.h"
 
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
@@ -164,31 +165,39 @@ void ScriptEngine::init()
     AngelScript::RegisterScriptDictionary(engine);
 
     // some useful global functions
-    result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
-    result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
+    if (strstr(AngelScript::asGetLibraryOptions(), "AS_MAX_PORTABILITY") || App::diag_angelscript_generic_bind_test->getBool())
+    {
+        result = engine->RegisterGlobalFunction("void log(const string &in)", WRAP_FN(logString), AngelScript::asCALL_GENERIC); ROR_ASSERT(result >= 0);
+        result = engine->RegisterGlobalFunction("void print(const string &in)", WRAP_FN(logString), AngelScript::asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    }
+    else
+    {
+        result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT(result >= 0);
+        result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT(result >= 0);
+    }
 
-    RegisterOgreObjects(engine);   // vector2/3, degree, radian, quaternion, color
-    RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
-    RegisterLocalStorage(engine);  // LocalStorage
-    RegisterInputEngine(engine);   // InputEngineClass, inputEvents
-    RegisterImGuiBindings(engine); // ImGUi::
-    RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
-    RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
-    RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
-    RegisterDashBoardManager(engine); // DashBoardManagerClass, DashboardDataTypes
-    RegisterTurbojet(engine); // TurbojetClass
-    RegisterTurboprop(engine); // TurbopropClass
-    RegisterAircraftEngine(engine); // AircraftEngineClass, AircraftEngineTypes
-    RegisterAutopilot(engine); // AutopilotClass, APHeadingMode, APAltitudeMode
-    RegisterScrewprop(engine); // ScrewpropClass
-    RegisterActor(engine);         // BeamClass
-    RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
-    RegisterTerrain(engine);       // TerrainClass
-    RegisterMessageQueue(engine);  // enum MsgType
-    RegisterSoundScript(engine);   // SoundTriggers, ModulationSource, SoundScriptTemplate...
-    RegisterGameScript(engine);    // GameScriptClass
-    RegisterScriptEvents(engine);  // scriptEvents
-    RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
+    RegisterOgreObjects(engine);        // vector2/3, degree, radian, quaternion, color
+    RegisterCacheSystem(engine);        // LoaderType, CacheEntryClass, CacheSystemClass
+    RegisterLocalStorage(engine);       // LocalStorage
+    RegisterInputEngine(engine);        // InputEngineClass, inputEvents
+    RegisterImGuiBindings(engine);      // ImGui::
+    RegisterVehicleAi(engine);          // VehicleAIClass, aiEvents, AiValues
+    RegisterConsole(engine);            // ConsoleClass, CVarClass, CVarFlags
+    RegisterEngine(engine);             // EngineClass, enum autoswitch, enum
+    RegisterDashBoardManager(engine);   // DashBoardManagerClass, DashboardDataTypes
+    RegisterTurbojet(engine);           // TurbojetClass
+    RegisterTurboprop(engine);          // TurbopropClass
+    RegisterAircraftEngine(engine);     // AircraftEngineClass, AircraftEngineTypes
+    RegisterAutopilot(engine);          // AutopilotClass, APHeadingMode, APAltitudeMode
+    RegisterScrewprop(engine);          // ScrewpropClass
+    RegisterActor(engine);              // BeamClass
+    RegisterProceduralRoad(engine);     // procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
+    RegisterTerrain(engine);            // TerrainClass
+    RegisterMessageQueue(engine);       // enum MsgType
+    RegisterSoundScript(engine);        // SoundTriggers, ModulationSource, SoundScriptTemplate...
+    RegisterGameScript(engine);         // GameScriptClass
+    RegisterScriptEvents(engine);       // scriptEvents
+    RegisterGenericFileFormat(engine);  // TokenType, GenericDocumentClass, GenericDocReaderClass
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);

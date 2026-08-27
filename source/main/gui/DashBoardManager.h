@@ -231,21 +231,21 @@ public:
     int registerCustomInput(Ogre::String name, int dataType);
 
     // Getter / Setter
-    bool _getBool(size_t key) { return key < data.size() ? data[key].data.value_bool : false; };
-    int _getInt(size_t key) { return data[key].data.value_int; };
-    float _getFloat(size_t key) { return data[key].data.value_float; };
-    float getNumeric(size_t key);
-    char* getChar(size_t key) { return key < data.size() ? data[key].data.value_char : nullptr; };
-    bool getEnabled(size_t key) { return key < data.size() ? data[key].enabled : false; };
+    bool _getBool(int key) { return key < data.size() ? data[key].data.value_bool : false; };
+    int _getInt(int key) { return data[key].data.value_int; };
+    float _getFloat(int key) { return data[key].data.value_float; };
+    float getNumeric(int key);
+    char* getChar(int key) { return key < data.size() ? data[key].data.value_char : nullptr; };
+    bool getEnabled(int key) { return key < data.size() ? data[key].enabled : false; };
 
-    void setBool(size_t key, bool val) { if (key < data.size()) data[key].data.value_bool = val; };
-    void setInt(size_t key, int val) { if (key < data.size()) data[key].data.value_int = val; };
-    void setFloat(size_t key, float val) { if (key < data.size()) data[key].data.value_float = val; };
-    void setChar(size_t key, const char* val) { if (key < data.size()) strncpy(data[key].data.value_char, val, DD_MAXCHAR); };
+    void setBool(int key, bool val) { if (key < data.size()) data[key].data.value_bool = val; };
+    void setInt(int key, int val) { if (key < data.size()) data[key].data.value_int = val; };
+    void setFloat(int key, float val) { if (key < data.size()) data[key].data.value_float = val; };
+    void setChar(int key, const char* val) { if (key < data.size()) strncpy(data[key].data.value_char, val, DD_MAXCHAR); };
 
-    void setEnabled(size_t key, bool val) { if (key < data.size()) data[key].enabled = val; };
+    void setEnabled(int key, bool val) { if (key < data.size()) data[key].enabled = val; };
 
-    int getDataType(size_t key) { return key < data.size() ? data[key].type : DC_INVALID; };
+    int getDataType(int key) { return key < data.size() ? data[key].type : DC_INVALID; };
 
     int getLinkIDForName(Ogre::String& str);
     std::string getLinkNameForID(DashData id);

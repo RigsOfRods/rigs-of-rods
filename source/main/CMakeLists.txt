@@ -234,29 +234,50 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/OgreScriptBuilder.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
             scripting/ScriptUtils.h
-            scripting/bindings/AngelScriptBindings.h
-            scripting/bindings/ActorAngelscript.cpp
-            scripting/bindings/AircraftEngineAngelscript.cpp
-            scripting/bindings/AutopilotAngelscript.cpp
-            scripting/bindings/CacheSystemAngelscript.cpp
-            scripting/bindings/ConsoleAngelscript.cpp
-            scripting/bindings/DashBoardManagerAngelscript.cpp
-            scripting/bindings/EngineAngelscript.cpp
-            scripting/bindings/GameScriptAngelscript.cpp
-            scripting/bindings/GenericFileFormatAngelscript.cpp
-            scripting/bindings/ImGuiAngelscript.cpp
-            scripting/bindings/InputEngineAngelscript.cpp
-            scripting/bindings/LocalStorageAngelscript.cpp
-            scripting/bindings/MsgQueueAngelscript.cpp
-            scripting/bindings/OgreAngelscript.cpp
-            scripting/bindings/ProceduralRoadAngelscript.cpp
-            scripting/bindings/ScrewpropAngelscript.cpp
-            scripting/bindings/ScriptEventsAngelscript.cpp
-            scripting/bindings/SoundScriptAngelscript.cpp
-            scripting/bindings/TerrainAngelscript.cpp
-            scripting/bindings/TurbojetAngelscript.cpp
-            scripting/bindings/TurbopropAngelscript.cpp
-            scripting/bindings/VehicleAiAngelscript.cpp
+            scripting/autowrapper/aswrappedcall.h
+            scripting/bindings/AngelScriptBindings.{h,cpp}
+            scripting/bindings/native/ActorAngelscript.cpp
+            scripting/bindings/native/AircraftEngineAngelscript.cpp
+            scripting/bindings/native/AutopilotAngelscript.cpp
+            scripting/bindings/native/CacheSystemAngelscript.cpp
+            scripting/bindings/native/ConsoleAngelscript.cpp
+            scripting/bindings/native/DashBoardManagerAngelscript.cpp
+            scripting/bindings/native/EngineAngelscript.cpp
+            scripting/bindings/native/GameScriptAngelscript.cpp
+            scripting/bindings/native/GenericFileFormatAngelscript.cpp
+            scripting/bindings/native/ImGuiAngelscript.cpp
+            scripting/bindings/native/InputEngineAngelscript.cpp
+            scripting/bindings/native/LocalStorageAngelscript.cpp
+            scripting/bindings/native/MsgQueueAngelscript.cpp
+            scripting/bindings/native/OgreAngelscript.cpp
+            scripting/bindings/native/ProceduralRoadAngelscript.cpp
+            scripting/bindings/native/ScrewpropAngelscript.cpp
+            scripting/bindings/native/ScriptEventsAngelscript.cpp
+            scripting/bindings/native/SoundScriptAngelscript.cpp
+            scripting/bindings/native/TerrainAngelscript.cpp
+            scripting/bindings/native/TurbojetAngelscript.cpp
+            scripting/bindings/native/TurbopropAngelscript.cpp
+            scripting/bindings/native/VehicleAiAngelscript.cpp
+
+            scripting/bindings/generic/ActorAngelscriptGeneric.cpp
+            scripting/bindings/generic/AircraftEngineAngelscriptGeneric.cpp
+            scripting/bindings/generic/AutopilotAngelscriptGeneric.cpp
+            scripting/bindings/generic/DashBoardManagerAngelscriptGeneric.cpp
+            scripting/bindings/generic/EngineAngelscriptGeneric.cpp
+            scripting/bindings/generic/GameScriptAngelscriptGeneric.cpp
+            scripting/bindings/generic/ScrewpropAngelscriptGeneric.cpp
+            scripting/bindings/generic/TurbojetAngelscriptGeneric.cpp
+            scripting/bindings/generic/TurbopropAngelscriptGeneric.cpp
+            scripting/bindings/generic/VehicleAiAngelscriptGeneric.cpp
+
+            scripting/bindings/common/ActorAngelscriptCommon.cpp
+            scripting/bindings/common/AircraftEngineAngelscriptCommon.cpp
+            scripting/bindings/common/AutopilotAngelscriptCommon.cpp
+            scripting/bindings/common/DashBoardManagerAngelscriptCommon.cpp
+            scripting/bindings/common/EngineAngelscriptCommon.cpp
+            scripting/bindings/common/GameScriptAngelscriptCommon.cpp
+            scripting/bindings/common/VehicleAiAngelscriptCommon.cpp
+            
             scripting/server/ServerScript.{h,cpp}
             scripting/server/ServerScriptConfig.h
             scripting/server/ServerScriptCurlHelpers.{h,cpp}

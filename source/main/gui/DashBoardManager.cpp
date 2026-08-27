@@ -633,7 +633,7 @@ void DashBoardManager::updateFeatures()
     }
 }
 
-float DashBoardManager::getNumeric(size_t key)
+float DashBoardManager::getNumeric(int key)
 {
     if (key >= data.size())
         return 0;

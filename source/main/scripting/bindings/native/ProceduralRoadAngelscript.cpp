@@ -42,7 +42,7 @@ static ProceduralRoad* ProceduralRoadFactory()
     return new ProceduralRoad();
 }
 
-void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
+void RoR::RegisterProceduralRoadNative(asIScriptEngine* engine)
 {
     int result = 0;
 

@@ -93,6 +93,12 @@ public:
     float getMaxPower() const { return fullpower; };
     void setMaxPower(float power);
 
+    // For AngelScript binding
+    float getPropellerPitch() { return pitch; };
+    float getPropellerIndicatedTorque() { return indicated_torque; };
+    float getPropellerMaxTorque() { return max_torque; };
+    bool isPistonProp() { return is_piston; };
+
     // Visuals
     void updateVisuals(RoR::GfxActor* gfx_actor) override;
     void setVisible(bool visible) override;

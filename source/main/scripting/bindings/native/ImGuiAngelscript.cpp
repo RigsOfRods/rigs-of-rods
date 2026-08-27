@@ -50,7 +50,7 @@ float ImGuiPlotLinesScriptValueGetterFunc(void* data, int index)
     }
 }
 
-void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
+void RoR::RegisterImGuiNativeBindings(AngelScript::asIScriptEngine* engine)
 {
     // ENUMS (global namespace)
     // PLEASE maintain the same order as in 'doc/angelscript/Script2Game/AngelImGui/AngelImGui_enums.h'
