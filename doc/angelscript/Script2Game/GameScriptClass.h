@@ -606,6 +606,7 @@ public:
     BeamClass@ spawnTruckAI(string truckName, vector3 pos, string truckSectionConfig, string truckSkin, int x);
     array<vector3>@ getWaypoints(int x);
     void addWaypoint(vector3 pos);
+    void clearWaypoints();
     int getAIVehicleCount();
     int getAIVehicleDistance();
     int getAIVehiclePositionScheme();

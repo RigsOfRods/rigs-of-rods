@@ -1216,6 +1216,11 @@ void GameScript::addWaypoint(const Ogre::Vector3& pos)
     App::GetGuiManager()->TopMenubar.ai_waypoints.push_back(wp_data);
 }
 
+void GameScript::clearWaypoints()
+{
+    App::GetGuiManager()->TopMenubar.ai_waypoints.clear();
+}
+
 AngelScript::CScriptArray* GameScript::getWaypointsSpeed()
 {
     std::vector<int> vec;
