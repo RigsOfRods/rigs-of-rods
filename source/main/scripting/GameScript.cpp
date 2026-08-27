@@ -1211,11 +1211,9 @@ AngelScript::CScriptArray* GameScript::getAllTrucks()
 
 void GameScript::addWaypoint(const Ogre::Vector3& pos)
 {
-    std::vector<Ogre::Vector3> waypoints;
-    for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
-    {
-        waypoints.push_back(App::GetGuiManager()->TopMenubar.ai_waypoints[i].position);
-    }
+    ai_events wp_data;
+    wp_data.position = pos;
+    App::GetGuiManager()->TopMenubar.ai_waypoints.push_back(wp_data);
 }
 
 AngelScript::CScriptArray* GameScript::getWaypointsSpeed()
