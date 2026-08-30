@@ -617,7 +617,7 @@ RoRnet::UiStreamsHealth ActorManager::CheckNetworkStreamsOk(int sourceid)
         // Mismatches can't happen, just check if any actor is spawned
         for (ActorPtr& actor: m_actors)
         {
-            if (actor->ar_driveable == ActorType::AI && actor->ar_net_source_id == sourceid)
+            if (actor->ar_vehicle_ai && actor->ar_net_source_id == sourceid)
             {
                 return RoRnet::UiStreamsHealth::ALL_OK;
             }
@@ -849,7 +849,7 @@ void ActorManager::UpdateSleepingState(ActorPtr player_actor, float dt)
         {
             if (actor->ar_state != ActorState::LOCAL_SIMULATED)
                 continue;
-            if (actor->ar_driveable == AI)
+            if (actor->ar_vehicle_ai)
                 continue;
             if (actor->getVelocity().squaredLength() > 0.01f)
             {

@@ -42,7 +42,7 @@ struct eventsource_t //!< Scripting
     std::string       es_instance_name;  //!< Specified by user when calling "GameScript::spawnObject()"
     std::string       es_box_name;       //!< Specified in ODEF file as "event"
     Ogre::Quaternion  es_direction;
-    int               es_script_handler; //!< AngelScript function ID
+    EvHandlerFuncID_t es_script_handler = EVHANDLERFUNCID_INVALID; //!< AngelScript function ID
     int               es_cbox;           //!< Collision box ID
     bool              es_enabled;
 };
@@ -199,7 +199,7 @@ public:
 
     void finishLoadingTerrain();
 
-    int addCollisionBox(bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, const Ogre::String& reverb_preset_name, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
+    int addCollisionBox(bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, const Ogre::String& reverb_preset_name, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, EvHandlerFuncID_t scripthandler = EVHANDLERFUNCID_INVALID);
     void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0); //!< generate collision tris from existing mesh resource
     void registerCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::AxisAlignedBox bounding_box, ground_model_t* gm, int ctri_start, int ctri_count); //!< Mark already generated collision tris as belonging to (virtual) mesh.
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);

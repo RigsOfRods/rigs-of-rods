@@ -74,6 +74,7 @@ public:
     int Initialize(const std::string& script_filename); // Creates scripting engine and loads the server script. Returns 0 on success.
     bool IsRunning() { return m_script_engine != nullptr; }
     void Close();
+    ServerScriptEngine* GetScriptEngine() { return m_script_engine.get(); }
 
     // Synchronized public interface
     void createClient(RoRnet::UserInfo& user); // Performs the 'playerAdded' callback.

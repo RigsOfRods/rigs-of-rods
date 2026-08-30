@@ -23,7 +23,7 @@ enum truckTypes
     TT_AIRPLANE,
     TT_BOAT,
     TT_MACHINE,
-    TT_AI,
+    // TT_AI ~ replaced by checking if `BeamClass::getVehicleAI()` returns a valid object.
 }
 
 } // namespace Script2Game

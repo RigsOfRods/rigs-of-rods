@@ -64,6 +64,11 @@ public:
 
     ~ServerScriptEngine();
 
+    /**
+     * This function initialzies the engine and registeres all types
+     */
+    void init();
+
     int loadScript(std::string scriptName);
 
     void unloadScript(); // RIGSOFRODS: Unload the script (only one can run at a time).
@@ -166,11 +171,6 @@ protected:
     std::thread m_timer_thread;
     ThreadState m_timer_thread_state = ThreadState::NOT_RUNNING;
     std::mutex  m_timer_thread_mutex;
-
-    /**
-     * This function initialzies the engine and registeres all types
-     */
-    void init();
 
     /**
      * This is the callback function that gets called when script error occur.
