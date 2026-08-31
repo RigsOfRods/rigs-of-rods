@@ -6,6 +6,9 @@
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
+#include "math_utils.as" // fmin+fmax
+using namespace math_utils;
+
 #include "gridviewer_utils.as"
 
 gridviewer_utils::GridViewer gTexcoordsViewer;
@@ -25,9 +28,6 @@ int gVertNumSeg = 5;
 int gTexcoordNumSeg = 5;
 string gErrorStr = "";
 bool gShowRawTexcoords=false;
-
-float fmax(float a, float b) { return a>b?a:b; }
-float fmin(float a, float b) { return a<b?a:b; }
 
 // ================= entry points ===================
 
