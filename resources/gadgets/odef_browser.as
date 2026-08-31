@@ -6,7 +6,6 @@
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
-const float FLT_MIN = 1.17549435e-38F;
 #include "math_utils.as" // getMouseShortestDistance
 using namespace math_utils;
 
