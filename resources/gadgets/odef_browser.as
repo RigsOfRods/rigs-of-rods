@@ -7,6 +7,10 @@
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 const float FLT_MIN = 1.17549435e-38F;
+#include "math_utils.as" // getMouseShortestDistance
+using namespace math_utils;
+
+
 
 
 //#region C O N F I G
@@ -631,61 +635,3 @@ void drawMainPanel()
 }
 //#endregion
 
-
-//#region    H E L P E R S
-
-
-int clamp(int minval, int val, int maxval)
-{
-    return max(minval, min(val, maxval));
-}
-
-int min(int a, int b)
-{
-    return (a < b) ? a : b;
-}
-
-int max(int a, int b)
-{
-    return (a > b) ? a : b;
-}
-
-float fmax(float a, float b)
-{
-    return (a > b) ? a : b;
-}
-
-float fmin(float a, float b)
-{
-    return (a < b) ? a : b;
-}
-
-int abs(int a)
-{
-    return (a < 0) ? -a : a;
-}
-
-float fabs(float f)
-{
-    return (f<0.f)?-f:f;
-}
-
-
-
-int getMouseShortestDistance(vector2 mouse, vector2 target)
-{
-    int dx = abs(int(mouse.x) - int(target.x));
-    int dy = abs(int(mouse.y) - int(target.y));
-    return max(dx, dy);
-}
-
-void setAxisVal(vector3&inout vec, int axis, float val) {
-    switch(axis) {
-        case 0: vec.x=val; break;
-        case 1: vec.y=val; break;
-        case 2: vec.z=val; break;
-        default: break;
-    }
-}
-
-//#endregion
