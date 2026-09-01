@@ -156,9 +156,13 @@ void ScriptEngine::init()
     AngelScript::RegisterStdString(engine);
     AngelScript::RegisterStdStringUtils(engine);
     AngelScript::RegisterScriptMath(engine);
+    static float SCRIPT_FLT_MIN = FLT_MIN;
     static float SCRIPT_FLT_MAX = FLT_MAX;
+    static int SCRIPT_INT_MIN = INT_MIN;
     static int SCRIPT_INT_MAX = INT_MAX;
+    result = engine->RegisterGlobalProperty("const float FLT_MIN", &SCRIPT_FLT_MIN); ROR_ASSERT( result >= 0 );
     result = engine->RegisterGlobalProperty("const float FLT_MAX", &SCRIPT_FLT_MAX); ROR_ASSERT( result >= 0 );
+    result = engine->RegisterGlobalProperty("const int INT_MIN", &SCRIPT_INT_MIN); ROR_ASSERT(result >= 0);
     result = engine->RegisterGlobalProperty("const int INT_MAX", &SCRIPT_INT_MAX); ROR_ASSERT(result >= 0);
     AngelScript::RegisterScriptAny(engine);
     AngelScript::RegisterScriptDictionary(engine);

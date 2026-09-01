@@ -550,6 +550,8 @@ public:
     OIS::JoyStickState* getCurrentJoyState(int joystickNumber);
     OIS::MouseState     getMouseState();
     bool                isKeyDown(OIS::KeyCode mod);                        //!< Asks OIS directly
+    int                 getMouseWheelMotion();
+    // Not exported to script:
     int                 getCurrentKeyCombo(Ogre::String* combo);            //!< Returns number of non-modifier keys pressed (or modifier count as negative number).
     int                 getCurrentJoyButton(int& joystickNumber, int& button);
     int                 getCurrentPovValue(int& joystickNumber, int& pov, int& povdir);
@@ -618,6 +620,10 @@ protected:
     // There's no way to recognize the event as fake, we must track number of frames and LMB presses since last reset.
     size_t m_oisworkaround_frames_since_reset = 0u;
     size_t m_oisworkaround_lmbdowns_since_reset = 0u;
+    // OIS WORKAROUND: mouse wheel motion counts as MouseMoved event,
+    //   but mouse wheel non-motion doesn't, so we need to clear the buffered
+    //   value ourselves
+    size_t m_oisworkaround_frames_since_mousemoved = 0u;
 };
 
 /// @} // @addtogroup Input

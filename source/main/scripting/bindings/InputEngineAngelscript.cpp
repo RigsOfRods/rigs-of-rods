@@ -58,6 +58,7 @@ void registerInputEngineObject(asIScriptEngine* engine)
     
     // Direct input device states
     result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDown(keyCodes keycode)", asMETHOD(InputEngine,isKeyDown), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("InputEngineClass", "int getMouseWheelMotion()", asMETHOD(InputEngine,getMouseWheelMotion), asCALL_THISCALL); ROR_ASSERT(result>=0);
 }
 
 void registerInputSourceTypeEnum(asIScriptEngine* engine)
