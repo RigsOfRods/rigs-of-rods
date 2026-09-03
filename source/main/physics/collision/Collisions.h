@@ -194,7 +194,7 @@ public:
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
     bool nodeCollision(node_t* node, float dt);
-    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0); // Only invoke on main thread! Oterwise use `MSG_SIM_SCRIPT_CALLBACK_QUEUED`
+    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0, int actorID = ACTORINSTANCEID_INVALID); // Only invoke on main thread! Oterwise use `MSG_SIM_SCRIPT_CALLBACK_QUEUED`
     void findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_boxes);
 
     void finishLoadingTerrain();
