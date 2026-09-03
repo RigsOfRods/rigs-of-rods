@@ -55,7 +55,7 @@
         beam_t      (simdata.h)      /  -              /  BeamGfx         (gfxdata.h)
         command_t   (simdata.h)      /  CommandKeySB   /  -
         wheel_t     (simdata.h)      /  -              /  WheelGfx    (gfxdata.h)
-        wing_t      (simdata.h)      /  -              /  -
+        wing_t      (simdata.h)      /  WingSB         /  WingGfx     (gfxdata.h)
         Turbojet    (turbojet.h)     /  AeroEngineSB   /  TurbojetVisual (turbojet.h)
         Turboprop   (turboprop.h)    /  AeroEngineSB   /  -
         Airbrake    (airbrake.h)     /  AirbrakeSB     /  AirbrakeGfx (gfxdata.h)
@@ -67,6 +67,7 @@ namespace RoR {
 struct NodeSB
 {
     Ogre::Vector3     AbsPosition; // classic name
+    Ogre::Vector3     RelPosition; // classic name
     bool              nd_has_contact:1;
     bool              nd_is_wet:1;
 };
@@ -107,6 +108,16 @@ struct AirbrakeSB
     float             simbuf_ab_ratio;
 };
 
+struct WingSB
+{
+    // FlexAirfoil:
+    float             simbuf_fa_airfoilpos[90]{};
+    bool              simbuf_fa_broken{false};
+    bool              simbuf_fa_isstabilator{false};
+    bool              simbuf_fa_stabilleft{false};
+    float             simbuf_fa_deflection{0.f};
+};
+
 struct ActorSB
 {
     // PLEASE maintain the same order as in `GfxActor::UpdateSimDataBuffer()`
@@ -120,6 +131,7 @@ struct ActorSB
     int               simbuf_driveable                = ActorType::NOT_DRIVEABLE;
 
     // Movement
+    Ogre::Vector3     simbuf_origin                   = Ogre::Vector3::ZERO;
     Ogre::Vector3     simbuf_pos                      = Ogre::Vector3::ZERO;
     Ogre::Vector3     simbuf_node0_velo               = Ogre::Vector3::ZERO;
     float             simbuf_rotation                 = 0;
@@ -137,6 +149,7 @@ struct ActorSB
     std::vector<PropAnimKeySB> simbuf_prop_anim_keys;
     std::vector<AeroEngineSB> simbuf_aeroengines;
     std::vector<AirbrakeSB>   simbuf_airbrakes;
+    std::vector<WingSB>       simbuf_wings;
 
     // Drivetrain
     float             simbuf_hydro_dir_state          = 0;     // State of steering actuator ('hydro'), for steeringwheel display
