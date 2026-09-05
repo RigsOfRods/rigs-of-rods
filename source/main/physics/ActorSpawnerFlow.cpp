@@ -97,12 +97,6 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
 
     this->InitializeRig();
 
-    // Set up the built-in "renderdash" material for use in meshes.
-    // Must be done before 'props' are processed because those traditionally use it.
-    // Must be always created, there is no mechanism to declare the need for it. It can be acessed from any mesh, not only dashboard-prop.
-    // Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
-    this->PrepareRenderdashMaterial();
-
     this->CreateDashboardRttLayers();
 
     // Vehicle name
@@ -134,7 +128,21 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     PROCESS_ELEMENT(RigDef::Keyword::GLOBALS, globals, ProcessGlobals);
     // MUST be done before "guisettings" (overrides help panel material)
     PROCESS_ELEMENT(RigDef::Keyword::HELP, help, ProcessHelp);
+
+    // ---------------------------- User-defined nodes ----------------------------
+
+    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group));
+
+    PROCESS_ELEMENT(RigDef::Keyword::NODES, nodes, ProcessNode);
+
+    // Elements that determine the actor type must be loaded here
     PROCESS_ELEMENT(RigDef::Keyword::ENGINE, engine, ProcessEngine);
+    PROCESS_ELEMENT(RigDef::Keyword::TURBOJETS, turbojets, ProcessTurbojet);
+    PROCESS_ELEMENT(RigDef::Keyword::PISTONPROPS, pistonprops, ProcessPistonprop);
+    PROCESS_ELEMENT(RigDef::Keyword::TURBOPROPS2, turboprops2, ProcessTurboprop2); // 'turboprops' are auto-imported as 'turboprops2'.
+    PROCESS_ELEMENT(RigDef::Keyword::SCREWPROPS, screwprops, ProcessScrewprop);
+
     PROCESS_ELEMENT(RigDef::Keyword::ENGOPTION, engoption, ProcessEngoption);
     PROCESS_ELEMENT(RigDef::Keyword::ENGTURBO, engturbo, ProcessEngturbo);
     PROCESS_ELEMENT(RigDef::Keyword::TORQUECURVE, torquecurve, ProcessTorqueCurve);
@@ -143,12 +151,14 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     PROCESS_ELEMENT(RigDef::Keyword::GUISETTINGS, guisettings, ProcessGuiSettings);
     PROCESS_ELEMENT(RigDef::Keyword::SCRIPTS, scripts, ProcessScript);
 
-    // ---------------------------- User-defined nodes ----------------------------
-
-    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, this, m_custom_resource_group));
-
-    PROCESS_ELEMENT(RigDef::Keyword::NODES, nodes, ProcessNode);
+    // Set up the built-in "renderdash" material for use in meshes.
+    // Must be done before 'props' are processed because those traditionally use it.
+    // Must be always created, there is no mechanism to declare the need for it. It can be acessed from any mesh, not only dashboard-prop.
+    // Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
+    if (m_actor->ar_driveable == TRUCK)
+    {
+        this->PrepareRenderdashMaterial();
+    }
 
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
     if (m_actor->ar_exhaust_pos_node != 0 && m_actor->ar_exhaust_dir_node != 0)
@@ -201,7 +211,6 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     PROCESS_ELEMENT(RigDef::Keyword::ROPABLES, ropables, ProcessRopable);
     PROCESS_ELEMENT(RigDef::Keyword::ANIMATORS, animators, ProcessAnimator);
     PROCESS_ELEMENT(RigDef::Keyword::FUSEDRAG, fusedrag, ProcessFusedrag);
-    PROCESS_ELEMENT(RigDef::Keyword::TURBOJETS, turbojets, ProcessTurbojet);
     PROCESS_ELEMENT(RigDef::Keyword::PROPS, props, ProcessProp);
     PROCESS_ELEMENT(RigDef::Keyword::TRACTIONCONTROL, tractioncontrol, ProcessTractionControl);
     PROCESS_ELEMENT(RigDef::Keyword::ROTATORS, rotators, ProcessRotator);
@@ -216,9 +225,6 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     PROCESS_ELEMENT(RigDef::Keyword::EXHAUSTS, exhausts, ProcessExhaust);
     PROCESS_ELEMENT(RigDef::Keyword::EXTCAMERA, extcamera, ProcessExtCamera);
     PROCESS_ELEMENT(RigDef::Keyword::CAMERARAIL, camerarail, ProcessCameraRail);
-    PROCESS_ELEMENT(RigDef::Keyword::PISTONPROPS, pistonprops, ProcessPistonprop);
-    PROCESS_ELEMENT(RigDef::Keyword::TURBOPROPS2, turboprops2, ProcessTurboprop2); // 'turboprops' are auto-imported as 'turboprops2'.
-    PROCESS_ELEMENT(RigDef::Keyword::SCREWPROPS, screwprops, ProcessScrewprop);
     PROCESS_ELEMENT(RigDef::Keyword::FIXES, fixes, ProcessFixedNode);
     PROCESS_ELEMENT(RigDef::Keyword::FLEXBODIES, flexbodies, ProcessFlexbody); // (needs GfxActor to exist)
     PROCESS_ELEMENT(RigDef::Keyword::WINGS, wings, ProcessWing); // (needs GfxActor to exist)

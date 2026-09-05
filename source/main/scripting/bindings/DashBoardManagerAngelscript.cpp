@@ -35,11 +35,11 @@ void RoR::RegisterDashBoardManager(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "void setInt(int key, int value)", asMETHOD(DashBoardManager, setInt), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "void setFloat(int key, float value)", asMETHOD(DashBoardManager, setFloat), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
-    result = engine->RegisterObjectMethod("DashBoardManagerClass", "void setString(int key, const string& value)", asFUNCTIONPR([](DashBoardManager* self, int key, const std::string& value) {
-        self->setChar(key, value.c_str()); }, (DashBoardManager*, int, const std::string&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("DashBoardManagerClass", "void setString(int key, const string value)", asFUNCTIONPR([](DashBoardManager* self, int key, const std::string value) {
+        self->setChar(key, value.c_str()); }, (DashBoardManager*, int, const std::string), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
 
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "void setEnabled(int key, bool value)", asMETHOD(DashBoardManager, setEnabled), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "DashboardDataTypes getDataType(int key)", asMETHOD(DashBoardManager, getDataType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("DashBoardManagerClass", "int getLinkIDForName(string& key)", asMETHOD(DashBoardManager, getLinkIDForName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("DashBoardManagerClass", "int getLinkIDForName(string key)", asMETHOD(DashBoardManager, getLinkIDForName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "void updateFeatures()", asMETHOD(DashBoardManager, updateFeatures), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

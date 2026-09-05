@@ -122,6 +122,7 @@ enum DashData
     DD_TRACTIONCONTROL_MODE,
     DD_ANTILOCKBRAKE_MODE,
     DD_TIES_MODE, /// ties locked
+    DD_CRUISECONTROL_ACTIVE,
 
     // water things
     DD_SCREW_THROTTLE_0, // throttle for screwprop 0

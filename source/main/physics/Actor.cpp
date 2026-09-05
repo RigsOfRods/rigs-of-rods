@@ -4266,6 +4266,9 @@ void Actor::updateDashBoards(float dt)
     }
     ar_dashboard->setInt(DD_TIES_MODE, ties_mode);
 
+    // Cruise control lamp
+    ar_dashboard->setBool(DD_CRUISECONTROL_ACTIVE, cc_mode);
+
     // Boat things now: screwprops and alike
     if (ar_num_screwprops)
     {

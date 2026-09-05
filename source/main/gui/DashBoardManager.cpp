@@ -73,6 +73,7 @@ DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(acto
     INITDATA(DD_TRACTIONCONTROL_MODE    , DC_INT  , "tractioncontrol_mode");
     INITDATA(DD_ANTILOCKBRAKE_MODE      , DC_INT  , "antilockbrake_mode");
     INITDATA(DD_TIES_MODE               , DC_INT  , "ties_mode");
+    INITDATA(DD_CRUISECONTROL_ACTIVE    , DC_BOOL , "cruisecontrol_active");
     INITDATA(DD_SCREW_THROTTLE_0        , DC_FLOAT, "screw_throttle_0");
     INITDATA(DD_SCREW_THROTTLE_1        , DC_FLOAT, "screw_throttle_1");
     INITDATA(DD_SCREW_THROTTLE_2        , DC_FLOAT, "screw_throttle_2");
@@ -857,22 +858,20 @@ void DashBoard::update(float dt)
                 float scale = (val - animation.vmin) * (animation.wmax - animation.wmin) / (animation.vmax - animation.vmin) + animation.wmin;
                 if (animation.direction == DIRECTION_UP)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - scale);
+                    finalVerticalTranslation -= scale;
                     controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
                 }
                 else if (animation.direction == DIRECTION_DOWN)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
                     controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
                 }
                 else if (animation.direction == DIRECTION_LEFT)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left - scale, controls[i].initialPosition.top);
+                    finalHorizontalTranslation -= scale;
                     controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
                 }
                 else if (animation.direction == DIRECTION_RIGHT)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
                     controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
                 }
             }
