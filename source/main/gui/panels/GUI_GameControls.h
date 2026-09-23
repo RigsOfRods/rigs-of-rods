@@ -42,6 +42,7 @@ private:
     void DrawEvent(RoR::events ev_code); //!< One line in table
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
+    void DrawExpertToolbar();
 
     // Edit bindings (used for both expert and interactive modes)
     void ApplyChanges();
@@ -50,6 +51,7 @@ private:
     void SaveMapFile();
     void ReloadMapFile();
 
+    std::string const& GetFileComboLabel(int file_id);
     bool               ShouldDisplay(event_trigger_t& trig);
 
     bool m_is_visible = false;
@@ -58,6 +60,7 @@ private:
 
     // Mode/config file selection
     int m_active_mapping_file = InputEngine::DEFAULT_MAPFILE_DEVICEID;
+    bool m_expert_mode = false;                 //!< When disabled, only "input.map" is edited.
     bool m_unsaved_changes = false;
 
     // Editing context
@@ -67,6 +70,9 @@ private:
     Str<1000>        m_active_buffer;
     bool             m_interactive_keybinding_active = false;
     bool             m_interactive_keybinding_expl = true;
+
+    // Cached display strings
+    std::string      m_text_all_active; //!< file combobox <All active values>
 };
 
 } // namespace GUI
