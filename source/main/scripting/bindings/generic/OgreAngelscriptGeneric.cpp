@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -150,6 +151,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
 }
 
@@ -554,6 +556,25 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
+static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("Timer", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(TimerDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Timer", asBEHAVE_CONSTRUCT, "void f(const Timer&in)", WRAP_OBJ_LAST(TimerCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Timer", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(TimerDefaultDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "Timer& opAssign(const Timer&in)", WRAP_OBJ_LAST(TimerAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Timer", "void reset()", WRAP_MFN(Timer, reset), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMilliseconds()", WRAP_MFN(Timer, getMilliseconds), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMicroseconds()", WRAP_MFN(Timer, getMicroseconds), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMillisecondsCPU()", WRAP_MFN(Timer, getMillisecondsCPU), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMicrosecondsCPU()", WRAP_MFN(Timer, getMicrosecondsCPU), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
 static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine)
 {
     int r;

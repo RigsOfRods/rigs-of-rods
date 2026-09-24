@@ -316,27 +316,6 @@ static SubEntityArray* EntityGetSubEntities(Entity* self)
     return new SubEntityArray(self->getSubEntities());
 }
 
-/***TIMER***/
-static void TimerDefaultConstructor(Timer* self)
-{
-    new(self) Timer();
-}
-
-static void TimerDefaultDestructor(Timer* self)
-{
-    self->~Timer();
-}
-
-static void TimerCopyConstructor(const Timer& other, Timer* self)
-{
-    new(self) Timer(other);
-}
-
-static void TimerAssignOperator(const Timer& other, Timer* self)
-{
-    (self)->operator=(other);
-}
-
 /***SCENEMANAGER***/
 
 static AngelScript::CScriptArray* SceneManager__getMovableObjectsByType(SceneManager* self, const std::string& typeName)
@@ -481,9 +460,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("TextureUnitState", sizeof(TextureUnitState), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("Timer", sizeof(Timer), asOBJ_VALUE | asGetTypeTraits<Timer>());
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);

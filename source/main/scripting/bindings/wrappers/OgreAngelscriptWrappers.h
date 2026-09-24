@@ -398,6 +398,27 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***TIMER***/
+static void TimerDefaultConstructor(Timer* self)
+{
+    new(self) Timer();
+}
+
+static void TimerDefaultDestructor(Timer* self)
+{
+    self->~Timer();
+}
+
+static void TimerCopyConstructor(const Timer& other, Timer* self)
+{
+    new(self) Timer(other);
+}
+
+static void TimerAssignOperator(const Timer& other, Timer* self)
+{
+    (self)->operator=(other);
+}
+
 /***GPUPROGRAMPARAMETERSPTR***/
 static void GpuProgramParametersPtrDefaultConstructor(GpuProgramParametersPtr* self)
 {
