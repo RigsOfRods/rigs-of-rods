@@ -117,6 +117,21 @@ static PixelBox ImageGetPixelBox(const Image& self, asUINT face, asUINT mipmap)
     return self.getPixelBox(face, mipmap);
 }
 
+static void AnimationStateCreateBlendMask(AnimationState* self, asUINT blendMaskSizeHint, float initialWeight)
+{
+    self->createBlendMask(blendMaskSizeHint, initialWeight);
+}
+
+static void AnimationStateSetBlendMaskEntry(AnimationState* self, asUINT boneHandle, float weight)
+{
+    self->setBlendMaskEntry(boneHandle, weight);
+}
+
+static float AnimationStateGetBlendMaskEntry(AnimationState* self, asUINT boneHandle)
+{
+    return self->getBlendMaskEntry(boneHandle);
+}
+
 // forward declarations, defined below
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine);
@@ -126,6 +141,8 @@ static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
+static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
@@ -149,6 +166,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 
     // dictionary/array view types, also under namespace `Ogre`
 
+    AnimationStateDict::RegisterReadonlyScriptDictViewGeneric(engine, "AnimationStateDict", "AnimationState");
     TechniqueArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TechniqueArray", "Technique");
     PassArray::RegisterReadonlyScriptArrayViewGeneric(engine, "PassArray", "Pass");
     TextureUnitStateArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TextureUnitStateArray", "TextureUnitState");
@@ -164,6 +182,8 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreQuaternionGeneric(engine);
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
+    registerOgreAnimationStateGeneric(engine);
+    registerOgreAnimationStateSetGeneric(engine);
     registerOgreTextureGeneric(engine);
     registerOgreTextureManagerGeneric(engine);
     registerOgreHardwarePixelBufferGeneric(engine);
@@ -509,6 +529,50 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine * eng
 
     r = engine->SetDefaultNamespace("Ogre::TextureManager"); ROR_ASSERT(r >= 0);
     r = engine->RegisterGlobalFunction("TextureManager& getSingleton()", WRAP_FN(TextureManager::getSingleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Register the getters and setters
+    r = engine->RegisterObjectMethod("AnimationState", "const string& getAnimationName() const", WRAP_MFN(AnimationState, getAnimationName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "float getTimePosition() const", WRAP_MFN(AnimationState, getTimePosition), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void setTimePosition(float)", WRAP_MFN(AnimationState, setTimePosition), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "float getLength() const", WRAP_MFN(AnimationState, getLength), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void setLength(float)", WRAP_MFN(AnimationState, setLength), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "float getWeight() const", WRAP_MFN(AnimationState, getWeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void setWeight(float)", WRAP_MFN(AnimationState, setWeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void addTime(float)", WRAP_MFN(AnimationState, addTime), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "bool hasEnded() const", WRAP_MFN(AnimationState, hasEnded), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "bool getEnabled() const", WRAP_MFN(AnimationState, getEnabled), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void setEnabled(bool)", WRAP_MFN(AnimationState, setEnabled), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void setLoop(bool)", WRAP_MFN(AnimationState, setLoop), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "bool getLoop() const", WRAP_MFN(AnimationState, getLoop), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "AnimationStateSet@ getParent()", WRAP_MFN(AnimationState, getParent), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void createBlendMask(uint blendMaskSizeHint, float initialWeight = 1.0f)", WRAP_OBJ_FIRST(AnimationStateCreateBlendMask), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void destroyBlendMask()", WRAP_MFN(AnimationState, destroyBlendMask), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "bool hasBlendMask() const", WRAP_MFN(AnimationState, hasBlendMask), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "void setBlendMaskEntry(uint boneHandle, float weight)", WRAP_OBJ_FIRST(AnimationStateSetBlendMaskEntry), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationState", "float getBlendMaskEntry(uint boneHandle)", WRAP_OBJ_FIRST(AnimationStateGetBlendMaskEntry), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationState@ createAnimationState(const string& in, float, float, float = 1.0f, bool = false)", WRAP_MFN(AnimationStateSet, createAnimationState), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationState@ getAnimationState(const string& in) const", WRAP_MFN(AnimationStateSet, getAnimationState), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "bool hasAnimationState(const string& in) const", WRAP_MFN(AnimationStateSet, hasAnimationState), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "void removeAnimationState(const string& in)", WRAP_MFN(AnimationStateSet, removeAnimationState), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "void removeAllAnimationStates()", WRAP_MFN(AnimationStateSet, removeAllAnimationStates), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationStateDict@ getAnimationStates()", WRAP_OBJ_LAST(AnimationStateSetGetAnimationStates), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

@@ -219,6 +219,27 @@ public:
 
     }
 
+    static void RegisterReadonlyScriptDictViewGeneric(AngelScript::asIScriptEngine* engine, const char* decl, const char* value_decl)
+    {
+        using namespace AngelScript;
+
+        int r;
+
+        r = engine->RegisterObjectType(decl, sizeof(CReadonlyScriptDictView<T>), asOBJ_REF); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_ADDREF, "void f()", WRAP_MFN(CReadonlyScriptDictView<T>, AddRef), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_RELEASE, "void f()", WRAP_MFN(CReadonlyScriptDictView<T>, Release), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+        r = engine->RegisterObjectMethod(decl, "bool exists(const string &in) const", WRAP_MFN(CReadonlyScriptDictView<T>, Exists), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "bool isEmpty() const", WRAP_MFN(CReadonlyScriptDictView<T>, IsEmpty), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "uint getSize() const", WRAP_MFN(CReadonlyScriptDictView<T>, GetSize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "array<string> @getKeys() const", WRAP_MFN(CReadonlyScriptDictView<T>, GetKeys), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+        std::string opIndexDecl = fmt::format("{}@ opIndex(const string &in)", value_decl);
+        r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), WRAP_MFN(CReadonlyScriptDictView<T>, OpIndex), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(const string &in) const", value_decl);
+        r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), WRAP_MFN(CReadonlyScriptDictView<T>, OpIndex), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    }
+
     // Angelscript refcounting
     void AddRef() { m_refcount++; }
     void Release() { m_refcount--; if (m_refcount == 0) { delete this; /* Comit suicide! This is legit in C++ and AngelScript relies on it. */ } }

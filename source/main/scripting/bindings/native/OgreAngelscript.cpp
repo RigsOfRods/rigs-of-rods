@@ -251,14 +251,6 @@ static SceneManagerInstanceDict* RootGetSceneManagers(Root* self)
     return new SceneManagerInstanceDict(self->getSceneManagers());
 }
 
-/***ANIMATIONSTATESET***/
-typedef CReadonlyScriptDictView<AnimationState*> AnimationStateDict;
-
-static AnimationStateDict* AnimationStateSetGetAnimationStates(AnimationStateSet* self)
-{
-    return new AnimationStateDict(self->getAnimationStates());
-}
-
 /***SUBENTITY***/
 typedef CReadonlyScriptArrayView<Ogre::SubEntity*> SubEntityArray;
 
@@ -378,12 +370,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Root", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("AnimationState", sizeof(AnimationState), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("AnimationStateSet", sizeof(AnimationStateSet), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("ManualObject", sizeof(ManualObject), asOBJ_REF | asOBJ_NOCOUNT);
