@@ -503,9 +503,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("AnimationStateSet", sizeof(AnimationStateSet), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
     r = engine->RegisterObjectType("ManualObject", sizeof(ManualObject), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
@@ -1182,10 +1179,7 @@ void registerOgreTextureManager(AngelScript::asIScriptEngine * engine)
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
     // Convenience wrapper to omit optional parameters
-    r = engine->RegisterObjectMethod("TextureManager", "TexturePtr load(const string&in file, const string&in rg)", asFUNCTIONPR([](TextureManager& mgr, std::string const& file, std::string const& rg){
-        try { return mgr.load(file, rg); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::TextureManager::load()"); return Ogre::TexturePtr();} 
-    }, (TextureManager& mgr, std::string const& file, std::string const& rg), TexturePtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TextureManager", "TexturePtr load(const string&in file, const string&in rg)", asFUNCTION(TextureManagerLoad), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace("Ogre::TextureManager"); ROR_ASSERT(r >= 0);
     r = engine->RegisterGlobalFunction("TextureManager& getSingleton()", asFUNCTION(TextureManager::getSingleton), asCALL_CDECL); ROR_ASSERT(r >= 0);
