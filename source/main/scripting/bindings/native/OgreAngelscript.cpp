@@ -292,14 +292,6 @@ static bool MaterialPtrIsNull(MaterialPtr* self)
     return !(self)->operator bool();
 }
 
-/***TECHNIQUE***/
-typedef CReadonlyScriptArrayView<Ogre::Pass*> PassArray;
-
-static PassArray* TechniqueGetPasses(Technique* self)
-{
-    return new PassArray(self->getPasses());
-}
-
 /***SUBENTITY***/
 typedef CReadonlyScriptArrayView<Ogre::SubEntity*> SubEntityArray;
 
@@ -443,9 +435,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("MaterialPtr", sizeof(MaterialPtr), asOBJ_VALUE | asGetTypeTraits<MaterialPtr>());
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("Technique", sizeof(Technique), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);

@@ -398,6 +398,14 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***TECHNIQUE***/
+typedef CReadonlyScriptArrayView<Ogre::Pass*> PassArray;
+
+static PassArray* TechniqueGetPasses(Technique* self)
+{
+    return new PassArray(self->getPasses());
+}
+
 /***PASS***/
 typedef CReadonlyScriptArrayView<Ogre::TextureUnitState*> TextureUnitStateArray;
 
