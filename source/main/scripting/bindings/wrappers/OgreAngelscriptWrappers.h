@@ -266,6 +266,14 @@ static HardwarePixelBufferSharedPtr TexturePtrGetBuffer(TexturePtr const& self, 
     return self->getBuffer(face, mipmap);
 }
 
+/***TEXTUREMANAGER***/
+// Convenience wrapper to omit optional parameters
+static TexturePtr TextureManagerLoad(TextureManager& mgr, std::string const& file, std::string const& rg)
+{
+    try { return mgr.load(file, rg); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::TextureManager::load()"); return Ogre::TexturePtr();}
+}
+
 /***HARDWAREPIXELBUFFER***/
 // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
 static void HardwarePixelBufferPtrDefaultConstructor(HardwarePixelBufferSharedPtr* self)

@@ -112,6 +112,7 @@ static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine)
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
@@ -128,6 +129,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
     registerOgreTextureGeneric(engine);
+    registerOgreTextureManagerGeneric(engine);
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
 }
@@ -449,6 +451,20 @@ static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", WRAP_OBJ_FIRST(TexturePtrGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", WRAP_OBJ_FIRST(TexturePtrGetNumMipmaps), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "HardwarePixelBufferPtr getBuffer(uint, uint)", WRAP_OBJ_FIRST(TexturePtrGetBuffer), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine * engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Convenience wrapper to omit optional parameters
+    r = engine->RegisterObjectMethod("TextureManager", "TexturePtr load(const string&in file, const string&in rg)", WRAP_OBJ_FIRST(TextureManagerLoad), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace("Ogre::TextureManager"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterGlobalFunction("TextureManager& getSingleton()", WRAP_FN(TextureManager::getSingleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

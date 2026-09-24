@@ -103,6 +103,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but in the version we're using it doesn't exist yet.
     r = engine->RegisterObjectType("HardwarePixelBufferPtr", sizeof(HardwarePixelBufferSharedPtr), asOBJ_VALUE | asGetTypeTraits<HardwarePixelBufferSharedPtr>());
     ROR_ASSERT(r >= 0);
