@@ -62,6 +62,10 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("quaternion", sizeof(Quaternion), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
+    // Ogre::ColourValue
+    r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
     // Object properties
 
     r = engine->RegisterObjectProperty("vector3", "float x", offsetof(Ogre::Vector3, x)); ROR_ASSERT( r >= 0 );
@@ -75,5 +79,10 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectProperty("quaternion", "float x", offsetof(Quaternion, x)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("quaternion", "float y", offsetof(Quaternion, y)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("quaternion", "float z", offsetof(Quaternion, z)); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectProperty("color", "float r", offsetof(ColourValue, r)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("color", "float g", offsetof(ColourValue, g)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("color", "float b", offsetof(ColourValue, b)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("color", "float a", offsetof(ColourValue, a)); ROR_ASSERT( r >= 0 );
 
 }

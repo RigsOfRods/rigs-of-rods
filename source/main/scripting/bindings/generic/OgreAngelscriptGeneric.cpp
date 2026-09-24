@@ -98,6 +98,7 @@ static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -110,6 +111,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreVector3Generic(engine);
     registerOgreVector2Generic(engine);
     registerOgreQuaternionGeneric(engine);
+    registerOgreColourValueGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -386,5 +388,15 @@ static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterGlobalFunction("void Intermediate(const quaternion &in, const quaternion &in, const quaternion &in, const quaternion &in, const quaternion &in)", WRAP_FN(Quaternion::Intermediate), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
     r = engine->RegisterGlobalFunction("quaternion Squad(float, const quaternion &in, const quaternion &in, const quaternion &in, const quaternion &in, bool &in)", WRAP_FN(Quaternion::Squad), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
     r = engine->RegisterGlobalFunction("quaternion nlerp(float, const quaternion &in, const quaternion &in, bool &in)", WRAP_FN(Quaternion::nlerp), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+}
+
+static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(ColourValueDefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a)", WRAP_OBJ_LAST(ColourValueInitConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color &other)", WRAP_OBJ_LAST(ColourValueCopyConstructor), asCALL_GENERIC);
 }
 
