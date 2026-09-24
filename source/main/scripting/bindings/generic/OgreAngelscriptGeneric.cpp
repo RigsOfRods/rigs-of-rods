@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreTechniqueGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine);
@@ -146,6 +147,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 
     // dictionary/array view types, also under namespace `Ogre`
 
+    PassArray::RegisterReadonlyScriptArrayViewGeneric(engine, "PassArray", "Pass");
     TextureUnitStateArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TextureUnitStateArray", "TextureUnitState");
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
@@ -164,6 +166,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgreTechniqueGeneric(engine);
     registerOgrePassGeneric(engine);
     registerOgreTextureUnitStateGeneric(engine);
     registerOgreTimerGeneric(engine);
@@ -570,6 +573,18 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", WRAP_MFN(Ogre::Image, resize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreTechniqueGeneric(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    engine->RegisterObjectMethod("Technique", "PassArray @getPasses()", WRAP_OBJ_FIRST(TechniqueGetPasses), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Technique", "Pass @createPass()", WRAP_MFN(Ogre::Technique, createPass), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Technique", "void removePass(uint16 index)", WRAP_MFN(Ogre::Technique, removePass), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Technique", "const string& getName() const", WRAP_MFN(Ogre::Technique, getName), asCALL_GENERIC);
+
+    engine->SetDefaultNamespace("");
 }
 
 static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine)
