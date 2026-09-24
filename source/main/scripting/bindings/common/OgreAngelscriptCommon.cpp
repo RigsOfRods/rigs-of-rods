@@ -42,6 +42,14 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
 
     // We start by registering some data types, so angelscript knows that they exist
 
+    // Ogre::Degree
+    r = engine->RegisterObjectType("degree", sizeof(Degree), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
+    // Ogre::Radian
+    r = engine->RegisterObjectType("radian", sizeof(Radian), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
     // Ogre::Vector3
     r = engine->RegisterObjectType("vector3", sizeof(Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );

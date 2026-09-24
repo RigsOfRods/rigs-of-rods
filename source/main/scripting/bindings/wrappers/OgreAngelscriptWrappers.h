@@ -68,4 +68,57 @@ static void Vector3InitConstructorScaler(float s, Vector3* self)
 }
 
 
+/***RADIAN***/
+static void RadianDefaultConstructor(Radian* self)
+{
+    new(self) Radian();
+}
+
+static void RadianCopyConstructor(const Radian& other, Radian* self)
+{
+    new(self) Radian(other);
+}
+
+static void RadianInitConstructor(float r, Radian* self)
+{
+    new(self) Radian(r);
+}
+
+static int RadianCmp(const Radian& a, const Radian& b)
+{
+    if (a > b)
+        return 1;
+    else if (a < b)
+        return -1;
+    else
+        return 0;
+}
+
+/***DEGREE***/
+static void DegreeDefaultConstructor(Degree* self)
+{
+    new(self) Degree();
+}
+
+static void DegreeCopyConstructor(const Degree& other, Degree* self)
+{
+    new(self) Degree(other);
+}
+
+static void DegreeInitConstructor(float r, Degree* self)
+{
+    new(self) Degree(r);
+}
+
+static int DegreeCmp(const Degree& a, const Degree& b)
+{
+    if (a > b)
+        return 1;
+    else if (a < b)
+        return -1;
+    else
+        return 0;
+}
+
+
 } // namespace OgreAngelscriptWrappers
