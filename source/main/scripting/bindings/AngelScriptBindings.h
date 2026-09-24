@@ -114,10 +114,13 @@ inline void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 //    - Ogre::Quaternion
 //    - Ogre::ColourValue
 /// defined in OgreAngelscript.cpp
+void RegisterOgreObjectsCommon(AngelScript::asIScriptEngine* engine);
 void RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine);
+void RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Ogre", engine, &RegisterOgreObjectsNative, nullptr);
+    RegisterOgreObjectsCommon(engine);
+    RegisterAngelScriptBinding("Ogre", engine, &RegisterOgreObjectsNative, &RegisterOgreObjectsGeneric);
 }
 
 /// Registers RoR::Terrain, defined in TerrainAngelscript.cpp

@@ -24,8 +24,10 @@
 /// @date   31th of July 2009
 
 #include "Application.h"
+#include "AngelScriptBindings.h"
 #include "ScriptEngine.h"
 #include "ScriptUtils.h"
+#include "wrappers/OgreAngelscriptWrappers.h"
 
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
@@ -45,30 +47,6 @@
 using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
-
-// helper/wrapper functions first
-
-/***VECTOR3***/
-static void Vector3DefaultConstructor(Vector3* self)
-{
-    new(self) Vector3();
-}
-
-static void Vector3CopyConstructor(const Vector3& other, Vector3* self)
-{
-    new(self) Vector3(other);
-}
-
-static void Vector3InitConstructor(float x, float y, float z, Vector3* self)
-{
-    new(self) Vector3(x, y, z);
-}
-
-static void Vector3InitConstructorScaler(float s, Vector3* self)
-{
-    new(self) Vector3(s, s, s);
-}
-
 /***VECTOR2***/
 static void Vector2DefaultConstructor(Vector2* self)
 {
@@ -90,22 +68,6 @@ static void Vector2InitConstructorScaler(float s, Vector2* self)
     new(self) Vector2(s, s);
 }
 
-// not used
-static int Vector3Cmp(const Vector3& a, const Vector3& b)
-{
-    // If a is greater than b, then we return a positive number
-    if (a > b)
-        return 1;
-    // If a is smaller than b, then we return a negative number
-    else if (a < b)
-        return -1;
-    // If a is equal to b, then we return zero
-    else if (a == b)
-        return 0;
-    // Now, what are we supposed to return if none of the above is true???
-    else
-        return -2; // definitly not this, this is interpreted as 'smaller than'...
-}
 
 /***RADIAN***/
 static void RadianDefaultConstructor(Radian* self)
@@ -686,6 +648,7 @@ static AngelScript::CScriptArray* SceneManager__getMovableObjectsByType(SceneMan
         return nullptr;
     }
 }
+using namespace OgreAngelscriptWrappers;
 
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
@@ -729,8 +692,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 {
     int r;
 
-    // We start by registering some data types, so angelscript knows that they exist
-
     // Ogre::Degree
     r = engine->RegisterObjectType("degree", sizeof(Degree), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
@@ -741,10 +702,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 
     // Ogre::Vector2
     r = engine->RegisterObjectType("vector2", sizeof(Vector2), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
-    ROR_ASSERT( r >= 0 );
-
-    // Ogre::Vector3
-    r = engine->RegisterObjectType("vector3", sizeof(Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
     // Ogre::Quaternion
@@ -967,14 +924,6 @@ void registerOgreVector3(AngelScript::asIScriptEngine* engine)
 {
     int r;
 
-    // Register the object properties
-    r = engine->RegisterObjectProperty("vector3", "float x", offsetof(Ogre::Vector3, x));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("vector3", "float y", offsetof(Ogre::Vector3, y));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("vector3", "float z", offsetof(Ogre::Vector3, z));
-    ROR_ASSERT( r >= 0 );
-
     // Register the object constructors
     r = engine->RegisterObjectBehaviour("vector3", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(Vector3DefaultConstructor), asCALL_CDECL_OBJLAST);
     ROR_ASSERT( r >= 0 );
@@ -1035,8 +984,6 @@ void registerOgreVector3(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("vector3", "vector3 &opDivAssign(float)", asMETHODPR(Vector3,operator/=,(const float),Vector3&), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-
-    // r = engine->RegisterObjectMethod("vector3", "int opCmp(const vector3 &in) const",        asFUNCTION(Vector3Cmp), asCALL_CDECL_OBJFIRST); ROR_ASSERT( r >= 0 );
 
     // Register the object methods
     // r = engine->RegisterObjectMethod("vector3", "void swap(vector3 &inout)",  asMETHOD(Vector3,swap), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
