@@ -1058,7 +1058,7 @@ void registerOgreVector3(AngelScript::asIScriptEngine* engine)
 
     r = engine->RegisterObjectMethod("vector3", "float normalise()", asMETHOD(Vector3,normalise), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("vector3", "float crossProduct(const vector3 &in) const", asMETHOD(Vector3,crossProduct), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod("vector3", "vector3 crossProduct(const vector3 &in) const", asMETHOD(Vector3,crossProduct), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("vector3", "vector3 midPoint(const vector3 &in) const", asMETHOD(Vector3,midPoint), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
