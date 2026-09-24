@@ -70,26 +70,6 @@ static void HardwarePixelBufferPtrAssignOperator(const HardwarePixelBufferShared
     (self)->operator=(other);
 }
 
-/***PIXELBOX***/
-static void PixelBoxDefaultConstructor(PixelBox* self)
-{
-    new (self) PixelBox();
-}
-
-static void PixelBoxCopyConstructor(const PixelBox& other, PixelBox* self)
-{
-    new (self) PixelBox(other);
-}
-
-static void PixelBoxDestructor(PixelBox* self)
-{
-    (self)->~PixelBox();
-}
-
-static void PixelBoxAssignOperator(const PixelBox& other, PixelBox* self)
-{
-    (self)->operator=(other);
-}
 
 /***IMAGE***/
 static void ImageDefaultConstructor(Image* self)
@@ -557,9 +537,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 
     // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but in the version we're using it doesn't exist yet.
     r = engine->RegisterObjectType("HardwarePixelBufferPtr", sizeof(HardwarePixelBufferSharedPtr), asOBJ_VALUE | asGetTypeTraits<HardwarePixelBufferSharedPtr>());
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<MeshPtr>());
@@ -1711,8 +1688,6 @@ void registerOgreManualObject(AngelScript::asIScriptEngine* engine)
     engine->SetDefaultNamespace("");
 }
 
-static PixelBox PIXELBOX_DUMMY = PixelBox(); // for returning as `const&`
-
 void registerOgreHardwarePixelBuffer(AngelScript::asIScriptEngine* engine)
 {
     int r;
@@ -1775,17 +1750,11 @@ void registerOgrePixelBox(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("PixelBox", "void setColourAt(const color& c, uint32 x, uint32 y, uint32 z)", asMETHOD(PixelBox, setColourAt), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     // Inherited methods must have wrappers - see AngelScript doc
-    r = engine->RegisterObjectMethod("PixelBox", "uint getWidth()",  asFUNCTIONPR([](const Ogre::PixelBox& self) -> asUINT {
-        return self.getWidth();
-        }, (const Ogre::PixelBox&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "uint getWidth()",  asFUNCTION(PixelBoxGetWidth), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("PixelBox", "uint getHeight()", asFUNCTIONPR([](const Ogre::PixelBox& self) -> asUINT {
-        return self.getHeight();
-        }, (const Ogre::PixelBox&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "uint getHeight()", asFUNCTION(PixelBoxGetHeight), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("PixelBox", "uint getDepth()",  asFUNCTIONPR([](const Ogre::PixelBox& self) -> asUINT {
-        return self.getDepth();
-        } , (const Ogre::PixelBox&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "uint getDepth()",  asFUNCTION(PixelBoxGetDepth), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

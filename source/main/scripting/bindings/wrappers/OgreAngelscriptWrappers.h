@@ -266,4 +266,43 @@ static HardwarePixelBufferSharedPtr TexturePtrGetBuffer(TexturePtr const& self, 
     return self->getBuffer(face, mipmap);
 }
 
+static PixelBox PIXELBOX_DUMMY = PixelBox(); // for returning as `const&`
+
+/***PIXELBOX***/
+static void PixelBoxDefaultConstructor(PixelBox* self)
+{
+    new (self) PixelBox();
+}
+
+static void PixelBoxCopyConstructor(const PixelBox& other, PixelBox* self)
+{
+    new (self) PixelBox(other);
+}
+
+static void PixelBoxDestructor(PixelBox* self)
+{
+    (self)->~PixelBox();
+}
+
+static void PixelBoxAssignOperator(const PixelBox& other, PixelBox* self)
+{
+    (self)->operator=(other);
+}
+
+// Inherited methods must have wrappers - see AngelScript doc
+static asUINT PixelBoxGetWidth(const Ogre::PixelBox& self)
+{
+    return self.getWidth();
+}
+
+static asUINT PixelBoxGetHeight(const Ogre::PixelBox& self)
+{
+    return self.getHeight();
+}
+
+static asUINT PixelBoxGetDepth(const Ogre::PixelBox& self)
+{
+    return self.getDepth();
+}
+
 } // namespace OgreAngelscriptWrappers

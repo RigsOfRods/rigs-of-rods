@@ -102,6 +102,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
 
     r = engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
     ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
+    ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+
 }
