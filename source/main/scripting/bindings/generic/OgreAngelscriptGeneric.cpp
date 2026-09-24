@@ -57,8 +57,31 @@ static Vector3 Vector3OpAddUnary(const Vector3& self)
     return +self;
 }
 
+
+static Radian& RadianAssignFloat(Radian& self, float f)
+{
+    return self = f;
+}
+
+static Radian RadianOpAddUnary(const Radian& self)
+{
+    return +self;
+}
+
+static Degree& DegreeAssignFloat(Degree& self, float f)
+{
+    return self = f;
+}
+
+static Degree DegreeOpAddUnary(const Degree& self)
+{
+    return +self;
+}
+
 // forward declarations, defined below
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
+static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -66,6 +89,8 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     int r;
 
     // NOTE: data types, enums and object properties are registered in RegisterOgreObjectsCommon()
+    registerOgreRadianGeneric(engine);
+    registerOgreDegreeGeneric(engine);
     registerOgreVector3Generic(engine);
 }
 
@@ -136,5 +161,102 @@ static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("vector3", "bool directionEquals(const vector3 &in, radian &in) const", WRAP_MFN(Vector3,directionEquals), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
 
     r = engine->RegisterObjectMethod("vector3", "bool isNaN() const", WRAP_MFN(Vector3,isNaN), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+}
+
+
+static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("radian", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(RadianDefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("radian", asBEHAVE_CONSTRUCT, "void f(float)", WRAP_OBJ_LAST(RadianInitConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("radian", asBEHAVE_CONSTRUCT, "void f(const radian &in)", WRAP_OBJ_LAST(RadianCopyConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object operators
+    r = engine->RegisterObjectMethod("radian", "radian &opAssign(const radian &in)", WRAP_MFN_PR(Radian, operator =, (const Radian &), Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian &opAssign(const float)", WRAP_OBJ_FIRST(RadianAssignFloat), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian &opAssign(const degree &in)", WRAP_MFN_PR(Radian, operator =, (const Degree &), Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian opAdd() const", WRAP_OBJ_FIRST(RadianOpAddUnary), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian opAdd(const radian &in) const", WRAP_MFN_PR(Radian, operator+,(const Radian&) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian opAdd(const degree &in) const", WRAP_MFN_PR(Radian, operator+,(const Degree&) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian &opAddAssign(const radian &in)", WRAP_MFN_PR(Radian,operator+=,(const Radian &),Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian &opAddAssign(const degree &in)", WRAP_MFN_PR(Radian,operator+=,(const Degree &),Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian opSub() const", WRAP_MFN_PR(Radian, operator-,() const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian opSub(const radian &in) const", WRAP_MFN_PR(Radian, operator-,(const Radian&) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian opSub(const degree &in) const", WRAP_MFN_PR(Radian, operator-,(const Degree&) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian &opSubAssign(const radian &in)", WRAP_MFN_PR(Radian,operator-=,(const Radian &),Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian &opSubAssign(const degree &in)", WRAP_MFN_PR(Radian,operator-=,(const Degree &),Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian opMul(float) const", WRAP_MFN_PR(Radian, operator*,(float) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "radian opMul(const radian &in) const", WRAP_MFN_PR(Radian, operator*,(const Radian&) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian &opMulAssign(float)", WRAP_MFN_PR(Radian,operator*=,(float),Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "radian opDiv(float) const", WRAP_MFN_PR(Radian, operator/,(float) const, Radian), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // NOTE: mirrors the native binding, which maps opDivAssign to operator*= (!)
+    r = engine->RegisterObjectMethod("radian", "radian &opDivAssign(float)", WRAP_MFN_PR(Radian,operator*=,(float),Radian&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "int opCmp(const radian &in) const", WRAP_OBJ_FIRST(RadianCmp), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("radian", "bool opEquals(const radian &in) const", WRAP_MFN_PR(Radian, operator==,(const Radian&) const, bool), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object methods
+    r = engine->RegisterObjectMethod("radian", "float valueDegrees() const", WRAP_MFN(Radian,valueDegrees), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "float valueRadians() const", WRAP_MFN(Radian,valueRadians), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("radian", "float valueAngleUnits() const", WRAP_MFN(Radian,valueAngleUnits), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+}
+
+static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("degree", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(DegreeDefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("degree", asBEHAVE_CONSTRUCT, "void f(float)", WRAP_OBJ_LAST(DegreeInitConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("degree", asBEHAVE_CONSTRUCT, "void f(const degree &in)", WRAP_OBJ_LAST(DegreeCopyConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object operators
+    r = engine->RegisterObjectMethod("degree", "degree &opAssign(const degree &in)", WRAP_MFN_PR(Degree, operator =, (const Degree &), Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree &opAssign(float)", WRAP_OBJ_FIRST(DegreeAssignFloat), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree &opAssign(const radian &in)", WRAP_MFN_PR(Degree, operator =, (const Radian &), Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree opAdd() const", WRAP_OBJ_FIRST(DegreeOpAddUnary), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree opAdd(const degree &in) const", WRAP_MFN_PR(Degree, operator+,(const Degree&) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree opAdd(const radian &in) const", WRAP_MFN_PR(Degree, operator+,(const Radian&) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree &opAddAssign(const degree &in)", WRAP_MFN_PR(Degree,operator+=,(const Degree &),Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree &opAddAssign(const radian &in)", WRAP_MFN_PR(Degree,operator+=,(const Radian &),Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree opSub() const", WRAP_MFN_PR(Degree, operator-,() const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree opSub(const degree &in) const", WRAP_MFN_PR(Degree, operator-,(const Degree&) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree opSub(const radian &in) const", WRAP_MFN_PR(Degree, operator-,(const Radian&) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree &opSubAssign(const degree &in)", WRAP_MFN_PR(Degree,operator-=,(const Degree &),Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree &opSubAssign(const radian &in)", WRAP_MFN_PR(Degree,operator-=,(const Radian &),Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree opMul(float) const", WRAP_MFN_PR(Degree, operator*,(float) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "degree opMul(const degree &in) const", WRAP_MFN_PR(Degree, operator*,(const Degree&) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree &opMulAssign(float)", WRAP_MFN_PR(Degree,operator*=,(float),Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "degree opDiv(float) const", WRAP_MFN_PR(Degree, operator/,(float) const, Degree), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // NOTE: mirrors the native binding, which maps opDivAssign to operator*= (!)
+    r = engine->RegisterObjectMethod("degree", "degree &opDivAssign(float)", WRAP_MFN_PR(Degree,operator*=,(float),Degree&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "int opCmp(const degree &in) const", WRAP_OBJ_FIRST(DegreeCmp), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("degree", "bool opEquals(const degree &in) const", WRAP_MFN_PR(Degree, operator==,(const Degree&) const, bool), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object methods
+    r = engine->RegisterObjectMethod("degree", "float valueRadians() const", WRAP_MFN(Degree,valueRadians), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "float valueDegrees() const", WRAP_MFN(Degree,valueDegrees), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("degree", "float valueAngleUnits() const", WRAP_MFN(Degree,valueAngleUnits), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
 }
 
