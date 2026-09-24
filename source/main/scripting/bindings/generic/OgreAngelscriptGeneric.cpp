@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
@@ -151,6 +152,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgreTextureUnitStateGeneric(engine);
     registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
 }
@@ -556,6 +558,17 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
+static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    engine->RegisterObjectMethod("TextureUnitState", "const string& getName() const", WRAP_MFN(Ogre::TextureUnitState, getName), asCALL_GENERIC);
+    engine->RegisterObjectMethod("TextureUnitState", "void setTexture(const TexturePtr&in)", WRAP_MFN_PR(Ogre::TextureUnitState, setTexture, (const TexturePtr&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("TextureUnitState", "const TexturePtr& _getTexturePtr() const", WRAP_MFN_PR(Ogre::TextureUnitState, _getTexturePtr, (void) const, const TexturePtr&), asCALL_GENERIC);
+
+    engine->SetDefaultNamespace("");
+}
+
 static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine)
 {
     int r;

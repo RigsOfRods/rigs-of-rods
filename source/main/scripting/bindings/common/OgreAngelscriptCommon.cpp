@@ -116,6 +116,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("TextureUnitState", sizeof(TextureUnitState), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     r = engine->RegisterObjectType("Timer", sizeof(Timer), asOBJ_VALUE | asGetTypeTraits<Timer>());
     ROR_ASSERT(r >= 0);
 
