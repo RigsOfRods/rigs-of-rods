@@ -92,6 +92,16 @@ static Degree DegreeOpAddUnary(const Degree& self)
     return +self;
 }
 
+static ColourValue PixelBoxGetColourAt(const PixelBox& self, asUINT x, asUINT y, asUINT z)
+{
+    return self.getColourAt(x, y, z);
+}
+
+static void PixelBoxSetColourAt(PixelBox& self, const ColourValue& c, asUINT x, asUINT y, asUINT z)
+{
+    self.setColourAt(c, x, y, z);
+}
+
 // forward declarations, defined below
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine);
@@ -102,6 +112,7 @@ static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine)
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 {
@@ -116,6 +127,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
     registerOgreTextureGeneric(engine);
+    registerOgrePixelBoxGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -434,6 +446,27 @@ static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", WRAP_OBJ_FIRST(TexturePtrGetWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", WRAP_OBJ_FIRST(TexturePtrGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", WRAP_OBJ_FIRST(TexturePtrGetNumMipmaps), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("PixelBox", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(PixelBoxDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("PixelBox", asBEHAVE_CONSTRUCT, "void f(const PixelBox&in)", WRAP_OBJ_LAST(PixelBoxCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("PixelBox", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(PixelBoxDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "PixelBox& opAssign(const PixelBox&in)", WRAP_OBJ_LAST(PixelBoxAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("PixelBox", "color getColourAt(uint32 x, uint32 y, uint32 z)", WRAP_OBJ_FIRST(PixelBoxGetColourAt), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "void setColourAt(const color& c, uint32 x, uint32 y, uint32 z)", WRAP_OBJ_FIRST(PixelBoxSetColourAt), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Inherited methods must have wrappers - see AngelScript doc
+    r = engine->RegisterObjectMethod("PixelBox", "uint getWidth()",  WRAP_OBJ_FIRST(PixelBoxGetWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "uint getHeight()", WRAP_OBJ_FIRST(PixelBoxGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "uint getDepth()",  WRAP_OBJ_FIRST(PixelBoxGetDepth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
