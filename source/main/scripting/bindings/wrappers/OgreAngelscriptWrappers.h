@@ -120,5 +120,35 @@ static int DegreeCmp(const Degree& a, const Degree& b)
         return 0;
 }
 
+/***QUATERNION***/
+static void QuaternionDefaultConstructor(Quaternion* self)
+{
+    new(self) Quaternion();
+}
+
+static void QuaternionCopyConstructor(const Quaternion& other, Quaternion* self)
+{
+    new(self) Quaternion(other.w, other.x, other.y, other.z);
+}
+
+static void QuaternionInitConstructor1(const Radian& rfAngle, const Vector3& rkAxis, Quaternion* self)
+{
+    new(self) Quaternion(rfAngle, rkAxis);
+}
+
+static void QuaternionInitConstructor2(float w, float x, float y, float z, Quaternion* self)
+{
+    new(self) Quaternion(w, x, y, z);
+}
+
+static void QuaternionInitConstructor3(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis, Quaternion* self)
+{
+    new(self) Quaternion(xaxis, yaxis, zaxis);
+}
+
+static void QuaternionInitConstructorScaler(float s, Quaternion* self)
+{
+    new(self) Quaternion(s, s, s, s);
+}
 
 } // namespace OgreAngelscriptWrappers

@@ -70,43 +70,6 @@ static void Vector2InitConstructorScaler(float s, Vector2* self)
 
 
 
-/***QUATERNION***/
-static void QuaternionDefaultConstructor(Quaternion* self)
-{
-    new(self) Quaternion();
-}
-
-static void QuaternionCopyConstructor(const Quaternion& other, Quaternion* self)
-{
-    new(self) Quaternion(other.w, other.x, other.y, other.z);
-}
-
-static void QuaternionInitConstructor1(const Radian& rfAngle, const Vector3& rkAxis, Quaternion* self)
-{
-    new(self) Quaternion(rfAngle, rkAxis);
-}
-
-static void QuaternionInitConstructor2(float w, float x, float y, float z, Quaternion* self)
-{
-    new(self) Quaternion(w, x, y, z);
-}
-
-static void QuaternionInitConstructor3(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis, Quaternion* self)
-{
-    new(self) Quaternion(xaxis, yaxis, zaxis);
-}
-
-// not used
-static void QuaternionInitConstructor5(float val, Quaternion* self)
-{
-    new(self) Quaternion((Ogre::Real *)&val);
-}
-
-static void QuaternionInitConstructorScaler(float s, Quaternion* self)
-{
-    new(self) Quaternion(s, s, s, s);
-}
-
 /***COLOURVALUE***/
 static void ColourValueDefaultConstructor(ColourValue* self)
 {
@@ -644,11 +607,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     // Ogre::Vector2
     r = engine->RegisterObjectType("vector2", sizeof(Vector2), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
-
-    // Ogre::Quaternion
-    r = engine->RegisterObjectType("quaternion", sizeof(Quaternion), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
-    ROR_ASSERT( r >= 0 );
-
     // Ogre::ColourValue
     r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
@@ -1259,19 +1217,6 @@ void registerOgreDegree(AngelScript::asIScriptEngine* engine)
 void registerOgreQuaternion(AngelScript::asIScriptEngine* engine)
 {
     int r;
-
-    // Register the object properties
-    r = engine->RegisterObjectProperty("quaternion", "float w", offsetof(Quaternion, w));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("quaternion", "float x", offsetof(Quaternion, x));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("quaternion", "float y", offsetof(Quaternion, y));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("quaternion", "float z", offsetof(Quaternion, z));
-    ROR_ASSERT( r >= 0 );
-    // r = engine->RegisterObjectProperty("quaternion", "float ms_fEpsilon", offsetof(Quaternion, ms_fEpsilon)); ROR_ASSERT( r >= 0 );
-    // r = engine->RegisterObjectProperty("quaternion", "quaternion ZERO", offsetof(Quaternion, ZERO)); ROR_ASSERT( r >= 0 );
-    // r = engine->RegisterObjectProperty("quaternion", "quaternion IDENTITY", offsetof(Quaternion, IDENTITY)); ROR_ASSERT( r >= 0 );
 
     // Register the object constructors
     r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(QuaternionDefaultConstructor), asCALL_CDECL_OBJLAST);

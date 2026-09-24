@@ -58,6 +58,11 @@ static Vector3 Vector3OpAddUnary(const Vector3& self)
 }
 
 
+static float QuaternionOpIndex(const Quaternion& self, int i)
+{
+    return self[i];
+}
+
 static Radian& RadianAssignFloat(Radian& self, float f)
 {
     return self = f;
@@ -82,6 +87,7 @@ static Degree DegreeOpAddUnary(const Degree& self)
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -92,6 +98,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreRadianGeneric(engine);
     registerOgreDegreeGeneric(engine);
     registerOgreVector3Generic(engine);
+    registerOgreQuaternionGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -258,5 +265,50 @@ static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("degree", "float valueRadians() const", WRAP_MFN(Degree,valueRadians), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("degree", "float valueDegrees() const", WRAP_MFN(Degree,valueDegrees), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("degree", "float valueAngleUnits() const", WRAP_MFN(Degree,valueAngleUnits), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+}
+
+static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(QuaternionDefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f(const radian &in, const vector3 &in)", WRAP_OBJ_LAST(QuaternionInitConstructor1), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f(float, float, float, float)", WRAP_OBJ_LAST(QuaternionInitConstructor2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f(const vector3 &in, const vector3 &in, const vector3 &in)", WRAP_OBJ_LAST(QuaternionInitConstructor3), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f(float)", WRAP_OBJ_LAST(QuaternionInitConstructorScaler), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("quaternion", asBEHAVE_CONSTRUCT, "void f(const quaternion &in)", WRAP_OBJ_LAST(QuaternionCopyConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object operators
+    r = engine->RegisterObjectMethod("quaternion", "float opIndex(int) const", WRAP_OBJ_FIRST(QuaternionOpIndex), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion &opAssign(const quaternion &in)", WRAP_MFN_PR(Quaternion, operator =, (const Quaternion &), Quaternion&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion opAdd(const quaternion &in) const", WRAP_MFN_PR(Quaternion, operator+,(const Quaternion&) const, Quaternion), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion opSub(const quaternion &in) const", WRAP_MFN_PR(Quaternion, operator-,(const Quaternion&) const, Quaternion), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion opMul(const quaternion &in) const", WRAP_MFN_PR(Quaternion, operator*,(const Quaternion&) const, Quaternion), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion opMul(float) const", WRAP_MFN_PR(Quaternion, operator*,(float) const, Quaternion), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion opSub() const", WRAP_MFN_PR(Quaternion, operator-,() const, Quaternion), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "bool opEquals(const quaternion &in) const", WRAP_MFN_PR(Quaternion, operator==,(const Quaternion&) const, bool), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "vector3 opMul(const vector3 &in) const", WRAP_MFN_PR(Quaternion, operator*,(const Vector3&) const, Vector3), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object methods
+    r = engine->RegisterObjectMethod("quaternion", "float Dot(const quaternion &in) const", WRAP_MFN(Quaternion,Dot), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "float Norm() const", WRAP_MFN(Quaternion,Norm), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "float normalise()", WRAP_MFN(Quaternion,normalise), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion Inverse() const", WRAP_MFN(Quaternion,Inverse), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion UnitInverse() const", WRAP_MFN(Quaternion,UnitInverse), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion Exp() const", WRAP_MFN(Quaternion,Exp), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "quaternion Log() const", WRAP_MFN(Quaternion,Log), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "radian getRoll(bool reprojectAxis = true) const", WRAP_MFN(Quaternion,getRoll), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "radian getPitch(bool reprojectAxis = true) const", WRAP_MFN(Quaternion,getPitch), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "radian getYaw(bool reprojectAxis = true) const", WRAP_MFN(Quaternion,getYaw), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "bool equals(const quaternion &in, const radian &in) const", WRAP_MFN(Quaternion,equals), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("quaternion", "bool isNaN() const", WRAP_MFN(Quaternion,isNaN), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register some static methods
+    r = engine->RegisterGlobalFunction("quaternion Slerp(float, const quaternion &in, const quaternion &in, bool &in)", WRAP_FN_PR(Quaternion::Slerp,(Real fT, const Quaternion&, const Quaternion&, bool), Quaternion), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterGlobalFunction("quaternion SlerpExtraSpins(float, const quaternion &in, const quaternion &in, int &in)", WRAP_FN(Quaternion::SlerpExtraSpins), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterGlobalFunction("void Intermediate(const quaternion &in, const quaternion &in, const quaternion &in, const quaternion &in, const quaternion &in)", WRAP_FN(Quaternion::Intermediate), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterGlobalFunction("quaternion Squad(float, const quaternion &in, const quaternion &in, const quaternion &in, const quaternion &in, bool &in)", WRAP_FN(Quaternion::Squad), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterGlobalFunction("quaternion nlerp(float, const quaternion &in, const quaternion &in, bool &in)", WRAP_FN(Quaternion::nlerp), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
 }
 
