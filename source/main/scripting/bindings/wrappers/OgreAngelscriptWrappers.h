@@ -449,6 +449,19 @@ static void MaterialPtrRemoveTechnique(MaterialPtr const& self, uint16_t index)
     catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::removeTechnique()"); }
 }
 
+/***MATERIALMANAGER***/
+static MaterialPtr MaterialManagerGetByName(MaterialManager& mgr, std::string const& file, std::string const& rg)
+{
+    try { return mgr.getByName(file, rg); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MaterialManager::getByName()"); return Ogre::MaterialPtr();}
+}
+
+static MaterialPtr MaterialManagerCreate(MaterialManager& mgr, std::string const& file, std::string const& rg)
+{
+    try { return mgr.create(file, rg); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MaterialManager::create()"); return Ogre::MaterialPtr(); }
+}
+
 /***TECHNIQUE***/
 typedef CReadonlyScriptArrayView<Ogre::Pass*> PassArray;
 
