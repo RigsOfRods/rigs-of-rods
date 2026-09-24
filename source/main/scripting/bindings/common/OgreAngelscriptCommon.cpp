@@ -116,6 +116,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("GpuProgramParametersPtr", sizeof(GpuProgramParametersPtr), asOBJ_VALUE | asGetTypeTraits<GpuProgramParametersPtr>());
+    ROR_ASSERT(r >= 0);
+
     // enums, also under namespace `Ogre`
 
     r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more

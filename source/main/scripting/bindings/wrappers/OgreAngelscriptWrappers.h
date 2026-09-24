@@ -398,4 +398,154 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***GPUPROGRAMPARAMETERSPTR***/
+static void GpuProgramParametersPtrDefaultConstructor(GpuProgramParametersPtr* self)
+{
+    new (self) GpuProgramParametersPtr();
+}
+
+static void GpuProgramParametersPtrCopyConstructor(const GpuProgramParametersPtr& other, GpuProgramParametersPtr* self)
+{
+    new (self) GpuProgramParametersPtr(other);
+}
+
+static void GpuProgramParametersPtrDestructor(GpuProgramParametersPtr* self)
+{
+    (self)->~GpuProgramParametersPtr();
+}
+
+static void GpuProgramParametersPtrAssignOperator(const GpuProgramParametersPtr& other, GpuProgramParametersPtr* self)
+{
+    (self)->operator=(other);
+}
+
+static bool GpuProgramParametersPtrIsNull(GpuProgramParametersPtr* self)
+{
+    return !(self)->operator bool();
+}
+
+// Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+
+// > setConstant (scalar)
+static void GpuProgramParametersPtrSetConstantFloat(GpuProgramParametersPtr const& self, asUINT index, float val)
+{
+    try { self->setConstant(index, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, float)"); }
+}
+
+static void GpuProgramParametersPtrSetConstantVector3(GpuProgramParametersPtr const& self, asUINT index, const Ogre::Vector3& val)
+{
+    try { self->setConstant(index, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, vector3)"); }
+}
+
+static void GpuProgramParametersPtrSetConstantVector2(GpuProgramParametersPtr const& self, asUINT index, const Ogre::Vector2& val)
+{
+    try { self->setConstant(index, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, vector2)"); }
+}
+
+static void GpuProgramParametersPtrSetConstantColourValue(GpuProgramParametersPtr const& self, asUINT index, const Ogre::ColourValue& val)
+{
+    try { self->setConstant(index, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, color)"); }
+}
+
+// > setConstant (vector)
+static void GpuProgramParametersPtrSetConstantFloatArray(GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("float"));
+    try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<float>)"); }
+}
+
+static void GpuProgramParametersPtrSetConstantVector3Array(GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector3"));
+    try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()*3); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<vector3>)"); }
+}
+
+static void GpuProgramParametersPtrSetConstantVector2Array(GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector2"));
+    try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()*2); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<vector2>)"); }
+}
+
+static void GpuProgramParametersPtrSetConstantColourValueArray(GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("color"));
+    try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()*4); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<color>)"); }
+}
+
+// > setNamedConstant (scalar)
+static void GpuProgramParametersPtrSetNamedConstantFloat(GpuProgramParametersPtr const& self, const std::string& name, float val)
+{
+    try { self->setNamedConstant(name, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, float)"); }
+}
+
+static void GpuProgramParametersPtrSetNamedConstantVector3(GpuProgramParametersPtr const& self, const std::string& name, const Ogre::Vector3& val)
+{
+    try { self->setNamedConstant(name, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, vector3)"); }
+}
+
+static void GpuProgramParametersPtrSetNamedConstantVector2(GpuProgramParametersPtr const& self, const std::string& name, const Ogre::Vector2& val)
+{
+    try { self->setNamedConstant(name, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, vector2)"); }
+}
+
+static void GpuProgramParametersPtrSetNamedConstantColourValue(GpuProgramParametersPtr const& self, const std::string& name, const Ogre::ColourValue& val)
+{
+    try { self->setNamedConstant(name, val); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, color)"); }
+}
+
+// > setNamedConstant (vector)
+static void GpuProgramParametersPtrSetNamedConstantFloatArray(GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("float"));
+    try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<float>)"); }
+}
+
+static void GpuProgramParametersPtrSetNamedConstantVector3Array(GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector3"));
+    try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*3); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<vector3>)"); }
+}
+
+static void GpuProgramParametersPtrSetNamedConstantVector2Array(GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector2"));
+    try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*2); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<vector2>)"); }
+}
+
+static void GpuProgramParametersPtrSetNamedConstantColourValueArray(GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals)
+{
+    ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("color"));
+    try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*4); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<color>)"); }
+}
+
+static CScriptArray* GpuProgramParametersPtr__getNamedConstants(GpuProgramParametersPtr const& self)
+{
+    try {
+        std::vector<std::string> keys;
+        const Ogre::GpuNamedConstants& namedConstants = self->getConstantDefinitions();
+        for (auto& pair : namedConstants.map)
+            keys.push_back(pair.first);
+        return RoR::VectorToScriptArray(keys, "string");
+    }
+    catch (...) {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::__getNamedConstants()");
+        return nullptr; }
+}
+
 } // namespace OgreAngelscriptWrappers

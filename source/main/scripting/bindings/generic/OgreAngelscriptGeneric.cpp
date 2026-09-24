@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 {
@@ -149,6 +150,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgreGpuProgramParametersGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -552,3 +554,47 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
+static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Note: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
+    r = engine->RegisterObjectBehaviour("GpuProgramParametersPtr", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(GpuProgramParametersPtrDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("GpuProgramParametersPtr", asBEHAVE_CONSTRUCT, "void f(const GpuProgramParametersPtr&in)", WRAP_OBJ_LAST(GpuProgramParametersPtrCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("GpuProgramParametersPtr", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(GpuProgramParametersPtrDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "GpuProgramParametersPtr& opAssign(const GpuProgramParametersPtr&in)", WRAP_OBJ_LAST(GpuProgramParametersPtrAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "bool isNull()", WRAP_OBJ_LAST(GpuProgramParametersPtrIsNull), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+
+    // > setConstant (scalar)
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, float val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantFloat), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const vector3& val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantVector3), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const vector2& val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantVector2), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const color& val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantColourValue), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // > setConstant (vector)
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<float>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantFloatArray), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<vector3>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantVector3Array), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<vector2>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantVector2Array), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<color>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetConstantColourValueArray), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // > setNamedConstant (scalar)
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, float val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantFloat), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const vector3& val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantVector3), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const vector2& val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantVector2), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const color& val)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantColourValue), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // > setNamedConstant (vector)
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<float>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantFloatArray), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<vector3>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantVector3Array), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<vector2>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantVector2Array), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<color>@ vals)", WRAP_OBJ_FIRST(GpuProgramParametersPtrSetNamedConstantColourValueArray), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "array<string>@ __getNamedConstants()", WRAP_OBJ_FIRST(GpuProgramParametersPtr__getNamedConstants), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
