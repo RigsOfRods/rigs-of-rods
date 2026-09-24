@@ -337,32 +337,6 @@ static void TimerAssignOperator(const Timer& other, Timer* self)
     (self)->operator=(other);
 }
 
-/***GPUPROGRAMPARAMETERSPTR***/
-static void GpuProgramParametersPtrDefaultConstructor(GpuProgramParametersPtr* self)
-{
-    new (self) GpuProgramParametersPtr();
-}
-
-static void GpuProgramParametersPtrCopyConstructor(const GpuProgramParametersPtr& other, GpuProgramParametersPtr* self)
-{
-    new (self) GpuProgramParametersPtr(other);
-}
-
-static void GpuProgramParametersPtrDestructor(GpuProgramParametersPtr* self)
-{
-    (self)->~GpuProgramParametersPtr();
-}
-
-static void GpuProgramParametersPtrAssignOperator(const GpuProgramParametersPtr& other, GpuProgramParametersPtr* self)
-{
-    (self)->operator=(other);
-}
-
-static bool GpuProgramParametersPtrIsNull(GpuProgramParametersPtr* self)
-{
-    return !(self)->operator bool();
-}
-
 /***SCENEMANAGER***/
 
 static AngelScript::CScriptArray* SceneManager__getMovableObjectsByType(SceneManager* self, const std::string& typeName)
@@ -510,9 +484,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Timer", sizeof(Timer), asOBJ_VALUE | asGetTypeTraits<Timer>());
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("GpuProgramParametersPtr", sizeof(GpuProgramParametersPtr), asOBJ_VALUE | asGetTypeTraits<GpuProgramParametersPtr>());
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);
@@ -1928,97 +1899,30 @@ void registerOgreGpuProgramParameters(AngelScript::asIScriptEngine* engine)
     // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
 
     // > setConstant (scalar)
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, float val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, float val) {
-        try { self->setConstant(index, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, float)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, float), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const vector3& val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, const Ogre::Vector3& val) {
-        try { self->setConstant(index, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, vector3)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, const Ogre::Vector3&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const vector2& val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, const Ogre::Vector2& val) {
-        try { self->setConstant(index, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, vector2)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, const Ogre::Vector2&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const color& val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, const Ogre::ColourValue& val) {
-        try { self->setConstant(index, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, color)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, const Ogre::ColourValue&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, float val)", asFUNCTION(GpuProgramParametersPtrSetConstantFloat), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const vector3& val)", asFUNCTION(GpuProgramParametersPtrSetConstantVector3), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const vector2& val)", asFUNCTION(GpuProgramParametersPtrSetConstantVector2), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const color& val)", asFUNCTION(GpuProgramParametersPtrSetConstantColourValue), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     // > setConstant (vector)
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<float>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("float"));
-        try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<float>)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<vector3>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector3"));
-        try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()*3); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<vector3>)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<vector2>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector2"));
-        try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()*2); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<vector2>)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<color>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, asUINT index, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("color"));
-        try { self->setConstant(index, (float*)vals->GetBuffer(), vals->GetSize()*4); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setConstant(uint, array<color>)"); }
-        }, (GpuProgramParametersPtr const&, asUINT, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<float>@ vals)", asFUNCTION(GpuProgramParametersPtrSetConstantFloatArray), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<vector3>@ vals)", asFUNCTION(GpuProgramParametersPtrSetConstantVector3Array), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<vector2>@ vals)", asFUNCTION(GpuProgramParametersPtrSetConstantVector2Array), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setConstant(uint index, const array<color>@ vals)", asFUNCTION(GpuProgramParametersPtrSetConstantColourValueArray), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     // > setNamedConstant (scalar)
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, float val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, float val) {
-        try { self->setNamedConstant(name, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, float)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, float), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const vector3& val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, const Ogre::Vector3& val) {
-        try { self->setNamedConstant(name, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, vector3)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, const Ogre::Vector3&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const vector2& val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, const Ogre::Vector2& val) {
-        try { self->setNamedConstant(name, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, vector2)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, const Ogre::Vector2&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const color& val)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, const Ogre::ColourValue& val) {
-        try { self->setNamedConstant(name, val); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, color)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, const Ogre::ColourValue&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, float val)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantFloat), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const vector3& val)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantVector3), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const vector2& val)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantVector2), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const color& val)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantColourValue), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     // > setNamedConstant (vector)
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<float>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("float"));
-        try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<float>)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<vector3>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector3"));
-        try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*3); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<vector3>)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<vector2>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("vector2"));
-        try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*2); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<vector2>)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<color>@ vals)", asFUNCTIONPR([](GpuProgramParametersPtr const& self, const std::string& name, CScriptArray* vals) {
-        ROR_ASSERT(vals->GetElementTypeId() == App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("color"));
-        try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*4); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<color>)"); }
-        }, (GpuProgramParametersPtr const&, const std::string&, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<float>@ vals)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantFloatArray), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<vector3>@ vals)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantVector3Array), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<vector2>@ vals)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantVector2Array), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "void setNamedConstant(const string&in name, const array<color>@ vals)", asFUNCTION(GpuProgramParametersPtrSetNamedConstantColourValueArray), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "array<string>@ __getNamedConstants()", asFUNCTIONPR([](GpuProgramParametersPtr const& self) -> CScriptArray* {
-        try { 
-            std::vector<std::string> keys;
-            const Ogre::GpuNamedConstants& namedConstants = self->getConstantDefinitions();
-            for (auto& pair : namedConstants.map)
-                keys.push_back(pair.first);
-            return RoR::VectorToScriptArray(keys, "string");
-        }
-        catch (...) {
-            App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::__getNamedConstants()");
-            return nullptr; }
-        }, (GpuProgramParametersPtr const&), CScriptArray*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "array<string>@ __getNamedConstants()", asFUNCTION(GpuProgramParametersPtr__getNamedConstants), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
