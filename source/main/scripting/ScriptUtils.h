@@ -28,6 +28,7 @@
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptarray/scriptarray.h"
 #include "scriptbuilder/scriptbuilder.h"
+#include "autowrapper/aswrappedcall.h"
 
 #include <list>
 #include <map>
@@ -255,6 +256,25 @@ public:
         std::string opIndexConstDecl = fmt::format("const {}@ opIndex(uint pos) const", value_decl);
         r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), asMETHOD(CReadonlyScriptArrayView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
+    }
+
+    static void RegisterReadonlyScriptArrayViewGeneric(AngelScript::asIScriptEngine* engine, const char* decl, const char* value_decl)
+    {
+        using namespace AngelScript;
+
+        int r;
+
+        r = engine->RegisterObjectType(decl, sizeof(CReadonlyScriptArrayView<T>), asOBJ_REF); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_ADDREF, "void f()", WRAP_MFN(CReadonlyScriptArrayView<T>, AddRef), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_RELEASE, "void f()", WRAP_MFN(CReadonlyScriptArrayView<T>, Release), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+        r = engine->RegisterObjectMethod(decl, "bool isEmpty() const", WRAP_MFN(CReadonlyScriptArrayView<T>, IsEmpty), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "uint length() const", WRAP_MFN(CReadonlyScriptArrayView<T>, GetSize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+        std::string opIndexDecl = fmt::format("{}@ opIndex(uint pos)", value_decl);
+        r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), WRAP_MFN(CReadonlyScriptArrayView<T>, OpIndex), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(uint pos) const", value_decl);
+        r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), WRAP_MFN(CReadonlyScriptArrayView<T>, OpIndex), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     }
 
     // Angelscript refcounting
