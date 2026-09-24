@@ -398,9 +398,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("MeshManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("MaterialManager", sizeof(MaterialManager), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
     r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
@@ -1660,15 +1657,9 @@ void registerOgreMaterialManager(AngelScript::asIScriptEngine * engine)
     int r;
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("MaterialManager", "MaterialPtr getByName(const string&in file, const string&in rg)", asFUNCTIONPR([](MaterialManager& mgr, std::string const& file, std::string const& rg){
-        try { return mgr.getByName(file, rg); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MaterialManager::getByName()"); return Ogre::MaterialPtr();} 
-    }, (MaterialManager& mgr, std::string const& file, std::string const& rg), MaterialPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialManager", "MaterialPtr getByName(const string&in file, const string&in rg)", asFUNCTION(MaterialManagerGetByName), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("MaterialManager", "void create(const string&in file, const string&in rg)", asFUNCTIONPR([](MaterialManager& mgr, std::string const& file, std::string const& rg){
-        try { return mgr.create(file, rg); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MaterialManager::create()"); return Ogre::MaterialPtr(); } 
-    }, (MaterialManager& mgr, std::string const& file, std::string const& rg), MaterialPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialManager", "MaterialPtr create(const string&in file, const string&in rg)", asFUNCTION(MaterialManagerCreate), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace("Ogre::MaterialManager"); ROR_ASSERT(r >= 0);
     r = engine->RegisterGlobalFunction("MaterialManager& getSingleton()", asFUNCTION(MaterialManager::getSingleton), asCALL_CDECL); ROR_ASSERT(r >= 0);

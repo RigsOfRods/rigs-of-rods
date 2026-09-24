@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreMaterialManagerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreMaterialGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTechniqueGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine);
@@ -172,6 +173,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreTechniqueGeneric(engine);
     registerOgrePassGeneric(engine);
     registerOgreTextureUnitStateGeneric(engine);
+    registerOgreMaterialManagerGeneric(engine);
     registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
 }
@@ -574,6 +576,20 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("Image", "uint getWidth()", WRAP_MFN(Ogre::Image, getWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "uint getHeight()", WRAP_MFN(Ogre::Image, getHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", WRAP_MFN(Ogre::Image, resize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreMaterialManagerGeneric(AngelScript::asIScriptEngine * engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MaterialManager", "MaterialPtr getByName(const string&in file, const string&in rg)", WRAP_OBJ_FIRST(MaterialManagerGetByName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialManager", "MaterialPtr create(const string&in file, const string&in rg)", WRAP_OBJ_FIRST(MaterialManagerCreate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace("Ogre::MaterialManager"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterGlobalFunction("MaterialManager& getSingleton()", WRAP_FN(MaterialManager::getSingleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
