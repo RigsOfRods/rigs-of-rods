@@ -54,9 +54,19 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("vector3", sizeof(Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
+    // Ogre::Quaternion
+    r = engine->RegisterObjectType("quaternion", sizeof(Quaternion), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
     // Object properties
 
     r = engine->RegisterObjectProperty("vector3", "float x", offsetof(Ogre::Vector3, x)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("vector3", "float y", offsetof(Ogre::Vector3, y)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("vector3", "float z", offsetof(Ogre::Vector3, z)); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectProperty("quaternion", "float w", offsetof(Quaternion, w)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("quaternion", "float x", offsetof(Quaternion, x)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("quaternion", "float y", offsetof(Quaternion, y)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("quaternion", "float z", offsetof(Quaternion, z)); ROR_ASSERT( r >= 0 );
+
 }
