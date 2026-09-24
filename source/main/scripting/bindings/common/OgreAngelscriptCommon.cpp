@@ -66,6 +66,10 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
+    // Ogre::Box
+    r = engine->RegisterObjectType("box", sizeof(Box), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLINTS);
+    ROR_ASSERT( r >= 0 );
+
     // Object properties
 
     r = engine->RegisterObjectProperty("vector3", "float x", offsetof(Ogre::Vector3, x)); ROR_ASSERT( r >= 0 );
@@ -84,5 +88,12 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectProperty("color", "float g", offsetof(ColourValue, g)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("color", "float b", offsetof(ColourValue, b)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("color", "float a", offsetof(ColourValue, a)); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectProperty("box", "uint left", offsetof(Box, left)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint top", offsetof(Box, top)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint right", offsetof(Box, right)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint bottom", offsetof(Box, bottom)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint front", offsetof(Box, front)); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint back", offsetof(Box, back)); ROR_ASSERT( r >= 0 );
 
 }

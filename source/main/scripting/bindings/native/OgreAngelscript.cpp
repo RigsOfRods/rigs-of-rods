@@ -48,32 +48,6 @@ using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
 
-/***BOX***/
-static void BoxDefaultConstructor(Box* self)
-{
-    new(self) Box();
-}
-
-static void BoxInitConstructor(asUINT l, asUINT t, asUINT r, asUINT b, Box* self)
-{
-    new(self) Box(l, t, r, b);
-}
-
-static void BoxCopyConstructor(const Box& other, Box* self)
-{
-    new(self) Box(other);
-}
-
-static void BoxDestructor(Box* self)
-{
-    (self)->~Box();
-}
-
-static void BoxAssignOperator(const Box& other, Box* self)
-{
-    (self)->operator=(other);
-}
-
 /***TEXTURE***/
 static void TexturePtrDefaultConstructor(TexturePtr* self)
 {
@@ -566,9 +540,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 {
     int r;
 
-    // Ogre::Box
-    r = engine->RegisterObjectType("box", sizeof(Box), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLINTS);
-    ROR_ASSERT( r >= 0 );
 
     // More data types - the low-level scene API, under namespace `Ogre`
 
@@ -1255,20 +1226,6 @@ void registerOgreColourValue(AngelScript::asIScriptEngine* engine)
 void registerOgreBox(AngelScript::asIScriptEngine* engine)
 {
     int r;
-
-    // Register the object properties
-    r = engine->RegisterObjectProperty("box", "uint left", offsetof(Box, left));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("box", "uint top", offsetof(Box, top));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("box", "uint right", offsetof(Box, right));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("box", "uint bottom", offsetof(Box, bottom));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("box", "uint front", offsetof(Box, front));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("box", "uint back", offsetof(Box, back));
-    ROR_ASSERT( r >= 0 );
 
     // Register the object constructors
     r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(BoxDefaultConstructor), asCALL_CDECL_OBJLAST);

@@ -99,6 +99,7 @@ static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -112,6 +113,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreVector2Generic(engine);
     registerOgreQuaternionGeneric(engine);
     registerOgreColourValueGeneric(engine);
+    registerOgreBoxGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -398,5 +400,19 @@ static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(ColourValueDefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a)", WRAP_OBJ_LAST(ColourValueInitConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color &other)", WRAP_OBJ_LAST(ColourValueCopyConstructor), asCALL_GENERIC);
+}
+
+static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(BoxDefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f(uint32 l, uint32 t, uint32 r, uint32 b)", WRAP_OBJ_LAST(BoxInitConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f(const box &other)", WRAP_OBJ_LAST(BoxCopyConstructor), asCALL_GENERIC);
+
+    // Register other behaviors
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(BoxDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("box", "box& opAssign(const box&in)", WRAP_OBJ_LAST(BoxAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 }
 

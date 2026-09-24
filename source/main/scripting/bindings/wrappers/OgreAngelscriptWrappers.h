@@ -188,4 +188,30 @@ static void ColourValueCopyConstructor(const ColourValue& other, ColourValue* se
     new(self) ColourValue(other.r, other.g, other.b, other.a);
 }
 
+/***BOX***/
+static void BoxDefaultConstructor(Box* self)
+{
+    new(self) Box();
+}
+
+static void BoxInitConstructor(asUINT l, asUINT t, asUINT r, asUINT b, Box* self)
+{
+    new(self) Box(l, t, r, b);
+}
+
+static void BoxCopyConstructor(const Box& other, Box* self)
+{
+    new(self) Box(other);
+}
+
+static void BoxDestructor(Box* self)
+{
+    (self)->~Box();
+}
+
+static void BoxAssignOperator(const Box& other, Box* self)
+{
+    (self)->operator=(other);
+}
+
 } // namespace OgreAngelscriptWrappers
