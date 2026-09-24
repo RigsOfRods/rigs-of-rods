@@ -112,6 +112,7 @@ static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine)
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -127,6 +128,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
     registerOgreTextureGeneric(engine);
+    registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
 }
 
@@ -446,8 +448,30 @@ static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", WRAP_OBJ_FIRST(TexturePtrGetWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", WRAP_OBJ_FIRST(TexturePtrGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", WRAP_OBJ_FIRST(TexturePtrGetNumMipmaps), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "HardwarePixelBufferPtr getBuffer(uint, uint)", WRAP_OBJ_FIRST(TexturePtrGetBuffer), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(HardwarePixelBufferPtrDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_CONSTRUCT, "void f(const HardwarePixelBufferPtr&in)", WRAP_OBJ_LAST(HardwarePixelBufferPtrCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(HardwarePixelBufferPtrDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "HardwarePixelBufferPtr& opAssign(const HardwarePixelBufferPtr&in)", WRAP_OBJ_LAST(HardwarePixelBufferPtrAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& getCurrentLock()", WRAP_OBJ_FIRST(HardwarePixelBufferPtrGetCurrentLock), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& lock(const box& lockbox, HardwareBufferLockOptions opt)", WRAP_OBJ_FIRST(HardwarePixelBufferPtrLock), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getWidth()", WRAP_OBJ_FIRST(HardwarePixelBufferPtrGetWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getHeight()", WRAP_OBJ_FIRST(HardwarePixelBufferPtrGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitFromMemory(const PixelBox& src, const box& dst)", WRAP_OBJ_FIRST(HardwarePixelBufferPtrBlitFromMemory), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitToMemory(const box& src, const PixelBox& dst)", WRAP_OBJ_FIRST(HardwarePixelBufferPtrBlitToMemory), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void unlock()", WRAP_OBJ_FIRST(HardwarePixelBufferPtrUnlock), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    engine->SetDefaultNamespace("");
 }
 
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine)

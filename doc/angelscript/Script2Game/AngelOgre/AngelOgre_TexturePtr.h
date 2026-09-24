@@ -32,6 +32,9 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
         uint getWidth();
         uint getHeight();
         uint getNumMipmaps();
+
+        /// Returns the pixel buffer of the given face and mipmap level, see `HardwarePixelBufferPtr`.
+        HardwarePixelBufferPtr getBuffer(uint face, uint mipmap);
     };
     
 /// @}    //addtogroup Script2Game

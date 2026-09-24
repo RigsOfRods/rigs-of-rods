@@ -266,7 +266,71 @@ static HardwarePixelBufferSharedPtr TexturePtrGetBuffer(TexturePtr const& self, 
     return self->getBuffer(face, mipmap);
 }
 
+/***HARDWAREPIXELBUFFER***/
+// NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
+static void HardwarePixelBufferPtrDefaultConstructor(HardwarePixelBufferSharedPtr* self)
+{
+    new (self) HardwarePixelBufferSharedPtr();
+}
+
+static void HardwarePixelBufferPtrCopyConstructor(const HardwarePixelBufferSharedPtr& other, HardwarePixelBufferSharedPtr* self)
+{
+    new (self) HardwarePixelBufferSharedPtr(other);
+}
+
+static void HardwarePixelBufferPtrDestructor(HardwarePixelBufferSharedPtr* self)
+{
+    (self)->~HardwarePixelBufferSharedPtr();
+}
+
+static void HardwarePixelBufferPtrAssignOperator(const HardwarePixelBufferSharedPtr& other, HardwarePixelBufferSharedPtr* self)
+{
+    (self)->operator=(other);
+}
+
 static PixelBox PIXELBOX_DUMMY = PixelBox(); // for returning as `const&`
+
+static const PixelBox& HardwarePixelBufferPtrGetCurrentLock(HardwarePixelBufferSharedPtr const& self)
+{
+    try { return self->getCurrentLock(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getCurrentLock()"); return PIXELBOX_DUMMY;}
+}
+
+static const PixelBox& HardwarePixelBufferPtrLock(HardwarePixelBufferSharedPtr const& self, const Box& lockbox, HardwareBuffer::LockOptions opt)
+{
+    try { return self->lock(lockbox, opt); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::lock()"); return PIXELBOX_DUMMY;}
+}
+
+static asUINT HardwarePixelBufferPtrGetWidth(HardwarePixelBufferSharedPtr const& self)
+{
+    try { return self->getWidth(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getWidth()"); return 0;}
+}
+
+static asUINT HardwarePixelBufferPtrGetHeight(HardwarePixelBufferSharedPtr const& self)
+{
+    try { return self->getHeight(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getHeight()"); return 0;}
+}
+
+static void HardwarePixelBufferPtrBlitFromMemory(HardwarePixelBufferSharedPtr const& self, const PixelBox& src, const Box& dstBox)
+{
+    try { self->blitFromMemory(src, dstBox); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::blitFromMemory()"); }
+}
+
+static void HardwarePixelBufferPtrBlitToMemory(HardwarePixelBufferSharedPtr const& self, const Box& srcBox, const PixelBox& dst)
+{
+    try { self->blitToMemory(srcBox, dst); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::blitToMemory()"); }
+}
+
+static void HardwarePixelBufferPtrUnlock(HardwarePixelBufferSharedPtr const& self)
+{
+    try { self->unlock(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::unlock()"); }
+}
 
 /***PIXELBOX***/
 static void PixelBoxDefaultConstructor(PixelBox* self)
