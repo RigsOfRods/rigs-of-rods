@@ -266,6 +266,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/generic/DashBoardManagerAngelscriptGeneric.cpp
             scripting/bindings/generic/EngineAngelscriptGeneric.cpp
             scripting/bindings/generic/GameScriptAngelscriptGeneric.cpp
+            scripting/bindings/generic/OgreAngelscriptGeneric.cpp
             scripting/bindings/generic/ScrewpropAngelscriptGeneric.cpp
             scripting/bindings/generic/TurbojetAngelscriptGeneric.cpp
             scripting/bindings/generic/TurbopropAngelscriptGeneric.cpp
@@ -277,7 +278,10 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/DashBoardManagerAngelscriptCommon.cpp
             scripting/bindings/common/EngineAngelscriptCommon.cpp
             scripting/bindings/common/GameScriptAngelscriptCommon.cpp
+            scripting/bindings/common/OgreAngelscriptCommon.cpp
             scripting/bindings/common/VehicleAiAngelscriptCommon.cpp
+
+            scripting/bindings/wrappers/OgreAngelscriptWrappers.h
 
             scripting/server/ServerScript.{h,cpp}
             scripting/server/ServerScriptConfig.h
