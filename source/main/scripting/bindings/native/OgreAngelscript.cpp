@@ -47,28 +47,6 @@
 using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
-/***VECTOR2***/
-static void Vector2DefaultConstructor(Vector2* self)
-{
-    new(self) Vector2();
-}
-
-static void Vector2CopyConstructor(const Vector2& other, Vector2* self)
-{
-    new(self) Vector2(other);
-}
-
-static void Vector2InitConstructor(float x, float y, Vector2* self)
-{
-    new(self) Vector2(x, y);
-}
-
-static void Vector2InitConstructorScaler(float s, Vector2* self)
-{
-    new(self) Vector2(s, s);
-}
-
-
 
 /***COLOURVALUE***/
 static void ColourValueDefaultConstructor(ColourValue* self)
@@ -604,9 +582,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 {
     int r;
 
-    // Ogre::Vector2
-    r = engine->RegisterObjectType("vector2", sizeof(Vector2), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
-    ROR_ASSERT( r >= 0 );
     // Ogre::ColourValue
     r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
@@ -943,12 +918,6 @@ void registerOgreVector3(AngelScript::asIScriptEngine* engine)
 void registerOgreVector2(AngelScript::asIScriptEngine* engine)
 {
     int r;
-
-    // Register the object properties
-    r = engine->RegisterObjectProperty("vector2", "float x", offsetof(Ogre::Vector2, x));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("vector2", "float y", offsetof(Ogre::Vector2, y));
-    ROR_ASSERT( r >= 0 );
 
     // Register the object constructors
     r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(Vector2DefaultConstructor), asCALL_CDECL_OBJLAST);

@@ -67,6 +67,27 @@ static void Vector3InitConstructorScaler(float s, Vector3* self)
     new(self) Vector3(s, s, s);
 }
 
+/***VECTOR2***/
+static void Vector2DefaultConstructor(Vector2* self)
+{
+    new(self) Vector2();
+}
+
+static void Vector2CopyConstructor(const Vector2& other, Vector2* self)
+{
+    new(self) Vector2(other);
+}
+
+static void Vector2InitConstructor(float x, float y, Vector2* self)
+{
+    new(self) Vector2(x, y);
+}
+
+static void Vector2InitConstructorScaler(float s, Vector2* self)
+{
+    new(self) Vector2(s, s);
+}
+
 
 /***RADIAN***/
 static void RadianDefaultConstructor(Radian* self)
