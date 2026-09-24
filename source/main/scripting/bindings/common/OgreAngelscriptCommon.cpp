@@ -106,6 +106,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("Image", sizeof(Image), asOBJ_VALUE | asGetTypeTraits<Image>());
+    ROR_ASSERT(r >= 0);
+
     // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but in the version we're using it doesn't exist yet.
     r = engine->RegisterObjectType("HardwarePixelBufferPtr", sizeof(HardwarePixelBufferSharedPtr), asOBJ_VALUE | asGetTypeTraits<HardwarePixelBufferSharedPtr>());
     ROR_ASSERT(r >= 0);
@@ -114,6 +117,11 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     // enums, also under namespace `Ogre`
+
+    r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_LINEAR", Image::Filter::FILTER_LINEAR); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_BILINEAR", Image::Filter::FILTER_BILINEAR); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterEnum("HardwareBufferLockOptions"); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NORMAL", HardwareBuffer::LockOptions::HBL_NORMAL); ROR_ASSERT(r >= 0);

@@ -377,4 +377,25 @@ static asUINT PixelBoxGetDepth(const Ogre::PixelBox& self)
     return self.getDepth();
 }
 
+/***IMAGE***/
+static void ImageDefaultConstructor(Image* self)
+{
+    new (self) Image();
+}
+
+static void ImageCopyConstructor(const Image& other, Image* self)
+{
+    new (self) Image(other);
+}
+
+static void ImageDestructor(PixelBox* self)
+{
+    (self)->~PixelBox();
+}
+
+static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
+{
+    (self)->operator=(other);
+}
+
 } // namespace OgreAngelscriptWrappers

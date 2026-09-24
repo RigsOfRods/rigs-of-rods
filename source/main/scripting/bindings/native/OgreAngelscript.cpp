@@ -48,27 +48,6 @@ using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
 
-/***IMAGE***/
-static void ImageDefaultConstructor(Image* self)
-{
-    new (self) Image();
-}
-
-static void ImageCopyConstructor(const Image& other, Image* self)
-{
-    new (self) Image(other);
-}
-
-static void ImageDestructor(PixelBox* self)
-{
-    (self)->~PixelBox();
-}
-
-static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
-{
-    (self)->operator=(other);
-}
-
 /***MESH***/
 typedef CReadonlyScriptArrayView<Ogre::SubMesh*> SubMeshArray;
 
@@ -506,9 +485,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("ManualObject", sizeof(ManualObject), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("Image", sizeof(Image), asOBJ_VALUE | asGetTypeTraits<Image>());
-    ROR_ASSERT(r >= 0);
-
     r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<MeshPtr>());
     ROR_ASSERT(r >= 0);
 
@@ -572,11 +548,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_LIST",  Ogre::RenderOperation::OT_TRIANGLE_LIST); ROR_ASSERT(r >= 0);  // A list of triangles, 3 vertices per triangle
     r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_STRIP",  Ogre::RenderOperation::OT_TRIANGLE_STRIP); ROR_ASSERT(r >= 0);// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that
     r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_FAN",  Ogre::RenderOperation::OT_TRIANGLE_FAN); ROR_ASSERT(r >= 0);    // A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
-
-    r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more
-    r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("ImageFilter", "FILTER_LINEAR", Image::Filter::FILTER_LINEAR); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("ImageFilter", "FILTER_BILINEAR", Image::Filter::FILTER_BILINEAR); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterEnum("LightTypes"); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("LightTypes", "LT_POINT", Light::LT_POINT); ROR_ASSERT(r >= 0);

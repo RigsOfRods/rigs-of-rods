@@ -102,6 +102,21 @@ static void PixelBoxSetColourAt(PixelBox& self, const ColourValue& c, asUINT x, 
     self.setColourAt(c, x, y, z);
 }
 
+static ColourValue ImageGetColourAt(const Image& self, asUINT x, asUINT y, asUINT z)
+{
+    return self.getColourAt(x, y, z);
+}
+
+static void ImageSetColourAt(Image& self, const ColourValue& c, asUINT x, asUINT y, asUINT z)
+{
+    self.setColourAt(c, x, y, z);
+}
+
+static PixelBox ImageGetPixelBox(const Image& self, asUINT face, asUINT mipmap)
+{
+    return self.getPixelBox(face, mipmap);
+}
+
 // forward declarations, defined below
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine);
@@ -115,6 +130,7 @@ static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 {
@@ -132,6 +148,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreTextureManagerGeneric(engine);
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
+    registerOgreImageGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -507,6 +524,31 @@ static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("PixelBox", "uint getWidth()",  WRAP_OBJ_FIRST(PixelBoxGetWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("PixelBox", "uint getHeight()", WRAP_OBJ_FIRST(PixelBoxGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("PixelBox", "uint getDepth()",  WRAP_OBJ_FIRST(PixelBoxGetDepth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("Image", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(ImageDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Image", asBEHAVE_CONSTRUCT, "void f(const Image&in)", WRAP_OBJ_LAST(ImageCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Image", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(ImageDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "Image& opAssign(const Image&in)", WRAP_OBJ_LAST(ImageAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Image", "color getColourAt(uint32 x, uint32 y, uint32 z)", WRAP_OBJ_FIRST(ImageGetColourAt), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "void setColourAt(const color& c, uint32 x, uint32 y, uint32 z)", WRAP_OBJ_FIRST(ImageSetColourAt), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "Image& flipAroundX()", WRAP_MFN(Ogre::Image, flipAroundX), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "Image& flipAroundY()", WRAP_MFN(Ogre::Image, flipAroundY), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getNumMipmaps()", WRAP_MFN(Ogre::Image, getNumMipmaps), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getNumFaces()", WRAP_MFN(Ogre::Image, getNumFaces), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "PixelBox getPixelBox(uint face, uint mipmap)", WRAP_OBJ_FIRST(ImageGetPixelBox), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getSize()", WRAP_MFN(Ogre::Image, getSize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getWidth()", WRAP_MFN(Ogre::Image, getWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getHeight()", WRAP_MFN(Ogre::Image, getHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", WRAP_MFN(Ogre::Image, resize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
