@@ -101,6 +101,7 @@ static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
+static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 {
@@ -114,6 +115,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreQuaternionGeneric(engine);
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
+    registerOgreTextureGeneric(engine);
 }
 
 // register Ogre::Vector3
@@ -416,3 +418,22 @@ static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("box", "box& opAssign(const box&in)", WRAP_OBJ_LAST(BoxAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 }
 
+static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(TexturePtrDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_CONSTRUCT, "void f(const TexturePtr&in)", WRAP_OBJ_LAST(TexturePtrCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(TexturePtrDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "TexturePtr& opAssign(const TexturePtr&in)", WRAP_OBJ_LAST(TexturePtrAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "bool isNull()", WRAP_OBJ_LAST(TexturePtrIsNull), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    r = engine->RegisterObjectMethod("TexturePtr", "string getName() const", WRAP_OBJ_FIRST(TexturePtrGetName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", WRAP_OBJ_FIRST(TexturePtrGetWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", WRAP_OBJ_FIRST(TexturePtrGetHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", WRAP_OBJ_FIRST(TexturePtrGetNumMipmaps), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}

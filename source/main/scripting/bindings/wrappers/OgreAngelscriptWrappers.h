@@ -214,4 +214,56 @@ static void BoxAssignOperator(const Box& other, Box* self)
     (self)->operator=(other);
 }
 
+/***TEXTURE***/
+static void TexturePtrDefaultConstructor(TexturePtr* self)
+{
+    new (self) TexturePtr();
+}
+
+static void TexturePtrCopyConstructor(const TexturePtr& other, TexturePtr* self)
+{
+    new (self) TexturePtr(other);
+}
+
+static void TexturePtrDestructor(TexturePtr* self)
+{
+    (self)->~TexturePtr();
+}
+
+static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
+{
+    (self)->operator=(other);
+}
+
+static bool TexturePtrIsNull(TexturePtr* self)
+{
+    return !(self)->operator bool();
+}
+
+// Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+static Ogre::String TexturePtrGetName(TexturePtr const& self)
+{
+    return self->getName();
+}
+
+static Ogre::uint32 TexturePtrGetWidth(TexturePtr const& self)
+{
+    return (asUINT)self->getWidth();
+}
+
+static Ogre::uint32 TexturePtrGetHeight(TexturePtr const& self)
+{
+    return (asUINT)self->getHeight();
+}
+
+static Ogre::uint32 TexturePtrGetNumMipmaps(TexturePtr const& self)
+{
+    return (asUINT)self->getNumMipmaps();
+}
+
+static HardwarePixelBufferSharedPtr TexturePtrGetBuffer(TexturePtr const& self, asUINT face, asUINT mipmap)
+{
+    return self->getBuffer(face, mipmap);
+}
+
 } // namespace OgreAngelscriptWrappers

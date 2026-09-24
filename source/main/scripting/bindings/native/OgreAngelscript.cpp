@@ -48,32 +48,6 @@ using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
 
-/***TEXTURE***/
-static void TexturePtrDefaultConstructor(TexturePtr* self)
-{
-    new (self) TexturePtr();
-}
-
-static void TexturePtrCopyConstructor(const TexturePtr& other, TexturePtr* self)
-{
-    new (self) TexturePtr(other);
-}
-
-static void TexturePtrDestructor(TexturePtr* self)
-{
-    (self)->~TexturePtr();
-}
-
-static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
-{
-    (self)->operator=(other);
-}
-
-static bool TexturePtrIsNull(TexturePtr* self)
-{
-    return !(self)->operator bool();
-}
-
 /***HARDWAREPIXELBUFFER***/
 // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
 static void HardwarePixelBufferPtrDefaultConstructor(HardwarePixelBufferSharedPtr* self)
@@ -570,9 +544,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("AnimationStateSet", sizeof(AnimationStateSet), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
@@ -1253,21 +1224,11 @@ void registerOgreTexture(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("TexturePtr", "bool isNull()", asFUNCTION(TexturePtrIsNull), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
 
     // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
-    r = engine->RegisterObjectMethod("TexturePtr", "string getName() const", asFUNCTIONPR([](TexturePtr const& self) {
-        return self->getName();
-        }, (TexturePtr const&), Ogre::String), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", asFUNCTIONPR([](TexturePtr const& self) {
-        return (asUINT)self->getWidth();
-        }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", asFUNCTIONPR([](TexturePtr const& self) {
-        return (asUINT)self->getHeight();
-        }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", asFUNCTIONPR([](TexturePtr const& self) {
-        return (asUINT)self->getNumMipmaps();
-        }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("TexturePtr", "HardwarePixelBufferPtr getBuffer(uint, uint)", asFUNCTIONPR([](TexturePtr const& self, asUINT face, asUINT mipmap) {
-        return self->getBuffer(face, mipmap);
-        }, (TexturePtr const&, asUINT, asUINT), HardwarePixelBufferSharedPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "string getName() const", asFUNCTION(TexturePtrGetName), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", asFUNCTION(TexturePtrGetWidth), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", asFUNCTION(TexturePtrGetHeight), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", asFUNCTION(TexturePtrGetNumMipmaps), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "HardwarePixelBufferPtr getBuffer(uint, uint)", asFUNCTION(TexturePtrGetBuffer), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

@@ -96,4 +96,12 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectProperty("box", "uint front", offsetof(Box, front)); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectProperty("box", "uint back", offsetof(Box, back)); ROR_ASSERT( r >= 0 );
 
+    // More data types - the low-level scene API, under namespace `Ogre`
+
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
+    ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
