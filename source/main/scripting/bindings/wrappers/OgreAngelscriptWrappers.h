@@ -172,4 +172,20 @@ static void QuaternionInitConstructorScaler(float s, Quaternion* self)
     new(self) Quaternion(s, s, s, s);
 }
 
+/***COLOURVALUE***/
+static void ColourValueDefaultConstructor(ColourValue* self)
+{
+    new(self) ColourValue();
+}
+
+static void ColourValueInitConstructor(float r, float g, float b, float a, ColourValue* self)
+{
+    new(self) ColourValue(r,g,b,a);
+}
+
+static void ColourValueCopyConstructor(const ColourValue& other, ColourValue* self)
+{
+    new(self) ColourValue(other.r, other.g, other.b, other.a);
+}
+
 } // namespace OgreAngelscriptWrappers

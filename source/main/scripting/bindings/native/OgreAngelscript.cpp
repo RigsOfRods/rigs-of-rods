@@ -48,22 +48,6 @@ using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
 
-/***COLOURVALUE***/
-static void ColourValueDefaultConstructor(ColourValue* self)
-{
-    new(self) ColourValue();
-}
-
-static void ColourValueInitConstructor(float r, float g, float b, float a, ColourValue* self)
-{
-    new(self) ColourValue(r,g,b,a);
-}
-
-static void ColourValueCopyConstructor(const ColourValue& other, ColourValue* self)
-{
-    new(self) ColourValue(other.r, other.g, other.b, other.a);
-}
-
 /***BOX***/
 static void BoxDefaultConstructor(Box* self)
 {
@@ -581,10 +565,6 @@ void registerOgreLight(AngelScript::asIScriptEngine* engine);
 void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 {
     int r;
-
-    // Ogre::ColourValue
-    r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
-    ROR_ASSERT( r >= 0 );
 
     // Ogre::Box
     r = engine->RegisterObjectType("box", sizeof(Box), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLINTS);
@@ -1263,16 +1243,6 @@ void registerOgreQuaternion(AngelScript::asIScriptEngine* engine)
 void registerOgreColourValue(AngelScript::asIScriptEngine* engine)
 {
     int r;
-
-    // Register the object properties
-    r = engine->RegisterObjectProperty("color", "float r", offsetof(ColourValue, r));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("color", "float g", offsetof(ColourValue, g));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("color", "float b", offsetof(ColourValue, b));
-    ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectProperty("color", "float a", offsetof(ColourValue, a));
-    ROR_ASSERT( r >= 0 );
 
     // Register the object constructors
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ColourValueDefaultConstructor), asCALL_CDECL_OBJLAST);
