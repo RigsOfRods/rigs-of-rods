@@ -57,6 +57,15 @@ static Vector3 Vector3OpAddUnary(const Vector3& self)
     return +self;
 }
 
+static float Vector2OpIndex(const Vector2& self, int i)
+{
+    return self[i];
+}
+
+static Vector2 Vector2OpAddUnary(const Vector2& self)
+{
+    return +self;
+}
 
 static float QuaternionOpIndex(const Quaternion& self, int i)
 {
@@ -85,6 +94,7 @@ static Degree DegreeOpAddUnary(const Degree& self)
 
 // forward declarations, defined below
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
+static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreDegreeGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
@@ -98,6 +108,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreRadianGeneric(engine);
     registerOgreDegreeGeneric(engine);
     registerOgreVector3Generic(engine);
+    registerOgreVector2Generic(engine);
     registerOgreQuaternionGeneric(engine);
 }
 
@@ -170,6 +181,71 @@ static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("vector3", "bool isNaN() const", WRAP_MFN(Vector3,isNaN), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
 }
 
+// register Ogre::Vector2
+static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(Vector2DefaultConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f(float, float)", WRAP_OBJ_LAST(Vector2InitConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f(const vector2 &in)", WRAP_OBJ_LAST(Vector2CopyConstructor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f(float)", WRAP_OBJ_LAST(Vector2InitConstructorScaler), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object operators
+    r = engine->RegisterObjectMethod("vector2", "float opIndex(int) const", WRAP_OBJ_FIRST(Vector2OpIndex), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &f(const vector2 &in)", WRAP_MFN_PR(Vector2, operator =, (const Vector2 &), Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "bool opEquals(const vector2 &in) const", WRAP_MFN_PR(Vector2, operator==,(const Vector2&) const, bool), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 opAdd(const vector2 &in) const", WRAP_MFN_PR(Vector2, operator+,(const Vector2&) const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opSub(const vector2 &in) const", WRAP_MFN_PR(Vector2, operator-,(const Vector2&) const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 opMul(float) const", WRAP_MFN_PR(Vector2, operator*,(const float) const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opMul(const vector2 &in) const", WRAP_MFN_PR(Vector2, operator*,(const Vector2&) const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opDiv(float) const", WRAP_MFN_PR(Vector2, operator/,(const float) const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opDiv(const vector2 &in) const", WRAP_MFN_PR(Vector2, operator/,(const Vector2&) const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 opAdd() const", WRAP_OBJ_FIRST(Vector2OpAddUnary), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opSub() const", WRAP_MFN_PR(Vector2, operator-,() const, Vector2), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opAddAssign(const vector2 &in)", WRAP_MFN_PR(Vector2,operator+=,(const Vector2 &),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opAddAssign(float)", WRAP_MFN_PR(Vector2,operator+=,(const float),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opSubAssign(const vector2 &in)", WRAP_MFN_PR(Vector2,operator-=,(const Vector2 &),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opSubAssign(float)", WRAP_MFN_PR(Vector2,operator-=,(const float),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opMulAssign(const vector2 &in)", WRAP_MFN_PR(Vector2,operator*=,(const Vector2 &),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opMulAssign(float)", WRAP_MFN_PR(Vector2,operator*=,(const float),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opDivAssign(const vector2 &in)", WRAP_MFN_PR(Vector2,operator/=,(const Vector2 &),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opDivAssign(float)", WRAP_MFN_PR(Vector2,operator/=,(const float),Vector2&), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    // Register the object methods
+
+    r = engine->RegisterObjectMethod("vector2", "float length() const", WRAP_MFN(Vector2,length), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "float squaredLength() const", WRAP_MFN(Vector2,squaredLength), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "float distance(const vector2 &in) const", WRAP_MFN(Vector2,distance), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "float squaredDistance(const vector2 &in) const", WRAP_MFN(Vector2,squaredDistance), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "float dotProduct(const vector2 &in) const", WRAP_MFN(Vector2,dotProduct), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "float normalise()", WRAP_MFN(Vector2,normalise), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "float crossProduct(const vector2 &in) const", WRAP_MFN(Vector2,crossProduct), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 midPoint(const vector2 &in) const", WRAP_MFN(Vector2,midPoint), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "void makeFloor(const vector2 &in)", WRAP_MFN(Vector2,makeFloor), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "void makeCeil(const vector2 &in)", WRAP_MFN(Vector2,makeCeil), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 perpendicular() const", WRAP_MFN(Vector2,perpendicular), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 randomDeviant(const radian &in, const vector2 &in) const", WRAP_MFN(Vector2,randomDeviant), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "radian angleBetween(const vector2 &in)", WRAP_MFN(Vector2,angleBetween), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "bool isZeroLength() const", WRAP_MFN(Vector2,isZeroLength), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 normalisedCopy() const", WRAP_MFN(Vector2,normalisedCopy), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 reflect(const vector2 &in) const", WRAP_MFN(Vector2,reflect), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "bool positionEquals(const vector2 &in, float) const", WRAP_MFN(Vector2,positionEquals), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "bool isNaN() const", WRAP_MFN(Vector2,isNaN), asCALL_GENERIC); ROR_ASSERT( r >= 0 );
+}
 
 static void registerOgreRadianGeneric(AngelScript::asIScriptEngine* engine)
 {
