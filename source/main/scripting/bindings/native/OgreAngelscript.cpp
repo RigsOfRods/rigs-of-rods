@@ -259,39 +259,6 @@ static AnimationStateDict* AnimationStateSetGetAnimationStates(AnimationStateSet
     return new AnimationStateDict(self->getAnimationStates());
 }
 
-/***MATERIAL***/
-typedef CReadonlyScriptArrayView<Ogre::Technique*> TechniqueArray;
-
-static TechniqueArray* MaterialPtrGetTechniques(const MaterialPtr& self)
-{
-    return new TechniqueArray(self->getTechniques());
-}
-
-static void MaterialPtrDefaultConstructor(MaterialPtr* self)
-{
-    new (self) MaterialPtr();
-}
-
-static void MaterialPtrCopyConstructor(const MaterialPtr& other, MaterialPtr* self)
-{
-    new (self) MaterialPtr(other);
-}
-
-static void MaterialPtrDestructor(MaterialPtr* self)
-{
-    (self)->~MaterialPtr();
-}
-
-static void MaterialPtrAssignOperator(const MaterialPtr& other, MaterialPtr* self)
-{
-    (self)->operator=(other);
-}
-
-static bool MaterialPtrIsNull(MaterialPtr* self)
-{
-    return !(self)->operator bool();
-}
-
 /***SUBENTITY***/
 typedef CReadonlyScriptArrayView<Ogre::SubEntity*> SubEntityArray;
 
@@ -432,9 +399,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("MaterialManager", sizeof(MaterialManager), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("MaterialPtr", sizeof(MaterialPtr), asOBJ_VALUE | asGetTypeTraits<MaterialPtr>());
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);
@@ -1726,19 +1690,11 @@ void registerOgreMaterial(AngelScript::asIScriptEngine* engine)
     // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
     r = engine->RegisterObjectMethod("MaterialPtr", "TechniqueArray@ getTechniques()", asFUNCTION(MaterialPtrGetTechniques), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
     
-    r = engine->RegisterObjectMethod("MaterialPtr", "string getName()", asFUNCTIONPR([](MaterialPtr const& self) {
-        return self->getName();
-        }, (MaterialPtr const&), Ogre::String), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "string getName()", asFUNCTION(MaterialPtrGetName), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("MaterialPtr", "Technique@ createTechnique()", asFUNCTIONPR([](MaterialPtr const& self) {
-        try { return self->createTechnique(); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::createTechnique()"); return (Ogre::Technique*)nullptr;} 
-        }, (MaterialPtr const&), Ogre::Technique*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "Technique@ createTechnique()", asFUNCTION(MaterialPtrCreateTechnique), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("MaterialPtr", "void removeTechnique()", asFUNCTIONPR([](MaterialPtr const& self, uint16_t index) {
-        try { self->removeTechnique(index); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::removeTechnique()"); } 
-        }, (MaterialPtr const&, uint16_t), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "void removeTechnique(uint16 index)", asFUNCTION(MaterialPtrRemoveTechnique), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

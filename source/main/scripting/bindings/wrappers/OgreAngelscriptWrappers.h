@@ -398,6 +398,57 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***MATERIAL***/
+typedef CReadonlyScriptArrayView<Ogre::Technique*> TechniqueArray;
+
+static TechniqueArray* MaterialPtrGetTechniques(const MaterialPtr& self)
+{
+    return new TechniqueArray(self->getTechniques());
+}
+
+static void MaterialPtrDefaultConstructor(MaterialPtr* self)
+{
+    new (self) MaterialPtr();
+}
+
+static void MaterialPtrCopyConstructor(const MaterialPtr& other, MaterialPtr* self)
+{
+    new (self) MaterialPtr(other);
+}
+
+static void MaterialPtrDestructor(MaterialPtr* self)
+{
+    (self)->~MaterialPtr();
+}
+
+static void MaterialPtrAssignOperator(const MaterialPtr& other, MaterialPtr* self)
+{
+    (self)->operator=(other);
+}
+
+static bool MaterialPtrIsNull(MaterialPtr* self)
+{
+    return !(self)->operator bool();
+}
+
+// Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+static Ogre::String MaterialPtrGetName(MaterialPtr const& self)
+{
+    return self->getName();
+}
+
+static Ogre::Technique* MaterialPtrCreateTechnique(MaterialPtr const& self)
+{
+    try { return self->createTechnique(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::createTechnique()"); return (Ogre::Technique*)nullptr;}
+}
+
+static void MaterialPtrRemoveTechnique(MaterialPtr const& self, uint16_t index)
+{
+    try { self->removeTechnique(index); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::removeTechnique()"); }
+}
+
 /***TECHNIQUE***/
 typedef CReadonlyScriptArrayView<Ogre::Pass*> PassArray;
 

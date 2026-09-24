@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreMaterialGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTechniqueGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine);
@@ -147,6 +148,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 
     // dictionary/array view types, also under namespace `Ogre`
 
+    TechniqueArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TechniqueArray", "Technique");
     PassArray::RegisterReadonlyScriptArrayViewGeneric(engine, "PassArray", "Pass");
     TextureUnitStateArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TextureUnitStateArray", "TextureUnitState");
 
@@ -166,6 +168,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgreMaterialGeneric(engine);
     registerOgreTechniqueGeneric(engine);
     registerOgrePassGeneric(engine);
     registerOgreTextureUnitStateGeneric(engine);
@@ -571,6 +574,26 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("Image", "uint getWidth()", WRAP_MFN(Ogre::Image, getWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "uint getHeight()", WRAP_MFN(Ogre::Image, getHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", WRAP_MFN(Ogre::Image, resize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreMaterialGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("MaterialPtr", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(MaterialPtrDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MaterialPtr", asBEHAVE_CONSTRUCT, "void f(const MaterialPtr&in)", WRAP_OBJ_LAST(MaterialPtrCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MaterialPtr", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(MaterialPtrDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "MaterialPtr& opAssign(const MaterialPtr&in)", WRAP_OBJ_LAST(MaterialPtrAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "bool isNull()", WRAP_OBJ_LAST(MaterialPtrIsNull), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    r = engine->RegisterObjectMethod("MaterialPtr", "TechniqueArray@ getTechniques()", WRAP_OBJ_FIRST(MaterialPtrGetTechniques), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "string getName()", WRAP_OBJ_FIRST(MaterialPtrGetName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "Technique@ createTechnique()", WRAP_OBJ_FIRST(MaterialPtrCreateTechnique), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "void removeTechnique(uint16 index)", WRAP_OBJ_FIRST(MaterialPtrRemoveTechnique), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
