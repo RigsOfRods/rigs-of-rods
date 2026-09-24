@@ -131,6 +131,7 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine);
@@ -140,6 +141,17 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     int r;
 
     // NOTE: data types, enums and object properties are registered in RegisterOgreObjectsCommon()
+
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // dictionary/array view types, also under namespace `Ogre`
+
+    TextureUnitStateArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TextureUnitStateArray", "TextureUnitState");
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+
+    // Now we register the object methods
+
     registerOgreRadianGeneric(engine);
     registerOgreDegreeGeneric(engine);
     registerOgreVector3Generic(engine);
@@ -152,6 +164,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgrePassGeneric(engine);
     registerOgreTextureUnitStateGeneric(engine);
     registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
@@ -558,6 +571,33 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
+
+static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r = 0;
+    engine->SetDefaultNamespace("Ogre");
+
+    engine->RegisterObjectMethod("Pass", "const string& getName() const", WRAP_MFN(Ogre::Pass, getName), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "TextureUnitStateArray @getTextureUnitStates()", WRAP_OBJ_FIRST(PassGetTextureUnitStates), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "void removeTextureUnitState(uint16 index)", WRAP_MFN(Ogre::Pass, removeTextureUnitState), asCALL_GENERIC);
+
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getVertexProgramParameters()", WRAP_OBJ_FIRST(PassGetVertexProgramParameters), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getFragmentProgramParameters()", WRAP_OBJ_FIRST(PassGetFragmentProgramParameters), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getGeometryProgramParameters()", WRAP_OBJ_FIRST(PassGetGeometryProgramParameters), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getTessellationHullProgramParameters()", WRAP_OBJ_FIRST(PassGetTessellationHullProgramParameters), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getTessellationDomainProgramParameters()", WRAP_OBJ_FIRST(PassGetTessellationDomainProgramParameters), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getComputeProgramParameters()", WRAP_OBJ_FIRST(PassGetComputeProgramParameters), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    engine->RegisterObjectMethod("Pass", "void setVertexProgramParameters(GpuProgramParametersPtr)", WRAP_MFN(Ogre::Pass, setVertexProgramParameters), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "void setFragmentProgramParameters(GpuProgramParametersPtr)", WRAP_MFN(Ogre::Pass, setFragmentProgramParameters), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "void setGeometryProgramParameters(GpuProgramParametersPtr)", WRAP_MFN(Ogre::Pass, setGeometryProgramParameters), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "void setTessellationHullProgramParameters(GpuProgramParametersPtr)", WRAP_MFN(Ogre::Pass, setTessellationHullProgramParameters), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "void setTessellationDomainProgramParameters(GpuProgramParametersPtr)", WRAP_MFN(Ogre::Pass, setTessellationDomainProgramParameters), asCALL_GENERIC);
+    engine->RegisterObjectMethod("Pass", "void setComputeProgramParameters(GpuProgramParametersPtr)", WRAP_MFN(Ogre::Pass, setComputeProgramParameters), asCALL_GENERIC);
+
+    engine->SetDefaultNamespace("");
+}
+
 static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine)
 {
     engine->SetDefaultNamespace("Ogre");

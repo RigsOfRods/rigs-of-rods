@@ -398,6 +398,50 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***PASS***/
+typedef CReadonlyScriptArrayView<Ogre::TextureUnitState*> TextureUnitStateArray;
+
+static TextureUnitStateArray* PassGetTextureUnitStates(Pass* self)
+{
+    return new TextureUnitStateArray(self->getTextureUnitStates());
+}
+
+static Ogre::GpuProgramParametersPtr PassGetVertexProgramParameters(Ogre::Pass* self)
+{
+    try { return self->getVertexProgramParameters(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getVertexProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+}
+
+static Ogre::GpuProgramParametersPtr PassGetFragmentProgramParameters(Ogre::Pass* self)
+{
+    try { return self->getFragmentProgramParameters(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getFragmentProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+}
+
+static Ogre::GpuProgramParametersPtr PassGetGeometryProgramParameters(Ogre::Pass* self)
+{
+    try { return self->getGeometryProgramParameters(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getGeometryProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+}
+
+static Ogre::GpuProgramParametersPtr PassGetTessellationHullProgramParameters(Ogre::Pass* self)
+{
+    try { return self->getTessellationHullProgramParameters(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getTessellationHullProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+}
+
+static Ogre::GpuProgramParametersPtr PassGetTessellationDomainProgramParameters(Ogre::Pass* self)
+{
+    try { return self->getTessellationDomainProgramParameters(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getTessellationDomainProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+}
+
+static Ogre::GpuProgramParametersPtr PassGetComputeProgramParameters(Ogre::Pass* self)
+{
+    try { return self->getComputeProgramParameters(); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getComputeProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+}
+
 /***TIMER***/
 static void TimerDefaultConstructor(Timer* self)
 {
