@@ -398,6 +398,14 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***ANIMATIONSTATESET***/
+typedef CReadonlyScriptDictView<AnimationState*> AnimationStateDict;
+
+static AnimationStateDict* AnimationStateSetGetAnimationStates(AnimationStateSet* self)
+{
+    return new AnimationStateDict(self->getAnimationStates());
+}
+
 /***MATERIAL***/
 typedef CReadonlyScriptArrayView<Ogre::Technique*> TechniqueArray;
 
