@@ -102,8 +102,22 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
 
     r = engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
     ROR_ASSERT(r >= 0);
+
+    // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but in the version we're using it doesn't exist yet.
+    r = engine->RegisterObjectType("HardwarePixelBufferPtr", sizeof(HardwarePixelBufferSharedPtr), asOBJ_VALUE | asGetTypeTraits<HardwarePixelBufferSharedPtr>());
+    ROR_ASSERT(r >= 0);
+
     r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
+
+    // enums, also under namespace `Ogre`
+
+    r = engine->RegisterEnum("HardwareBufferLockOptions"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NORMAL", HardwareBuffer::LockOptions::HBL_NORMAL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_DISCARD", HardwareBuffer::LockOptions::HBL_DISCARD); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_READ_ONLY", HardwareBuffer::LockOptions::HBL_READ_ONLY); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NO_OVERWRITE", HardwareBuffer::LockOptions::HBL_NO_OVERWRITE); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_WRITE_ONLY", HardwareBuffer::LockOptions::HBL_WRITE_ONLY); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 

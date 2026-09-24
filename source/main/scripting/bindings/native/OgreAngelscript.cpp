@@ -48,29 +48,6 @@ using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
 
-/***HARDWAREPIXELBUFFER***/
-// NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
-static void HardwarePixelBufferPtrDefaultConstructor(HardwarePixelBufferSharedPtr* self)
-{
-    new (self) HardwarePixelBufferSharedPtr();
-}
-
-static void HardwarePixelBufferPtrCopyConstructor(const HardwarePixelBufferSharedPtr& other, HardwarePixelBufferSharedPtr* self)
-{
-    new (self) HardwarePixelBufferSharedPtr(other);
-}
-
-static void HardwarePixelBufferPtrDestructor(HardwarePixelBufferSharedPtr* self)
-{
-    (self)->~HardwarePixelBufferSharedPtr();
-}
-
-static void HardwarePixelBufferPtrAssignOperator(const HardwarePixelBufferSharedPtr& other, HardwarePixelBufferSharedPtr* self)
-{
-    (self)->operator=(other);
-}
-
-
 /***IMAGE***/
 static void ImageDefaultConstructor(Image* self)
 {
@@ -535,10 +512,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("Image", sizeof(Image), asOBJ_VALUE | asGetTypeTraits<Image>());
     ROR_ASSERT(r >= 0);
 
-    // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but in the version we're using it doesn't exist yet.
-    r = engine->RegisterObjectType("HardwarePixelBufferPtr", sizeof(HardwarePixelBufferSharedPtr), asOBJ_VALUE | asGetTypeTraits<HardwarePixelBufferSharedPtr>());
-    ROR_ASSERT(r >= 0);
-
     r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<MeshPtr>());
     ROR_ASSERT(r >= 0);
 
@@ -607,13 +580,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("ImageFilter", "FILTER_LINEAR", Image::Filter::FILTER_LINEAR); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("ImageFilter", "FILTER_BILINEAR", Image::Filter::FILTER_BILINEAR); ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterEnum("HardwareBufferLockOptions"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NORMAL", HardwareBuffer::LockOptions::HBL_NORMAL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_DISCARD", HardwareBuffer::LockOptions::HBL_DISCARD); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_READ_ONLY", HardwareBuffer::LockOptions::HBL_READ_ONLY); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NO_OVERWRITE", HardwareBuffer::LockOptions::HBL_NO_OVERWRITE); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_WRITE_ONLY", HardwareBuffer::LockOptions::HBL_WRITE_ONLY); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterEnum("LightTypes"); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("LightTypes", "LT_POINT", Light::LT_POINT); ROR_ASSERT(r >= 0);
@@ -1698,40 +1664,19 @@ void registerOgreHardwarePixelBuffer(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(HardwarePixelBufferPtrDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "HardwarePixelBufferPtr& opAssign(const HardwarePixelBufferPtr&in)", asFUNCTION(HardwarePixelBufferPtrAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& getCurrentLock()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self) -> const PixelBox& {
-        try { return self->getCurrentLock(); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getCurrentLock()"); return PIXELBOX_DUMMY;} 
-        }, (HardwarePixelBufferSharedPtr const&), const PixelBox&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& getCurrentLock()", asFUNCTION(HardwarePixelBufferPtrGetCurrentLock), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& lock(const box& lockbox, HardwareBufferLockOptions opt)", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self, const Box& lockbox, HardwareBuffer::LockOptions opt) -> const PixelBox& {
-        try { return self->lock(lockbox, opt); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::lock()"); return PIXELBOX_DUMMY;} 
-        }, (HardwarePixelBufferSharedPtr const&, const Box&, HardwareBuffer::LockOptions), const PixelBox&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);   
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& lock(const box& lockbox, HardwareBufferLockOptions opt)", asFUNCTION(HardwarePixelBufferPtrLock), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);   
 
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getWidth()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self) -> asUINT {
-        try { return self->getWidth(); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getWidth()"); return 0;} 
-        }, (HardwarePixelBufferSharedPtr const&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getWidth()", asFUNCTION(HardwarePixelBufferPtrGetWidth), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getHeight()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self) -> asUINT {
-        try { return self->getHeight(); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getHeight()"); return 0;}
-        }, (HardwarePixelBufferSharedPtr const&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getHeight()", asFUNCTION(HardwarePixelBufferPtrGetHeight), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitFromMemory(const PixelBox& src, const box& dst)", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self, const PixelBox& src, const Box& dstBox){
-        try { self->blitFromMemory(src, dstBox); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::blitFromMemory()"); }
-        }, (HardwarePixelBufferSharedPtr const&, const PixelBox&, const Box&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitFromMemory(const PixelBox& src, const box& dst)", asFUNCTION(HardwarePixelBufferPtrBlitFromMemory), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitToMemory(const box& src, const PixelBox& dst)", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self, const Box& srcBox, const PixelBox& dst){
-        try { self->blitToMemory(srcBox, dst); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::blitToMemory()"); }
-        }, (HardwarePixelBufferSharedPtr const&, const Box&, const PixelBox&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitToMemory(const box& src, const PixelBox& dst)", asFUNCTION(HardwarePixelBufferPtrBlitToMemory), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void unlock()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self){
-        try { self->unlock(); }
-        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::unlock()"); }
-        }, (HardwarePixelBufferSharedPtr const&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void unlock()", asFUNCTION(HardwarePixelBufferPtrUnlock), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     engine->SetDefaultNamespace("");
 }
