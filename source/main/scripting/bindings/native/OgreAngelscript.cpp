@@ -182,9 +182,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("Root", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
@@ -203,12 +200,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterEnumValue("TransformSpace", "TS_LOCAL", Node::TS_LOCAL); ROR_ASSERT(r >= 0); // Transform is relative to the local space
     r = engine->RegisterEnumValue("TransformSpace", "TS_PARENT", Node::TS_PARENT); ROR_ASSERT(r >= 0); // Transform is relative to the space of the parent node
     r = engine->RegisterEnumValue("TransformSpace", "TS_WORLD", Node::TS_WORLD); ROR_ASSERT(r >= 0); // Transform is relative to world space
-
-    r = engine->RegisterEnum("LightTypes"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("LightTypes", "LT_POINT", Light::LT_POINT); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("LightTypes", "LT_DIRECTIONAL", Light::LT_DIRECTIONAL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("LightTypes", "LT_SPOTLIGHT", Light::LT_SPOTLIGHT); ROR_ASSERT(r >= 0);
-
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
