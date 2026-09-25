@@ -179,6 +179,20 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    // Overlays
+    // ATTENTION! only instances of `OverlayContainer` (is-a `OverlayElement`) can actually be bound to overlays and retrieved from overlays
+    //            - see `Ogre::Overlay::add2D()`, `Ogre::Overlay::get2DElements()` and APIDOC on `OverlayContainer`.
+    //            This forces us to toss `dynamic_cast<>`s around :(
+
+    r = engine->RegisterObjectType("OverlayElement", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("Overlay", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("OverlayManager", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     // enums, also under namespace `Ogre`
 
     r = engine->RegisterEnum("IndexType"); ROR_ASSERT(r >= 0);
@@ -214,6 +228,16 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterEnumValue("LightTypes", "LT_POINT", Light::LT_POINT); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("LightTypes", "LT_DIRECTIONAL", Light::LT_DIRECTIONAL); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("LightTypes", "LT_SPOTLIGHT", Light::LT_SPOTLIGHT); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterEnum("GuiMetricsMode"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("GuiMetricsMode", "GMM_PIXELS", Ogre::GMM_PIXELS); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("GuiMetricsMode", "GMM_RELATIVE", Ogre::GMM_RELATIVE); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("GuiMetricsMode", "GMM_RELATIVE_ASPECT_ADJUSTED", Ogre::GMM_RELATIVE_ASPECT_ADJUSTED); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterEnum("GuiHorizontalAlignment"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("GuiHorizontalAlignment", "GHA_LEFT", Ogre::GHA_LEFT); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("GuiHorizontalAlignment", "GHA_CENTER", Ogre::GHA_CENTER); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("GuiHorizontalAlignment", "GHA_RIGHT", Ogre::GHA_RIGHT); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
