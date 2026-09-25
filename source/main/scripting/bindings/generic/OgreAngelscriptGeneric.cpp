@@ -170,6 +170,8 @@ static void registerOgrePassGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreLightGeneric(AngelScript::asIScriptEngine* engine);
+
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 {
@@ -220,6 +222,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreMaterialManagerGeneric(engine);
     registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
+    registerOgreLightGeneric(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -229,6 +232,9 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     // - `ManualObject` derives from `MovableObject`
     r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::ManualObject@ opCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Ogre::ManualObject", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // - `Light` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::Light@ opCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::Light>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::Light", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::Light, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     // Also register the const overloads so the cast works also when the handle is read only
 
@@ -238,6 +244,9 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     // - `ManualObject` derives from `MovableObject`
     r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::ManualObject@ opCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Ogre::ManualObject", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // - `Light` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::Light@ opCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::Light>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::Light", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::Light, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 }
 
 // register Ogre::Vector3
@@ -987,3 +996,56 @@ static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
 
+static void registerOgreLightGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Type control
+    r = engine->RegisterObjectMethod("Light", "void setType(LightTypes type)", WRAP_MFN(Ogre::Light, setType), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "LightTypes getType() const", WRAP_MFN(Ogre::Light, getType), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Color
+    r = engine->RegisterObjectMethod("Light", "void setDiffuseColour(float r, float g, float b)", WRAP_MFN_PR(Ogre::Light, setDiffuseColour, (float, float, float), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "void setDiffuseColour(const color&in)", WRAP_MFN_PR(Ogre::Light, setDiffuseColour, (const Ogre::ColourValue&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const color& getDiffuseColour() const", WRAP_MFN(Ogre::Light, getDiffuseColour), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Light", "void setSpecularColour(float r, float g, float b)", WRAP_MFN_PR(Ogre::Light, setSpecularColour, (float, float, float), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "void setSpecularColour(const color&in)", WRAP_MFN_PR(Ogre::Light, setSpecularColour, (const Ogre::ColourValue&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const color& getSpecularColour() const", WRAP_MFN(Ogre::Light, getSpecularColour), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Attenuation
+    r = engine->RegisterObjectMethod("Light", "void setAttenuation(float range, float constant, float linear, float quadratic)", WRAP_MFN(Ogre::Light, setAttenuation), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "float getAttenuationRange() const", WRAP_MFN(Ogre::Light, getAttenuationRange), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "float getAttenuationConstant() const", WRAP_MFN(Ogre::Light, getAttenuationConstant), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "float getAttenuationLinear() const", WRAP_MFN(Ogre::Light, getAttenuationLinear), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "float getAttenuationQuadric() const", WRAP_MFN(Ogre::Light, getAttenuationQuadric), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Position & Direction
+    r = engine->RegisterObjectMethod("Light", "void setPosition(float x, float y, float z)", WRAP_MFN_PR(Ogre::Light, setPosition, (float, float, float), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "void setPosition(const vector3&in)", WRAP_MFN_PR(Ogre::Light, setPosition, (const Ogre::Vector3&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const vector3& getPosition() const", WRAP_MFN(Ogre::Light, getPosition), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Light", "void setDirection(float x, float y, float z)", WRAP_MFN_PR(Ogre::Light, setDirection, (float, float, float), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "void setDirection(const vector3&in)", WRAP_MFN_PR(Ogre::Light, setDirection, (const Ogre::Vector3&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const vector3& getDirection() const", WRAP_MFN(Ogre::Light, getDirection), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Spotlight parameters
+    r = engine->RegisterObjectMethod("Light", "void setSpotlightRange(const radian&in innerAngle, const radian&in outerAngle, float falloff = 1.0f)", WRAP_MFN(Ogre::Light, setSpotlightRange), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const radian& getSpotlightInnerAngle() const", WRAP_MFN(Ogre::Light, getSpotlightInnerAngle), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const radian& getSpotlightOuterAngle() const", WRAP_MFN(Ogre::Light, getSpotlightOuterAngle), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "float getSpotlightFalloff() const", WRAP_MFN(Ogre::Light, getSpotlightFalloff), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Power scale
+    r = engine->RegisterObjectMethod("Light", "void setPowerScale(float power)", WRAP_MFN(Ogre::Light, setPowerScale), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "float getPowerScale() const", WRAP_MFN(Ogre::Light, getPowerScale), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Derived direction (useful for attached lights)
+    r = engine->RegisterObjectMethod("Light", "const vector3& getDerivedPosition() const", WRAP_MFN(Ogre::Light, getDerivedPosition), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Light", "const vector3& getDerivedDirection() const", WRAP_MFN(Ogre::Light, getDerivedDirection), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Inherit MovableObject methods
+    registerOgreMovableObjectBaseGeneric<Ogre::Light>(engine, "Light");
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}

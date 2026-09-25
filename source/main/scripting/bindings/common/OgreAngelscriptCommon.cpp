@@ -164,6 +164,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("GpuProgramParametersPtr", sizeof(GpuProgramParametersPtr), asOBJ_VALUE | asGetTypeTraits<GpuProgramParametersPtr>());
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("Light", sizeof(Light), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     // enums, also under namespace `Ogre`
 
     r = engine->RegisterEnum("IndexType"); ROR_ASSERT(r >= 0);
@@ -189,6 +192,11 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_READ_ONLY", HardwareBuffer::LockOptions::HBL_READ_ONLY); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NO_OVERWRITE", HardwareBuffer::LockOptions::HBL_NO_OVERWRITE); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_WRITE_ONLY", HardwareBuffer::LockOptions::HBL_WRITE_ONLY); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterEnum("LightTypes"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("LightTypes", "LT_POINT", Light::LT_POINT); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("LightTypes", "LT_DIRECTIONAL", Light::LT_DIRECTIONAL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("LightTypes", "LT_SPOTLIGHT", Light::LT_SPOTLIGHT); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
