@@ -100,10 +100,13 @@ inline void RegisterGameScript(AngelScript::asIScriptEngine* engine)
 void RegisterScriptEvents(AngelScript::asIScriptEngine* engine);
 
 /// defined in ImGuiAngelscript.cpp
+void RegisterImGuiCommonBindings(AngelScript::asIScriptEngine* engine);
 void RegisterImGuiNativeBindings(AngelScript::asIScriptEngine* engine);
+void RegisterImGuiGenericBindings(AngelScript::asIScriptEngine* engine);
 inline void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("ImGui", engine, &RegisterImGuiNativeBindings, nullptr);
+    RegisterImGuiCommonBindings(engine);
+    RegisterAngelScriptBinding("ImGui", engine, &RegisterImGuiNativeBindings, &RegisterImGuiGenericBindings);
 }
 
 // This function will register the following objects with the scriptengine:

@@ -39,7 +39,7 @@ namespace AngelImGui { // Dummy namespace, just to distinguish AngelScript from 
 
     vector2 GetWindowPos();
     vector2 GetWindowSize(); 
-    float GetWindowWedth();                                     
+    float GetWindowWidth();                                     
     float GetWindowHeight();                                    
     bool IsWindowCollapsed();                                   
     void SetWindowFontScale(float);                             
