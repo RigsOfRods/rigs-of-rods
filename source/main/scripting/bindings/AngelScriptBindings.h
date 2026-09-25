@@ -96,8 +96,13 @@ inline void RegisterGameScript(AngelScript::asIScriptEngine* engine)
     RegisterAngelScriptBinding("GameScript", engine, &RegisterGameScriptNative, &RegisterGameScriptGeneric);
 }
 
-/// Registers enum scriptEvents, defined in ScriptEventsAngelscript.cpp
-void RegisterScriptEvents(AngelScript::asIScriptEngine* engine);
+/// Registers enum scriptEvents and related enums, defined in ScriptEventsAngelscriptCommon.cpp
+/// NOTE: only enums, nothing depends on calling convention - so there are no native/generic variants.
+void RegisterScriptEventsCommon(AngelScript::asIScriptEngine* engine);
+inline void RegisterScriptEvents(AngelScript::asIScriptEngine* engine)
+{
+    RegisterScriptEventsCommon(engine);
+}
 
 /// defined in ImGuiAngelscript.cpp
 void RegisterImGuiCommonBindings(AngelScript::asIScriptEngine* engine);
