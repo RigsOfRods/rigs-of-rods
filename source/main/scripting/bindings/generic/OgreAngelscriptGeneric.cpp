@@ -132,6 +132,14 @@ static float AnimationStateGetBlendMaskEntry(AnimationState* self, asUINT boneHa
     return self->getBlendMaskEntry(boneHandle);
 }
 
+// Generic version of `ScriptRefCastNoCount()` from ScriptUtils.h
+template<class A, class B>
+static void ScriptRefCastNoCountGeneric(asIScriptGeneric* gen)
+{
+    A* a = static_cast<A*>(gen->GetObject());
+    *static_cast<B**>(gen->GetAddressOfReturnLocation()) = ScriptRefCastNoCount<A, B>(a);
+}
+
 // forward declarations, defined below
 static void registerOgreVector3Generic(AngelScript::asIScriptEngine* engine);
 static void registerOgreVector2Generic(AngelScript::asIScriptEngine* engine);
@@ -146,6 +154,7 @@ static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreManualObjectGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
@@ -192,6 +201,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreAnimationStateSetGeneric(engine);
     registerOgreTextureGeneric(engine);
     registerOgreTextureManagerGeneric(engine);
+    registerOgreManualObjectGeneric(engine);
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
@@ -205,6 +215,18 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreMaterialManagerGeneric(engine);
     registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
+
+    // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
+
+    // - `ManualObject` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::ManualObject@ opCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::ManualObject", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Also register the const overloads so the cast works also when the handle is read only
+
+    // - `ManualObject` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::ManualObject@ opCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::ManualObject", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 }
 
 // register Ogre::Vector3
@@ -626,6 +648,30 @@ static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* e
     r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationStateDict@ getAnimationStates()", WRAP_OBJ_LAST(AnimationStateSetGetAnimationStates), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreManualObjectGeneric(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    // Register the ManualObject class
+    engine->RegisterObjectMethod("ManualObject", "void begin(const string&in, RenderOperation, const string&in)", WRAP_MFN_PR(Ogre::ManualObject, begin, (const String&, Ogre::RenderOperation::OperationType, const String&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void beginUpdate()", WRAP_MFN(Ogre::ManualObject, beginUpdate), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void position(const vector3&in)", WRAP_MFN_PR(Ogre::ManualObject, position, (const Ogre::Vector3&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void normal(const vector3&in)", WRAP_MFN_PR(Ogre::ManualObject, normal, (const Ogre::Vector3&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void textureCoord(float, float)", WRAP_MFN_PR(Ogre::ManualObject, textureCoord, (float, float), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void textureCoord(const vector2&in)", WRAP_MFN_PR(Ogre::ManualObject, textureCoord, (const Ogre::Vector2&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void textureCoord(const vector3&in)", WRAP_MFN_PR(Ogre::ManualObject, textureCoord, (const Ogre::Vector3&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void colour(const color&in)", WRAP_MFN_PR(Ogre::ManualObject, colour, (const Ogre::ColourValue&), void), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void index(uint32)", WRAP_MFN(Ogre::ManualObject, index), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void end()", WRAP_MFN(Ogre::ManualObject, end), asCALL_GENERIC);
+
+    engine->RegisterObjectMethod("ManualObject", "uint getCurrentVertexCount()", WRAP_MFN(Ogre::ManualObject, getCurrentVertexCount), asCALL_GENERIC);
+    engine->RegisterObjectMethod("ManualObject", "void getCurrentIndexCount()", WRAP_MFN(Ogre::ManualObject, getCurrentIndexCount), asCALL_GENERIC);
+
+    engine->RegisterObjectMethod("ManualObject", "MeshPtr convertToMesh(const string&in name, const string&in group = 'General')", WRAP_MFN(Ogre::ManualObject, convertToMesh), asCALL_GENERIC);
+
+    engine->SetDefaultNamespace("");
 }
 
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine)

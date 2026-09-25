@@ -115,6 +115,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("ManualObject", sizeof(ManualObject), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     r = engine->RegisterObjectType("Image", sizeof(Image), asOBJ_VALUE | asGetTypeTraits<Image>());
     ROR_ASSERT(r >= 0);
 
@@ -160,6 +163,14 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterEnum("IndexType"); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("IndexType", "IT_16BIT", Ogre::HardwareIndexBuffer::IT_16BIT); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("IndexType", "IT_32BIT", Ogre::HardwareIndexBuffer::IT_32BIT); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterEnum("RenderOperation"); ROR_ASSERT(r >= 0); // NOTE: `Ogre::RenderOperation` is a wrapper class - the enum is `OperationType`
+    r = engine->RegisterEnumValue("RenderOperation", "OT_POINT_LIST",  Ogre::RenderOperation::OT_POINT_LIST); ROR_ASSERT(r >= 0);        // A list of points, 1 vertex per point
+    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_LIST",  Ogre::RenderOperation::OT_LINE_LIST); ROR_ASSERT(r >= 0);          // A list of lines, 2 vertices per line
+    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_STRIP",  Ogre::RenderOperation::OT_LINE_STRIP); ROR_ASSERT(r >= 0);        // A strip of connected lines, 1 vertex per line plus 1 start vertex
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_LIST",  Ogre::RenderOperation::OT_TRIANGLE_LIST); ROR_ASSERT(r >= 0);  // A list of triangles, 3 vertices per triangle
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_STRIP",  Ogre::RenderOperation::OT_TRIANGLE_STRIP); ROR_ASSERT(r >= 0);// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_FAN",  Ogre::RenderOperation::OT_TRIANGLE_FAN); ROR_ASSERT(r >= 0);    // A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
 
     r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more
     r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST); ROR_ASSERT(r >= 0);
