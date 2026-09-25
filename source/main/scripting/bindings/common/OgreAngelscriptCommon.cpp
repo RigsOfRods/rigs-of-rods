@@ -109,6 +109,12 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("SubEntity", sizeof(SubEntity), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("Node", sizeof(Node), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("SceneNode", sizeof(SceneNode), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     r = engine->RegisterObjectType("AnimationState", sizeof(AnimationState), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
@@ -172,6 +178,11 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterEnum("IndexType"); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("IndexType", "IT_16BIT", Ogre::HardwareIndexBuffer::IT_16BIT); ROR_ASSERT(r >= 0);
     r = engine->RegisterEnumValue("IndexType", "IT_32BIT", Ogre::HardwareIndexBuffer::IT_32BIT); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterEnum("TransformSpace"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("TransformSpace", "TS_LOCAL", Node::TS_LOCAL); ROR_ASSERT(r >= 0); // Transform is relative to the local space
+    r = engine->RegisterEnumValue("TransformSpace", "TS_PARENT", Node::TS_PARENT); ROR_ASSERT(r >= 0); // Transform is relative to the space of the parent node
+    r = engine->RegisterEnumValue("TransformSpace", "TS_WORLD", Node::TS_WORLD); ROR_ASSERT(r >= 0); // Transform is relative to world space
 
     r = engine->RegisterEnum("RenderOperation"); ROR_ASSERT(r >= 0); // NOTE: `Ogre::RenderOperation` is a wrapper class - the enum is `OperationType`
     r = engine->RegisterEnumValue("RenderOperation", "OT_POINT_LIST",  Ogre::RenderOperation::OT_POINT_LIST); ROR_ASSERT(r >= 0);        // A list of points, 1 vertex per point
