@@ -19,6 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/// @file
+
 #include "ScriptEvents.h"
 #include "AngelScriptBindings.h"
 #include "Application.h"
@@ -28,7 +30,7 @@
 using namespace AngelScript;
 using namespace RoR;
 
-void RoR::RegisterMessageQueue(asIScriptEngine* engine)
+void RoR::RegisterMessageQueueCommon(asIScriptEngine* engine)
 {
     int result;
 
