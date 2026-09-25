@@ -398,6 +398,215 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***MESH***/
+typedef CReadonlyScriptArrayView<Ogre::SubMesh*> SubMeshArray;
+
+static SubMeshArray* MeshPtrGetSubmeshes(const MeshPtr& self)
+{
+    return new SubMeshArray(self->getSubMeshes());
+}
+
+static void MeshPtrDefaultConstructor(MeshPtr* self)
+{
+    new (self) MeshPtr();
+}
+
+static void MeshPtrCopyConstructor(const MeshPtr& other, MeshPtr* self)
+{
+    new (self) MeshPtr(other);
+}
+
+static void MeshPtrDestructor(MeshPtr* self)
+{
+    (self)->~MeshPtr();
+}
+
+static void MeshPtrAssignOperator(const MeshPtr& other, MeshPtr* self)
+{
+    (self)->operator=(other);
+}
+
+static bool MeshPtrIsNull(MeshPtr* self)
+{
+    return !(self)->operator bool();
+}
+
+// Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+static Ogre::String MeshPtrGetName(MeshPtr const& self)
+{
+    return self->getName();
+}
+
+static Ogre::SubMesh* MeshPtrCreateSubMesh(MeshPtr const& self, const Ogre::String& name)
+{
+    return self->createSubMesh(name);
+}
+
+static void MeshPtrDestroySubMesh(MeshPtr const& self, const Ogre::String& name)
+{
+    self->createSubMesh(name);
+}
+
+/***MESHMANAGER***/
+static MeshPtr MeshManagerLoad(MeshManager& mgr, std::string const& file, std::string const& rg)
+{
+    try { return mgr.load(file, rg); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MeshManager::load()"); return Ogre::MeshPtr();}
+}
+
+static void MeshManagerRemove(MeshManager& mgr, std::string const& file, std::string const& rg)
+{
+    try { mgr.remove(file, rg); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MeshManager::remove()"); }
+}
+
+/***SUBMESH***/
+static AngelScript::CScriptArray* SubMesh__getVertexPositions(SubMesh* self)
+{
+    VertexData* vertData = (self->useSharedVertices) ? self->parent->sharedVertexData : self->vertexData;
+    if (!vertData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexPositions(): No vertex data found");
+        return nullptr;
+    }
+    const Ogre::VertexElement* posElem = vertData->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
+    if (!posElem)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexPositions(): No POSITION element found");
+        return nullptr;
+    }
+    Ogre::HardwareVertexBufferSharedPtr vbuf = vertData->vertexBufferBinding->getBuffer(posElem->getSource());
+    if (!vbuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexPositions(): No vertex buffer found");
+        return nullptr;
+    }
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<vector3>");
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, vertData->vertexCount);
+    uint8_t* pStart = static_cast<uint8_t*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+    for (size_t i = 0; i < vertData->vertexCount; i++)
+    {
+        uint8_t* pVert = pStart + (i * vertData->vertexDeclaration->getVertexSize(posElem->getSource()));
+        float* pPos = nullptr;
+        posElem->baseVertexPointerToElement(pVert, &pPos);
+        Vector3 pos(*pPos, *(pPos+1), *(pPos+2));
+        arr->SetValue(i, &pos);
+    }
+    vbuf->unlock();
+    return arr;
+}
+
+static AngelScript::CScriptArray* SubMesh__getVertexTexcoords(SubMesh* self, asUINT index)
+{
+    VertexData* vertData = (self->useSharedVertices) ? self->parent->sharedVertexData : self->vertexData;
+    if (!vertData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexTexcoords(): No vertex data found");
+        return nullptr;
+    }
+    const Ogre::VertexElement* texcoordElem = vertData->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES, (unsigned short)index);
+    if (!texcoordElem)
+    {
+        App::GetScriptEngine()->SLOG(fmt::format("SubMesh::__getVertexTexcoords(): TEXCOORD element with index {} not found", index));
+        return nullptr;
+    }
+    Ogre::HardwareVertexBufferSharedPtr vbuf = vertData->vertexBufferBinding->getBuffer(texcoordElem->getSource());
+    if (!vbuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexTexcoords(): No vertex buffer found");
+        return nullptr;
+    }
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<vector2>");
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, vertData->vertexCount);
+    uint8_t* pStart = static_cast<uint8_t*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+    const size_t vertSize = vertData->vertexDeclaration->getVertexSize(texcoordElem->getSource());
+    ROR_ASSERT(texcoordElem->getType() == Ogre::VET_FLOAT2);
+    for (size_t i = 0; i < vertData->vertexCount; i++)
+    {
+        uint8_t* pVert = pStart + ((i + vertData->vertexStart) * vertSize);
+        float* pTexcoord = nullptr;
+        texcoordElem->baseVertexPointerToElement(pVert, &pTexcoord);
+        Vector2 texcoord(*pTexcoord, *(pTexcoord+1));
+        arr->SetValue(i, &texcoord);
+    }
+    vbuf->unlock();
+    return arr;
+}
+
+static Ogre::HardwareIndexBuffer::IndexType SubMesh__getIndexType(SubMesh* self)
+{
+    if (!self->indexData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexType(): No index data found");
+        return Ogre::HardwareIndexBuffer::IT_16BIT;
+    }
+    Ogre::HardwareIndexBufferSharedPtr ibuf = self->indexData->indexBuffer;
+    if (!ibuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexType(): No index buffer found");
+        return Ogre::HardwareIndexBuffer::IT_16BIT;
+    }
+    return ibuf->getType();
+}
+
+static AngelScript::CScriptArray* SubMesh__getIndexBufferHelper(Ogre::SubMesh* self, Ogre::HardwareIndexBuffer::IndexType desiredType)
+{
+    if (!self->indexData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): No index data found");
+        return nullptr;
+    }
+    Ogre::HardwareIndexBufferSharedPtr ibuf = self->indexData->indexBuffer;
+    if (!ibuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): No index buffer found");
+        return nullptr;
+    }
+    if (ibuf->getType() != desiredType)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): Index buffer type mismatch");
+        return nullptr;
+    }
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<uint16>");
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, self->indexData->indexCount);
+    uint8_t* pStart = static_cast<uint8_t*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+    for (size_t i = self->indexData->indexStart; i < self->indexData->indexCount; i++)
+    {
+        uint8_t* pIndex = pStart + (i * ibuf->getIndexSize());
+        if (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_16BIT)
+        {
+            uint16_t index = *reinterpret_cast<uint16_t*>(pIndex);
+            arr->SetValue(i, &index);
+        }
+        else if (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT)
+        {
+            uint32_t index = *reinterpret_cast<uint32_t*>(pIndex);
+            arr->SetValue(i, &index);
+        }
+        else
+        {
+            App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): Unknown index buffer type");
+            return nullptr;
+        }
+    }
+    ibuf->unlock();
+    return arr;
+}
+
+static CScriptArray* SubMesh__getIndexBuffer16bit(Ogre::SubMesh* self)
+{
+    const Ogre::HardwareIndexBuffer::IndexType desiredType = Ogre::HardwareIndexBuffer::IndexType::IT_16BIT;
+    if (SubMesh__getIndexType(self) == desiredType) { return SubMesh__getIndexBufferHelper(self, desiredType); }
+    else { App::GetScriptEngine()->SLOG("SubMesh::__getIndexBuffer16bit(): The buffer format isn't 16bit."); return (CScriptArray*)nullptr; }
+}
+
+static CScriptArray* SubMesh__getIndexBuffer32bit(Ogre::SubMesh* self)
+{
+    const Ogre::HardwareIndexBuffer::IndexType desiredType = Ogre::HardwareIndexBuffer::IndexType::IT_32BIT;
+    if (SubMesh__getIndexType(self) == desiredType) { return SubMesh__getIndexBufferHelper(self, desiredType); }
+    else { App::GetScriptEngine()->SLOG("SubMesh::__getIndexBuffer32bit(): The buffer format isn't 32bit."); return (CScriptArray*)nullptr; }
+}
+
 /***MOVABLEOBJECT***/
 static std::string MovableObjectGetUniqueNameMixin(Ogre::MovableObject* self)
 {
