@@ -607,6 +607,34 @@ static CScriptArray* SubMesh__getIndexBuffer32bit(Ogre::SubMesh* self)
     else { App::GetScriptEngine()->SLOG("SubMesh::__getIndexBuffer32bit(): The buffer format isn't 32bit."); return (CScriptArray*)nullptr; }
 }
 
+/***NODE***/
+typedef CReadonlyScriptArrayView<Ogre::Node*> ChildNodeArray;
+
+static ChildNodeArray* NodeGetChildren(Ogre::Node* self)
+{
+    return new ChildNodeArray(self->getChildren());
+}
+
+static std::string NodeGetUniqueNameMixin(Ogre::Node* self)
+{
+    // Node names are optional and largely unused by RoR, so always append the memory address (libfmt adds the '0x' prefix)
+    return fmt::format("\"{}\" ({})", self->getName(), static_cast<void*>(self));
+}
+
+template <typename T>
+static void NodeSetOrientation(T* self, const Ogre::Quaternion& q)
+{
+    self->setOrientation(q);
+}
+
+/***SCENENODE***/
+typedef CReadonlyScriptArrayView<Ogre::MovableObject*> MovableObjectArray;
+
+static MovableObjectArray* SceneNodeGetAttachedObjects(SceneNode* self)
+{
+    return new MovableObjectArray(self->getAttachedObjects());
+}
+
 /***MOVABLEOBJECT***/
 static std::string MovableObjectGetUniqueNameMixin(Ogre::MovableObject* self)
 {

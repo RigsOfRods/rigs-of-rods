@@ -48,28 +48,6 @@ using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
 
-/***NODE***/
-typedef CReadonlyScriptArrayView<Ogre::Node*> ChildNodeArray;
-
-static ChildNodeArray* NodeGetChildren(Ogre::Node* self)
-{
-    return new ChildNodeArray(self->getChildren());
-}
-
-static std::string NodeGetUniqueNameMixin(Ogre::Node* self)
-{
-    // Node names are optional and largely unused by RoR, so always append the memory address (libfmt adds the '0x' prefix)
-    return fmt::format("\"{}\" ({})", self->getName(), static_cast<void*>(self));
-}
-
-/***SCENENODE***/
-typedef CReadonlyScriptArrayView<Ogre::MovableObject*> MovableObjectArray;
-
-static MovableObjectArray* SceneNodeGetAttachedObjects(SceneNode* self)
-{
-    return new MovableObjectArray(self->getAttachedObjects());
-}
-
 /***ROOT***/
 typedef CReadonlyScriptDictView<SceneManager*> SceneManagerInstanceDict;
 
@@ -170,12 +148,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectType("Node", sizeof(Node), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("SceneNode", sizeof(SceneNode), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
     r = engine->RegisterObjectType("SceneManager", sizeof(SceneManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
@@ -193,13 +165,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     PassArray::RegisterReadonlyScriptArrayView(engine, "PassArray", "Pass");
     TextureUnitStateArray::RegisterReadonlyScriptArrayView(engine, "TextureUnitStateArray", "TextureUnitState");
     SubEntityArray::RegisterReadonlyScriptArrayView(engine, "SubEntityArray", "SubEntity");
-
-    // enums, also under namespace `Ogre`
-
-    r = engine->RegisterEnum("TransformSpace"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("TransformSpace", "TS_LOCAL", Node::TS_LOCAL); ROR_ASSERT(r >= 0); // Transform is relative to the local space
-    r = engine->RegisterEnumValue("TransformSpace", "TS_PARENT", Node::TS_PARENT); ROR_ASSERT(r >= 0); // Transform is relative to the space of the parent node
-    r = engine->RegisterEnumValue("TransformSpace", "TS_WORLD", Node::TS_WORLD); ROR_ASSERT(r >= 0); // Transform is relative to world space
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
@@ -897,9 +862,7 @@ void registerOgreNodeBase(AngelScript::asIScriptEngine* engine, const char* obj)
     r = engine->RegisterObjectMethod(obj, "Node@ getParent()", asMETHOD(T, getParent), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectMethod(obj, "const quaternion& getOrientation() const", asMETHOD(T, getOrientation), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod(obj, "void setOrientation(const quaternion&in)", asFUNCTIONPR([](T* self, const Ogre::Quaternion& q){
-        self->setOrientation(q);
-        }, (T*, const Quaternion&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "void setOrientation(const quaternion&in)", asFUNCTION(NodeSetOrientation<T>), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectMethod(obj, "string __getUniqueName() const", asFUNCTION(NodeGetUniqueNameMixin), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     
@@ -934,7 +897,7 @@ void registerOgreSceneNode(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("SceneNode", "SceneManager@ getCreator() const", asMETHOD(SceneNode, getCreator), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneNode", "void removeAndDestroyChild(const string& in)", asMETHODPR(SceneNode, removeAndDestroyChild, (const String&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneNode", "void removeAndDestroyChild(uint16)", asMETHODPR(SceneNode, removeAndDestroyChild, (uint16), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("SceneNode", "void removeAndDestroyChild(SceneNode@)", asMETHODPR(SceneNode, removeAndDestroyChild, (uint16), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneNode", "void removeAndDestroyChild(SceneNode@)", asMETHODPR(SceneNode, removeAndDestroyChild, (SceneNode*), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneNode", "void removeAndDestroyAllChildren()", asMETHOD(SceneNode, removeAndDestroyAllChildren), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneNode", "void showBoundingBox(bool bShow)", asMETHOD(SceneNode, showBoundingBox), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneNode", "void hideBoundingBox(bool bHide)", asMETHOD(SceneNode, hideBoundingBox), asCALL_THISCALL); ROR_ASSERT(r >= 0);
