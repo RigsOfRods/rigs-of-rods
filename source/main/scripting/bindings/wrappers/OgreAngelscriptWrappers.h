@@ -398,6 +398,13 @@ static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
     (self)->operator=(other);
 }
 
+/***MOVABLEOBJECT***/
+static std::string MovableObjectGetUniqueNameMixin(Ogre::MovableObject* self)
+{
+    // names are optional and largely unused by RoR, so always append the type and memory address (libfmt adds the '0x' prefix)
+    return fmt::format("\"{}\" ({} {})", self->getName(), self->getMovableType(), static_cast<void*>(self));
+}
+
 /***ANIMATIONSTATESET***/
 typedef CReadonlyScriptDictView<AnimationState*> AnimationStateDict;
 

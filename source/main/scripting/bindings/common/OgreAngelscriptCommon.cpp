@@ -100,6 +100,9 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("MovableObject", sizeof(MovableObject), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     r = engine->RegisterObjectType("AnimationState", sizeof(AnimationState), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
