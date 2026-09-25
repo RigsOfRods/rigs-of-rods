@@ -149,6 +149,9 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine* engi
 static void registerOgreHardwarePixelBufferGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgrePixelBoxGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreMeshManagerGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreMeshGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreSubMeshGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreMaterialManagerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreMaterialGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTechniqueGeneric(AngelScript::asIScriptEngine* engine);
@@ -168,6 +171,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     // dictionary/array view types, also under namespace `Ogre`
 
     AnimationStateDict::RegisterReadonlyScriptDictViewGeneric(engine, "AnimationStateDict", "AnimationState");
+    SubMeshArray::RegisterReadonlyScriptArrayViewGeneric(engine, "SubMeshArray", "SubMesh");
     TechniqueArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TechniqueArray", "Technique");
     PassArray::RegisterReadonlyScriptArrayViewGeneric(engine, "PassArray", "Pass");
     TextureUnitStateArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TextureUnitStateArray", "TextureUnitState");
@@ -191,6 +195,9 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBufferGeneric(engine);
     registerOgrePixelBoxGeneric(engine);
     registerOgreImageGeneric(engine);
+    registerOgreMeshGeneric(engine);
+    registerOgreSubMeshGeneric(engine);
+    registerOgreMeshManagerGeneric(engine);
     registerOgreMaterialGeneric(engine);
     registerOgreTechniqueGeneric(engine);
     registerOgrePassGeneric(engine);
@@ -684,6 +691,60 @@ static void registerOgreImageGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("Image", "uint getWidth()", WRAP_MFN(Ogre::Image, getWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "uint getHeight()", WRAP_MFN(Ogre::Image, getHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", WRAP_MFN(Ogre::Image, resize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreSubMeshGeneric(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    // Register the SubMesh class
+    engine->RegisterObjectMethod("SubMesh", "const string& getMaterialName()", WRAP_MFN(Ogre::SubMesh, getMaterialName), asCALL_GENERIC);
+    engine->RegisterObjectMethod("SubMesh", "void setMaterialName(const string&in, const string&in)", WRAP_MFN(Ogre::SubMesh, setMaterialName), asCALL_GENERIC);
+
+    // > Vertex buffer
+    engine->RegisterObjectMethod("SubMesh", "array<vector3>@ __getVertexPositions()", WRAP_OBJ_FIRST(SubMesh__getVertexPositions), asCALL_GENERIC);
+    engine->RegisterObjectMethod("SubMesh", "array<vector2>@ __getVertexTexcoords(uint index)", WRAP_OBJ_FIRST(SubMesh__getVertexTexcoords), asCALL_GENERIC);
+
+    // > Index buffer
+    engine->RegisterObjectMethod("SubMesh", "array<uint16>@ __getIndexBuffer16bit()", WRAP_OBJ_FIRST(SubMesh__getIndexBuffer16bit), asCALL_GENERIC);
+    engine->RegisterObjectMethod("SubMesh", "array<uint>@ __getIndexBuffer32bit()", WRAP_OBJ_FIRST(SubMesh__getIndexBuffer32bit), asCALL_GENERIC);
+    engine->RegisterObjectMethod("SubMesh", "IndexType __getIndexType()", WRAP_OBJ_FIRST(SubMesh__getIndexType), asCALL_GENERIC);
+
+    engine->SetDefaultNamespace("");
+}
+
+static void registerOgreMeshGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("MeshPtr", asBEHAVE_CONSTRUCT, "void f()", WRAP_OBJ_LAST(MeshPtrDefaultConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MeshPtr", asBEHAVE_CONSTRUCT, "void f(const MeshPtr&in)", WRAP_OBJ_LAST(MeshPtrCopyConstructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MeshPtr", asBEHAVE_DESTRUCT, "void f()", WRAP_OBJ_LAST(MeshPtrDestructor), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "MeshPtr& opAssign(const MeshPtr&in)", WRAP_OBJ_LAST(MeshPtrAssignOperator), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "bool isNull()", WRAP_OBJ_LAST(MeshPtrIsNull), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    r = engine->RegisterObjectMethod("MeshPtr", "SubMeshArray@ getSubMeshes()", WRAP_OBJ_FIRST(MeshPtrGetSubmeshes), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "string getName()", WRAP_OBJ_FIRST(MeshPtrGetName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "SubMesh@ createSubMesh(const string&in name)", WRAP_OBJ_FIRST(MeshPtrCreateSubMesh), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "void destroySubMesh(const string&in name)", WRAP_OBJ_FIRST(MeshPtrDestroySubMesh), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreMeshManagerGeneric(AngelScript::asIScriptEngine * engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MeshManager", "MeshPtr load(const string&in file, const string&in rg)", WRAP_OBJ_FIRST(MeshManagerLoad), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshManager", "void remove(const string&in file, const string&in rg)", WRAP_OBJ_FIRST(MeshManagerRemove), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace("Ogre::MeshManager"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterGlobalFunction("MeshManager& getSingleton()", WRAP_FN(MeshManager::getSingleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

@@ -125,6 +125,15 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<MeshPtr>());
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("SubMesh", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("MeshManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     r = engine->RegisterObjectType("MaterialManager", sizeof(MaterialManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
@@ -147,6 +156,10 @@ void RoR::RegisterOgreObjectsCommon(asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     // enums, also under namespace `Ogre`
+
+    r = engine->RegisterEnum("IndexType"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("IndexType", "IT_16BIT", Ogre::HardwareIndexBuffer::IT_16BIT); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("IndexType", "IT_32BIT", Ogre::HardwareIndexBuffer::IT_32BIT); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more
     r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST); ROR_ASSERT(r >= 0);
