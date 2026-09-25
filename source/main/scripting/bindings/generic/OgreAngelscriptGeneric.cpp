@@ -175,6 +175,9 @@ static void registerOgreTextureUnitStateGeneric(AngelScript::asIScriptEngine* en
 static void registerOgreTimerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreGpuProgramParametersGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreLightGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreOverlayGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreOverlayElementGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreOverlayManagerGeneric(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
@@ -235,6 +238,9 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreTimerGeneric(engine);
     registerOgreGpuProgramParametersGeneric(engine);
     registerOgreLightGeneric(engine);
+    registerOgreOverlayGeneric(engine);
+    registerOgreOverlayElementGeneric(engine);
+    registerOgreOverlayManagerGeneric(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -842,6 +848,123 @@ static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* e
     r = engine->RegisterObjectMethod("AnimationStateSet", "void removeAnimationState(const string& in)", WRAP_MFN(AnimationStateSet, removeAnimationState), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("AnimationStateSet", "void removeAllAnimationStates()", WRAP_MFN(AnimationStateSet, removeAllAnimationStates), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationStateDict@ getAnimationStates()", WRAP_OBJ_LAST(AnimationStateSetGetAnimationStates), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreOverlayElementGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Register the OverlayElement class
+    // (order roughly matches OgreOverlayElement.h)
+    r = engine->RegisterObjectMethod("OverlayElement", "const string& getName() const", WRAP_MFN(Ogre::OverlayElement, getName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > visibility
+    r = engine->RegisterObjectMethod("OverlayElement", "void show()", WRAP_MFN(Ogre::OverlayElement, show), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void hide()", WRAP_MFN(Ogre::OverlayElement, hide), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "bool isVisible() const", WRAP_MFN(Ogre::OverlayElement, isVisible), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > positioning
+    r = engine->RegisterObjectMethod("OverlayElement", "void setPosition(float, float)", WRAP_MFN(Ogre::OverlayElement, setPosition), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setDimensions(float, float)", WRAP_MFN(Ogre::OverlayElement, setDimensions), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "float getLeft() const", WRAP_MFN(Ogre::OverlayElement, getLeft), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "float getTop() const", WRAP_MFN(Ogre::OverlayElement, getTop), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "float getWidth() const", WRAP_MFN(Ogre::OverlayElement, getWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "float getHeight() const", WRAP_MFN(Ogre::OverlayElement, getHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setLeft(float)", WRAP_MFN(Ogre::OverlayElement, setLeft), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setTop(float)", WRAP_MFN(Ogre::OverlayElement, setTop), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setWidth(float)", WRAP_MFN(Ogre::OverlayElement, setWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setHeight(float)", WRAP_MFN(Ogre::OverlayElement, setHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > material
+    r = engine->RegisterObjectMethod("OverlayElement", "const string& getMaterialName() const", WRAP_MFN(Ogre::OverlayElement, getMaterialName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setMaterialName(const string&in, const string&in)", WRAP_MFN(Ogre::OverlayElement, setMaterialName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > caption
+    r = engine->RegisterObjectMethod("OverlayElement", "void setCaption(const string&in)", WRAP_MFN(Ogre::OverlayElement, setCaption), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "const string& getCaption() const", WRAP_MFN(Ogre::OverlayElement, getCaption), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > color
+    r = engine->RegisterObjectMethod("OverlayElement", "void setColour(const color&in)", WRAP_MFN(Ogre::OverlayElement, setColour), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "const color& getColour() const", WRAP_MFN(Ogre::OverlayElement, getColour), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > GuiMetricsMode
+    r = engine->RegisterObjectMethod("OverlayElement", "GuiMetricsMode getMetricsMode() const", WRAP_MFN(Ogre::OverlayElement, getMetricsMode), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setMetricsMode(GuiMetricsMode)", WRAP_MFN(Ogre::OverlayElement, setMetricsMode), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > GuiHorizontalAlignment
+    r = engine->RegisterObjectMethod("OverlayElement", "GuiHorizontalAlignment getHorizontalAlignment() const", WRAP_MFN(Ogre::OverlayElement, getHorizontalAlignment), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayElement", "void setHorizontalAlignment(GuiHorizontalAlignment)", WRAP_MFN(Ogre::OverlayElement, setHorizontalAlignment), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreOverlayGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Register the Overlay class
+    // (order roughly matches OgreOverlay.h)
+    r = engine->RegisterObjectMethod("Overlay", "const string& getName() const", WRAP_MFN(Ogre::Overlay, getName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > z-order
+    r = engine->RegisterObjectMethod("Overlay", "void setZOrder(uint16)", WRAP_MFN(Ogre::Overlay, setZOrder), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "uint16 getZOrder()", WRAP_MFN(Ogre::Overlay, getZOrder), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > visibility
+    r = engine->RegisterObjectMethod("Overlay", "bool isVisible() const", WRAP_MFN_PR(Ogre::Overlay, isVisible, () const, bool), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "void show()", WRAP_MFN_PR(Ogre::Overlay, show, (), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "void hide()", WRAP_MFN_PR(Ogre::Overlay, hide, (), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > 2D elements
+    r = engine->RegisterObjectMethod("Overlay", "void add2D(OverlayElement@)", WRAP_OBJ_FIRST(OverlayAdd2D), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "void remove2D(OverlayElement@)", WRAP_OBJ_FIRST(OverlayRemove2D), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > scrolling
+    r = engine->RegisterObjectMethod("Overlay", "void setScroll(float, float)", WRAP_MFN(Ogre::Overlay, setScroll), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "float getScrollX() const", WRAP_MFN(Ogre::Overlay, getScrollX), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "float getScrollY() const", WRAP_MFN(Ogre::Overlay, getScrollY), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "void scroll(float, float)", WRAP_MFN(Ogre::Overlay, scroll), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > rotating
+    r = engine->RegisterObjectMethod("Overlay", "void setRotate(const radian&in)", WRAP_MFN(Ogre::Overlay, setRotate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "const radian& getRotate() const", WRAP_MFN(Ogre::Overlay, getRotate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "void rotate(const radian&in)", WRAP_MFN(Ogre::Overlay, rotate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > scaling
+    r = engine->RegisterObjectMethod("Overlay", "void setScale(float, float)", WRAP_MFN(Ogre::Overlay, setScale), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "float getScaleX() const", WRAP_MFN(Ogre::Overlay, getScaleX), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Overlay", "float getScaleY() const", WRAP_MFN(Ogre::Overlay, getScaleY), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > 2D elements
+    r = engine->RegisterObjectMethod("Overlay", "array<OverlayElement@>@ get2DElements()", WRAP_OBJ_FIRST(get2DElementsHelper), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreOverlayManagerGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Register the OverlayManager class
+    // (order roughly matches OgreOverlayManager.h)
+    // > overlay management
+    r = engine->RegisterObjectMethod("OverlayManager", "Overlay@ create(const string&in)", WRAP_OBJ_FIRST(OverlayManagerCreate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "Overlay@ getByName(const string&in)", WRAP_OBJ_FIRST(OverlayManagerGetByName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "void destroy(const string&in)", WRAP_OBJ_FIRST(OverlayManagerDestroyByName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "void destroy(Overlay@)", WRAP_OBJ_FIRST(OverlayManagerDestroy), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "void destroyAll()", WRAP_OBJ_FIRST(OverlayManagerDestroyAll), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    //    NOTE: we have `getOverlays()` instead of `getOverlayIterator()`
+    r = engine->RegisterObjectMethod("OverlayManager", "array<Overlay@>@ getOverlays()", WRAP_OBJ_FIRST(OverlayManagerGetOverlays), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > viewport info
+    r = engine->RegisterObjectMethod("OverlayManager", "float getViewportHeight() const", WRAP_MFN(Ogre::OverlayManager, getViewportHeight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "float getViewportWidth() const", WRAP_MFN(Ogre::OverlayManager, getViewportWidth), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > overlay element management
+    r = engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ createOverlayElement(const string&in, const string&in, bool=false)", WRAP_OBJ_FIRST(OverlayManagerCreateOverlayElement), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ getOverlayElement(const string&in) const", WRAP_OBJ_FIRST(OverlayManagerGetOverlayElement), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "bool hasOverlayElement(const string&in) const", WRAP_MFN(Ogre::OverlayManager, hasOverlayElement), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "void destroyOverlayElement(const string&in, bool isTemplate=false) const", WRAP_OBJ_FIRST(OverlayManagerDestroyOverlayElementByName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "void destroyOverlayElement(OverlayElement@, bool isTemplate=false) const", WRAP_OBJ_FIRST(OverlayManagerDestroyOverlayElement), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "void destroyAllOverlayElements(bool isTemplate=false) const", WRAP_OBJ_FIRST(OverlayManagerDestroyAllOverlayElements), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    // > template management
+    r = engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ createOverlayElementFromTemplate(const string&in, const string&in, const string&in, bool=false)", WRAP_OBJ_FIRST(OverlayManagerCreateOverlayElementFromTemplate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ cloneOverlayElementFromTemplate(const string&in, const string&in)", WRAP_OBJ_FIRST(OverlayManagerCloneOverlayElementFromTemplate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    //    NOTE: we have `getTemplates()` instead of `getTemplateIterator()`
+    r = engine->RegisterObjectMethod("OverlayManager", "array<OverlayElement@>@ getTemplates()", WRAP_OBJ_FIRST(getElementTemplatesHelper), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("OverlayManager", "bool isTemplate(const string&in)", WRAP_OBJ_FIRST(OverlayManagerIsTemplate), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace("Ogre::OverlayManager"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterGlobalFunction("OverlayManager& getSingleton()", WRAP_FN(OverlayManager::getSingleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

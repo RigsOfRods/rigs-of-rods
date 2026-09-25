@@ -1003,4 +1003,135 @@ static Ogre::Entity* SceneManagerCreateEntity(Ogre::SceneManager* self, const st
     catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::SceneManager::createEntity()"); return nullptr; }
 }
 
+/***OVERLAY***/
+static void OverlayAdd2D(Ogre::Overlay* self, Ogre::OverlayElement* elem)
+{
+    try { self->add2D(dynamic_cast<Ogre::OverlayContainer*>(elem)); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::add2D()"); }
+}
+
+static void OverlayRemove2D(Ogre::Overlay* self, Ogre::OverlayElement* elem)
+{
+    try { self->remove2D(dynamic_cast<Ogre::OverlayContainer*>(elem)); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::remove2D()"); }
+}
+
+static AngelScript::CScriptArray* get2DElementsHelper(Ogre::Overlay* self)
+{
+    try {
+        const Ogre::Overlay::OverlayContainerList& ocList = self->get2DElements();
+        AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<Ogre::OverlayElement@>");
+        AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+        for (OverlayContainer* oc: ocList)
+        {
+            OverlayElement* elem = static_cast<Ogre::OverlayElement*>(oc);
+            arr->InsertLast(&elem); // TORN HAIR HERE!! Don't forget to pass ref-types as pointer-to-pointer!!
+        }
+        return arr;
+    }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::get2DElements()"); return (CScriptArray*)nullptr; }
+}
+
+/***OVERLAYMANAGER***/
+static AngelScript::CScriptArray* getElementTemplatesHelper(Ogre::OverlayManager* self)
+{
+    try {
+        auto iterable = self->getTemplateIterator();
+        // we must cast on the go (unlike get2DElements() this actually returns list of Ogre::OverlayElement*), see ATTENTION! below.
+        AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<Ogre::OverlayElement@>");
+        AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+        for (auto& elem_pair: iterable) {
+            OverlayElement* elem = static_cast<Ogre::OverlayElement*>(elem_pair.second);
+            arr->InsertLast(&elem);  // TORN HAIR HERE!! Don't forget to pass ref-types as pointer-to-pointer!!
+        }
+        return arr; }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getTemplates()"); return (CScriptArray*)nullptr; }
+}
+
+static Ogre::Overlay* OverlayManagerCreate(Ogre::OverlayManager* self, const std::string& name)
+{
+    try {return self->create(name);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::create()"); return (Ogre::Overlay*)nullptr;}
+}
+
+static Ogre::Overlay* OverlayManagerGetByName(Ogre::OverlayManager* self, const std::string& name)
+{
+    try {return self->getByName(name);} // Doesn't seem to throw, but just to be sure...
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getByName()"); return (Ogre::Overlay*)nullptr;}
+}
+
+static void OverlayManagerDestroyByName(Ogre::OverlayManager* self, const std::string& name)
+{
+    try {return self->destroy(name);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroy(string)"); }
+}
+
+static void OverlayManagerDestroy(Ogre::OverlayManager* self, Ogre::Overlay* ov)
+{
+    try {return self->destroy(ov);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroy(Overlay@)"); }
+}
+
+static void OverlayManagerDestroyAll(Ogre::OverlayManager* self)
+{
+    try {return self->destroyAll();}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyAll()"); }
+}
+
+//    NOTE: we have `getOverlays()` instead of `getOverlayIterator()`
+static CScriptArray* OverlayManagerGetOverlays(Ogre::OverlayManager* self)
+{
+    try {auto iterable = self->getOverlayIterator();
+        return IterableMapToScriptArray(iterable.begin(), iterable.end(), "Ogre::Overlay@"); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getOverlays()"); return (CScriptArray*)nullptr; }
+}
+
+static Ogre::OverlayElement* OverlayManagerCreateOverlayElement(Ogre::OverlayManager* self, const std::string& type, const std::string& name, bool isTemplate)
+{
+    try {return dynamic_cast<Ogre::OverlayElement*>(self->createOverlayElement(type,name,isTemplate));}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::createOverlayElement()"); return (Ogre::OverlayElement*)nullptr;}
+}
+
+static Ogre::OverlayElement* OverlayManagerGetOverlayElement(Ogre::OverlayManager* self, const std::string& name)
+{
+    try {return dynamic_cast<Ogre::OverlayElement*>(self->getOverlayElement(name));}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getOverlayElement()"); return (Ogre::OverlayElement*)nullptr;}
+}
+
+static void OverlayManagerDestroyOverlayElementByName(Ogre::OverlayManager* self, const std::string& name, bool isTemplate)
+{
+    try { self->destroyOverlayElement(name, isTemplate);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyOverlayElement(string)"); }
+}
+
+static void OverlayManagerDestroyOverlayElement(Ogre::OverlayManager* self, Ogre::OverlayElement* oe, bool isTemplate)
+{
+    try { self->destroyOverlayElement(oe, isTemplate);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyOverlayElement(OverlayElement@)"); }
+}
+
+static void OverlayManagerDestroyAllOverlayElements(Ogre::OverlayManager* self, bool isTemplate)
+{
+    try { self->destroyAllOverlayElements(isTemplate);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyAllOverlayElements()"); }
+}
+
+static Ogre::OverlayElement* OverlayManagerCreateOverlayElementFromTemplate(Ogre::OverlayManager* self, const std::string& templateName, const std::string& typeName, const std::string& instanceName, bool isTemplate)
+{
+    try {return dynamic_cast<Ogre::OverlayElement*>(self->createOverlayElementFromTemplate(templateName, typeName, instanceName, isTemplate));}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::createOverlayElementFromTemplate()"); return (Ogre::OverlayElement*)nullptr;}
+}
+
+static Ogre::OverlayElement* OverlayManagerCloneOverlayElementFromTemplate(Ogre::OverlayManager* self, const std::string& templateName, const std::string& instanceName)
+{
+    try {return dynamic_cast<Ogre::OverlayElement*>(self->cloneOverlayElementFromTemplate(templateName, instanceName));}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::cloneOverlayElementFromTemplate()"); return (Ogre::OverlayElement*)nullptr;}
+}
+
+static bool OverlayManagerIsTemplate(Ogre::OverlayManager* self, const std::string& name)
+{
+    try {return self->isTemplate(name);}
+    catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::isTemplate()"); return false;}
+}
+
 } // namespace OgreAngelscriptWrappers
