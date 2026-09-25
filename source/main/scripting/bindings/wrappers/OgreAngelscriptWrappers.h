@@ -642,6 +642,14 @@ static std::string MovableObjectGetUniqueNameMixin(Ogre::MovableObject* self)
     return fmt::format("\"{}\" ({} {})", self->getName(), self->getMovableType(), static_cast<void*>(self));
 }
 
+/***ROOT***/
+typedef CReadonlyScriptDictView<SceneManager*> SceneManagerInstanceDict;
+
+static SceneManagerInstanceDict* RootGetSceneManagers(Root* self)
+{
+    return new SceneManagerInstanceDict(self->getSceneManagers());
+}
+
 /***ANIMATIONSTATESET***/
 typedef CReadonlyScriptDictView<AnimationState*> AnimationStateDict;
 

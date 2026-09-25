@@ -47,15 +47,6 @@
 using namespace Ogre;
 using namespace AngelScript;
 using namespace RoR;
-
-/***ROOT***/
-typedef CReadonlyScriptDictView<SceneManager*> SceneManagerInstanceDict;
-
-static SceneManagerInstanceDict* RootGetSceneManagers(Root* self)
-{
-    return new SceneManagerInstanceDict(self->getSceneManagers());
-}
-
 using namespace OgreAngelscriptWrappers;
 
 // forward declarations, defined below
@@ -100,13 +91,9 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
 {
     int r;
 
-
-    // More data types - the low-level scene API, under namespace `Ogre`
+    // NOTE: data types, enums and object properties are registered in RegisterOgreObjectsCommon()
 
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("Root", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
 
     // dictionary/array view types, also under namespace `Ogre`
 
