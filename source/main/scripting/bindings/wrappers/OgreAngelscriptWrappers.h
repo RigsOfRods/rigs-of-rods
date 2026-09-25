@@ -738,6 +738,14 @@ static Ogre::GpuProgramParametersPtr PassGetComputeProgramParameters(Ogre::Pass*
     catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getComputeProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
 }
 
+/***SUBENTITY***/
+typedef CReadonlyScriptArrayView<Ogre::SubEntity*> SubEntityArray;
+
+static SubEntityArray* EntityGetSubEntities(Entity* self)
+{
+    return new SubEntityArray(self->getSubEntities());
+}
+
 /***TIMER***/
 static void TimerDefaultConstructor(Timer* self)
 {

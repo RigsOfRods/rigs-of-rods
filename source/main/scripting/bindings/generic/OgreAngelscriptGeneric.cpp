@@ -150,6 +150,8 @@ static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine)
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
 static void registerOgreMovableObjectGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreEntityGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreSubEntityGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
@@ -184,6 +186,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     TechniqueArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TechniqueArray", "Technique");
     PassArray::RegisterReadonlyScriptArrayViewGeneric(engine, "PassArray", "Pass");
     TextureUnitStateArray::RegisterReadonlyScriptArrayViewGeneric(engine, "TextureUnitStateArray", "TextureUnitState");
+    SubEntityArray::RegisterReadonlyScriptArrayViewGeneric(engine, "SubEntityArray", "SubEntity");
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
@@ -197,6 +200,8 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
     registerOgreMovableObjectGeneric(engine);
+    registerOgreEntityGeneric(engine);
+    registerOgreSubEntityGeneric(engine);
     registerOgreAnimationStateGeneric(engine);
     registerOgreAnimationStateSetGeneric(engine);
     registerOgreTextureGeneric(engine);
@@ -218,12 +223,18 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
+    // - `Entity` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::Entity@ opCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::Entity>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::Entity", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::Entity, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     // - `ManualObject` derives from `MovableObject`
     r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::ManualObject@ opCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Ogre::ManualObject", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     // Also register the const overloads so the cast works also when the handle is read only
 
+    // - `Entity` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::Entity@ opCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::Entity>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::Entity", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::Entity, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     // - `ManualObject` derives from `MovableObject`
     r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::ManualObject@ opCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Ogre::ManualObject", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCountGeneric<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_GENERIC); ROR_ASSERT(r >= 0);
@@ -602,6 +613,41 @@ static void registerOgreMovableObjectGeneric(AngelScript::asIScriptEngine* engin
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
     registerOgreMovableObjectBaseGeneric<MovableObject>(engine, "MovableObject");
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreEntityGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Entity", "void setMaterialName(const string &in name, const string &in rg = \"OgreAutodetect\")", WRAP_MFN(Entity, setMaterialName), asCALL_GENERIC);  ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "AnimationState @getAnimationState(const string &in) const", WRAP_MFN(Entity, getAnimationState), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "AnimationStateSet @getAllAnimationStates()", WRAP_MFN(Entity, getAllAnimationStates), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setDisplaySkeleton(bool)", WRAP_MFN(Entity, setDisplaySkeleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "bool getDisplaySkeleton() const", WRAP_MFN(Entity, getDisplaySkeleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "uint64 getNumManualLodLevels() const", WRAP_MFN(Entity, getNumManualLodLevels), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "uint16 getCurrentLodIndex()", WRAP_MFN(Entity, getCurrentLodIndex), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "Entity @getManualLodLevel(uint64) const", WRAP_MFN(Entity, getManualLodLevel), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setMeshLodBias(float, uint16, uint16)", WRAP_MFN(Entity, setMeshLodBias), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setMaterialLodBias(float, uint16, uint16)", WRAP_MFN(Entity, setMaterialLodBias), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "SubEntityArray @getSubEntities() const", WRAP_OBJ_FIRST(EntityGetSubEntities), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "const MeshPtr& getMesh() const", WRAP_MFN(Entity, getMesh), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    registerOgreMovableObjectBaseGeneric<MovableObject>(engine, "Entity");
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreSubEntityGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SubEntity", "const MaterialPtr& getMaterial() const", WRAP_MFN(SubEntity, getMaterial), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SubEntity", "void setMaterial(const MaterialPtr&in)", WRAP_MFN(SubEntity, setMaterial), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SubEntity", "SubMesh@ getSubMesh()", WRAP_MFN(SubEntity, getSubMesh), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

@@ -78,14 +78,6 @@ static SceneManagerInstanceDict* RootGetSceneManagers(Root* self)
     return new SceneManagerInstanceDict(self->getSceneManagers());
 }
 
-/***SUBENTITY***/
-typedef CReadonlyScriptArrayView<Ogre::SubEntity*> SubEntityArray;
-
-static SubEntityArray* EntityGetSubEntities(Entity* self)
-{
-    return new SubEntityArray(self->getSubEntities());
-}
-
 /***SCENEMANAGER***/
 
 static AngelScript::CScriptArray* SceneManager__getMovableObjectsByType(SceneManager* self, const std::string& typeName)
@@ -177,12 +169,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     // More data types - the low-level scene API, under namespace `Ogre`
 
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("Entity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("SubEntity", sizeof(SubEntity), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Node", sizeof(Node), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
