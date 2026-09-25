@@ -945,4 +945,54 @@ static CScriptArray* GpuProgramParametersPtr__getNamedConstants(GpuProgramParame
         return nullptr; }
 }
 
+/***SCENEMANAGER***/
+
+static AngelScript::CScriptArray* SceneManager__getMovableObjectsByType(SceneManager* self, const std::string& typeName)
+{
+    if (!self)
+    {
+        App::GetScriptEngine()->SLOG("SceneManager::__getMovableObjectsByType(): SceneManager is null");
+        return nullptr;
+    }
+
+    try
+    {
+        // Get the iterator
+        SceneManager::MovableObjectIterator it = self->getMovableObjectIterator(typeName);
+
+        // Create script array for MovableObjects
+        AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<Ogre::MovableObject@>");
+        if (!typeinfo)
+        {
+            App::GetScriptEngine()->SLOG("SceneManager::__getMovableObjectsByType(): Failed to get array type info");
+            return nullptr;
+        }
+
+        AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+
+        // Iterate through all movable objects of this type
+        while (it.hasMoreElements())
+        {
+            Ogre::MovableObject* obj = it.getNext();
+            if (obj)
+            {
+                arr->InsertLast(&obj);
+            }
+        }
+
+        return arr;
+    }
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("SceneManager::__getMovableObjectsByType()");
+        return nullptr;
+    }
+}
+
+static Ogre::Entity* SceneManagerCreateEntity(Ogre::SceneManager* self, const std::string& entityName, const std::string& meshName, const std::string& meshRG)
+{
+    try { return self->createEntity(entityName, meshName, meshRG); }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::SceneManager::createEntity()"); return nullptr; }
+}
+
 } // namespace OgreAngelscriptWrappers

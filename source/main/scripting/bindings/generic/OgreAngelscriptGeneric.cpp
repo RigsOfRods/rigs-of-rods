@@ -154,6 +154,7 @@ static void registerOgreEntityGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreSubEntityGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreNodeGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreSceneNodeGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreSceneManagerGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
@@ -211,6 +212,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreEntityGeneric(engine);
     registerOgreSubEntityGeneric(engine);
     registerOgreSceneNodeGeneric(engine);
+    registerOgreSceneManagerGeneric(engine);
     registerOgreAnimationStateGeneric(engine);
     registerOgreAnimationStateSetGeneric(engine);
     registerOgreTextureGeneric(engine);
@@ -748,6 +750,38 @@ static void registerOgreSceneNodeGeneric(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("SceneNode", "void setDebugDisplayEnabled(bool, bool cascade = true)", WRAP_MFN_PR(SceneNode, setDebugDisplayEnabled, (bool, bool), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     registerOgreNodeBaseGeneric<SceneNode>(engine, "SceneNode");
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreSceneManagerGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SceneManager", "const string& getName() const", WRAP_MFN(SceneManager, getName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SceneManager", "array<MovableObject@>@ __getMovableObjectsByType(const string&in typeName)", WRAP_OBJ_FIRST(SceneManager__getMovableObjectsByType), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Entities
+    r = engine->RegisterObjectMethod("SceneManager", "Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg = \"OgreAutodetect\")", WRAP_OBJ_FIRST(SceneManagerCreateEntity), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroyEntity(Entity@)", WRAP_MFN_PR(SceneManager, destroyEntity, (Entity*), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroyEntity(const string &in)", WRAP_MFN_PR(SceneManager, destroyEntity, (const Ogre::String&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Scene nodes
+    r = engine->RegisterObjectMethod("SceneManager", "SceneNode@ getRootSceneNode()", WRAP_MFN(SceneManager, getRootSceneNode), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroySceneNode(SceneNode@)", WRAP_MFN_PR(SceneManager, destroySceneNode, (SceneNode*), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroySceneNode(const string &in)", WRAP_MFN_PR(SceneManager, destroySceneNode, (const Ogre::String&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // Ambient light
+    r = engine->RegisterObjectMethod("SceneManager", "const color& getAmbientLight() const", WRAP_MFN(SceneManager, getAmbientLight), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void setAmbientLight(const color &in)", WRAP_MFN_PR(SceneManager, setAmbientLight, (const ColourValue&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    // ManualObject:
+    r = engine->RegisterObjectMethod("SceneManager", "ManualObject@ createManualObject(const string &in)", WRAP_MFN_PR(SceneManager, createManualObject, (const Ogre::String&), Ogre::ManualObject*), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "ManualObject@ getManualObject(const string &in)", WRAP_MFN_PR(SceneManager, getManualObject, (const Ogre::String&) const, Ogre::ManualObject*), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroyManualObject(const string &in)", WRAP_MFN_PR(SceneManager, destroyManualObject, (const Ogre::String&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroyManualObject(ManualObject@)", WRAP_MFN_PR(SceneManager, destroyManualObject, (Ogre::ManualObject*), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
