@@ -155,6 +155,7 @@ static void registerOgreSubEntityGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreNodeGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreSceneNodeGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreSceneManagerGeneric(AngelScript::asIScriptEngine* engine);
+static void registerOgreRootGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
@@ -186,6 +187,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
 
     // dictionary/array view types, also under namespace `Ogre`
 
+    SceneManagerInstanceDict::RegisterReadonlyScriptDictViewGeneric(engine, "SceneManagerInstanceDict", "SceneManager");
     MovableObjectArray::RegisterReadonlyScriptArrayViewGeneric(engine, "MovableObjectArray", "MovableObject");
     ChildNodeArray::RegisterReadonlyScriptArrayViewGeneric(engine, "ChildNodeArray", "Node");
     AnimationStateDict::RegisterReadonlyScriptDictViewGeneric(engine, "AnimationStateDict", "AnimationState");
@@ -213,6 +215,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreSubEntityGeneric(engine);
     registerOgreSceneNodeGeneric(engine);
     registerOgreSceneManagerGeneric(engine);
+    registerOgreRootGeneric(engine);
     registerOgreAnimationStateGeneric(engine);
     registerOgreAnimationStateSetGeneric(engine);
     registerOgreTextureGeneric(engine);
@@ -782,6 +785,19 @@ static void registerOgreSceneManagerGeneric(AngelScript::asIScriptEngine* engine
     r = engine->RegisterObjectMethod("SceneManager", "ManualObject@ getManualObject(const string &in)", WRAP_MFN_PR(SceneManager, getManualObject, (const Ogre::String&) const, Ogre::ManualObject*), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroyManualObject(const string &in)", WRAP_MFN_PR(SceneManager, destroyManualObject, (const Ogre::String&), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroyManualObject(ManualObject@)", WRAP_MFN_PR(SceneManager, destroyManualObject, (Ogre::ManualObject*), void), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreRootGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Root", "SceneManagerInstanceDict@ getSceneManagers()", WRAP_OBJ_LAST(RootGetSceneManagers), asCALL_GENERIC);
+
+    r = engine->SetDefaultNamespace("Ogre::Root");
+    r = engine->RegisterGlobalFunction("Root& getSingleton()", WRAP_FN(Root::getSingleton), asCALL_GENERIC);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
