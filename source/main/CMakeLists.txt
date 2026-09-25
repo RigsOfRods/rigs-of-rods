@@ -252,7 +252,6 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/native/OgreAngelscript.cpp
             scripting/bindings/native/ProceduralRoadAngelscript.cpp
             scripting/bindings/native/ScrewpropAngelscript.cpp
-            scripting/bindings/native/ScriptEventsAngelscript.cpp
             scripting/bindings/native/SoundScriptAngelscript.cpp
             scripting/bindings/native/TerrainAngelscript.cpp
             scripting/bindings/native/TurbojetAngelscript.cpp
@@ -280,6 +279,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/GameScriptAngelscriptCommon.cpp
             scripting/bindings/common/ImGuiAngelscriptCommon.cpp
             scripting/bindings/common/MsgQueueAngelscriptCommon.cpp
+            scripting/bindings/common/ScriptEventsAngelscriptCommon.cpp
             scripting/bindings/common/OgreAngelscriptCommon.cpp
             scripting/bindings/common/VehicleAiAngelscriptCommon.cpp
 
