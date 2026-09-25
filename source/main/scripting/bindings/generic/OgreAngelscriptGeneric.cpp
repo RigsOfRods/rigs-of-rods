@@ -141,6 +141,7 @@ static void registerOgreQuaternionGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreColourValueGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreBoxGeneric(AngelScript::asIScriptEngine* engine);
 
+static void registerOgreMovableObjectGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreAnimationStateSetGeneric(AngelScript::asIScriptEngine* engine);
 static void registerOgreTextureGeneric(AngelScript::asIScriptEngine* engine);
@@ -182,6 +183,7 @@ void RoR::RegisterOgreObjectsGeneric(AngelScript::asIScriptEngine* engine)
     registerOgreQuaternionGeneric(engine);
     registerOgreColourValueGeneric(engine);
     registerOgreBoxGeneric(engine);
+    registerOgreMovableObjectGeneric(engine);
     registerOgreAnimationStateGeneric(engine);
     registerOgreAnimationStateSetGeneric(engine);
     registerOgreTextureGeneric(engine);
@@ -529,6 +531,48 @@ static void registerOgreTextureManagerGeneric(AngelScript::asIScriptEngine * eng
 
     r = engine->SetDefaultNamespace("Ogre::TextureManager"); ROR_ASSERT(r >= 0);
     r = engine->RegisterGlobalFunction("TextureManager& getSingleton()", WRAP_FN(TextureManager::getSingleton), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+template <typename T>
+static void registerOgreMovableObjectBaseGeneric(AngelScript::asIScriptEngine* engine, const char* obj)
+{
+    int r;
+    r = engine->RegisterObjectMethod(obj, "string __getUniqueName() const", WRAP_OBJ_LAST(MovableObjectGetUniqueNameMixin), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "const string& getName() const", WRAP_MFN(MovableObject, getName), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "const string& getMovableType() const", WRAP_MFN(MovableObject, getMovableType), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "Node@ getParentNode()", WRAP_MFN(MovableObject, getParentNode), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "SceneNode@ getParentSceneNode()", WRAP_MFN(MovableObject, getParentSceneNode), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "bool isParentTagPoint() const", WRAP_MFN(MovableObject, isParentTagPoint), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "bool isAttached() const", WRAP_MFN(MovableObject, isAttached), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "void detachFromParent()", WRAP_MFN(MovableObject, detachFromParent), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "bool isInScene() const", WRAP_MFN(MovableObject, isInScene), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "float getBoundingRadius() const", WRAP_MFN(MovableObject, getBoundingRadius), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "void setVisible(bool visible)", WRAP_MFN(MovableObject, setVisible), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "bool getVisible() const", WRAP_MFN(MovableObject, getVisible), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "bool isVisible() const", WRAP_MFN(MovableObject, isVisible), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "void setRenderingDistance(float dist)", WRAP_MFN(MovableObject, setRenderingDistance), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "float getRenderingDistance() const", WRAP_MFN(MovableObject, getRenderingDistance), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "void setRenderingMinPixelSize(float pixelSize)", WRAP_MFN(MovableObject, setRenderingMinPixelSize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "float getRenderingMinPixelSize() const", WRAP_MFN(MovableObject, getRenderingMinPixelSize), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "void setCastShadows(bool enabled)", WRAP_MFN(MovableObject, setCastShadows), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "bool getCastShadows() const", WRAP_MFN(MovableObject, getCastShadows), asCALL_GENERIC); ROR_ASSERT(r >= 0);
+}
+
+static void registerOgreMovableObjectGeneric(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    registerOgreMovableObjectBaseGeneric<MovableObject>(engine, "MovableObject");
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

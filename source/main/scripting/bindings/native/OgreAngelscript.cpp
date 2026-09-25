@@ -236,13 +236,6 @@ static MovableObjectArray* SceneNodeGetAttachedObjects(SceneNode* self)
     return new MovableObjectArray(self->getAttachedObjects());
 }
 
-/***MOVABLEOBJECT***/
-static std::string MovableObjectGetUniqueNameMixin(Ogre::MovableObject* self)
-{
-    // names are optional and largely unused by RoR, so always append the type and memory address (libfmt adds the '0x' prefix)
-    return fmt::format("\"{}\" ({} {})", self->getName(), self->getMovableType(), static_cast<void*>(self));
-}
-
 /***ROOT***/
 typedef CReadonlyScriptDictView<SceneManager*> SceneManagerInstanceDict;
 
@@ -350,9 +343,6 @@ void RoR::RegisterOgreObjectsNative(AngelScript::asIScriptEngine* engine)
     // More data types - the low-level scene API, under namespace `Ogre`
 
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
-
-    r = engine->RegisterObjectType("MovableObject", sizeof(MovableObject), asOBJ_REF | asOBJ_NOCOUNT);
-    ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Entity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
