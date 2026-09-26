@@ -34,8 +34,8 @@ void RoR::RegisterEngineGeneric(asIScriptEngine* engine)
     int r;
 
     // class Engine
-    Engine::RegisterRefCountingObject(engine, "EngineClass");
-    EnginePtr::RegisterRefCountingObjectPtr(engine, "EngineClassPtr", "EngineClass");
+    Engine::RegisterRefCountingObjectGeneric(engine, "EngineClass");
+    EnginePtr::RegisterRefCountingObjectPtrGeneric(engine, "EngineClassPtr", "EngineClass");
 
     //  > Definition, Keyword 'engine'
     r = engine->RegisterObjectMethod("EngineClass", "float getShiftDownRPM() const", WRAP_MFN(Engine, getShiftDownRPM), asCALL_GENERIC); ROR_ASSERT(r >= 0);

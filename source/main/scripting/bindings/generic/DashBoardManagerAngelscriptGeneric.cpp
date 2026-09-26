@@ -22,8 +22,8 @@ void RoR::RegisterDashBoardManagerGeneric(asIScriptEngine* engine)
 {
     int result = 0;
 
-    DashBoardManager::RegisterRefCountingObject(engine, "DashBoardManagerClass");
-    DashBoardManagerPtr::RegisterRefCountingObjectPtr(engine, "DashBoardManagerClassPtr", "DashBoardManagerClass");
+    DashBoardManager::RegisterRefCountingObjectGeneric(engine, "DashBoardManagerClass");
+    DashBoardManagerPtr::RegisterRefCountingObjectPtrGeneric(engine, "DashBoardManagerClassPtr", "DashBoardManagerClass");
 
     // PLEASE maintain same order as in 'gui/DashBoardManager.cpp' and 'doc/angelscript/Script2Game/DashBoardManagerClass.h'
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "bool getBool(int key)", WRAP_MFN(DashBoardManager, _getBool), asCALL_GENERIC); ROR_ASSERT(result >= 0);

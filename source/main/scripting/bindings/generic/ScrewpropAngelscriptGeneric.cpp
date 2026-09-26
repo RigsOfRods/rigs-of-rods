@@ -12,8 +12,8 @@ void RoR::RegisterScrewpropGeneric(asIScriptEngine* engine)
 {
     int result = 0;
 
-    Screwprop::RegisterRefCountingObject(engine, "ScrewpropClass");
-    ScrewpropPtr::RegisterRefCountingObjectPtr(engine, "ScrewpropClassPtr", "ScrewpropClass");
+    Screwprop::RegisterRefCountingObjectGeneric(engine, "ScrewpropClass");
+    ScrewpropPtr::RegisterRefCountingObjectPtrGeneric(engine, "ScrewpropClassPtr", "ScrewpropClass");
 
     // PLEASE maintain same order as in 'physics/water/Screwprop.h' and 'doc/angelscript/Script2Game/ScrewpropClass.h'
     result = engine->RegisterObjectMethod("ScrewpropClass", "void setThrottle(float)", WRAP_MFN(Screwprop, setThrottle), asCALL_GENERIC); ROR_ASSERT(result >= 0);

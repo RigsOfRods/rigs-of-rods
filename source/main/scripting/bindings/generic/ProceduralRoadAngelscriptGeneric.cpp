@@ -56,8 +56,8 @@ void RoR::RegisterProceduralRoadGeneric(asIScriptEngine* engine)
     // NOTE: enums RoadType and TextureFit are registered in RegisterProceduralRoadCommon()
 
     // struct ProceduralPoint (ref)
-    ProceduralPoint::RegisterRefCountingObject(engine, "ProceduralPointClass");
-    ProceduralPointPtr::RegisterRefCountingObjectPtr(engine, "ProceduralPointClassPtr", "ProceduralPointClass");
+    ProceduralPoint::RegisterRefCountingObjectGeneric(engine, "ProceduralPointClass");
+    ProceduralPointPtr::RegisterRefCountingObjectPtrGeneric(engine, "ProceduralPointClassPtr", "ProceduralPointClass");
     result = engine->RegisterObjectBehaviour("ProceduralPointClass", asBEHAVE_FACTORY, "ProceduralPointClass@+ f()", WRAP_FN(ProceduralPointFactory), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     //get:
     result = engine->RegisterObjectMethod("ProceduralPointClass", "vector3& get_position() property", WRAP_OBJ_FIRST(ProceduralPoint_get_position), asCALL_GENERIC); ROR_ASSERT(result >= 0);
@@ -77,8 +77,8 @@ void RoR::RegisterProceduralRoadGeneric(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_pillar_type(int type) property", WRAP_OBJ_FIRST(ProceduralPoint_set_pillar_type), asCALL_GENERIC); ROR_ASSERT(result >= 0);
 
     // class ProceduralRoad (ref)
-    ProceduralRoad::RegisterRefCountingObject(engine, "ProceduralRoadClass");
-    ProceduralRoadPtr::RegisterRefCountingObjectPtr(engine, "ProceduralRoadClassPtr", "ProceduralRoadClass");
+    ProceduralRoad::RegisterRefCountingObjectGeneric(engine, "ProceduralRoadClass");
+    ProceduralRoadPtr::RegisterRefCountingObjectPtrGeneric(engine, "ProceduralRoadClassPtr", "ProceduralRoadClass");
     result = engine->RegisterObjectBehaviour("ProceduralRoadClass", asBEHAVE_FACTORY, "ProceduralRoadClass@+ f()", WRAP_FN(ProceduralRoadFactory), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addBlock(vector3 pos, quaternion rot, RoadType type, float width, float border_width, float border_height, int pillar_type = 1)", WRAP_MFN(RoR::ProceduralRoad, addBlock), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, TextureFit texfit, vector3 pos, vector3 lastpos, float width, bool flip = false)", asFUNCTION(ProceduralRoad_addQuad_Generic), asCALL_GENERIC); ROR_ASSERT(result >= 0);
@@ -87,8 +87,8 @@ void RoR::RegisterProceduralRoadGeneric(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void setCollisionEnabled(bool v)", WRAP_MFN(RoR::ProceduralRoad, setCollisionEnabled), asCALL_GENERIC); ROR_ASSERT(result >= 0);
 
     // class ProceduralObject (ref)
-    ProceduralObject::RegisterRefCountingObject(engine, "ProceduralObjectClass");
-    ProceduralObjectPtr::RegisterRefCountingObjectPtr(engine, "ProceduralObjectClassPtr", "ProceduralObjectClass");
+    ProceduralObject::RegisterRefCountingObjectGeneric(engine, "ProceduralObjectClass");
+    ProceduralObjectPtr::RegisterRefCountingObjectPtrGeneric(engine, "ProceduralObjectClassPtr", "ProceduralObjectClass");
     result = engine->RegisterObjectBehaviour("ProceduralObjectClass", asBEHAVE_FACTORY, "ProceduralObjectClass@+ f()", WRAP_FN(ProceduralObjectFactory), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "string getName()", WRAP_MFN(RoR::ProceduralObject, getName), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void setName(const string&in)", WRAP_MFN(RoR::ProceduralObject, setName), asCALL_GENERIC); ROR_ASSERT(result >= 0);
@@ -108,8 +108,8 @@ void RoR::RegisterProceduralRoadGeneric(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_custom_groundmodel(const string&in) property", WRAP_OBJ_FIRST(ProceduralObject_set_custom_groundmodel), asCALL_GENERIC); ROR_ASSERT(result >= 0);
 
     // class ProceduralManager (ref)
-    ProceduralManager::RegisterRefCountingObject(engine, "ProceduralManagerClass");
-    ProceduralManagerPtr::RegisterRefCountingObjectPtr(engine, "ProceduralManagerClassPtr", "ProceduralManagerClass");
+    ProceduralManager::RegisterRefCountingObjectGeneric(engine, "ProceduralManagerClass");
+    ProceduralManagerPtr::RegisterRefCountingObjectPtrGeneric(engine, "ProceduralManagerClassPtr", "ProceduralManagerClass");
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "void addObject(ProceduralObjectClassPtr@)", WRAP_MFN(ProceduralManager, addObject), asCALL_GENERIC); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "void removeObject(ProceduralObjectClassPtr@)", WRAP_MFN(ProceduralManager, removeObject), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "int getNumObjects()", WRAP_MFN(RoR::ProceduralManager, getNumObjects), asCALL_GENERIC); ROR_ASSERT(result >= 0);
