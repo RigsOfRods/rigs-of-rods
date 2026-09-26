@@ -536,9 +536,10 @@ public:
     // NOTE camera#0 is special - serves a general orientation frame for the whole actor. Cinecam#0 isn't required to exist, but camera#0 is.
     CineCameraID_t    ar_current_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of current CineCam (`CINECAMERAID_INVALID` if using 3rd-person camera)
     NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
-    PerVehicleCameraContext ar_camera_context;
+    ActorCameraMode   ar_camera_mode = ACTORCAMERAMODE_EXTERNAL;
     CineCameraID_t    ar_forced_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of CineCam forced by script (`CINECAMERAID_INVALID` if not forced)
     BitMask_t         ar_forced_cinecam_flags = 0; //!< Sim state; flags for forced CineCam supplied by script
+
 
     // TractionControl
     float             tc_ratio = 0.f;                   //!< Regulating force

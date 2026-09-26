@@ -154,6 +154,8 @@ void Console::cVarSetupBuiltins()
     App::io_outgauge_id          = this->cVarCreate("io_outgauge_id",          "OutGauge ID",                CVAR_ARCHIVE | CVAR_TYPE_INT);
     App::io_discord_rpc          = this->cVarCreate("io_discord_rpc",          "Discord Rich Presence",      CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::io_invert_orbitcam      = this->cVarCreate("io_invert_orbitcam",      "Invert orbit camera",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::io_mouselook_speed      = this->cVarCreate("io_mouselook_speed",      "Mouse-look sensitivity",     CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "8.0");
+    App::io_mouselook_smoothing  = this->cVarCreate("io_mouselook_smoothing",  "Mouse-look smoothing",       CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "0.6");
 
     App::audio_master_volume                       = this->cVarCreate("audio_master_volume",                       "Sound Volume",                          CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::audio_enable_creak                        = this->cVarCreate("audio_enable_creak",                        "Creak Sound",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

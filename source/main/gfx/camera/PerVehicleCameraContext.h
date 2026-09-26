@@ -10,22 +10,13 @@ namespace RoR
 /// @addtogroup Camera
 /// @{
 
-struct PerVehicleCameraContext
+enum ActorCameraMode
 {
-    enum CameraCtxBehavior
-    {
-        CAMCTX_BEHAVIOR_INVALID,
-        CAMCTX_BEHAVIOR_EXTERNAL,
-        CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON,
-        CAMCTX_BEHAVIOR_VEHICLE_SPLINE,
-        CAMCTX_BEHAVIOR_VEHICLE_CINECAM
-    };
-
-    PerVehicleCameraContext():
-        behavior(CAMCTX_BEHAVIOR_EXTERNAL)
-    {}
-
-    CameraCtxBehavior  behavior;
+    ACTORCAMERAMODE_INVALID,
+    ACTORCAMERAMODE_EXTERNAL,
+    ACTORCAMERAMODE_VEHICLE_3rdPERSON,
+    ACTORCAMERAMODE_VEHICLE_SPLINE,
+    ACTORCAMERAMODE_VEHICLE_CINECAM
 };
 
 /// @} // addtogroup Camera

@@ -296,7 +296,7 @@ bool SceneMouse::handleMousePressed()
             {
                 player_actor->ar_custom_camera_node = nearest_node_index;
                 player_actor->calculateAveragePosition();
-                App::GetCameraManager()->NotifyContextChange(); // Reset last 'look at' pos
+                App::GetCameraManager()->ResetLookatPos(); // Reset last 'look at' pos
             }
         }
     }
