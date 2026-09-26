@@ -132,10 +132,13 @@ inline void RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
 }
 
 /// Registers RoR::Terrain, defined in TerrainAngelscript.cpp
+void RegisterTerrainCommon(AngelScript::asIScriptEngine* engine);
 void RegisterTerrainNative(AngelScript::asIScriptEngine* engine);
+void RegisterTerrainGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterTerrain(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Terrain", engine, &RegisterTerrainNative, nullptr);
+    RegisterTerrainCommon(engine);
+    RegisterAngelScriptBinding("Terrain", engine, &RegisterTerrainNative, &RegisterTerrainGeneric);
 }
 
 /// defined in ProceduralRoadAngelscript.cpp
