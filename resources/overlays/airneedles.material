@@ -1,0 +1,55 @@
+abstract pass airneedlepass
+{
+    lighting off // To silence "force-disabling" warning in RoR.log
+    depth_check off // To silence "force-disabling" warning in RoR.log
+    texture_unit
+    {
+        tex_address_mode clamp
+        texture $texname      
+    }
+}
+
+abstract material airhandleelement
+{
+	technique
+	{
+		pass: airneedlepass
+        {
+        }
+	}
+}
+
+abstract material airwhiteneedle: airhandleelement
+{
+    technique
+    {
+        pass: airneedlepass
+        {
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+            set $texname whiteneedle.dds
+        }
+    }
+}
+
+material tracks/thrusthandle: airhandleelement
+{
+	set $texname thrusthandle.dds
+}
+
+material tracks/airspeedneedle_mat: airwhiteneedle {}
+material tracks/altimeterneedle_mat: airwhiteneedle {}
+material tracks/vvineedle_mat: airwhiteneedle {}
+material tracks/aoaneedle_mat: airwhiteneedle {}
+material tracks/airrpm1needle_mat: airwhiteneedle {}
+material tracks/airrpm2needle_mat: airwhiteneedle {}
+material tracks/airrpm3needle_mat: airwhiteneedle {}
+material tracks/airrpm4needle_mat: airwhiteneedle {}
+material tracks/airpitch1needle_mat: airwhiteneedle {}
+material tracks/airpitch2needle_mat: airwhiteneedle {}
+material tracks/airpitch3needle_mat: airwhiteneedle {}
+material tracks/airpitch4needle_mat: airwhiteneedle {}
+material tracks/airtorque1needle_mat: airwhiteneedle {}
+material tracks/airtorque2needle_mat: airwhiteneedle {}
+material tracks/airtorque3needle_mat: airwhiteneedle {}
+material tracks/airtorque4needle_mat: airwhiteneedle {}
