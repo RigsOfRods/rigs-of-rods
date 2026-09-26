@@ -33,37 +33,37 @@ material invisible
 }
 
 
-material a474UID_rails: RoR/Managed_Mats/Base
+material a474UID_rails: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex train_rails.dds
+	set $diffuse_tex train_rails.dds
 }
 
 
-material a474UID_crossing: RoR/Managed_Mats/Base
+material a474UID_crossing: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex train_crossing.dds
+	set $diffuse_tex train_crossing.dds
 }
 
 
-material a474UID_switch: RoR/Managed_Mats/Base
+material a474UID_switch: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex train_switch.dds
+	set $diffuse_tex train_switch.dds
 }
 
 
-material a474UID_buffer: RoR/Managed_Mats/Base
+material a474UID_buffer: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex train_buffer.dds
+	set $diffuse_tex train_buffer.dds
 }
 
 
-material a474UID_huette: RoR/Managed_Mats/Base
+material a474UID_huette: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex train_spawner.dds
+	set $diffuse_tex train_spawner.dds
 }
 
 
-material a474UID_fenster: RoR/Managed_Mats/Base
+material a474UID_fenster: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex train_spawnerwindow.dds
+	set $diffuse_tex train_spawnerwindow.dds
 }
