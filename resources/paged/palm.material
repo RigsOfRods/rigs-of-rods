@@ -6,7 +6,7 @@ material pagedgeometry/trees/palm
 		{
 			alpha_rejection greater 128
 			cull_hardware none
-			cull_software none
+			
 			texture_unit
 			{
 				texture palm.png

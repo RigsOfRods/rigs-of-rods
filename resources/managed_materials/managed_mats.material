@@ -62,7 +62,6 @@ abstract material RoR/Managed_Mats/Vegetation
 		{
 			alpha_rejection greater_equal 192
 			cull_hardware none
-			cull_software none
 			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex
@@ -80,7 +79,6 @@ abstract material RoR/Managed_Mats/Transparent
 		{
 			alpha_rejection greater_equal 192
 			cull_hardware none
-			cull_software none
 			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex
