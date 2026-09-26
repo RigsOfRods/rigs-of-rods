@@ -61,6 +61,9 @@ public:
 
     static void RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIER asIScriptEngine* engine, const char* handle_name, const char* obj_name);
 
+    /// Same as `RegisterRefCountingObjectPtr()` but uses the generic calling convention (for platforms with AS_MAX_PORTABILITY).
+    static void RegisterRefCountingObjectPtrGeneric(AS_NAMESPACE_QUALIFIER asIScriptEngine* engine, const char* handle_name, const char* obj_name);
+
 protected:
 
     void Set(T* ref);
@@ -76,6 +79,19 @@ protected:
     static RefCountingObjectPtr & OpAssign(RefCountingObjectPtr<T>* self, void** objhandle);
     static bool OpEquals(RefCountingObjectPtr<T>* self, void** objhandle);
     static T* DereferenceHandle(void** objhandle);
+
+    // Generic calling convention wrappers, to be invoked by AngelScript only!
+    static void ConstructDefaultGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void ConstructCopyGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void ConstructRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void DestructGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void EnumReferencesGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void ReleaseReferencesGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void OpImplCastGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void OpHndlAssignPtrGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void OpHndlAssignRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void OpEqualsPtrGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
+    static void OpEqualsRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen);
 
     T *m_ref;
 };
@@ -125,6 +141,53 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIE
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asMETHODPR(RefCountingObjectPtr, operator==, (const RefCountingObjectPtr &) const, bool), asCALL_THISCALL); RefCountingObjectPtr_ASSERT( r >= 0 );
     snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s @&in) const", obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpEquals), asCALL_CDECL_OBJFIRST); RefCountingObjectPtr_ASSERT( r >= 0 );
+}
+
+template<class T>
+void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtrGeneric(AS_NAMESPACE_QUALIFIER asIScriptEngine* engine, const char* handle_name, const char* obj_name)
+{
+    // NOTE: Must register exactly the same declarations as `RegisterRefCountingObjectPtr()`!
+    int r;
+    const size_t DECLBUF_MAX = 300;
+    char decl_buf[DECLBUF_MAX];
+
+#if defined(AS_USE_NAMESPACE)
+    using namespace AngelScript;
+#endif
+
+    r = engine->RegisterObjectType(handle_name, sizeof(RefCountingObjectPtr), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<RefCountingObjectPtr>()); RefCountingObjectPtr_ASSERT( r >= 0 );
+
+    // construct/destruct
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(RefCountingObjectPtr::ConstructDefaultGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "void f(%s @&in)", obj_name);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, decl_buf, asFUNCTION(RefCountingObjectPtr::ConstructRefGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "void f(const %s &in)", handle_name);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, decl_buf, asFUNCTION(RefCountingObjectPtr::ConstructCopyGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_DESTRUCT, "void f()", asFUNCTION(RefCountingObjectPtr::DestructGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+
+    // GC
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_ENUMREFS, "void f(int&in)", asFUNCTION(RefCountingObjectPtr::EnumReferencesGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_RELEASEREFS, "void f(int&in)", asFUNCTION(RefCountingObjectPtr::ReleaseReferencesGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT(r >= 0);
+
+    // Cast
+    snprintf(decl_buf, DECLBUF_MAX, "%s @ opImplCast()", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCastGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+
+    // GetRef
+    snprintf(decl_buf, DECLBUF_MAX, "%s @ getHandle()", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCastGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+
+    // Assign
+    snprintf(decl_buf, DECLBUF_MAX, "%s &opHndlAssign(const %s &in)", handle_name, handle_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpHndlAssignPtrGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "%s &opHndlAssign(const %s @&in)", handle_name, obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpHndlAssignRefGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+
+    // Equals
+    snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s &in) const", handle_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpEqualsPtrGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s @&in) const", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpEqualsRefGeneric), asCALL_GENERIC); RefCountingObjectPtr_ASSERT( r >= 0 );
 }
 
 
@@ -257,6 +320,90 @@ inline void RefCountingObjectPtr<T>::ReleaseReferences(AS_NAMESPACE_QUALIFIER as
 {
     // Simply clear the content to release the references
     Set(nullptr);
+}
+
+// ---------------------------- Generic calling convention wrappers ------------------------------
+// NOTE: `GetArgAddress()` returns the address held by a reference argument, i.e.
+//       for `const PtrType &in` it's the `RefCountingObjectPtr*` and for `ObjType @&in` it's the `void**` handle.
+
+template<class T>
+inline void RefCountingObjectPtr<T>::ConstructDefaultGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    ConstructDefault(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::ConstructCopyGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    ConstructCopy(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()),
+                  *static_cast<RefCountingObjectPtr<T>*>(gen->GetArgAddress(0)));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::ConstructRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    ConstructRef(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()),
+                 static_cast<void**>(gen->GetArgAddress(0)));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::DestructGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    Destruct(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::EnumReferencesGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    // The `int&in` parameter of GC behaviours actually carries the engine pointer.
+    static_cast<RefCountingObjectPtr<T>*>(gen->GetObject())->EnumReferences(
+        static_cast<AS_NAMESPACE_QUALIFIER asIScriptEngine*>(gen->GetArgAddress(0)));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::ReleaseReferencesGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    // The `int&in` parameter of GC behaviours actually carries the engine pointer.
+    static_cast<RefCountingObjectPtr<T>*>(gen->GetObject())->ReleaseReferences(
+        static_cast<AS_NAMESPACE_QUALIFIER asIScriptEngine*>(gen->GetArgAddress(0)));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::OpImplCastGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    // `OpImplCast()` already increased the refcount, so store the handle directly
+    // (`SetReturnObject()` would increase it again).
+    *static_cast<T**>(gen->GetAddressOfReturnLocation()) = OpImplCast(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::OpHndlAssignPtrGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    RefCountingObjectPtr<T>* self = static_cast<RefCountingObjectPtr<T>*>(gen->GetObject());
+    *self = *static_cast<RefCountingObjectPtr<T>*>(gen->GetArgAddress(0));
+    gen->SetReturnAddress(self);
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::OpHndlAssignRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    RefCountingObjectPtr<T>& ret = OpAssign(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()),
+                                            static_cast<void**>(gen->GetArgAddress(0)));
+    gen->SetReturnAddress(&ret);
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::OpEqualsPtrGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    RefCountingObjectPtr<T>* self = static_cast<RefCountingObjectPtr<T>*>(gen->GetObject());
+    gen->SetReturnByte(*self == *static_cast<RefCountingObjectPtr<T>*>(gen->GetArgAddress(0)));
+}
+
+template<class T>
+inline void RefCountingObjectPtr<T>::OpEqualsRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen)
+{
+    gen->SetReturnByte(OpEquals(static_cast<RefCountingObjectPtr<T>*>(gen->GetObject()),
+                                static_cast<void**>(gen->GetArgAddress(0))));
 }
 
 /*

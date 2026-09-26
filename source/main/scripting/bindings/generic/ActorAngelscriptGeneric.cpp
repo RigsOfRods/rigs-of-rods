@@ -39,8 +39,8 @@ void RoR::RegisterActorGeneric(asIScriptEngine *engine)
     int result;
 
     // class Actor (historically Beam)
-    Actor::RegisterRefCountingObject(engine, "BeamClass");
-    ActorPtr::RegisterRefCountingObjectPtr(engine, "BeamClassPtr", "BeamClass");
+    Actor::RegisterRefCountingObjectGeneric(engine, "BeamClass");
+    ActorPtr::RegisterRefCountingObjectPtrGeneric(engine, "BeamClassPtr", "BeamClass");
 
     // - physics state (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "TruckState getTruckState()", WRAP_MFN(Actor,getTruckState), asCALL_GENERIC); ROR_ASSERT(result>=0);

@@ -80,6 +80,27 @@ public:
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asMETHOD(T,Release), asCALL_THISCALL); RefCountingObject_ASSERT( r >= 0 );
     }
 
+    /// Same as `RegisterRefCountingObject()` but uses the generic calling convention (for platforms with AS_MAX_PORTABILITY).
+    static void  RegisterRefCountingObjectGeneric(AS_NAMESPACE_QUALIFIER asIScriptEngine* engine, const char* name)
+    {
+        int r;
+
+#if defined(AS_USE_NAMESPACE)
+        using namespace AngelScript;
+#endif
+
+        // Registering the reference type
+        r = engine->RegisterObjectType(name, 0, asOBJ_REF); RefCountingObject_ASSERT( r >= 0 );
+
+        // Registering the addref/release behaviours
+        r = engine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()", asFUNCTION(AddRefGeneric), asCALL_GENERIC); RefCountingObject_ASSERT( r >= 0 );
+        r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asFUNCTION(ReleaseGeneric), asCALL_GENERIC); RefCountingObject_ASSERT( r >= 0 );
+    }
+
+    // Generic calling convention wrappers, to be invoked by AngelScript only!
+    static void AddRefGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen) { static_cast<T*>(gen->GetObject())->AddRef(); }
+    static void ReleaseGeneric(AS_NAMESPACE_QUALIFIER asIScriptGeneric* gen) { static_cast<T*>(gen->GetObject())->Release(); }
+
     int m_refcount = 0;
     std::mutex m_refcount_mtx; // Against accidental threaded access
 };

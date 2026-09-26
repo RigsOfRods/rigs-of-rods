@@ -31,8 +31,8 @@ void RoR::RegisterVehicleAiGeneric(asIScriptEngine *engine)
     int result;
 
     // (ref object) VehicleAI
-    VehicleAI::RegisterRefCountingObject(engine, "VehicleAIClass");
-    VehicleAIPtr::RegisterRefCountingObjectPtr(engine, "VehicleAIClassPtr", "VehicleAIClass");
+    VehicleAI::RegisterRefCountingObjectGeneric(engine, "VehicleAIClass");
+    VehicleAIPtr::RegisterRefCountingObjectPtrGeneric(engine, "VehicleAIClassPtr", "VehicleAIClass");
 
     // PLEASE maintain the same order as in 'VehicleAI.h' and 'doc/../VehicleAIClass.h'
     result = engine->RegisterObjectMethod("VehicleAIClass", "void setActive(bool)", WRAP_MFN(VehicleAI, setActive), asCALL_GENERIC); ROR_ASSERT(result >= 0);

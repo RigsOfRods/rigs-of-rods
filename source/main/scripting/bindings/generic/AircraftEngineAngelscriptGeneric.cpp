@@ -12,8 +12,8 @@ void RoR::RegisterAircraftEngineGeneric(asIScriptEngine* engine)
 {
     int result = 0;
 
-    AeroEngine::RegisterRefCountingObject(engine, "AircraftEngineClass");
-    AeroEnginePtr::RegisterRefCountingObjectPtr(engine, "AircraftEngineClassPtr", "AircraftEngineClass");
+    AeroEngine::RegisterRefCountingObjectGeneric(engine, "AircraftEngineClass");
+    AeroEnginePtr::RegisterRefCountingObjectPtrGeneric(engine, "AircraftEngineClassPtr", "AircraftEngineClass");
 
     // PLEASE maintain same order as in 'physics/air/AeroEngine.h' and 'doc/angelscript/Script2Game/AircraftEngineClass.h'
     result = engine->RegisterObjectMethod("AircraftEngineClass", "void setThrottle(float)", WRAP_MFN(AeroEngine, setThrottle), asCALL_GENERIC); ROR_ASSERT(result >= 0);

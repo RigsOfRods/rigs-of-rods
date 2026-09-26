@@ -17,8 +17,8 @@ void RoR::RegisterTurbojetGeneric(asIScriptEngine* engine)
 {
     int result = 0;
 
-    AeroEngine::RegisterRefCountingObject(engine, "TurbojetClass");
-    AeroEnginePtr::RegisterRefCountingObjectPtr(engine, "TurbojetClassPtr", "TurbojetClass");
+    AeroEngine::RegisterRefCountingObjectGeneric(engine, "TurbojetClass");
+    AeroEnginePtr::RegisterRefCountingObjectPtrGeneric(engine, "TurbojetClassPtr", "TurbojetClass");
 
     // PLEASE maintain same order as in 'physics/air/Turbojet.h' and 'doc/angelscript/Script2Game/TurbojetClass.h'
     result = engine->RegisterObjectMethod("TurbojetClass", "float getMaxDryThrust()", WRAP_MFN(Turbojet, getMaxDryThrust), asCALL_GENERIC); ROR_ASSERT(result >= 0);

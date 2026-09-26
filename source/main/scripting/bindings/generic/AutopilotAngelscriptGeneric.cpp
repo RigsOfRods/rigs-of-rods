@@ -12,8 +12,8 @@ void RoR::RegisterAutopilotGeneric(asIScriptEngine* engine)
 {
     int result = 0;
 
-    Autopilot::RegisterRefCountingObject(engine, "AutopilotClass");
-    AutopilotPtr::RegisterRefCountingObjectPtr(engine, "AutopilotClassPtr", "AutopilotClass");
+    Autopilot::RegisterRefCountingObjectGeneric(engine, "AutopilotClass");
+    AutopilotPtr::RegisterRefCountingObjectPtrGeneric(engine, "AutopilotClassPtr", "AutopilotClass");
 
     // PLEASE maintain same order as in 'gameplay/AutoPilot.h' and 'doc/angelscript/Script2Game/AutopilotClass.h'
     result = engine->RegisterObjectMethod("AutopilotClass", "void disconnect()", WRAP_MFN(Autopilot, disconnect), asCALL_GENERIC); ROR_ASSERT(result >= 0);
