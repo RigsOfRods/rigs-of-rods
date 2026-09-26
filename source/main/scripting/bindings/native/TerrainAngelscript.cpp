@@ -22,6 +22,7 @@
 /// @file
 /// @author Petr Ohlidal
  
+#include "AngelScriptBindings.h"
 #include "Application.h"
 #include "ScriptEngine.h"
 #include "Terrain.h"
@@ -35,15 +36,7 @@ void RoR::RegisterTerrainNative(asIScriptEngine* engine)
 {
     int result = 0;
 
-    result = engine->RegisterEnum("SpecialObjectType"); ROR_ASSERT(result >= 0);
-
-    result = engine->RegisterEnumValue("SpecialObjectType", "SPECIAL_OBJECT_NONE", (int)TObjSpecialObject::NONE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("SpecialObjectType", "SPECIAL_OBJECT_TRUCK", (int)TObjSpecialObject::TRUCK); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("SpecialObjectType", "SPECIAL_OBJECT_LOAD", (int)TObjSpecialObject::LOAD); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("SpecialObjectType", "SPECIAL_OBJECT_MACHINE", (int)TObjSpecialObject::MACHINE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("SpecialObjectType", "SPECIAL_OBJECT_BOAT", (int)TObjSpecialObject::BOAT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("SpecialObjectType", "SPECIAL_OBJECT_TRUCK2", (int)TObjSpecialObject::TRUCK2); ROR_ASSERT(result >= 0);
-
+    // NOTE: enum SpecialObjectType is registered in RegisterTerrainCommon()
 
     Terrain::RegisterRefCountingObject(engine, "TerrainClass");
     TerrainPtr::RegisterRefCountingObjectPtr(engine, "TerrainClassPtr", "TerrainClass");
