@@ -184,10 +184,13 @@ inline void RegisterSoundScript(AngelScript::asIScriptEngine* engine)
 }
 
 /// defined in CacheSystemAngelscript.cpp
+void RegisterCacheSystemCommon(AngelScript::asIScriptEngine* engine);
 void RegisterCacheSystemNative(AngelScript::asIScriptEngine* engine);
+void RegisterCacheSystemGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterCacheSystem(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("CacheSystem", engine, &RegisterCacheSystemNative, nullptr);
+    RegisterCacheSystemCommon(engine);
+    RegisterAngelScriptBinding("CacheSystem", engine, &RegisterCacheSystemNative, &RegisterCacheSystemGeneric);
 }
 
 /// Register class Engine and related enums, defined in EngineAngelscript.cpp
