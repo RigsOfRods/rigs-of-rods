@@ -157,6 +157,6 @@ void RoR::RegisterCacheSystemNative(asIScriptEngine *engine)
     result = engine->RegisterObjectType("CacheSystemClass", sizeof(CacheSystem), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CacheSystemClass", "CacheEntryClassPtr @findEntryByFilename(LoaderType, bool, const string &in)", asMETHOD(CacheSystem,FindEntryByFilename), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CacheSystemClass", "CacheEntryClassPtr @getEntryByNumber(int)", asMETHOD(CacheSystem,GetEntryByNumber), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("CacheSystemClass", "dictionary@ query(dictionary@)", asFUNCTION(CacheSystemQueryWrapper), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CacheSystemClass", "dictionary@ query(dictionary@+)", asFUNCTION(CacheSystemQueryWrapper), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);
 
 }
