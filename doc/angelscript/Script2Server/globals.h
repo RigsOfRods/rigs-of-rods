@@ -61,6 +61,33 @@ namespace Script2Server
         CURL_STATUS_SUCCESS,  //!< CURL request finished, n1 = CURL return code, n2 = HTTP result code, message = received payload.
         CURL_STATUS_FAILURE,  //!< CURL request finished, n1 = CURL return code, n2 = HTTP result code, message = CURL error string.
     };
+    
+    /**
+    * For use with Script2Server::GenericDocContextClass
+    */
+    enum TokenType
+    {
+        TOKEN_TYPE_NONE,
+        TOKEN_TYPE_LINEBREAK,    //!< Input: LF (CR is ignored); Output: platform-specific.
+        TOKEN_TYPE_COMMENT,      //!< Line starting with ; (skipping whitespace).
+        TOKEN_TYPE_STRING,       //!< Quoted string.
+        TOKEN_TYPE_FLOAT,        //!< Numbers with or without a decimal point.
+        TOKEN_TYPE_INT,          //!< Only numbers without decimal point.
+        TOKEN_TYPE_BOOL,         //!< Lowercase 'true'/'false'.
+        TOKEN_TYPE_KEYWORD,      //!< Unquoted string at start of line (skipping whitespace).
+    };
+    
+    enum GenericDocumentOptions
+    {
+        GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS, //!< Allow strings without quotes, for backwards compatibility.
+        GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS, //!< Allow comments starting with `//`. 
+        GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE, //!< First non-empty & non-comment line is a naked string with spaces. 
+        GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_COLON, //!< Allow ':' as separator between tokens.
+        GENERIC_DOCUMENT_OPTION_PARENTHESES_CAPTURE_SPACES, //!< If non-empty NAKED string encounters '(', following spaces will be captured until matching ')' is found.    
+        GENERIC_DOCUMENT_OPTION_ALLOW_BRACED_KEYWORDS, //!< Allow INI-like '[keyword]' tokens.
+        GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_EQUALS, //!< Allow '=' as separator between tokens.
+        GENERIC_DOCUMENT_OPTION_ALLOW_HASH_COMMENTS //!< Allow comments starting with `#`.     
+    };
 
 } // namespace Script2Server
 

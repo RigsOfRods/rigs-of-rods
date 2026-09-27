@@ -51,8 +51,8 @@ enum class TokenType
     LINEBREAK,    // Input: LF (CR is ignored); Output: platform-specific.
     COMMENT,      // Line starting with ; (skipping whitespace). Data: offset in string pool.
     STRING,       // Quoted string. Data: offset in string pool.
-    FLOAT,
-    INT,
+    FLOAT,        // Numbers with or without a decimal point.
+    INT,          // Only numbers without decimal point.
     BOOL,         // Lowercase 'true'/'false'. Data: 1.0 for true, 0.0 for false.
     KEYWORD,      // Unquoted string at start of line (skipping whitespace). Data: offset in string pool.
 };
@@ -84,6 +84,12 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
 
     virtual bool loadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options = 0);
     virtual bool saveToResource(std::string resource_name, std::string resource_group_name);
+
+    /// @name Server script interface (not available for game scripts)
+    /// @{
+    virtual bool loadFromFile(const std::string& filename, BitMask_t options = 0);
+    virtual bool saveToFile(const std::string& filename);
+    /// @}
 };
 
 struct GenericDocContext: public RefCountingObject<GenericDocContext>
@@ -119,7 +125,7 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     std::string getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
 
     bool isTokString(int offset = 0) const { return tokenType(offset) == TokenType::STRING; }
-    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::FLOAT; }
+    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::FLOAT || tokenType(offset) == TokenType::INT; }
     bool isTokInt(int offset = 0) const { return tokenType(offset) == TokenType::INT; }
     bool isTokBool(int offset = 0) const { return tokenType(offset) == TokenType::BOOL; }
     bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }

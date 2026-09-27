@@ -86,7 +86,7 @@ enum ActorType //!< Aka 'Driveable'
     AIRPLANE       = 2,   //!< its an airplane
     BOAT           = 3,   //!< its a boat
     MACHINE        = 4,   //!< its a machine
-    AI             = 5,   //!< machine controlled by an Artificial Intelligence
+    // TT_AI ~ replaced by checking if `RoR::Actor::getVehicleAI()` returns a valid object.
 };
 
 /// @}

@@ -19,13 +19,13 @@ namespace Script2Game {
 enum TokenType
 {
     TOKEN_TYPE_NONE,
-    TOKEN_TYPE_LINEBREAK,
-    TOKEN_TYPE_COMMENT,
-    TOKEN_TYPE_STRING,
-    TOKEN_TYPE_FLOAT,
-	TOKEN_TYPE_INT,
-    TOKEN_TYPE_BOOL,
-    TOKEN_TYPE_KEYWORD
+    TOKEN_TYPE_LINEBREAK,    //!< Input: LF (CR is ignored); Output: platform-specific.
+    TOKEN_TYPE_COMMENT,      //!< Line starting with ; (skipping whitespace).
+    TOKEN_TYPE_STRING,       //!< Quoted string.
+    TOKEN_TYPE_FLOAT,        //!< Numbers with or without a decimal point.
+    TOKEN_TYPE_INT,          //!< Only numbers without decimal point.
+    TOKEN_TYPE_BOOL,         //!< Lowercase 'true'/'false'.
+    TOKEN_TYPE_KEYWORD,      //!< Unquoted string at start of line (skipping whitespace).
 };
 
 } // namespace Script2Game

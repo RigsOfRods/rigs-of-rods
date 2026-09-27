@@ -482,7 +482,7 @@ public:
     bool              ar_camera_node_roll_inv[MAX_CAMERAS] = {false};              //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
     
     float             ar_posnode_spawn_height = 0.f;
-    VehicleAIPtr      ar_vehicle_ai;
+    VehicleAIPtr      ar_vehicle_ai; //!< Indicates an A.I. controlled actor (bot).
 
     // Overrides the input event values from InputEngine with custom values
     // for this actor.

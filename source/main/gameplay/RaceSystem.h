@@ -36,7 +36,6 @@ public:
     bool                IsRaceInProgress() const { return m_race_id != -1; }
     int                 GetRaceId() const { return m_race_id; }
     float               GetRaceTime() const;
-    void                ResetRaceUI();
 
     void                SetRaceTimeDiff(float diff) { m_race_time_diff = diff; };
     float               GetRaceTimeDiff() const { return m_race_time_diff; };
