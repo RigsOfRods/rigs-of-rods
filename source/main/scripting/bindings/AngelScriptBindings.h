@@ -66,10 +66,13 @@ inline void RegisterVehicleAi(AngelScript::asIScriptEngine* engine)
 }
 
 /// Registers RoR::InputEngine, defined in InputEngineAngelscript.cpp
+void RegisterInputEngineCommon(AngelScript::asIScriptEngine* engine);
 void RegisterInputEngineNative(AngelScript::asIScriptEngine* engine);
+void RegisterInputEngineGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterInputEngine(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("InputEngine", engine, &RegisterInputEngineNative, nullptr);
+    RegisterInputEngineCommon(engine);
+    RegisterAngelScriptBinding("InputEngine", engine, &RegisterInputEngineNative, &RegisterInputEngineGeneric);
 }
 
 /// Registers RoR::Console, defined in ConsoleAngelscript.cpp
