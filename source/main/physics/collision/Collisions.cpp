@@ -605,7 +605,7 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     return new_tri_index;
 }
 
-void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
+void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node, int actorID)
 {
 #ifdef USE_ANGELSCRIPT
     // check if this box is active anymore
@@ -616,7 +616,7 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     {
         // An actor is activating the eventbox
         // Duplicate invocation is prevented by `Actor::m_active_eventboxes` cache.
-        App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node->pos);
+        App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node->pos, 0, actorID);
     }
     else
     {
@@ -624,7 +624,7 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
         // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ... 
         if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
         {
-            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum]);
+            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], NODENUM_INVALID, 0, actorID);
             m_last_called_cboxes.push_back(cbox);
         }
     }
@@ -1153,9 +1153,22 @@ void Collisions::findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_b
                     if (!cbox->enabled)
                         continue;
 
-                    if (cbox->eventsourcenum != -1 && this->permitEvent(actor, cbox->event_filter))
+                    if (cbox->eventsourcenum != -1)
                     {
-                        out_boxes.push_back(cbox);
+                         const eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
+
+                         if (actor->ar_driveable == AI && (eventsource.es_box_name == "racestart" || eventsource.es_box_name == "checkpoint"))
+                         {
+                             // Special case to allow AI trucks and boats to trigger race events
+                             if (cbox->event_filter == EVENT_TRUCK || cbox->event_filter == EVENT_BOAT)
+                             {
+                                 out_boxes.push_back(cbox);
+                             }
+                         }
+                         else if (this->permitEvent(actor, cbox->event_filter))
+                         {
+                             out_boxes.push_back(cbox);
+                         }
                     }
                 }
             }
