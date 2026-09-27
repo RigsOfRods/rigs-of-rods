@@ -268,6 +268,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/generic/GameScriptAngelscriptGeneric.cpp
             scripting/bindings/generic/GenericFileFormatAngelscriptGeneric.cpp
             scripting/bindings/generic/ImGuiAngelscriptGeneric.cpp
+            scripting/bindings/generic/InputEngineAngelscriptGeneric.cpp
             scripting/bindings/generic/LocalStorageAngelscriptGeneric.cpp
             scripting/bindings/generic/OgreAngelscriptGeneric.cpp
             scripting/bindings/generic/ProceduralRoadAngelscriptGeneric.cpp
@@ -288,6 +289,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/GameScriptAngelscriptCommon.cpp
             scripting/bindings/common/GenericFileFormatAngelscriptCommon.cpp
             scripting/bindings/common/ImGuiAngelscriptCommon.cpp
+            scripting/bindings/common/InputEngineAngelscriptCommon.cpp
             scripting/bindings/common/MsgQueueAngelscriptCommon.cpp
             scripting/bindings/common/ScriptEventsAngelscriptCommon.cpp
             scripting/bindings/common/SoundScriptAngelscriptCommon.cpp
