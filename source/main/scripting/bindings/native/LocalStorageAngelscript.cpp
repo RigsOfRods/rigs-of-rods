@@ -21,16 +21,13 @@
 
 #include "LocalStorage.h"
 #include "AngelScriptBindings.h"
+#include "wrappers/LocalStorageAngelscriptWrappers.h"
 
 #include <angelscript.h>
 
 using namespace AngelScript;
 using namespace RoR;
-
-static LocalStorage* LocalStorageFactory(std::string filename, const std::string& section_name, const std::string& rg_name)
-{
-    return new LocalStorage(filename, section_name, rg_name);
-}
+using namespace LocalStorageAngelscriptWrappers;
 
 void RoR::RegisterLocalStorageNative(asIScriptEngine *engine)
 {
@@ -69,8 +66,8 @@ void RoR::RegisterLocalStorageNative(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("LocalStorageClass", "void setQuaternion(string, const quaternion &in)", asMETHODPR(LocalStorage,set,(std::string, const Ogre::Quaternion&),void), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
 
     r = engine->RegisterObjectMethod("LocalStorageClass", "bool getBool(string)",             asMETHODPR(LocalStorage,getBool,(std::string), bool), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("LocalStorageClass", "void set(string, const bool &in)", asMETHODPR(LocalStorage,set,(std::string, const bool),void), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("LocalStorageClass", "void setBool(string, const bool &in)", asMETHODPR(LocalStorage,set,(std::string, const bool),void), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("LocalStorageClass", "void set(string, const bool &in)", asFUNCTION(LocalStorage_setBool), asCALL_CDECL_OBJFIRST); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("LocalStorageClass", "void setBool(string, const bool &in)", asFUNCTION(LocalStorage_setBool), asCALL_CDECL_OBJFIRST); ROR_ASSERT( r >= 0 );
 
     r = engine->RegisterObjectMethod("LocalStorageClass", "int getInt(string)",     asMETHODPR(LocalStorage,getInt,(std::string), int), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("LocalStorageClass", "int getInteger(string)", asMETHODPR(LocalStorage,getInt,(std::string), int), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
@@ -81,7 +78,7 @@ void RoR::RegisterLocalStorageNative(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("LocalStorageClass", "void save()",   asMETHOD(LocalStorage,saveDict), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("LocalStorageClass", "bool reload()", asMETHOD(LocalStorage,loadDict), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
 
-    r = engine->RegisterObjectMethod("LocalStorageClass", "bool exists(string &in) const", asMETHOD(LocalStorage,exists), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("LocalStorageClass", "void delete(string &in)",       asMETHOD(LocalStorage,eraseKey), asCALL_THISCALL); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("LocalStorageClass", "bool exists(string &in) const", asFUNCTION(LocalStorage_exists), asCALL_CDECL_OBJFIRST); ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("LocalStorageClass", "void delete(string &in)",       asFUNCTION(LocalStorage_eraseKey), asCALL_CDECL_OBJFIRST); ROR_ASSERT( r >= 0 );
 
 }
