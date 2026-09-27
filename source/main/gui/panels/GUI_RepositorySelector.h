@@ -137,7 +137,20 @@ struct ResourcesCollection
     std::vector<ResourceFiles>          files;
 };
 
+struct ContentPackEntry
+{
+    int                 resource_id = 0;
+    int                 file_id = 0;
+    std::string         filename;
+    int                 size = 0;               //!< bytes, 0 if unknown
+    bool                selected = true;        //!< User can deselect before queueing
+    bool                already_installed = false;
+};
+
 typedef std::map<int, Ogre::TexturePtr> RepoAttachmentsMap; //!< Maps attachment ID to Ogre::TexturePtr
+
+const int REPOFILE_MANIFEST_VERSION = 1; //<! Manifest version, for format changes
+const int REPOFILE_MANIFEST_MAX_ENTRY = 50; //!< Max number of entries in a content pack
 
 class BBCodeDrawingContext;
 
@@ -164,6 +177,7 @@ public:
     void                                RequestInstallRepoFile(int resource_id, int datafile_pos, std::string filepath);
     void                                QueueInstallRepoFile(RepoFileInstallRequest* request);
     void                                InstallDownloadedRepoFile(MsgType result, RepoFileInstallRequest* request);
+    void                                OnContentPackSizesResolved(std::vector<ContentPackEntry>* resolved); //!< MSG_NET_RESOLVE_CONTENTPACK_SIZES_SUCCESS
     void                                NotifyRepoFileUninstalled(std::string const& filename);
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
@@ -180,6 +194,10 @@ public:
 
 private:
     void                                TryProcessNextQueuedInstallRequest();
+    void                                ProcessContentPackManifest(std::string const& path);
+    void                                DrawContentPackDialog();
+    void                                QueueSelectedContentPackEntries();
+    void                                DrawDownloadsQueueWindow();
     void                                DrawFooterDownloadsInfo();
     bool                                CheckRepoFileIsInstalled(ResourceFiles& resfile, std::string& out_filepath);
 
@@ -201,6 +219,10 @@ private:
     RepoFileInstallRequestID_t          m_next_install_request_id = 0;
     std::vector<RepoFileInstallRequest> m_queued_install_requests;
     RepoFileInstallRequestID_t          m_active_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
+    std::vector<ContentPackEntry>       m_contentpack_entries;
+    bool                                m_contentpack_dialog_open = false;
+    bool                                m_contentpack_resolving = false; //!< Resolving file sizes from repoAPI before showing the dialog
+    bool                                m_show_downloads_window = false;
 
     // This will be removed during OGRE14 migration
     Ogre::uint16                        m_ogre_workqueue_channel = 0;
