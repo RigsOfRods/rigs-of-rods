@@ -21,6 +21,9 @@
 
 #include "imgui_utils.as"
 
+#include "math_utils.as" // getMouseShortestDistance
+using namespace math_utils;
+
 // Game state
 CVarClass@ cvar_app_state = console.cVarFind("app_state"); // 0=bootstrap, 1=main menu, 2=simulation, see AppState in Application.h
 CVarClass@ cvar_sistate = console.cVarFind("sim_state"); // 0=off, 1=running, 2=paused, 3=terrain editor, see SimState in Application.h
@@ -917,39 +920,3 @@ void drawEditorCamUI()
 }
 //#endregion
 
-//#region Helper functions
-
-
-int clamp(int minval, int val, int maxval)
-{
-    return max(minval, min(val, maxval));
-}
-
-int min(int a, int b)
-{
-    return (a < b) ? a : b;
-}
-
-int max(int a, int b)
-{
-    return (a > b) ? a : b;
-}
-
-float fmax(float a, float b)
-{
-    return (a > b) ? a : b;
-}
-
-int abs(int a)
-{
-    return (a < 0) ? -a : a;
-}
-
-int getMouseShortestDistance(vector2 mouse, vector2 target)
-{
-    int dx = abs(int(mouse.x) - int(target.x));
-    int dy = abs(int(mouse.y) - int(target.y));
-    return max(dx, dy);
-}
-
-//#endregion

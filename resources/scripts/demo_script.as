@@ -32,6 +32,7 @@ https://developer.rigsofrods.org/d4/d07/group___script2_game.html
 */
 
 #include "imgui_utils.as"
+#include "math_utils.as"
 
 /*
 ---------------------------------------------------------------------------
@@ -550,18 +551,11 @@ void drawTextResourceButtons()
     }
 }
 
-string formatVector3(vector3 val, int total, int frac)
-{
-    return "X:" + formatFloat(val.x, "", total, frac)
-    + " Y:" + formatFloat(val.y, "", total, frac)
-    + " Z:" + formatFloat(val.z, "", total, frac);
-}
-
 void drawActorAngles(BeamClass@ actor)
 {
     if (ImGui::CollapsingHeader("Actor positions/angles test"))
     {
-        ImGui::Text("getPosition(): [vector3] " + formatVector3(actor.getPosition(), 6,2));
+        ImGui::Text("getPosition(): [vector3] " + math_utils::formatVector3(actor.getPosition(), 6,2));
         //ImGui::Text("getRotation(): [float] " + formatFloat(actor.getRotation(), "", 6,2)); // returns valid yaw in radians, but prefer using `.getOrientation.getYaw()`
         ImGui::Text("getSpeed(): [float] " + formatFloat(actor.getSpeed(), "", 6,2));
         ImGui::Text("getOrientation(): [quaternion]");

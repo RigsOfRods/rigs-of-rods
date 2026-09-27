@@ -635,7 +635,12 @@ String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
 void InputEngine::Capture()
 {
     mKeyboard->capture();
+    m_oisworkaround_frames_since_mousemoved++;
     mMouse->capture();
+    if (m_oisworkaround_frames_since_mousemoved > 0u)
+    {
+        this->mouseState.Z.rel = 0;
+    }
 
     for (int i = 0; i < free_joysticks; i++)
     {
@@ -706,6 +711,7 @@ void InputEngine::processMouseMotionEvent(const OIS::MouseEvent& arg)
     mouseState.X = arg.state.X;
     mouseState.Y = arg.state.Y;
     mouseState.Z = arg.state.Z;
+    m_oisworkaround_frames_since_mousemoved = 0u;
 }
 
 void InputEngine::processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id)
@@ -1179,6 +1185,12 @@ bool InputEngine::isKeyDown(OIS::KeyCode key)
     if (!mKeyboard)
         return false;
     return this->mKeyboard->isKeyDown(key);
+}
+
+int InputEngine::getMouseWheelMotion()
+{
+    OIS::MouseState ms = this->getMouseState();
+    return ms.Z.rel; 
 }
 
 bool InputEngine::isKeyDownEffective(OIS::KeyCode mod)
