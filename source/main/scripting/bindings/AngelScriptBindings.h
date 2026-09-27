@@ -156,10 +156,13 @@ inline void RegisterProceduralRoad(AngelScript::asIScriptEngine* engine)
 }
 
 /// defined in GenericFileFormatAngelscript.cpp
+void RegisterGenericFileFormatCommon(AngelScript::asIScriptEngine* engine);
 void RegisterGenericFileFormatNative(AngelScript::asIScriptEngine* engine);
+void RegisterGenericFileFormatGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterGenericFileFormat(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("GenericFileFormat", engine, &RegisterGenericFileFormatNative, nullptr);
+    RegisterGenericFileFormatCommon(engine);
+    RegisterAngelScriptBinding("GenericFileFormat", engine, &RegisterGenericFileFormatNative, &RegisterGenericFileFormatGeneric);
 }
 
 /// Registers enums MsgType and FreeForceType, defined in MsgQueueAngelscriptCommon.cpp
