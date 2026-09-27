@@ -271,6 +271,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/generic/OgreAngelscriptGeneric.cpp
             scripting/bindings/generic/ProceduralRoadAngelscriptGeneric.cpp
             scripting/bindings/generic/ScrewpropAngelscriptGeneric.cpp
+            scripting/bindings/generic/SoundScriptAngelscriptGeneric.cpp
             scripting/bindings/generic/TerrainAngelscriptGeneric.cpp
             scripting/bindings/generic/TurbojetAngelscriptGeneric.cpp
             scripting/bindings/generic/TurbopropAngelscriptGeneric.cpp
@@ -287,6 +288,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/ImGuiAngelscriptCommon.cpp
             scripting/bindings/common/MsgQueueAngelscriptCommon.cpp
             scripting/bindings/common/ScriptEventsAngelscriptCommon.cpp
+            scripting/bindings/common/SoundScriptAngelscriptCommon.cpp
             scripting/bindings/common/TerrainAngelscriptCommon.cpp
             scripting/bindings/common/OgreAngelscriptCommon.cpp
             scripting/bindings/common/ProceduralRoadAngelscriptCommon.cpp
@@ -297,6 +299,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/wrappers/LocalStorageAngelscriptWrappers.h
             scripting/bindings/wrappers/OgreAngelscriptWrappers.h
             scripting/bindings/wrappers/ProceduralRoadAngelscriptWrappers.h
+            scripting/bindings/wrappers/SoundScriptAngelscriptWrappers.h
 
             scripting/server/ServerScript.{h,cpp}
             scripting/server/ServerScriptConfig.h
