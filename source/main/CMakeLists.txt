@@ -261,6 +261,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/generic/ActorAngelscriptGeneric.cpp
             scripting/bindings/generic/AircraftEngineAngelscriptGeneric.cpp
             scripting/bindings/generic/AutopilotAngelscriptGeneric.cpp
+            scripting/bindings/generic/CacheSystemAngelscriptGeneric.cpp
             scripting/bindings/generic/ConsoleAngelscriptGeneric.cpp
             scripting/bindings/generic/DashBoardManagerAngelscriptGeneric.cpp
             scripting/bindings/generic/EngineAngelscriptGeneric.cpp
@@ -280,6 +281,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/ActorAngelscriptCommon.cpp
             scripting/bindings/common/AircraftEngineAngelscriptCommon.cpp
             scripting/bindings/common/AutopilotAngelscriptCommon.cpp
+            scripting/bindings/common/CacheSystemAngelscriptCommon.cpp
             scripting/bindings/common/ConsoleAngelscriptCommon.cpp
             scripting/bindings/common/DashBoardManagerAngelscriptCommon.cpp
             scripting/bindings/common/EngineAngelscriptCommon.cpp
@@ -294,6 +296,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/ProceduralRoadAngelscriptCommon.cpp
             scripting/bindings/common/VehicleAiAngelscriptCommon.cpp
 
+            scripting/bindings/wrappers/CacheSystemAngelscriptWrappers.h
             scripting/bindings/wrappers/GenericFileFormatAngelscriptWrappers.h
             scripting/bindings/wrappers/ImGuiAngelscriptWrappers.h
             scripting/bindings/wrappers/LocalStorageAngelscriptWrappers.h
