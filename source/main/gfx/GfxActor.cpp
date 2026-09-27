@@ -35,6 +35,7 @@
 #include "GUIUtils.h"
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
+#include "FlexAirfoilMesh.h"
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
@@ -201,11 +202,6 @@ RoR::GfxActor::~GfxActor()
                 prop.pp_scene_node->removeAndDestroyAllChildren();
                 App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.pp_scene_node);
             }
-            if (prop.pp_wheel_scene_node)
-            {
-                prop.pp_wheel_scene_node->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.pp_wheel_scene_node);
-            }
         }
         catch (...)
         {
@@ -247,6 +243,7 @@ RoR::GfxActor::~GfxActor()
         }
         i_flexbody++;
     }
+    m_flexbodies.clear();
 
     // Delete old cab mesh
     if (m_cab_mesh != nullptr)
@@ -288,10 +285,11 @@ RoR::GfxActor::~GfxActor()
         }
         catch (...)
         {
-            HandleGenericException(fmt::format("GfxActor::~GfxActor(); instanceID:{}, streamID:{}, filename:{}; deleting exhaust {}/{}.",
-                m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, std::distance(m_exhausts.begin(), it), m_exhausts.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+            const size_t i_exhaust = std::distance(it, m_exhausts.begin());
+            HandleGenericException(WhereFrom(this, fmt::format("deleting exhaust {}/{}.", i_exhaust, m_exhausts.size())), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
+    m_exhausts.clear();
 
     // delete custom particles
     for (int i = 0; i < (int)m_cparticles.size(); i++)
@@ -312,10 +310,28 @@ RoR::GfxActor::~GfxActor()
         }
         catch (...)
         {
-            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting custom particle {}/{}.",
-                m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, i, m_cparticles.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+            HandleGenericException(WhereFrom(this, fmt::format("deleting custom particle {}/{}.", i, m_cparticles.size())), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
+    m_cparticles.clear();
+
+    // Delete wings
+    for (int i = 0; i < (int)m_gfx_wings.size(); i++)
+    {
+        try
+        {
+            if (m_gfx_wings[i].cnode)
+            {
+                m_gfx_wings[i].cnode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_gfx_wings[i].cnode);
+            }
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, fmt::format("deleting gfx wing {}/{}.", i, m_gfx_wings.size())), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
+    }
+    m_gfx_wings.clear();
 }
 
 ActorPtr RoR::GfxActor::GetActor()
@@ -742,6 +758,15 @@ void RoR::GfxActor::UpdateDebugView()
         }
     }
 
+    // Nodes are drawn directly using RelPosition, so that the debugview is accurate even in great distances.
+    // To do that, we need a custom modelview matrix.
+    Ogre::Affine3 nodes_modelmatrix(m_actor->ar_origin, Ogre::Quaternion::IDENTITY);
+    World2ScreenConverter nodes2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true) * nodes_modelmatrix,
+        App::GetCameraManager()->GetCamera()->getProjectionMatrix(),
+        Ogre::Vector2(screen_size.x, screen_size.y)
+        );
+
     // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
     if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
         (m_debug_view == DebugViewType::DEBUGVIEW_NODES) ||
@@ -757,8 +782,8 @@ void RoR::GfxActor::UpdateDebugView()
                      beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
                 continue;
 
-            Ogre::Vector3 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
-            Ogre::Vector3 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
+            Ogre::Vector3 pos1 = nodes2screen.Convert(beams[i].p1->RelPosition);
+            Ogre::Vector3 pos2 = nodes2screen.Convert(beams[i].p2->RelPosition);
 
             if ((pos1.z < 0.f) && (pos2.z < 0.f))
             {
@@ -812,7 +837,7 @@ void RoR::GfxActor::UpdateDebugView()
                 if (App::diag_hide_wheels->getBool() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                     continue;
 
-                Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[i].AbsPosition);
+                Ogre::Vector3 pos_xyz = nodes2screen.Convert(nodes[i].RelPosition);
 
                 if (pos_xyz.z < 0.f)
                 {
@@ -837,7 +862,7 @@ void RoR::GfxActor::UpdateDebugView()
                             (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                         continue;
 
-                    Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+                    Ogre::Vector3 pos = nodes2screen.Convert(nodes[i].RelPosition);
 
                     if (pos.z < 0.f)
                     {
@@ -869,8 +894,8 @@ void RoR::GfxActor::UpdateDebugView()
                     continue;
 
                 // Position
-                Ogre::Vector3 world_pos = (beams[i].p1->AbsPosition + beams[i].p2->AbsPosition) / 2.f;
-                Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+                Ogre::Vector3 rel_pos = (beams[i].p1->RelPosition + beams[i].p2->RelPosition) / 2.f;
+                Ogre::Vector3 pos_xyz = nodes2screen.Convert(rel_pos);
                 if (pos_xyz.z >= 0.f)
                 {
                     continue; // Behind the camera
@@ -1695,9 +1720,9 @@ void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
         if (prop.pp_scene_node)
             prop.pp_scene_node->scale(ratio, ratio, ratio);
 
-        if (prop.pp_wheel_scene_node)
+        if (prop.pp_wheel_mesh_obj)
         {
-            prop.pp_wheel_scene_node->scale(ratio, ratio, ratio);
+            prop.pp_wheel_mesh_obj->scale(Ogre::Vector3(ratio, ratio, ratio));
             prop.pp_wheel_pos = relpos + (prop.pp_wheel_pos - relpos) * ratio;
         }
 
@@ -1755,6 +1780,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_driveable = m_actor->ar_driveable;
 
     // Movement
+    m_simbuf.simbuf_origin = m_actor->ar_origin;
     m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_rotation = m_actor->getRotation();
@@ -1774,6 +1800,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     {
         auto node = m_actor->ar_nodes[i];
         m_simbuf.simbuf_nodes[i].AbsPosition = node.AbsPosition;
+        m_simbuf.simbuf_nodes[i].RelPosition = node.RelPosition;
         m_simbuf.simbuf_nodes[i].nd_has_contact = node.nd_has_ground_contact || node.nd_has_mesh_contact;
     }
 
@@ -1800,6 +1827,20 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
     {
         m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->getRatio();
+    }
+
+    // Elements: wings
+    m_simbuf.simbuf_wings.resize(m_actor->ar_num_wings);
+    for (WingID_t i = 0; i < m_actor->ar_num_wings; i++)
+    {
+        m_simbuf.simbuf_wings[i].simbuf_fa_broken = m_actor->ar_wings[i].fa->broken;
+        m_simbuf.simbuf_wings[i].simbuf_fa_isstabilator = m_actor->ar_wings[i].fa->isstabilator;
+        m_simbuf.simbuf_wings[i].simbuf_fa_stabilleft = m_actor->ar_wings[i].fa->stabilleft;
+        m_simbuf.simbuf_wings[i].simbuf_fa_deflection = m_actor->ar_wings[i].fa->deflection;
+        std::memcpy(
+            m_simbuf.simbuf_wings[i].simbuf_fa_airfoilpos,
+            m_actor->ar_wings[i].fa->airfoilpos,
+            sizeof(float)*90);
     }
 
     // Elements: Command keys
@@ -1923,7 +1964,8 @@ void RoR::GfxActor::UpdateCabMesh()
 {
     if ((m_cab_entity != nullptr) && (m_cab_mesh != nullptr))
     {
-        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
+        m_cab_scene_node->setPosition(m_simbuf.simbuf_origin);
+        m_cab_mesh->UpdateFlexObj();
     }
 }
 
@@ -1933,11 +1975,11 @@ void RoR::GfxActor::UpdateWheelVisuals()
 
     for (WheelGfx& w: m_wheels)
     {
-        if (w.wx_flex_mesh != nullptr && w.wx_flex_mesh->flexitPrepare())
+        if (w.wx_flex_mesh != nullptr)
         {
             auto func = std::function<void()>([this, w]()
                 {
-                    w.wx_flex_mesh->flexitCompute();
+                    w.wx_flex_mesh->FlexitCompute();
                 });
             auto task_handle = App::GetThreadPool()->RunTask(func);
             m_flexwheel_tasks.push_back(task_handle);
@@ -1955,7 +1997,8 @@ void RoR::GfxActor::FinishWheelUpdates()
     {
         if (w.wx_scenenode != nullptr && w.wx_flex_mesh != nullptr)
         {
-            w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
+            w.wx_flex_mesh->FlexitFinalize();
+            w.wx_scenenode->setPosition(m_simbuf.simbuf_origin);
         }
     }
 }
@@ -1970,7 +2013,7 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
         }
         if (w.wx_flex_mesh != nullptr)
         {
-            w.wx_flex_mesh->setVisible(value);
+            w.wx_flex_mesh->FlexitSetVisible(value);
         }
     }
 }
@@ -2304,26 +2347,34 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
         }
 
         // Update position and orientation
-        // -- quick ugly port from `Actor::updateProps()` --- ~ 06/2018
-        Vector3 diffX = nodes[prop.pp_node_x].AbsPosition - nodes[prop.pp_node_ref].AbsPosition;
-        Vector3 diffY = nodes[prop.pp_node_y].AbsPosition - nodes[prop.pp_node_ref].AbsPosition;
+        // We do a trick to prevent the prop from jittering at large world distances;
+        // we fix the scenenode at physics origin and move the verts relatively using a bone.
+        const Vector3 origin = this->GetSimDataBuffer().simbuf_origin;
+        prop.pp_mesh_obj->SetOriginWorldPosition(origin);
+
+        Vector3 diffX = nodes[prop.pp_node_x].RelPosition - nodes[prop.pp_node_ref].RelPosition;
+        Vector3 diffY = nodes[prop.pp_node_y].RelPosition - nodes[prop.pp_node_ref].RelPosition;
 
         Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
-        Vector3 mposition = nodes[prop.pp_node_ref].AbsPosition + prop.pp_offset.x * diffX + prop.pp_offset.y * diffY;
-        prop.pp_scene_node->setPosition(mposition + normal * prop.pp_offset.z);
+        Vector3 mposition = nodes[prop.pp_node_ref].RelPosition + prop.pp_offset.x * diffX + prop.pp_offset.y * diffY;
+        const Vector3 mesh_relpos = mposition + normal * prop.pp_offset.z;
+        prop.pp_scene_node->setPosition(mesh_relpos + origin); // Dummy, just to store world pos.
+        prop.pp_mesh_obj->SetBoneRelPosition(mesh_relpos); // Actual visible positioning.
 
         Vector3 refx = diffX.normalisedCopy();
         Vector3 refy = refx.crossProduct(normal);
-        Quaternion orientation = Quaternion(refx, normal, refy) * prop.pp_rot;
-        prop.pp_scene_node->setOrientation(orientation);
+        const Quaternion orientation = Quaternion(refx, normal, refy) * prop.pp_rot;
+        prop.pp_scene_node->setOrientation(orientation); // Dummy just to store world transform.
+        prop.pp_mesh_obj->SetBoneRelOrientation(orientation); // Actual visible positioning.
 
-        if (prop.pp_wheel_scene_node) // special prop - steering wheel
+        if (prop.pp_wheel_mesh_obj) // special prop - steering wheel
         {
             Quaternion brot = Quaternion(Degree(-59.0), Vector3::UNIT_X);
             brot = brot * Quaternion(Degree(m_simbuf.simbuf_hydro_dir_state * prop.pp_wheel_rot_degree), Vector3::UNIT_Y);
-            prop.pp_wheel_scene_node->setPosition(mposition + normal * prop.pp_offset.z + orientation * prop.pp_wheel_pos);
-            prop.pp_wheel_scene_node->setOrientation(orientation * brot);
+            prop.pp_wheel_mesh_obj->SetOriginWorldPosition(origin);
+            prop.pp_wheel_mesh_obj->SetBoneRelPosition(mposition + normal * prop.pp_offset.z + orientation * prop.pp_wheel_pos);
+            prop.pp_wheel_mesh_obj->SetBoneRelOrientation(orientation * brot);
         }
     }
 
@@ -3364,7 +3415,7 @@ void RoR::GfxActor::SetWingsVisible(bool visible)
 {
     for (int i = 0; i < m_actor->ar_num_wings; ++i)
     {
-        m_actor->ar_wings[i].cnode->setVisible(visible);
+        m_gfx_wings[i].cnode->setVisible(visible);
     }
 
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
@@ -3377,9 +3428,8 @@ void RoR::GfxActor::UpdateWingMeshes()
 {
     for (int i = 0; i < m_actor->ar_num_wings; ++i)
     {
-        wing_t& wing = m_actor->ar_wings[i];
-        wing.cnode->setPosition(wing.fa->updateVerticesGfx(this));
-        wing.fa->uploadVertices();
+        m_gfx_wings[i].cnode->setPosition(
+            m_gfx_wings[i].flex_airfoil_mesh->updateVerticesGfx());
     }
 }
 

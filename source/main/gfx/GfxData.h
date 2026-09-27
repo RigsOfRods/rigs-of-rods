@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include "MeshObject.h"
+#include "FalselyMovingMesh.h"
 #include "SimConstants.h"
 
 #include <Ogre.h>
@@ -163,8 +163,8 @@ struct Prop
     Ogre::Vector3         pp_offset_orig          = Ogre::Vector3::ZERO; //!< Used with ANIM_FLAG_OFFSET*
     Ogre::Vector3         pp_rota                 = Ogre::Vector3::ZERO;
     Ogre::Quaternion      pp_rot                  = Ogre::Quaternion::IDENTITY;
-    Ogre::SceneNode*      pp_scene_node           = nullptr;             //!< The pivot scene node (parented to root-node).
-    MeshObject*           pp_mesh_obj             = nullptr;             //!< Optional; NULL if removed via tuneup/addonpart
+    Ogre::SceneNode*      pp_scene_node           = nullptr;             //!< A dummy for storing prop's world transforms only; the actual meshes are handled by `FalselyMovingMesh's` inner transforms.
+    FalselyMovingMesh*    pp_mesh_obj             = nullptr;             //!< Optional; NULL if removed via tuneup/addonpart
     std::string           pp_media[2];                                   //!< Redundant, for Tuning UI. Media1 = prop mesh name, Media2 = steeringwheel mesh/beaconprop flare mat.
     std::vector<PropAnim> pp_animations;
 
@@ -175,9 +175,8 @@ struct Prop
     /// @}
 
     // Special prop - steering wheel
-    MeshObject*           pp_wheel_mesh_obj       = nullptr;
+    FalselyMovingMesh*    pp_wheel_mesh_obj       = nullptr;
     Ogre::Vector3         pp_wheel_pos            = Ogre::Vector3::ZERO;
-    Ogre::SceneNode*      pp_wheel_scene_node     = nullptr;
     float                 pp_wheel_rot_degree     = 0;
     
     // Special prop - beacon
@@ -306,7 +305,7 @@ struct FreeBeamGfxRequest
 struct WheelGfx
 {
     WheelID_t          wx_wheel_id         = WHEELID_INVALID;
-    Flexable*          wx_flex_mesh        = nullptr;
+    IFlexWheel*        wx_flex_mesh        = nullptr;
     Ogre::SceneNode*   wx_scenenode        = nullptr;
     WheelSide          wx_side             = WheelSide::INVALID;
     std::string        wx_rim_mesh_name;                         //!< Redundant, for Tuning UI. Only for 'meshwheels[2]' and 'flexbodywheels'
@@ -345,6 +344,13 @@ struct CParticle
     NodeNum_t directionNode = NODENUM_INVALID;
     Ogre::SceneNode *snode = nullptr;
     Ogre::ParticleSystem* psys = nullptr;
+};
+
+struct WingGfx
+{
+    WingID_t wing_id = WINGID_INVALID;
+    FlexAirfoilMesh* flex_airfoil_mesh = nullptr;
+    Ogre::SceneNode *cnode = nullptr;
 };
 
 /// @} // addtogroup Gfx

@@ -47,8 +47,9 @@
 #include "Differentials.h"
 #include "Engine.h"
 #include "FlexAirfoil.h"
+#include "FlexAirfoilMesh.h"
 #include "FlexBody.h"
-#include "FlexMesh.h"
+#include "FlexWheel.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GameContext.h"
@@ -964,7 +965,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     NodeNum_t node1 = this->GetNodeIndexOrThrow(def.nodes[1]);
 
     const std::string wing_name = this->ComposeName("wing", m_actor->ar_num_wings);
-    auto flex_airfoil = new FlexAirfoil(
+    FlexAirfoil* flex_airfoil = new FlexAirfoil(
         wing_name,
         m_actor,
         this->GetNodeIndexOrThrow(def.nodes[0]),
@@ -975,11 +976,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         this->GetNodeIndexOrThrow(def.nodes[5]),
         this->GetNodeIndexOrThrow(def.nodes[6]),
         this->GetNodeIndexOrThrow(def.nodes[7]),
-        m_cab_material_name,
-        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
-        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
-        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
-        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7]),
         (char)def.control_surface,
         def.chord_point,
         def.min_deflection,
@@ -1176,8 +1172,23 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
     // Add new wing to rig
     m_actor->ar_wings[m_actor->ar_num_wings].fa = flex_airfoil;
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode->attachObject(entity);
+
+    // Add the visual wing
+    FlexAirfoilMesh* flex_af_mesh = new FlexAirfoilMesh(
+        m_actor,
+        m_actor->ar_num_wings,
+        m_cab_material_name,
+        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
+        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
+        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
+        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7])
+    );
+    WingGfx wing_gfx;
+    wing_gfx.wing_id = m_actor->ar_num_wings;
+    wing_gfx.cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
+    wing_gfx.cnode->attachObject(entity);
+    wing_gfx.flex_airfoil_mesh = flex_af_mesh;
+    m_actor->GetGfxActor()->m_gfx_wings.push_back(wing_gfx);
 
     ++m_actor->ar_num_wings;
 }
@@ -1716,14 +1727,13 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             steering_wheel_offset = def.special_prop_dashboard.offset;
         }
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
-        prop.pp_wheel_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("steering wheel @ prop", prop_id));
         prop.pp_wheel_pos = steering_wheel_offset;
         prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 1, def.special_prop_dashboard.mesh_name);
-        prop.pp_wheel_mesh_obj = new MeshObject(
+        prop.pp_wheel_mesh_obj = new FalselyMovingMesh(
             prop.pp_media[1],
             TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 1, this->GetCurrentElementMediaRG()),
             this->ComposeName("steering wheel entity @ prop", prop_id),
-            prop.pp_wheel_scene_node
+            m_props_parent_scenenode->createChildSceneNode(this->ComposeName("steering wheel FMM-scenenode @ prop", prop_id))
             );
         this->SetupNewEntity(prop.pp_wheel_mesh_obj->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
     }
@@ -1731,11 +1741,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     /* CREATE THE PROP */
     prop.pp_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("prop", prop_id));
     prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 0, def.mesh_name);
-    prop.pp_mesh_obj = new MeshObject(
-            prop.pp_media[0],
-            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 0, this->GetCurrentElementMediaRG()),
-            this->ComposeName("prop entity", prop_id),
-            prop.pp_scene_node);
+    prop.pp_mesh_obj = new FalselyMovingMesh(
+        prop.pp_media[0],
+        TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 0, this->GetCurrentElementMediaRG()),
+        this->ComposeName("prop entity", prop_id),
+        m_props_parent_scenenode->createChildSceneNode(this->ComposeName("FMM-scenenode @ prop", prop_id))
+    );
 
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
 
@@ -1890,7 +1901,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
         if (m_curr_mirror_prop_type != CustomMaterial::MirrorPropType::MPROP_NONE)
         {
-            m_curr_mirror_prop_scenenode = prop.pp_mesh_obj->GetSceneNode();
+            m_curr_mirror_prop_scenenode = prop.pp_scene_node;
         }
     }
 
@@ -5311,12 +5322,12 @@ void ActorSpawner::CreateWheelVisuals(
         WheelGfx visual_wheel;
 
         const std::string wheel_mesh_name = this->ComposeName("mesh @ wheel*", wheel_index);
-        visual_wheel.wx_flex_mesh = new FlexMesh(
+        visual_wheel.wx_flex_mesh = new FlexWheel(
             wheel_mesh_name,
             m_actor->m_gfx_actor.get(),
             wheel.wh_axis_node_0->pos,
             wheel.wh_axis_node_1->pos,
-            static_cast<NodeNum_t>(node_base_index), // FIXME - node_base_index should be also NodeNum_t
+            node_base_index,
             num_rays,
             face_material_name, face_material_rg,
             band_material_name, band_material_rg,
@@ -5334,7 +5345,7 @@ void ActorSpawner::CreateWheelVisuals(
     }
     catch (Ogre::Exception& e)
     {
-        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
+        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getDescription());
     }
 }
 

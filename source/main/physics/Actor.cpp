@@ -39,7 +39,7 @@
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
-#include "FlexMesh.h"
+#include "FlexWheel.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GameContext.h"
@@ -191,11 +191,6 @@ void Actor::dispose()
             // flexAirfoil, airfoil
             if (ar_wings[i].fa)
                 delete ar_wings[i].fa;
-            if (ar_wings[i].cnode)
-            {
-                ar_wings[i].cnode->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_wings[i].cnode);
-            }
         }
         catch (...)
         {
