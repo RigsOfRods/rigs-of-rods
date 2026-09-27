@@ -29,28 +29,19 @@ void RoR::RegisterConsoleNative(asIScriptEngine *engine)
 {
     int result;
 
+    // NOTE: object types CVarClass/ConsoleClass and enum CVarFlags are registered in RegisterConsoleCommon()
+
     // class CVar
-    result = engine->RegisterObjectType("CVarClass", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CVarClass", "const string& getName()", asMETHOD(CVar,getName), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CVarClass", "const string& getStr()", asMETHOD(CVar,getStr), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CVarClass", "int getInt()", asMETHOD(CVar,getInt), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CVarClass", "float getFloat()", asMETHOD(CVar,getFloat), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CVarClass", "bool getBool()", asMETHOD(CVar,getBool), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
-    // enum CVarFlags
-    result = engine->RegisterEnum("CVarFlags"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("CVarFlags", "CVAR_TYPE_BOOL", CVAR_TYPE_BOOL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("CVarFlags", "CVAR_TYPE_INT", CVAR_TYPE_INT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("CVarFlags", "CVAR_TYPE_FLOAT", CVAR_TYPE_FLOAT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("CVarFlags", "CVAR_ARCHIVE", CVAR_ARCHIVE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("CVarFlags", "CVAR_NO_LOG", CVAR_NO_LOG); ROR_ASSERT(result >= 0);
-
     // class Console
-    result = engine->RegisterObjectType("ConsoleClass", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarCreate(const string &in, const string &in, int, const string &in)", asMETHOD(Console,cVarCreate), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarFind(const string &in)", asMETHOD(Console,cVarFind), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarGet(const string &in, int)", asMETHOD(Console,cVarGet), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarSet(const string &in, const string &in)", asMETHOD(Console,cVarSet), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "void cVarAssign(CVarClass@, const string &in)", asMETHOD(Console,cVarAssign), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
 }

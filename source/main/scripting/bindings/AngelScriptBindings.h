@@ -73,10 +73,13 @@ inline void RegisterInputEngine(AngelScript::asIScriptEngine* engine)
 }
 
 /// Registers RoR::Console, defined in ConsoleAngelscript.cpp
+void RegisterConsoleCommon(AngelScript::asIScriptEngine* engine);
 void RegisterConsoleNative(AngelScript::asIScriptEngine* engine);
+void RegisterConsoleGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterConsole(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("Console", engine, &RegisterConsoleNative, nullptr);
+    RegisterConsoleCommon(engine);
+    RegisterAngelScriptBinding("Console", engine, &RegisterConsoleNative, &RegisterConsoleGeneric);
 }
 
 /// Registers RoR::LocalStorage, defined in LocalStorageAngelscript.cpp
