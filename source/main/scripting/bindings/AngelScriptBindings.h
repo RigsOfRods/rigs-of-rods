@@ -174,10 +174,13 @@ inline void RegisterMessageQueue(AngelScript::asIScriptEngine* engine)
 }
 
 /// defined in SoundScriptAngelscript.cpp
+void RegisterSoundScriptCommon(AngelScript::asIScriptEngine* engine);
 void RegisterSoundScriptNative(AngelScript::asIScriptEngine* engine);
+void RegisterSoundScriptGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterSoundScript(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("SoundScript", engine, &RegisterSoundScriptNative, nullptr);
+    RegisterSoundScriptCommon(engine);
+    RegisterAngelScriptBinding("SoundScript", engine, &RegisterSoundScriptNative, &RegisterSoundScriptGeneric);
 }
 
 /// defined in CacheSystemAngelscript.cpp
