@@ -346,6 +346,68 @@ Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, co
 
 void ContentManager::resourceStreamOpened(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource, Ogre::DataStreamPtr& dataStream)
 {
+#if OGRE_VERSION < 0x010C08 // OGRE 1.12.8+ does this itself, see `HighLevelGpuProgram::appendBuiltinDefines()`
+    // Backport of OGRE's builtin shader defines, which shaders written against 'OgreUnifiedShader.h' rely on.
+    // Without them the header silently picks its GLSL branch even under D3D, and OGRE's GLSL preprocessor
+    // evaluates `__VERSION__` as 0, which picks the GLSL 1.10 attribute/varying path.
+    // This runs before the program reads its `preprocessor_defines`, see `HighLevelGpuProgram::loadHighLevelImpl()`.
+    Ogre::HighLevelGpuProgram* prog = dynamic_cast<Ogre::HighLevelGpuProgram*>(resource);
+    if (!prog || name != prog->getSourceFile())
+        return; // Not a shader, or an #include pulled in by one.
+
+    const bool is_glsl = (prog->getLanguage() == "glsl");
+    if (!is_glsl && prog->getLanguage() != "hlsl")
+        return;
+    if (prog->getType() != Ogre::GPT_VERTEX_PROGRAM && prog->getType() != Ogre::GPT_FRAGMENT_PROGRAM)
+        return;
+
+    // Expand `OGRE_NATIVE_GLSL_VERSION_DIRECTIVE` (OGRE 14.3+) and find out the shading language version.
+    const Ogre::String DIRECTIVE = "OGRE_NATIVE_GLSL_VERSION_DIRECTIVE";
+    Ogre::String source = dataStream->getAsString();
+    const size_t directive_pos = source.find(DIRECTIVE);
+    int version = 0;
+    if (is_glsl)
+    {
+        if (directive_pos != Ogre::String::npos)
+        {
+            version = Ogre::Root::getSingleton().getRenderSystem()->getNativeShadingLanguageVersion();
+            source.replace(directive_pos, DIRECTIVE.size(), "#version " + Ogre::StringConverter::toString(version));
+        }
+        else
+        {
+            const size_t version_pos = source.find("#version");
+            version = (version_pos != Ogre::String::npos) ? Ogre::StringConverter::parseInt(source.substr(version_pos + 9, 3)) : 100;
+        }
+    }
+    else
+    {
+        if (directive_pos != Ogre::String::npos)
+            source.erase(directive_pos, DIRECTIVE.size());
+
+        // OGRE 1.11 D3D rendersystems don't report a native version, so take it from the profile, i.e. vs_4_0 -> 4
+        const Ogre::String target = prog->getParameter("target");
+        version = (target.size() > 3) ? Ogre::StringConverter::parseInt(target.substr(3, 1)) : 0;
+
+        // OGRE 1.11 has no default HLSL entry point; 'OgreUnifiedShader.h' names it `main`.
+        if (prog->getParameter("entry_point").empty())
+            prog->setParameter("entry_point", "main");
+    }
+
+    Ogre::MemoryDataStream patched_source(&source[0], source.size());
+    dataStream = Ogre::DataStreamPtr(OGRE_NEW Ogre::MemoryDataStream(name, patched_source)); // Copies the data.
+
+    Ogre::String defines = prog->getParameter("preprocessor_defines");
+    if (defines.find("OGRE_VERTEX_SHADER") != Ogre::String::npos || defines.find("OGRE_FRAGMENT_SHADER") != Ogre::String::npos)
+        return; // Already added - the program is being reloaded.
+
+    if (!defines.empty())
+        defines += ","; // A leading comma would make OGRE 1.11 define a macro with empty name.
+    defines += (prog->getType() == Ogre::GPT_VERTEX_PROGRAM) ? "OGRE_VERTEX_SHADER" : "OGRE_FRAGMENT_SHADER";
+    defines += (is_glsl ? ",OGRE_GLSL=" : ",OGRE_HLSL=") + Ogre::StringConverter::toString(version);
+    if (is_glsl)
+        defines += ",__VERSION__=" + Ogre::StringConverter::toString(version);
+    prog->setParameter("preprocessor_defines", defines);
+#endif
 }
 
 bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager)
@@ -358,6 +420,35 @@ bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceM
     RoR::LogFormat("[RoR|ContentManager] Skipping resource with duplicate name: '%s' (origin: '%s')",
         resource->getName().c_str(), resource->getOrigin().c_str());
     return false; // Instruct OGRE to drop the new resource and keep the original.
+}
+
+bool ContentManager::postConversion(ScriptCompiler *compiler, const AbstractNodeListPtr& nodes)
+{
+#if OGRE_VERSION < 0x010C09 // OGRE 1.12.9+ does this itself, see `GpuProgramTranslator::translate()`
+    // Backport of multi-language program declarations, i.e. `vertex_program Foo glsl hlsl`.
+    // OGRE 1.11 only reads the first language, so move the first supported one to the front.
+    for (const AbstractNodePtr& node : *nodes)
+    {
+        if (node->type != ANT_OBJECT)
+            continue;
+
+        ObjectAbstractNode* obj = static_cast<ObjectAbstractNode*>(node.get());
+        if (obj->id != ID_VERTEX_PROGRAM && obj->id != ID_GEOMETRY_PROGRAM && obj->id != ID_FRAGMENT_PROGRAM &&
+            obj->id != ID_TESSELLATION_HULL_PROGRAM && obj->id != ID_TESSELLATION_DOMAIN_PROGRAM && obj->id != ID_COMPUTE_PROGRAM)
+            continue;
+
+        auto supported = std::find_if(obj->values.begin(), obj->values.end(), [](const AbstractNodePtr& lang_node)
+            {
+                if (lang_node->type != ANT_ATOM)
+                    return false;
+                const String& lang = static_cast<AtomAbstractNode*>(lang_node.get())->value;
+                return lang == "asm" || HighLevelGpuProgramManager::getSingleton().isLanguageSupported(lang);
+            });
+        if (supported != obj->values.end() && supported != obj->values.begin())
+            obj->values.splice(obj->values.begin(), obj->values, supported);
+    }
+#endif
+    return true; // Continue compilation
 }
 
 bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *evt, void *retval)
