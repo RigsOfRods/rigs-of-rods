@@ -84,9 +84,10 @@ inline void RegisterConsole(AngelScript::asIScriptEngine* engine)
 
 /// Registers RoR::LocalStorage, defined in LocalStorageAngelscript.cpp
 void RegisterLocalStorageNative(AngelScript::asIScriptEngine* engine);
+void RegisterLocalStorageGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterLocalStorage(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("LocalStorage", engine, &RegisterLocalStorageNative, nullptr);
+    RegisterAngelScriptBinding("LocalStorage", engine, &RegisterLocalStorageNative, &RegisterLocalStorageGeneric);
 }
 
 /// Registers RoR::GameScript, defined in GameScriptAngelscript.cpp

@@ -266,6 +266,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/generic/EngineAngelscriptGeneric.cpp
             scripting/bindings/generic/GameScriptAngelscriptGeneric.cpp
             scripting/bindings/generic/ImGuiAngelscriptGeneric.cpp
+            scripting/bindings/generic/LocalStorageAngelscriptGeneric.cpp
             scripting/bindings/generic/OgreAngelscriptGeneric.cpp
             scripting/bindings/generic/ProceduralRoadAngelscriptGeneric.cpp
             scripting/bindings/generic/ScrewpropAngelscriptGeneric.cpp
@@ -290,6 +291,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/VehicleAiAngelscriptCommon.cpp
 
             scripting/bindings/wrappers/ImGuiAngelscriptWrappers.h
+            scripting/bindings/wrappers/LocalStorageAngelscriptWrappers.h
             scripting/bindings/wrappers/OgreAngelscriptWrappers.h
             scripting/bindings/wrappers/ProceduralRoadAngelscriptWrappers.h
 
