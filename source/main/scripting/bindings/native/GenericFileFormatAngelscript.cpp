@@ -25,46 +25,15 @@
 
 #include "AngelScriptBindings.h"
 #include "GenericFileFormat.h"
+#include "wrappers/GenericFileFormatAngelscriptWrappers.h"
 
 using namespace RoR;
 using namespace AngelScript;
-
-// Factories
-static GenericDocument* GenericDocumentFactory()
-{
-    return new GenericDocument();
-}
-
-static GenericDocContext* GenericDocContextFactory(GenericDocumentPtr doc)
-{
-    return new GenericDocContext(doc);
-}
+using namespace GenericFileFormatAngelscriptWrappers;
 
 void RoR::RegisterGenericFileFormatNative(asIScriptEngine* engine)
 {
-    // enum TokenType
-    engine->RegisterEnum("TokenType");
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_NONE", (int)TokenType::NONE);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_LINEBREAK", (int)TokenType::LINEBREAK);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_COMMENT", (int)TokenType::COMMENT);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_STRING", (int)TokenType::STRING);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_FLOAT", (int)TokenType::FLOAT);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_INT", (int)TokenType::INT);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_BOOL", (int)TokenType::BOOL);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_KEYWORD", (int)TokenType::KEYWORD);
-
-
-    // GenericDocument constants
-    engine->RegisterEnum("GenericDocumentOptions");
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS", GenericDocument::OPTION_ALLOW_NAKED_STRINGS);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS", GenericDocument::OPTION_ALLOW_SLASH_COMMENTS);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE", GenericDocument::OPTION_FIRST_LINE_IS_TITLE);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_COLON", GenericDocument::OPTION_ALLOW_SEPARATOR_COLON);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_PARENTHESES_CAPTURE_SPACES", GenericDocument::OPTION_PARENTHESES_CAPTURE_SPACES);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_BRACED_KEYWORDS", GenericDocument::OPTION_ALLOW_BRACED_KEYWORDS);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_EQUALS", GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS);
-    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_HASH_COMMENTS", GenericDocument::OPTION_ALLOW_HASH_COMMENTS);
-
+    // NOTE: enums TokenType and GenericDocumentOptions are registered in RegisterGenericFileFormatCommon()
 
     // class GenericDocument
     GenericDocument::RegisterRefCountingObject(engine, "GenericDocumentClass");
