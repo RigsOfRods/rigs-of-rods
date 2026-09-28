@@ -73,6 +73,7 @@ private:
     bool             m_interactive_keybinding_active = false;
     bool             m_interactive_keybinding_expl = true;
     bool             m_interactive_keybinding_analog = false;
+    bool             m_interactive_keybinding_delete_on_cancel = false;
 };
 
 } // namespace GUI
