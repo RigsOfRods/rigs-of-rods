@@ -1952,13 +1952,13 @@ bool InputEngine::saveConfigFile(int deviceID)
         return this->saveMapping(m_loaded_configs[deviceID], deviceID);
 }
 
-std::string const& InputEngine::getLoadedConfigFile(int deviceID /*= -1*/)
+std::string InputEngine::getLoadedConfigFile(int deviceID /*= DEFAULT_MAPFILE_DEVICEID*/)
 {
     ROR_ASSERT(deviceID < free_joysticks);
-    if (deviceID == -1)
-        return DEFAULT_MAPFILE;
+    if (deviceID == DEFAULT_MAPFILE_DEVICEID)
+        return fmt::format("({}) {}", _LC("InputEngine", "Keyboard"), DEFAULT_MAPFILE);
     else
-        return m_loaded_configs[deviceID];
+        return fmt::format("({}) {}", _LC("InputEngine", "Controller"), m_loaded_configs[deviceID]);
 }
 
 bool InputEngine::loadMapping(String fileName, int deviceID)
