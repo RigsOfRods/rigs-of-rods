@@ -43,6 +43,7 @@ private:
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
     void DrawMenubar();
+    void DrawInteractiveKeybindDigital();
 
     // Edit bindings (used for both expert and interactive modes)
     void UpdateInteractiveKeybinding();
