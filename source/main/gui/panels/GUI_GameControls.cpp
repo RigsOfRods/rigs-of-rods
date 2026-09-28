@@ -73,7 +73,8 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::SetNextWindowPosCenter();
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
     ImGui::SetNextWindowContentWidth(300.f);
-    ImGui::Begin(_LC("GameControls", "Edit input binding"), nullptr, flags);
+    std::string window_title = m_interactive_keybinding_delete_on_cancel ? _LC("GameControls", "Add new input binding") : _LC("GameControls", "Edit existing input binding");
+    ImGui::Begin(window_title.c_str(), nullptr, flags);
 
     // Title and description (centered)
     std::string ev_name = App::GetInputEngine()->eventIDToName(m_active_event);
@@ -147,6 +148,10 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(BTN_BIGXPADDING, ImGui::GetStyle().FramePadding.y));
     if (ImGui::Button(_LC("GameSettings", "Cancel")))
     {
+        if (m_interactive_keybinding_delete_on_cancel)
+        {
+            App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
+        }
         this->CancelChanges();
     }
     // ... align 'accept' button to the right
@@ -157,13 +162,16 @@ void GameControls::UpdateInteractiveKeybinding()
         this->ApplyChanges();
     }
     ImGui::PopStyleVar();
-    // ... put 'delete' button in the middle
-    std::string delete_button_label = _LC("GameSettings", "Delete");
-    ImGui::SetCursorPos(buttons_cursor + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(delete_button_label.c_str()).x - ImGui::GetStyle().ItemSpacing.x*2) / 2, 0));
-    if (ImGui::Button(delete_button_label.c_str()))
+    if (!m_interactive_keybinding_delete_on_cancel)
     {
-        App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
-        this->CancelChanges();
+        // ... put 'delete' button in the middle
+        std::string delete_button_label = _LC("GameSettings", "Delete");
+        ImGui::SetCursorPos(buttons_cursor + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(delete_button_label.c_str()).x - ImGui::GetStyle().ItemSpacing.x*2) / 2, 0));
+        if (ImGui::Button(delete_button_label.c_str()))
+        {
+            App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
+            this->CancelChanges();
+        }
     }
 
     ImGui::End();
@@ -283,6 +291,16 @@ void GameControls::DrawEvent(RoR::events ev_code)
     if (ImGui::SmallButton("+"))
     {
         App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_file);
+
+        // Begin interactive keybind (also allows manual GUI editing)
+        m_active_event = ev_code;
+        event_trigger_t& trig = triggers.back();
+        m_active_trigger = &trig;
+        m_selected_evtype = m_active_mapping_file == InputEngine::DEFAULT_MAPFILE_DEVICEID ? eventtypes::ET_Keyboard : trig.eventtype;
+        m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
+        m_interactive_keybinding_active = true;
+        m_interactive_keybinding_expl = trig.explicite;
+        m_interactive_keybinding_delete_on_cancel = true; // <-- new trigger, so canceling should delete it.
     }
     
 
@@ -318,6 +336,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
             m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
             m_interactive_keybinding_active = true;
             m_interactive_keybinding_expl = trig.explicite;
+            m_interactive_keybinding_delete_on_cancel = false; // <-- existing trigger, so canceling should not delete it.
         }
 
         // If there's more than 1 commands, add numbering at the left side of the buttons
