@@ -44,31 +44,6 @@ void GameControls::UpdateInteractiveKeybinding()
     // Interactive keybind mode - controls window remains flagged 'visible', but box is drawn instead.
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-    Ogre::String keys_pressed;
-    int num_nonmodifier_keys = App::GetInputEngine()->getCurrentKeyCombo(&keys_pressed);
-
-    if (num_nonmodifier_keys > 0)
-    {
-        if (m_interactive_keybinding_expl)
-        {
-            m_active_buffer << "EXPL+" << keys_pressed;
-        }
-        else
-        {
-            m_active_buffer = keys_pressed;
-        }
-        this->ApplyChanges();
-        App::GetInputEngine()->resetKeysAndMouseButtons(); // Do not leak the pressed keys to gameplay.
-        return;
-    }
-
-    int button_device_id = InputEngine::BUILTIN_MAPPING_DEVICEID;
-    int button_id = -1;
-    if (App::GetInputEngine()->getCurrentJoyButton(button_device_id, button_id))
-    {
-        // FIXME: currently we can't prevent propagating the buttons to gameplay.
-        return;
-    }
 
     ImGui::SetNextWindowPosCenter();
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
@@ -85,60 +60,42 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(ev_description.c_str()).x) / 2);
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", ev_description.c_str());
 
-    // Tabs (digital vs. analog)
-    // Visual choice: calculate+set paddings so that each tab takes exactly half of the window area!
-    // Since we have to choose in advance, accomodate the wider text width (imgui will compensate).
-    const float TAB_YPADDING = ImGui::GetStyle().FramePadding.y;
-    std::string tab_digital_label = _LC("GameControls", "Digital");
-    std::string tab_analog_label = _LC("GameControls", "Analog");
-    float tab_xlabel = std::min(ImGui::CalcTextSize(tab_digital_label.c_str()).x, ImGui::CalcTextSize(tab_analog_label.c_str()).x);
-    float tab_xpadding = (ImGui::GetContentRegionAvail().x/2 - (ImGui::GetStyle().ItemSpacing.x*2 + tab_xlabel))/2;
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(tab_xpadding, TAB_YPADDING));
-    ImGui::BeginTabBar("InputBindingType");
-
-    if (ImGui::BeginTabItem(tab_digital_label.c_str()))
+    if (m_active_mapping_file == InputEngine::DEFAULT_MAPFILE_DEVICEID)
     {
+        // Keyboard bindings; no analog devices applicable.
         m_interactive_keybinding_analog = false;
-
-        // Keys preview (aligned to center)
-        const float PREVIEW_YSPACING = 10.f;
-        ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(keys_pressed.c_str()).x) / 2, PREVIEW_YSPACING));
-        ImColor flashing_imcolor(m_flashing_color.r, m_flashing_color.g, m_flashing_color.b, m_flashing_color.a);
-        ImGui::TextColored(flashing_imcolor, "%s", keys_pressed.c_str());
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
-
-        // EXPL checkbox + tooltip
-        ImGui::Checkbox(_LC("GameControls", "EXPL"), &m_interactive_keybinding_expl);
-        const bool checkbox_hovered = ImGui::IsItemHovered();
-        ImGui::SameLine();
-        ImGui::TextDisabled("(?)");
-        const bool hint_hovered = ImGui::IsItemHovered();
-        if (checkbox_hovered || hint_hovered)
-        {
-            ImGui::BeginTooltip();
-            ImGui::Text("%s", _LC("GameControls",
-                "With EXPL tag, only exactly matching key combos will be triggered.\n"
-                "Without it, partial matches will trigger, too."));
-            ImGui::Separator();
-            ImGui::Text("%s", _LC("GameControls",
-                "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
-                "but not COMMANDS_02 which has EXPL tag."));
-            ImGui::TextDisabled("    COMMANDS_01    Keyboard    F1");
-            ImGui::TextDisabled("    COMMANDS_02    Keyboard    EXPL+F1");
-            ImGui::TextDisabled("    COMMANDS_03    Keyboard    CTRL+F1");
-            ImGui::EndTooltip();
-        }
-        ImGui::EndTabItem();
+        ImGui::Separator();
+        this->DrawInteractiveKeybindDigital();
     }
-
-    if (ImGui::BeginTabItem(tab_analog_label.c_str()))
+    else
     {
-        m_interactive_keybinding_analog = true;
-        ImGui::EndTabItem();
-    }
+        // Tabs (digital vs. analog)
+        // Visual choice: calculate+set paddings so that each tab takes exactly half of the window area!
+        // Since we have to choose in advance, accomodate the wider text width (imgui will compensate).
+        const float TAB_YPADDING = ImGui::GetStyle().FramePadding.y;
+        std::string tab_digital_label = _LC("GameControls", "Digital");
+        std::string tab_analog_label = _LC("GameControls", "Analog");
+        float tab_xlabel = std::min(ImGui::CalcTextSize(tab_digital_label.c_str()).x, ImGui::CalcTextSize(tab_analog_label.c_str()).x);
+        float tab_xpadding = (ImGui::GetContentRegionAvail().x/2 - (ImGui::GetStyle().ItemSpacing.x*2 + tab_xlabel))/2;
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(tab_xpadding, TAB_YPADDING));
+        ImGui::BeginTabBar("InputBindingType");
 
-    ImGui::EndTabBar();
-    ImGui::PopStyleVar(); // FramePadding
+        if (ImGui::BeginTabItem(tab_digital_label.c_str()))
+        {
+            m_interactive_keybinding_analog = false;
+            this->DrawInteractiveKeybindDigital();
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem(tab_analog_label.c_str()))
+        {
+            m_interactive_keybinding_analog = true;
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+        ImGui::PopStyleVar(); // FramePadding
+    }
 
     ImGui::Separator();
 
@@ -175,6 +132,56 @@ void GameControls::UpdateInteractiveKeybinding()
     }
 
     ImGui::End();
+}
+
+void GameControls::DrawInteractiveKeybindDigital()
+{
+    Ogre::String keys_pressed;
+    int num_nonmodifier_keys = App::GetInputEngine()->getCurrentKeyCombo(&keys_pressed);
+
+    if (num_nonmodifier_keys > 0)
+    {
+        if (m_interactive_keybinding_expl)
+        {
+            m_active_buffer << "EXPL+" << keys_pressed;
+        }
+        else
+        {
+            m_active_buffer = keys_pressed;
+        }
+        this->ApplyChanges();
+        App::GetInputEngine()->resetKeysAndMouseButtons(); // Do not leak the pressed keys to gameplay.
+        return;
+    }
+
+    // Keys preview (aligned to center)
+    const float PREVIEW_YSPACING = 10.f;
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(keys_pressed.c_str()).x) / 2, PREVIEW_YSPACING));
+    ImColor flashing_imcolor(m_flashing_color.r, m_flashing_color.g, m_flashing_color.b, m_flashing_color.a);
+    ImGui::TextColored(flashing_imcolor, "%s", keys_pressed.c_str());
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
+
+    // EXPL checkbox + tooltip
+    ImGui::Checkbox(_LC("GameControls", "EXPL"), &m_interactive_keybinding_expl);
+    const bool checkbox_hovered = ImGui::IsItemHovered();
+    ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    const bool hint_hovered = ImGui::IsItemHovered();
+    if (checkbox_hovered || hint_hovered)
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text("%s", _LC("GameControls",
+            "With EXPL tag, only exactly matching key combos will be triggered.\n"
+            "Without it, partial matches will trigger, too."));
+        ImGui::Separator();
+        ImGui::Text("%s", _LC("GameControls",
+            "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
+            "but not COMMANDS_02 which has EXPL tag."));
+        ImGui::TextDisabled("    COMMANDS_01    Keyboard    F1");
+        ImGui::TextDisabled("    COMMANDS_02    Keyboard    EXPL+F1");
+        ImGui::TextDisabled("    COMMANDS_03    Keyboard    CTRL+F1");
+        ImGui::EndTooltip();
+    }
 }
 
 void GameControls::Draw(float dt)
