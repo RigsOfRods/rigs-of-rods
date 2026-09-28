@@ -2242,7 +2242,7 @@ int main(int argc, char *argv[])
             OgreProfileBegin("Scene and GUI"); // Adds up to existing profile
             if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
             {
-                App::GetGuiManager()->DrawMainMenuGui();
+                App::GetGuiManager()->DrawMainMenuGui(dt);
             }
             else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {

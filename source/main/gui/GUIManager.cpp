@@ -191,9 +191,9 @@ void GUIManager::DrawSimulationGui(float dt)
 
 };
 
-void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
+void GUIManager::DrawSimGuiBuffered(float dt, GfxActor* player_gfx_actor)
 {
-    this->DrawCommonGui();
+    this->DrawCommonGui(dt);
 
     if (player_gfx_actor && !this->GameMainMenu.IsVisible())
     {
@@ -395,7 +395,7 @@ void GUIManager::SetupImGui()
     App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
 }
 
-void GUIManager::DrawCommonGui()
+void GUIManager::DrawCommonGui(float dt)
 {
     // UI usable in both main menu and simulation
     // ------------------------------------------
@@ -419,7 +419,7 @@ void GUIManager::DrawCommonGui()
 
     if (this->GameControls.IsVisible())
     {
-        this->GameControls.Draw();
+        this->GameControls.Draw(dt);
     }
 
     if (this->RepositorySelector.IsVisible())
@@ -428,9 +428,9 @@ void GUIManager::DrawCommonGui()
     }
 }
 
-void GUIManager::DrawMainMenuGui()
+void GUIManager::DrawMainMenuGui(float dt)
 {
-    this->DrawCommonGui();
+    this->DrawCommonGui(dt);
 
     if (this->MultiplayerSelector.IsVisible())
     {

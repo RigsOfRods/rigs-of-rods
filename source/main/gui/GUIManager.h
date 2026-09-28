@@ -147,10 +147,10 @@ public:
     void ApplyUiPreset(); //!< reads cvar 'ui_preset'
 
     void NewImGuiFrame(float dt);
-    void DrawMainMenuGui();
+    void DrawMainMenuGui(float dt);
     void DrawSimulationGui(float dt); //!< Touches live data; must be called in sync with sim. thread
-    void DrawSimGuiBuffered(GfxActor* player_gfx_actor); //!< Reads data from simbuffer
-    void DrawCommonGui();
+    void DrawSimGuiBuffered(float dt, GfxActor* player_gfx_actor); //!< Reads data from simbuffer
+    void DrawCommonGui(float dt);
 
     void SetGuiHidden(bool visible);
     bool IsGuiHidden() const { return App::ui_hide_gui->getBool(); }
