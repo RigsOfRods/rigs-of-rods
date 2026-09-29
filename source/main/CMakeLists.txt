@@ -207,6 +207,14 @@ set(SOURCE_FILES
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/Terrain.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}
+        terrain/paged/BatchPage.{h,cpp}
+        terrain/paged/BatchedGeometry.{h,cpp}
+        terrain/paged/GrassLoader.{h,cpp}
+        terrain/paged/ImpostorPage.{h,cpp}
+        terrain/paged/PagedGeometry.{h,cpp}
+        terrain/paged/PropertyMaps.{h,cpp}
+        terrain/paged/StaticBillboardSet.{h,cpp}
+        terrain/paged/TreeLoader2D.{h,cpp}
         threadpool/ThreadPool.h
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
@@ -375,7 +383,7 @@ target_include_directories(${BINNAME} PRIVATE
         scripting/bindings
         scripting/server
         terrain
-        terrain/map
+        terrain/paged
         threadpool
         utils
         utils/memory
@@ -466,11 +474,6 @@ endif ()
 if (ROR_USE_CAELUM)
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-endif ()
-
-if (ROR_USE_PAGED)
-    target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
-    target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
 endif ()
 
 ####################################################################################################

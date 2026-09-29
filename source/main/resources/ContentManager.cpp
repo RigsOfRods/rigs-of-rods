@@ -400,8 +400,9 @@ void ContentManager::resourceStreamOpened(const Ogre::String& name, const Ogre::
     if (defines.find("OGRE_VERTEX_SHADER") != Ogre::String::npos || defines.find("OGRE_FRAGMENT_SHADER") != Ogre::String::npos)
         return; // Already added - the program is being reloaded.
 
-    if (!defines.empty())
-        defines += ","; // A leading comma would make OGRE 1.11 define a macro with empty name.
+    // An empty entry (leading or doubled separator) would make OGRE 1.11 define a macro with empty name.
+    if (!defines.empty() && defines.back() != ',' && defines.back() != ';')
+        defines += ",";
     defines += (prog->getType() == Ogre::GPT_VERTEX_PROGRAM) ? "OGRE_VERTEX_SHADER" : "OGRE_FRAGMENT_SHADER";
     defines += (is_glsl ? ",OGRE_GLSL=" : ",OGRE_HLSL=") + Ogre::StringConverter::toString(version);
     if (is_glsl)
@@ -480,6 +481,30 @@ bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *
             return true; // Instruct OGRE to skip the particle system
         }
     }
+#if OGRE_VERSION < 0x010C08 // OGRE 1.12.8+ does this itself, see `D3D9HLSLProgram::getTarget()`
+    else if (evt->mType == CreateHighLevelGpuProgramScriptCompilerEvent::eventType)
+    {
+        // Backport of the fallback HLSL target, so scripts written for newer OGRE may omit `target`.
+        // OGRE 1.11 leaves it empty, which fails `isSupported()` already when the material is compiled.
+        // Unlike OGRE, prefer shader model 3: 'OgreUnifiedShader.h' fragment shaders declare a `VPOS` input
+        // and commonly `FOG`, neither of which ps_2_0 accepts. D3D11 maps these to its own profiles.
+        auto* progEvent = static_cast<CreateHighLevelGpuProgramScriptCompilerEvent*>(evt);
+        if (progEvent->mLanguage != "hlsl")
+            return false;
+
+        HighLevelGpuProgramPtr prog = HighLevelGpuProgramManager::getSingleton().createProgram(
+            progEvent->mName, progEvent->mResourceGroup, progEvent->mLanguage, progEvent->mProgramType);
+        if (prog) // Null if duplicate, see `resourceCollision()`
+        {
+            prog->setSourceFile(progEvent->mSource); // Normally done by OGRE, but not when we handle the event.
+            const String prefix = (progEvent->mProgramType == GPT_VERTEX_PROGRAM) ? "vs_" : "ps_";
+            const bool sm3 = GpuProgramManager::getSingleton().isSyntaxSupported(prefix + "3_0");
+            prog->setParameter("target", prefix + (sm3 ? "3_0" : "2_0"));
+        }
+        *static_cast<HighLevelGpuProgram**>(retval) = prog.get(); // Script properties, i.e. an explicit `target`, are applied afterwards.
+        return true;
+    }
+#endif
 
     return false; // Report "not handled"
 }
