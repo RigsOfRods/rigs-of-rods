@@ -43,7 +43,9 @@ private:
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
     void DrawMenubar();
+    void DrawPreviewControls();
     void DrawInteractiveKeybindDigital();
+    void DrawInteractiveButtonBinding();
 
     // Edit bindings (used for both expert and interactive modes)
     void UpdateInteractiveKeybinding();
@@ -63,8 +65,9 @@ private:
     float m_flashing_timer = 0.f;
 
     // Mode/config file selection
-    int m_active_mapping_file = InputEngine::DEFAULT_MAPFILE_DEVICEID;
+    int m_active_mapping_deviceid = InputEngine::DEFAULT_MAPFILE_DEVICEID;
     bool m_unsaved_changes = false;
+    bool m_preview_controls = false;
 
     // Editing context
     RoR::events      m_active_event = events::EV_MODE_LAST; // Invalid
