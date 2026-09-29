@@ -60,7 +60,7 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(ev_description.c_str()).x) / 2);
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", ev_description.c_str());
 
-    if (m_active_mapping_file == InputEngine::DEFAULT_MAPFILE_DEVICEID)
+    if (m_active_mapping_deviceid == InputEngine::DEFAULT_MAPFILE_DEVICEID)
     {
         // Keyboard bindings; no analog devices applicable.
         m_interactive_keybinding_analog = false;
@@ -83,7 +83,7 @@ void GameControls::UpdateInteractiveKeybinding()
         if (ImGui::BeginTabItem(tab_digital_label.c_str()))
         {
             m_interactive_keybinding_analog = false;
-            this->DrawInteractiveKeybindDigital();
+            this->DrawInteractiveButtonBinding();
             ImGui::EndTabItem();
         }
 
@@ -184,6 +184,30 @@ void GameControls::DrawInteractiveKeybindDigital()
     }
 }
 
+void GameControls::DrawInteractiveButtonBinding()
+{
+    // Check for pressed joystick buttons
+    OIS::JoyStickState* joy_state = App::GetInputEngine()->getCurrentJoyState(m_active_mapping_deviceid);
+    for (size_t i = 0; i < joy_state->mButtons.size(); ++i)
+    {
+        if (joy_state->mButtons[i])
+        {
+            m_selected_evtype = eventtypes::ET_JoystickButton;
+            m_active_buffer = fmt::format("{}", i);
+            this->ApplyChanges();
+            return;
+        }
+    }
+
+    // Keys preview (aligned to center)
+    std::string keys_pressed = _LC("GameControls", "Press a button");
+    const float PREVIEW_YSPACING = 10.f;
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(keys_pressed.c_str()).x) / 2, PREVIEW_YSPACING));
+    ImColor flashing_imcolor(m_flashing_color.r, m_flashing_color.g, m_flashing_color.b, m_flashing_color.a);
+    ImGui::TextColored(flashing_imcolor, "%s", keys_pressed.c_str());
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
+}
+
 void GameControls::Draw(float dt)
 {
     if (m_interactive_keybinding_active)
@@ -205,6 +229,7 @@ void GameControls::Draw(float dt)
 
         // Toolbar
         this->DrawMenubar();
+        this->DrawPreviewControls();
 
         // Tabs
 
@@ -239,20 +264,20 @@ void GameControls::DrawMenubar()
 {
     if (ImGui::BeginMenuBar())
     {
-
+        ImGui::SetNextItemWidth(400.f);
         // Select mapping file to work with
         //    - General BeginCombo() API, you have full control over your selection data and display type.
         const int combo_min = InputEngine::DEFAULT_MAPFILE_DEVICEID;
         const int combo_max = App::GetInputEngine()->getNumJoysticks();
-        std::string active_label = App::GetInputEngine()->getLoadedConfigFile(m_active_mapping_file);
+        std::string active_label = App::GetInputEngine()->getLoadedConfigFile(m_active_mapping_deviceid);
         if (ImGui::BeginCombo(_LC("GameControls", "File (per Device)"), active_label.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             for (int i = combo_min; i < combo_max; i++)
             {
-                const bool is_selected = (m_active_mapping_file == i);
+                const bool is_selected = (m_active_mapping_deviceid == i);
                 if (ImGui::Selectable(App::GetInputEngine()->getLoadedConfigFile(i).c_str(), is_selected))
                 {
-                    m_active_mapping_file = i;
+                    m_active_mapping_deviceid = i;
                 }
                 if (is_selected)
                 {
@@ -262,21 +287,77 @@ void GameControls::DrawMenubar()
             ImGui::EndCombo();
         }
 
-        if (m_active_mapping_file != InputEngine::BUILTIN_MAPPING_DEVICEID)
+        if (m_active_mapping_deviceid != InputEngine::BUILTIN_MAPPING_DEVICEID)
         {
             ImGui::SameLine();
-            if (ImGui::Button(_LC("GameControls", "Reload")))
+            if (ImGui::SmallButton(_LC("GameControls", "Reload")))
             {
                 this->ReloadMapFile();
             }
             ImGui::SameLine();
-            if (ImGui::Button(_LC("GameControls", "Save")))
+            if (ImGui::SmallButton(_LC("GameControls", "Save")))
             {
                 this->SaveMapFile();
             }
         }
 
+        // make small checkbox (no padding)
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.5f); // align checkbox to the text
+        ImGui::Checkbox(_LC("GameControls", "Preview controls"), &m_preview_controls);
+        ImGui::PopStyleVar(); // FramePadding
+
         ImGui::EndMenuBar();
+    }
+}
+
+void GameControls::DrawPreviewControls()
+{
+    if (!m_preview_controls)
+    {
+        return;
+    }
+
+    const float PREVIEW_YSPACING = 10.f;
+    if (m_active_mapping_deviceid == InputEngine::DEFAULT_MAPFILE_DEVICEID)
+    {
+        // ~~keyboard~~
+        Ogre::String keys_pressed;
+        int num_nonmodifier_keys = App::GetInputEngine()->getCurrentKeyCombo(&keys_pressed);
+
+        // Keys preview (aligned to center)
+        
+        ImGui::TextDisabled("%s:", _LC("GameControls", "Keyboard state"));
+        ImGui::SameLine();
+        ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(keys_pressed.c_str()).x) / 2, PREVIEW_YSPACING));        
+        ImGui::Text("%s", keys_pressed.c_str());
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
+    }
+    else
+    {
+        // ~~controller~~
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
+
+        // Draw button previews as ImGui::ProgressBar() with button ID in the name, and percentage = 0 or 100.
+        OIS::JoyStickState* joy_state = App::GetInputEngine()->getCurrentJoyState(m_active_mapping_deviceid);
+        ImGui::TextDisabled("%s:", _LC("GameControls", "Button states"));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.5f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(145.f/255.f, 145.f/255.f, 142.f/255.f, 1.f));
+        ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(92.f/255.f, 91.f/255.f, 89.f/255.f, 1.f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(55.f/255.f, 24.f/255.f, 69.f/255.f, 1.f));
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(163.f/255.f, 38.f/255.f, 136.f/255.f, 1.f));
+        for (size_t i = 0; i < joy_state->mButtons.size(); ++i)
+        {
+            // Draw each button preview here
+            const ImVec2 joybutton_size(25.f, 0.f);
+            ImGui::SameLine(); // all on single line
+            ImGui::ProgressBar(joy_state->mButtons[i] ? 1.0f : 0.0f, joybutton_size, std::to_string(i).c_str());
+        }
+        ImGui::PopStyleColor(4); // Border, BorderShadow, FrameBg, PlotHistogram
+        ImGui::PopStyleVar(2); // FramePadding, FrameBorderSize
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
     }
 }
 
@@ -297,13 +378,13 @@ void GameControls::DrawEvent(RoR::events ev_code)
     ImGui::SetCursorPosX((cursor_x + m_colum_widths[0]) - 27); // estimate
     if (ImGui::SmallButton("+"))
     {
-        App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_file);
+        App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_deviceid);
 
-        // Begin interactive keybind (also allows manual GUI editing)
+        // Begin interactive binding
         m_active_event = ev_code;
         event_trigger_t& trig = triggers.back();
         m_active_trigger = &trig;
-        m_selected_evtype = m_active_mapping_file == InputEngine::DEFAULT_MAPFILE_DEVICEID ? eventtypes::ET_Keyboard : trig.eventtype;
+        m_selected_evtype = m_active_mapping_deviceid == InputEngine::DEFAULT_MAPFILE_DEVICEID ? eventtypes::ET_Keyboard : trig.eventtype;
         m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
         m_interactive_keybinding_active = true;
         m_interactive_keybinding_expl = trig.explicite;
@@ -332,14 +413,13 @@ void GameControls::DrawEvent(RoR::events ev_code)
         // Do a `SmallButton()` by hand so we can specify width.
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
         std::string full_command = fmt::format("({})  {}", 
-            InputEngine::getEventTypeName(App::GetInputEngine()->getEvents()[ev_code][0].eventtype), 
-            App::GetInputEngine()->getTriggerCommand(trig));
+            InputEngine::getEventTypeName(trig.eventtype), App::GetInputEngine()->getTriggerCommand(trig));
         if (ImGui::Button(full_command.c_str(), ImVec2(ImGui::GetColumnWidth() - 2*ImGui::GetStyle().ItemSpacing.x, 0)))
         {
-            // Begin interactive keybind (also allows manual GUI editing)
+            // Begin interactive binding
             m_active_event = ev_code;
             m_active_trigger = &trig;
-            m_selected_evtype = m_active_mapping_file == InputEngine::DEFAULT_MAPFILE_DEVICEID ? eventtypes::ET_Keyboard : trig.eventtype;
+            m_selected_evtype = m_active_mapping_deviceid == InputEngine::DEFAULT_MAPFILE_DEVICEID ? eventtypes::ET_Keyboard : trig.eventtype;
             m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
             m_interactive_keybinding_active = true;
             m_interactive_keybinding_expl = trig.explicite;
@@ -504,7 +584,7 @@ void GameControls::ApplyChanges()
         m_active_buffer.ToCStr());
 
     // Parse the line - this creates new trigger.
-    App::GetInputEngine()->processLine(line.c_str(), m_active_mapping_file);
+    App::GetInputEngine()->processLine(line.c_str(), m_active_mapping_deviceid);
 
     // Reset editing context.
     m_active_event = events::EV_MODE_LAST; // Invalid
@@ -526,15 +606,15 @@ void GameControls::CancelChanges()
 void GameControls::SaveMapFile()
 {
     this->CancelChanges();
-    App::GetInputEngine()->saveConfigFile(m_active_mapping_file);
+    App::GetInputEngine()->saveConfigFile(m_active_mapping_deviceid);
     m_unsaved_changes = false;
 }
 
 void GameControls::ReloadMapFile()
 {
     this->CancelChanges();
-    App::GetInputEngine()->clearEventsByDevice(m_active_mapping_file);
-    App::GetInputEngine()->loadConfigFile(m_active_mapping_file);
+    App::GetInputEngine()->clearEventsByDevice(m_active_mapping_deviceid);
+    App::GetInputEngine()->loadConfigFile(m_active_mapping_deviceid);
     m_unsaved_changes = false;
 }
 
@@ -553,7 +633,7 @@ bool GameControls::ShouldDisplay(event_trigger_t& trig)
 {
     // filter items by selected mapping file
     return (trig.configDeviceID == InputEngine::BUILTIN_MAPPING_DEVICEID ||
-            trig.configDeviceID == m_active_mapping_file);
+            trig.configDeviceID == m_active_mapping_deviceid);
 }
 
 void GameControls::UpdateFlashingColor(float dt)
