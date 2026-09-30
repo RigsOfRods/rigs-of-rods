@@ -357,7 +357,75 @@ void GameControls::DrawPreviewControls()
         ImGui::PopStyleColor(4); // Border, BorderShadow, FrameBg, PlotHistogram
         ImGui::PopStyleVar(2); // FramePadding, FrameBorderSize
 
+        // Draw POV hat previews as small square widgets with an arrow pointing to the active direction.
+        const int num_povs = std::min(App::GetInputEngine()->getJoyComponentCount(OIS::OIS_POV, m_active_mapping_deviceid), (int)IM_ARRAYSIZE(joy_state->mPOV));
+        if (num_povs > 0)
+        {
+            ImGui::TextDisabled("%s:", _LC("GameControls", "POV states"));
+            for (int i = 0; i < num_povs; ++i)
+            {
+                ImGui::SameLine();
+                this->DrawPovPreview(i, joy_state->mPOV[i].direction);
+            }
+        }
+
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + PREVIEW_YSPACING);
+    }
+}
+
+void GameControls::DrawPovPreview(int pov_index, int pov_direction)
+{
+    // Same colors as the button previews
+    const ImU32 COLOR_BORDER = ImColor(145, 145, 142);
+    const ImU32 COLOR_BORDER_SHADOW = ImColor(92, 91, 89);
+    const ImU32 COLOR_BG = ImColor(55, 24, 69);
+    const ImU32 COLOR_ACTIVE = ImColor(163, 38, 136);
+    const ImU32 COLOR_MARKER = ImColor(92, 91, 89);
+    const float WIDGET_SIZE = ImGui::GetTextLineHeight() * 2.0f;
+    const float WIDGET_LEFT_MARGIN = 15.f;
+
+    const ImVec2 top_left = ImGui::GetCursorScreenPos();
+    const ImVec2 bottom_right = top_left + ImVec2(WIDGET_SIZE + WIDGET_LEFT_MARGIN, WIDGET_SIZE);
+    const ImVec2 center = top_left + ImVec2(WIDGET_LEFT_MARGIN,0.f) + ImVec2(WIDGET_SIZE, WIDGET_SIZE) * 0.5f;
+    const float radius = WIDGET_SIZE * 0.5f - 4.f;
+    ImGui::Dummy(ImVec2(WIDGET_SIZE+WIDGET_LEFT_MARGIN, WIDGET_SIZE));
+
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    drawlist->AddRectFilled(top_left, bottom_right, COLOR_BG);
+    const ImVec2 SHADOW_OFFSET(0.8f, 0.8f);
+    drawlist->AddRect(top_left+SHADOW_OFFSET, bottom_right+SHADOW_OFFSET, COLOR_BORDER_SHADOW);
+    drawlist->AddRect(top_left, bottom_right, COLOR_BORDER);
+    drawlist->AddText(top_left + ImVec2(2.f, 0.f), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), std::to_string(pov_index).c_str());
+
+    // Markers for all 8 directions, so the layout is visible even when centered.
+    for (int i = 0; i < 8; ++i)
+    {
+        const float angle = i * (3.14159265f / 4.f);
+        drawlist->AddCircleFilled(center + ImVec2(std::cos(angle), std::sin(angle)) * radius, 1.5f, COLOR_MARKER);
+    }
+
+    // Resolve direction vector (screen Y points down).
+    ImVec2 dir(0.f, 0.f);
+    if (pov_direction & OIS::Pov::North) { dir.y -= 1.f; }
+    if (pov_direction & OIS::Pov::South) { dir.y += 1.f; }
+    if (pov_direction & OIS::Pov::East)  { dir.x += 1.f; }
+    if (pov_direction & OIS::Pov::West)  { dir.x -= 1.f; }
+    const float dir_len = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+
+    if (dir_len > 0.f)
+    {
+        // Arrow from the center to the active direction
+        dir = dir / dir_len;
+        const ImVec2 perp(-dir.y, dir.x);
+        const float ARROWHEAD_LEN = radius * 0.7f;
+        const float ARROWHEAD_HALFWIDTH = radius * 0.55f;
+        const ImVec2 tip = center + dir * radius;
+        const ImVec2 base = center + dir * (radius - ARROWHEAD_LEN);
+        drawlist->AddTriangleFilled(tip, base + perp * ARROWHEAD_HALFWIDTH, base - perp * ARROWHEAD_HALFWIDTH, COLOR_ACTIVE);
+    }
+    else
+    {
+        drawlist->AddCircleFilled(center, 2.5f, COLOR_BORDER);
     }
 }
 
