@@ -319,6 +319,11 @@ void BatchPage::_updateShaders()
                if (!pass->hasVertexProgram())
                   pass->setVertexProgram(vertexProgName);
 				pass->setFragmentProgram(m_pPagedGeom->getFragmentProgramName());
+				// RIGSOFRODS: Load the programs - the material is a clone of a loaded one, so it counts as loaded
+				// and OGRE 1.11 never loads programs assigned afterwards (D3D9: "Null program bound").
+				pass->getVertexProgram()->load();
+				pass->getFragmentProgram()->load();
+				// END RIGSOFRODS
 
 					try
                {

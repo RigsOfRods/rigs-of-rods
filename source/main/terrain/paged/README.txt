@@ -13,6 +13,7 @@ Highlights:
 * StaticBillboardSet.h: Build fix - backport of `getAsBYTE()` from OGRE at 754fabc0c7b2f964af3e7fb0afb60587f234678d ("Main: ColourValue - add conversion for native-endian byte formats", dated 10/2020)
 * PropertyMaps.h: Build fix - backport of `explicit ColourValue(const uchar* byte)` from 754fabc0c7b2f964af3e7fb0afb60587f234678d ("Main: ColourValue - add conversion for native-endian byte formats" dated 10/2020)
 * GrassLoader.cpp, BatchPage.cpp: Vertex shaders are loaded with `setSourceFile()` instead of `setSource()`, so RoR's 'OgreUnifiedShader.h' backport (see `ContentManager::resourceStreamOpened()`) gets to patch them.
+* GrassLoader.cpp, BatchPage.cpp, StaticBillboardSet.cpp: Programs assigned to (cloned) materials are loaded explicitly, because OGRE 1.11 doesn't load programs assigned to an already loaded material - D3D9 then fails with "Null program bound".
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

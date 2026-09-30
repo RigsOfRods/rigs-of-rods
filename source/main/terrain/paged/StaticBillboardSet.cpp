@@ -490,6 +490,11 @@ MaterialPtr StaticBillboardSet::getFadeMaterial(const Ogre::MaterialPtr &protoMa
             //Setup vertex program
             pass->setVertexProgram("SpriteFade_vp");
             pass->setFragmentProgram(mpSceneMgr->getFogMode() == FOG_NONE ? "Default_AlphaTest_NoFog" : "Default_AlphaTest");
+            // RIGSOFRODS: Load the programs - the material is a clone of a loaded one, so it counts as loaded
+            // and OGRE 1.11 never loads programs assigned afterwards (D3D9: "Null program bound").
+            pass->getVertexProgram()->load();
+            pass->getFragmentProgram()->load();
+            // END RIGSOFRODS
 
             GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
 
@@ -595,6 +600,11 @@ void StaticBillboardSet::updateAll(const Vector3 &cameraDirection, const char* f
          static const Ogre::String Sprite_vp = "Sprite_vp";
          p->setVertexProgram(Sprite_vp);
          p->setFragmentProgram(fragmentProgramName);
+         // RIGSOFRODS: Load the programs - the material may already be loaded, and OGRE 1.11
+         // never loads programs assigned afterwards (D3D9: "Null program bound").
+         p->getVertexProgram()->load();
+         p->getFragmentProgram()->load();
+         // END RIGSOFRODS
 
          GpuProgramParametersSharedPtr params = p->getVertexProgramParameters();
          params->setNamedAutoConstant(uScroll, GpuProgramParameters::ACT_CUSTOM);

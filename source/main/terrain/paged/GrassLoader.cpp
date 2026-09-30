@@ -1182,6 +1182,11 @@ void GrassLayer::_updateShaders()
 				Pass *pass = tmpMat->getTechnique(0)->getPass(0);
 				pass->setVertexProgram(vsName);
         		pass->setFragmentProgram(geom->getFragmentProgramName());
+				// RIGSOFRODS: Load the programs - the material may be a clone of a loaded one, so it counts as loaded
+				// and OGRE 1.11 never loads programs assigned afterwards (D3D9: "Null program bound").
+				pass->getVertexProgram()->load();
+				pass->getFragmentProgram()->load();
+				// END RIGSOFRODS
 
 				GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
                 params->setNamedAutoConstant("worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
