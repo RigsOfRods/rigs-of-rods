@@ -70,7 +70,14 @@ public:
     bool           GetEditorObjectFlagRotYXZ(TerrainEditorObjectPtr const& object);
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return m_has_predefined_actors; };
-    bool           UpdateTerrainObjects(float dt);
+    
+
+    /// @name Updates
+    /// @{
+    void           UpdateAnimatedObjects(float dt);
+    void           UpdateParticleEffectObjects();
+    void           UpdatePagedGeometry();
+    /// @}
 
     void ProcessTree(
         float yawfrom, float yawto,
@@ -112,11 +119,6 @@ protected:
 
     RoR::ODefDocument* FetchODef(std::string const & odef_name);
     void           ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event);
-    
-    // Update functions
-
-    void           UpdateAnimatedObjects(float dt);
-    void           UpdateParticleEffectObjects();
 
     // Helpers
 

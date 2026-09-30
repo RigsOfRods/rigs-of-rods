@@ -1100,18 +1100,12 @@ void TerrainObjectManager::LoadPredefinedActors()
     }
 }
 
-bool TerrainObjectManager::UpdateTerrainObjects(float dt)
+void TerrainObjectManager::UpdatePagedGeometry()
 {
-
     for (auto geom : m_paged_geometry)
     {
         geom->update();
     }
-
-    this->UpdateAnimatedObjects(dt);
-    this->UpdateParticleEffectObjects();
-
-    return true;
 }
 
 void TerrainObjectManager::ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event)
