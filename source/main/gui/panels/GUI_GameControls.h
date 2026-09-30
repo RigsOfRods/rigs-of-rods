@@ -44,6 +44,7 @@ private:
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
     void DrawMenubar();
     void DrawPreviewControls();
+    void DrawPovPreview(int pov_index, int pov_direction);
     void DrawInteractiveKeybindDigital();
     void DrawInteractiveButtonBinding();
 
