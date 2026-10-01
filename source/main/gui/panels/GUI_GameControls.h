@@ -82,6 +82,8 @@ private:
     bool             m_interactive_keybinding_expl = true;
     bool             m_interactive_keybinding_analog = false;
     bool             m_interactive_keybinding_delete_on_cancel = false;
+    int              m_interactive_pov_number = -1;         //!< POV hat being pressed during interactive binding, -1 if none.
+    std::map<int, float> m_interactive_pov_hold_times;      //!< OIS::Pov direction -> seconds held; longest one wins on release.
 };
 
 } // namespace GUI

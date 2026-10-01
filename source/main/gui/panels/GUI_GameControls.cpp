@@ -184,6 +184,23 @@ void GameControls::DrawInteractiveKeybindDigital()
     }
 }
 
+// Direction names as understood by '.map' file parser.
+static const char* PovDirectionToName(int pov_direction)
+{
+    switch (pov_direction)
+    {
+    case OIS::Pov::North:     return "North";
+    case OIS::Pov::South:     return "South";
+    case OIS::Pov::East:      return "East";
+    case OIS::Pov::West:      return "West";
+    case OIS::Pov::NorthEast: return "NorthEast";
+    case OIS::Pov::SouthEast: return "SouthEast";
+    case OIS::Pov::NorthWest: return "NorthWest";
+    case OIS::Pov::SouthWest: return "SouthWest";
+    default:                  return "";
+    }
+}
+
 void GameControls::DrawInteractiveButtonBinding()
 {
     // Check for pressed joystick buttons
@@ -199,8 +216,44 @@ void GameControls::DrawInteractiveButtonBinding()
         }
     }
 
+    // Check for pressed POV hats - bind on release, to the direction held longest.
+    // Binding right away would be unreliable, diagonals are rarely hit without passing a neighbor direction first.
+    if (m_interactive_pov_number == -1)
+    {
+        const int num_povs = std::min(App::GetInputEngine()->getJoyComponentCount(OIS::OIS_POV, m_active_mapping_deviceid), (int)IM_ARRAYSIZE(joy_state->mPOV));
+        for (int i = 0; i < num_povs; ++i)
+        {
+            if (joy_state->mPOV[i].direction != OIS::Pov::Centered)
+            {
+                m_interactive_pov_number = i;
+                m_interactive_pov_hold_times.clear();
+                break;
+            }
+        }
+    }
+    int pov_direction = OIS::Pov::Centered;
+    if (m_interactive_pov_number != -1)
+    {
+        pov_direction = joy_state->mPOV[m_interactive_pov_number].direction;
+        if (pov_direction != OIS::Pov::Centered)
+        {
+            m_interactive_pov_hold_times[pov_direction] += ImGui::GetIO().DeltaTime;
+        }
+        else
+        {
+            auto longest = std::max_element(m_interactive_pov_hold_times.begin(), m_interactive_pov_hold_times.end(),
+                [](const std::pair<const int, float>& a, const std::pair<const int, float>& b) { return a.second < b.second; });
+            m_selected_evtype = eventtypes::ET_JoystickPov;
+            m_active_buffer = fmt::format("{} {}", m_interactive_pov_number, PovDirectionToName(longest->first));
+            this->ApplyChanges();
+            return;
+        }
+    }
+
     // Keys preview (aligned to center)
-    std::string keys_pressed = _LC("GameControls", "Press a button");
+    std::string keys_pressed = (m_interactive_pov_number != -1)
+        ? fmt::format(_LC("GameControls", "POV {} {} - release to confirm"), m_interactive_pov_number, PovDirectionToName(pov_direction))
+        : _LC("GameControls", "Press a button or POV hat");
     const float PREVIEW_YSPACING = 10.f;
     ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(keys_pressed.c_str()).x) / 2, PREVIEW_YSPACING));
     ImColor flashing_imcolor(m_flashing_color.r, m_flashing_color.g, m_flashing_color.b, m_flashing_color.a);
@@ -776,6 +829,7 @@ void GameControls::ApplyChanges()
     m_active_trigger = nullptr;
     m_active_buffer.Clear();
     m_interactive_keybinding_active = false;
+    m_interactive_pov_number = -1;
     m_unsaved_changes = true;
 }
 
@@ -786,6 +840,7 @@ void GameControls::CancelChanges()
     m_active_trigger = nullptr;
     m_active_buffer.Clear();
     m_interactive_keybinding_active = false;
+    m_interactive_pov_number = -1;
 }
 
 void GameControls::SaveMapFile()
