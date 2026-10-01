@@ -364,6 +364,17 @@ void GameControls::DrawPreviewControls()
         ImGui::PopStyleColor(4); // Border, BorderShadow, FrameBg, PlotHistogram
         ImGui::PopStyleVar(2); // FramePadding, FrameBorderSize
 
+        // Draw axis previews as horizontal bars filled from the center towards the current value.
+        if (joy_state->mAxes.size() > 0)
+        {
+            ImGui::TextDisabled("%s:", _LC("GameControls", "Axis states"));
+            for (size_t i = 0; i < joy_state->mAxes.size(); ++i)
+            {
+                ImGui::SameLine();
+                this->DrawAxisPreview((int)i, joy_state->mAxes[i].abs);
+            }
+        }
+
         // Draw POV hat previews as small square widgets with an arrow pointing to the active direction.
         const int num_povs = std::min(App::GetInputEngine()->getJoyComponentCount(OIS::OIS_POV, m_active_mapping_deviceid), (int)IM_ARRAYSIZE(joy_state->mPOV));
         if (num_povs > 0)
@@ -394,6 +405,33 @@ static ImVec2 DrawPreviewFrame(ImVec2 size, int index)
     drawlist->AddRect(top_left, bottom_right, PREVIEW_COLOR_BORDER);
     drawlist->AddText(top_left + ImVec2(2.f, 0.f), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), std::to_string(index).c_str());
     return top_left;
+}
+
+void GameControls::DrawAxisPreview(int axis_index, int axis_value)
+{
+    const float BAR_WIDTH = 80.f;
+    const float BAR_HEIGHT = ImGui::GetTextLineHeight();
+    const float BAR_PADDING = 3.f;
+
+    const ImVec2 top_left = DrawPreviewFrame(ImVec2(BAR_WIDTH + PREVIEW_LEFT_MARGIN, BAR_HEIGHT), axis_index);
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetTooltip("%s %d: %d", _LC("GameControls", "Axis"), axis_index, axis_value);
+    }
+
+    // Track spans the area right of the label; fill goes from the center to the value.
+    const float track_left = top_left.x + PREVIEW_LEFT_MARGIN;
+    const float track_halfwidth = BAR_WIDTH * 0.5f - BAR_PADDING;
+    const float center_x = track_left + BAR_WIDTH * 0.5f;
+    const float value = std::max(-1.f, std::min(1.f, (float)axis_value / (float)OIS::JoyStick::MAX_AXIS));
+    const float value_x = center_x + value * track_halfwidth;
+
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    drawlist->AddRectFilled(
+        ImVec2(std::min(center_x, value_x), top_left.y + BAR_PADDING),
+        ImVec2(std::max(center_x, value_x), top_left.y + BAR_HEIGHT - BAR_PADDING),
+        PREVIEW_COLOR_ACTIVE);
+    drawlist->AddLine(ImVec2(center_x, top_left.y + 1.f), ImVec2(center_x, top_left.y + BAR_HEIGHT - 1.f), PREVIEW_COLOR_MARKER);
 }
 
 void GameControls::DrawPovPreview(int pov_index, int pov_direction)
