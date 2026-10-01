@@ -375,6 +375,18 @@ void GameControls::DrawPreviewControls()
             }
         }
 
+        // Draw slider previews as pairs of axis-style bars (X and Y).
+        const int num_sliders = std::min(App::GetInputEngine()->getJoyComponentCount(OIS::OIS_Slider, m_active_mapping_deviceid), (int)IM_ARRAYSIZE(joy_state->mSliders));
+        if (num_sliders > 0)
+        {
+            ImGui::TextDisabled("%s:", _LC("GameControls", "Slider states"));
+            for (int i = 0; i < num_sliders; ++i)
+            {
+                ImGui::SameLine();
+                this->DrawSliderPreview(i, joy_state->mSliders[i].abX, joy_state->mSliders[i].abY);
+            }
+        }
+
         // Draw POV hat previews as small square widgets with an arrow pointing to the active direction.
         const int num_povs = std::min(App::GetInputEngine()->getJoyComponentCount(OIS::OIS_POV, m_active_mapping_deviceid), (int)IM_ARRAYSIZE(joy_state->mPOV));
         if (num_povs > 0)
@@ -407,6 +419,22 @@ static ImVec2 DrawPreviewFrame(ImVec2 size, int index)
     return top_left;
 }
 
+// Draws a horizontal bar filled from the center towards the value (in OIS axis range), with a center tick.
+static void DrawPreviewBarFill(ImVec2 track_top_left, ImVec2 track_size, float padding, int ois_value)
+{
+    const float track_halfwidth = track_size.x * 0.5f - padding;
+    const float center_x = track_top_left.x + track_size.x * 0.5f;
+    const float value = std::max(-1.f, std::min(1.f, (float)ois_value / (float)OIS::JoyStick::MAX_AXIS));
+    const float value_x = center_x + value * track_halfwidth;
+
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    drawlist->AddRectFilled(
+        ImVec2(std::min(center_x, value_x), track_top_left.y + padding),
+        ImVec2(std::max(center_x, value_x), track_top_left.y + track_size.y - padding),
+        PREVIEW_COLOR_ACTIVE);
+    drawlist->AddLine(ImVec2(center_x, track_top_left.y + 1.f), ImVec2(center_x, track_top_left.y + track_size.y - 1.f), PREVIEW_COLOR_MARKER);
+}
+
 void GameControls::DrawAxisPreview(int axis_index, int axis_value)
 {
     const float BAR_WIDTH = 80.f;
@@ -419,19 +447,24 @@ void GameControls::DrawAxisPreview(int axis_index, int axis_value)
         ImGui::SetTooltip("%s %d: %d", _LC("GameControls", "Axis"), axis_index, axis_value);
     }
 
-    // Track spans the area right of the label; fill goes from the center to the value.
-    const float track_left = top_left.x + PREVIEW_LEFT_MARGIN;
-    const float track_halfwidth = BAR_WIDTH * 0.5f - BAR_PADDING;
-    const float center_x = track_left + BAR_WIDTH * 0.5f;
-    const float value = std::max(-1.f, std::min(1.f, (float)axis_value / (float)OIS::JoyStick::MAX_AXIS));
-    const float value_x = center_x + value * track_halfwidth;
+    DrawPreviewBarFill(top_left + ImVec2(PREVIEW_LEFT_MARGIN, 0.f), ImVec2(BAR_WIDTH, BAR_HEIGHT), BAR_PADDING, axis_value);
+}
 
-    ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    drawlist->AddRectFilled(
-        ImVec2(std::min(center_x, value_x), top_left.y + BAR_PADDING),
-        ImVec2(std::max(center_x, value_x), top_left.y + BAR_HEIGHT - BAR_PADDING),
-        PREVIEW_COLOR_ACTIVE);
-    drawlist->AddLine(ImVec2(center_x, top_left.y + 1.f), ImVec2(center_x, top_left.y + BAR_HEIGHT - 1.f), PREVIEW_COLOR_MARKER);
+void GameControls::DrawSliderPreview(int slider_index, int slider_x, int slider_y)
+{
+    // Like axis preview, but with 2 bars stacked (X on top, Y on bottom).
+    const float BAR_WIDTH = 80.f;
+    const float BAR_HEIGHT = ImGui::GetTextLineHeight();
+    const float BAR_PADDING = 3.f;
+
+    const ImVec2 top_left = DrawPreviewFrame(ImVec2(BAR_WIDTH + PREVIEW_LEFT_MARGIN, BAR_HEIGHT * 2.f), slider_index);
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetTooltip("%s %d: X=%d, Y=%d", _LC("GameControls", "Slider"), slider_index, slider_x, slider_y);
+    }
+
+    DrawPreviewBarFill(top_left + ImVec2(PREVIEW_LEFT_MARGIN, 0.f), ImVec2(BAR_WIDTH, BAR_HEIGHT), BAR_PADDING, slider_x);
+    DrawPreviewBarFill(top_left + ImVec2(PREVIEW_LEFT_MARGIN, BAR_HEIGHT), ImVec2(BAR_WIDTH, BAR_HEIGHT), BAR_PADDING, slider_y);
 }
 
 void GameControls::DrawPovPreview(int pov_index, int pov_direction)
