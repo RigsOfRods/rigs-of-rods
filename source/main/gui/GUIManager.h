@@ -91,6 +91,7 @@ public:
 
         ImVec4 semitransparent_window_bg = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
         ImVec4 semitrans_text_bg_color   = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
+        ImVec4 semitrans_scrollbar_bg    = ImVec4(0.1f, 0.1f, 0.1f, 0.3f); // Drawn on top of a transparent panel; make it just a shade
         ImVec4 color_mark_max_darkness   = ImVec4(0.2, 0.2, 0.2, 0.0); //!< If all RGB components are darker than this, text is auto-lightened.
 
         ImVec2 screen_edge_padding       = ImVec2(10.f, 10.f);

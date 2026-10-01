@@ -41,6 +41,7 @@ const float HELP_TEXTURE_HEIGHT = 5.f;
 const float HELP_TEXTURE_HEIGHT_FULL = 8.f;
 const ImVec2 MAX_PREVIEW_SIZE(6.25f, 6.25f);
 const float MIN_PANEL_WIDTH = 14.375f;
+const float MIN_HOVERBOX_WIDTH = 15.f;
 
 float VehicleInfoTPanel::GetPanelWidth()
 {
@@ -69,7 +70,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     if (m_visibility_mode != TPANELMODE_OPAQUE 
         && App::ui_show_vehicle_buttons->getBool()
         && App::GetGuiManager()->AreStaticMenusAllowed()
-        && (ImGui::GetIO().MousePos.x <= MIN_PANEL_WIDTH * ImGui::GetFontSize() + ImGui::GetStyle().WindowPadding.x*2))
+        && (ImGui::GetIO().MousePos.x <= MIN_HOVERBOX_WIDTH * ImGui::GetFontSize() + ImGui::GetStyle().WindowPadding.x*2))
     {
         show_translucent = true;
     }
@@ -111,16 +112,19 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
         case TPANELMODE_OPAQUE:
             ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
             ImGui::PushStyleColor(ImGuiCol_TextDisabled, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+            ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, theme.semitrans_scrollbar_bg);
             break;
 
         case TPANELMODE_TRANSLUCENT:
             ImGui::PushStyleColor(ImGuiCol_WindowBg, m_panel_translucent_color);
             ImGui::PushStyleColor(ImGuiCol_TextDisabled, m_transluc_textdis_color);
+            ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, m_panel_transluc_scrollbar_bg);
             break;
 
         default:
             break;
     }
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.f, 0.f, 0.f, 0.f));
     ImGui::Begin("VehicleInfoTPanel", nullptr, flags);
 
     // === DECIDE WHAT THE WINDOW WILL DISPLAY ===
@@ -180,28 +184,36 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     if (ImGui::BeginTabItem(_LC("TPanel", "Basics"), nullptr, tabflags_basics))
     {
         m_current_focus = TPANELFOCUS_BASICS;
+        this->BeginTabContents();
         this->DrawVehicleBasicsUI(actorx);
+        this->EndTabContents();
     
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("TPanel", "Stats"), nullptr, tabflags_stats))
     {
         m_current_focus = TPANELFOCUS_STATS;
+        this->BeginTabContents();
         this->DrawVehicleStatsUI(actorx);
+        this->EndTabContents();
 
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("TPanel", "Commands"), nullptr, tabflags_commands))
     {
         m_current_focus = TPANELFOCUS_COMMANDS;
+        this->BeginTabContents();
         this->DrawVehicleCommandsUI(actorx);
+        this->EndTabContents();
 
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("TPanel", "Diag"), nullptr, tabflags_diag))
     {
         m_current_focus = TPANELFOCUS_DIAG;
+        this->BeginTabContents();
         this->DrawVehicleDiagUI(actorx);
+        this->EndTabContents();
 
         ImGui::EndTabItem();
     }
@@ -209,9 +221,28 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     ImGui::EndTabBar();
     
     ImGui::End();
-    ImGui::PopStyleColor(2); // WindowBg, TextDisabled
+    ImGui::PopStyleColor(4); // WindowBg, TextDisabled, ScrollbarBg, ChildBg
 
     this->DrawVehicleCommandHighlights(actorx);
+}
+
+void VehicleInfoTPanel::BeginTabContents()
+{
+    // The panel auto-resizes to contents, so we size the child to contents too (measured on previous frame),
+    // but never let it reach beyond the bottom edge of the screen - scroll instead.
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    const float max_height = std::max(ImGui::GetFrameHeight(),
+        ImGui::GetIO().DisplaySize.y
+        - (ImGui::GetCursorScreenPos().y + ImGui::GetStyle().WindowPadding.y + theme.screen_edge_padding.y));
+    const float height = (m_tab_contents_height > 0.f) ? std::min(m_tab_contents_height, max_height) : max_height;
+
+    ImGui::BeginChild("TabContents", ImVec2(0.f, height), /*border:*/false);
+}
+
+void VehicleInfoTPanel::EndTabContents()
+{
+    m_tab_contents_height = ImGui::GetCursorPosY() - ImGui::GetStyle().ItemSpacing.y;
+    ImGui::EndChild();
 }
 
 void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
@@ -246,7 +277,10 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
         {
             m_helptext_fullsize_screenpos = ImGui::GetCursorScreenPos();
             ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT_FULL) * ImGui::GetFontSize());
-            this->DrawVehicleHelpTextureFullsize(actorx);
+            if (ImGui::IsItemVisible()) // Tab contents are scrollable
+            {
+                this->DrawVehicleHelpTextureFullsize(actorx);
+            }
         }
         else
         {
@@ -885,16 +919,22 @@ void VehicleInfoTPanel::DrawVehicleHelpTextureFullsize(RoR::GfxActor* actorx)
     // so we can't simply use `GetImDummyFullscreenWindow()`
     // ===============================================================================
 
+    // The tab contents are scrollable - clip the image to the visible area
+    const ImVec2 clip_min = ImGui::GetWindowDrawList()->GetClipRectMin();
+    const ImVec2 clip_max = ImGui::GetWindowDrawList()->GetClipRectMax();
+
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
-        | ImGuiWindowFlags_NoSavedSettings ;
+        | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMouseInputs; // Let mouse wheel scroll the T-panel underneath
     ImGui::SetNextWindowPos(m_helptext_fullsize_screenpos - ImGui::GetStyle().WindowPadding);
     ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL) * ImGui::GetFontSize() + ImGui::GetStyle().WindowPadding);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0)); // Fully transparent background!
     ImGui::Begin("T-Panel help tex fullsize", NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
+    drawlist->PushClipRect(ImVec2(drawlist->GetClipRectMin().x, clip_min.y), ImVec2(drawlist->GetClipRectMax().x, clip_max.y), /*intersect_with_current_clip_rect:*/true);
     drawlist->AddImage(im_tex, m_helptext_fullsize_screenpos,
         m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL) * ImGui::GetFontSize());
+    drawlist->PopClipRect();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
 }
