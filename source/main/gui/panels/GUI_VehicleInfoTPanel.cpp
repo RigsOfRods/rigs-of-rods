@@ -35,15 +35,16 @@
 using namespace RoR;
 using namespace GUI;
 
-const float HELP_TEXTURE_WIDTH = 512.f;
-const float HELP_TEXTURE_HEIGHT = 80.f;
-const float HELP_TEXTURE_HEIGHT_FULL = 128.f;
-const ImVec2 MAX_PREVIEW_SIZE(100.f, 100.f);
-const float MIN_PANEL_WIDTH = 230.f;
+// Sizes are relative to font size (multiply by `ImGui::GetFontSize()`)
+const float HELP_TEXTURE_WIDTH = 32.f;
+const float HELP_TEXTURE_HEIGHT = 5.f;
+const float HELP_TEXTURE_HEIGHT_FULL = 8.f;
+const ImVec2 MAX_PREVIEW_SIZE(6.25f, 6.25f);
+const float MIN_PANEL_WIDTH = 14.375f;
 
 float VehicleInfoTPanel::GetPanelWidth()
 {
-    return m_helptext_fullsize ? std::max(MIN_PANEL_WIDTH, HELP_TEXTURE_WIDTH) : MIN_PANEL_WIDTH;
+    return (m_helptext_fullsize ? std::max(MIN_PANEL_WIDTH, HELP_TEXTURE_WIDTH) : MIN_PANEL_WIDTH) * ImGui::GetFontSize();
 }
 
 void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
@@ -68,7 +69,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     if (m_visibility_mode != TPANELMODE_OPAQUE 
         && App::ui_show_vehicle_buttons->getBool()
         && App::GetGuiManager()->AreStaticMenusAllowed()
-        && (ImGui::GetIO().MousePos.x <= MIN_PANEL_WIDTH + ImGui::GetStyle().WindowPadding.x*2))
+        && (ImGui::GetIO().MousePos.x <= MIN_PANEL_WIDTH * ImGui::GetFontSize() + ImGui::GetStyle().WindowPadding.x*2))
     {
         show_translucent = true;
     }
@@ -94,7 +95,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
-    ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 110)));
+    ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + ImGui::GetFontSize() * 6.875f)));
 
     if (m_current_focus == TPANELFOCUS_COMMANDS)
     {
@@ -102,7 +103,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     }
     else
     {
-      ImGui::SetNextWindowContentWidth(MIN_PANEL_WIDTH);
+      ImGui::SetNextWindowContentWidth(MIN_PANEL_WIDTH * ImGui::GetFontSize());
     }
 
     switch (m_visibility_mode)
@@ -152,12 +153,12 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
         Ogre::TexturePtr preview_tex = Ogre::TextureManager::getSingleton().load(
             actorx->GetActor()->getUsedActorEntry()->filecachename, RGN_CACHE);
         // Scale the image
-        ImVec2 MAX_PREVIEW_SIZE(100.f, 100.f);
+        const ImVec2 max_preview_size = MAX_PREVIEW_SIZE * ImGui::GetFontSize();
         ImVec2 size(preview_tex->getWidth(), preview_tex->getHeight());
-        size *= MAX_PREVIEW_SIZE.x / size.x; // Fit size along X
-        if (size.y > MAX_PREVIEW_SIZE.y) // Reduce size along Y if needed
+        size *= max_preview_size.x / size.x; // Fit size along X
+        if (size.y > max_preview_size.y) // Reduce size along Y if needed
         {
-            size *= MAX_PREVIEW_SIZE.y / size.y;
+            size *= max_preview_size.y / size.y;
         }
         // Draw the image
         ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
@@ -234,7 +235,7 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
         if (!App::ui_always_show_fullsize->getBool())
         {
             ImGui::SameLine();
-            ImGui::SetCursorPosX(this->GetPanelWidth() - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
+            ImGui::SetCursorPosX(this->GetPanelWidth() - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + ImGui::GetFontSize() * 1.5625f));
             ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
         }
         else
@@ -244,13 +245,13 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
         if (m_helptext_fullsize)
         {
             m_helptext_fullsize_screenpos = ImGui::GetCursorScreenPos();
-            ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT_FULL));
+            ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT_FULL) * ImGui::GetFontSize());
             this->DrawVehicleHelpTextureFullsize(actorx);
         }
         else
         {
             ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
-            ImGui::Image(im_tex, ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT));
+            ImGui::Image(im_tex, ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT) * ImGui::GetFontSize());
         }
     }
 
@@ -281,8 +282,8 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             ImVec2 key2_size = ImCalcEventHighlightedSize(event2);
             ImVec2 desc_size = ImGui::CalcTextSize(desc.c_str());
             const bool single_line = ImGui::GetWindowContentRegionMax().x > desc_size.x + key1_size.x + key2_size.x;
-            static const float BUMP_HEIGHT = 3.f;
-            static const float MOUSEHIGHLIGHT_MAGICPADRIGHT = 4.f;
+            const float BUMP_HEIGHT = ImGui::GetFontSize() * 0.1875f;
+            const float MOUSEHIGHLIGHT_MAGICPADRIGHT = ImGui::GetFontSize() * 0.25f;
 
             // The line-highlighting: Done manually because `ImGui::Selectable()` blocks buttons under it (or gets blocked by buttons with the `_AllowItemOverlap` flag).
             ImVec2 highlight_mouse_min = initial_cursor - ImGui::GetStyle().ItemSpacing/2;
@@ -673,14 +674,14 @@ void VehicleInfoTPanel::UpdateStats(float dt, ActorPtr actor)
     m_stat_gmax_z = gmax.z;
 }
 
-const ImVec2 BUTTON_SIZE(18, 18);
-const ImVec2 BUTTON_OFFSET(0, 3.f);
+// Sizes are relative to font size (multiply by `ImGui::GetFontSize()`)
+const ImVec2 BUTTON_SIZE(1.125f, 1.125f);
+const ImVec2 BUTTON_OFFSET(0, 0.1875f);
 const float BUTTON_Y_OFFSET = 0.f;
-const ImVec2 BUTTONDUMMY_SIZE(18, 1);
 
 void DrawSingleBulletRow(const char* name, RoR::events ev)
 {
-    ImGui::Dummy(BUTTONDUMMY_SIZE); ImGui::SameLine(); ImGui::Bullet(); ImGui::Text("%s", name);
+    ImGui::Dummy(ImVec2(BUTTON_SIZE.x * ImGui::GetFontSize(), 1.f)); ImGui::SameLine(); ImGui::Bullet(); ImGui::Text("%s", name);
     ImGui::SameLine();
     const ImVec2 btn_size = ImCalcEventHighlightedSize(ev);
     ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - btn_size.x);
@@ -887,13 +888,13 @@ void VehicleInfoTPanel::DrawVehicleHelpTextureFullsize(RoR::GfxActor* actorx)
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
         | ImGuiWindowFlags_NoSavedSettings ;
     ImGui::SetNextWindowPos(m_helptext_fullsize_screenpos - ImGui::GetStyle().WindowPadding);
-    ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL) + ImGui::GetStyle().WindowPadding);
+    ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL) * ImGui::GetFontSize() + ImGui::GetStyle().WindowPadding);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0)); // Fully transparent background!
     ImGui::Begin("T-Panel help tex fullsize", NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
     drawlist->AddImage(im_tex, m_helptext_fullsize_screenpos,
-        m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL));
+        m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT_FULL) * ImGui::GetFontSize());
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
 }
@@ -910,11 +911,11 @@ bool DrawSingleButtonRow(bool active, const Ogre::TexturePtr& icon, const char* 
     }
 
     ImGui::GetWindowDrawList()->AddRectFilled(
-        ImGui::GetCursorScreenPos() - BUTTON_OFFSET, ImGui::GetCursorScreenPos() + BUTTON_SIZE, 
+        ImGui::GetCursorScreenPos() - BUTTON_OFFSET * ImGui::GetFontSize(), ImGui::GetCursorScreenPos() + BUTTON_SIZE * ImGui::GetFontSize(), 
         ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), ImGui::GetStyle().FrameRounding);
     ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()),
-        ImGui::GetCursorScreenPos() - BUTTON_OFFSET, ImGui::GetCursorScreenPos() + BUTTON_SIZE);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + BUTTON_SIZE.x + 2*ImGui::GetStyle().ItemSpacing.x);
+        ImGui::GetCursorScreenPos() - BUTTON_OFFSET * ImGui::GetFontSize(), ImGui::GetCursorScreenPos() + BUTTON_SIZE * ImGui::GetFontSize());
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + BUTTON_SIZE.x * ImGui::GetFontSize() + 2*ImGui::GetStyle().ItemSpacing.x);
     ImGui::PopStyleColor();
     
     ImGui::Text("%s", name);
@@ -1152,7 +1153,7 @@ void VehicleInfoTPanel::DrawCustomLightButton(RoR::GfxActor* actorx)
                 ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
             }
 
-            if (ImGui::Button(label.c_str(), ImVec2(32, 0)))
+            if (ImGui::Button(label.c_str(), ImVec2(ImGui::GetFontSize() * 2.f, 0)))
             {
                 actorx->GetActor()->setCustomLightVisible(i, !actorx->GetActor()->getCustomLightVisible(i));
             }
@@ -1231,8 +1232,8 @@ void VehicleInfoTPanel::DrawCustomLightButtons(RoR::GfxActor* actorx)
     // ===============================================================================
 
     ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<ImTextureID>(m_beacons_icon->getHandle()),
-        ImGui::GetCursorScreenPos() - BUTTON_OFFSET, ImGui::GetCursorScreenPos() + BUTTON_SIZE);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + BUTTON_SIZE.x + 2 * ImGui::GetStyle().ItemSpacing.x);
+        ImGui::GetCursorScreenPos() - BUTTON_OFFSET * ImGui::GetFontSize(), ImGui::GetCursorScreenPos() + BUTTON_SIZE * ImGui::GetFontSize());
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + BUTTON_SIZE.x * ImGui::GetFontSize() + 2 * ImGui::GetStyle().ItemSpacing.x);
 
     ImGui::Text("Custom lights");
     ImGui::SameLine();
@@ -1241,7 +1242,7 @@ void VehicleInfoTPanel::DrawCustomLightButtons(RoR::GfxActor* actorx)
     ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x) - keysize.x - ImGui::GetStyle().ItemSpacing.x);
     ImGui::Text(hotkey);
 
-    const ImVec2 BTN_PADDING = ImVec2(1, 1);
+    const ImVec2 BTN_PADDING = ImVec2(ImGui::GetFontSize() * 0.0625f, ImGui::GetFontSize() * 0.0625f);
     const ImVec2 btn_size = ImGui::CalcTextSize("10") + (BTN_PADDING * 2);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BTN_PADDING);
     for (int i = 0; i < MAX_CLIGHTS; i++)
