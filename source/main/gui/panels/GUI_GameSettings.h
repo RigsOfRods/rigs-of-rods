@@ -46,7 +46,7 @@ private:
     void DrawDiagSettings();
 
     // UI settings
-    const float UI_SELECTOR_WIDTH = 275.0f;
+    const float UI_SELECTOR_WIDTH = 17.1875f; //!< Relative to font size
     void DrawUiPresetCombo();
     void DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, CacheCategoryId category_id, const std::string& label);
     CacheEntryPtr m_ui_known_dash_truck;
