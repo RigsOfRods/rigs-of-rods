@@ -38,7 +38,7 @@ namespace GUI {
 class MainSelector 
 {
 public:
-    const float LEFT_PANE_WIDTH = 250.f;
+    const float LEFT_PANE_WIDTH = 15.625f; //!< Relative to font size
     const float PREVIEW_SIZE_RATIO = 0.7f;
 
     MainSelector();
