@@ -52,9 +52,10 @@ private:
     void DrawPeerOptionsMenu();
     void DrawPeerOptCheckbox(const BitMask_t flag, const std::string& label);
     void DrawServerCommandBtn(const std::string& cmdfmt, const std::string& label);
-    const int PEEROPTS_MENU_CONTENT_WIDTH = 150;
-    const int PEEROPTS_MENU_MARGIN = 10;
-    const int PEEROPTS_HOVER_MARGIN = 100;
+    // Sizes are relative to font size (multiply by `ImGui::GetFontSize()`)
+    const float PEEROPTS_MENU_CONTENT_WIDTH = 9.375f;
+    const float PEEROPTS_MENU_MARGIN = 0.625f;
+    const float PEEROPTS_HOVER_MARGIN = 6.25f;
     int m_peeropts_menu_active_user_vectorpos = -1;
     ImVec2 m_peeropts_menu_corner_tl = ImVec2(0, 0);
     ImVec2 m_peeropts_menu_corner_br = ImVec2(0, 0);

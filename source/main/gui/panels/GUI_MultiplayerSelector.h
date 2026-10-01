@@ -54,8 +54,8 @@ typedef std::vector<MpServerInfo> MpServerInfoVec;
 class MultiplayerSelector
 {
 public:
-    const float BUTTONS_EXTRA_SPACE = 6.f;
-    const float TABLE_PADDING_LEFT = 4.f;
+    const float BUTTONS_EXTRA_SPACE = 0.375f; //!< Relative to font size
+    const float TABLE_PADDING_LEFT = 0.25f;   //!< Relative to font size
 
     MultiplayerSelector();
 
