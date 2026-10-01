@@ -228,6 +228,7 @@ void Console::cVarSetupBuiltins()
     App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
     App::ui_dashboard_cinecam              = this->cVarCreate("ui_dashboard_cinecam", "Hide dashboard in cinecam view", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
     App::ui_keep_search                    = this->cVarCreate("ui_keep_search",       "Retain selector search text",    CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
+    App::ui_scale_factor                   = this->cVarCreate("ui_scale_factor",      "UI scale factor",                CVAR_ARCHIVE | CVAR_TYPE_FLOAT, "1.0");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

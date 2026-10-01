@@ -95,6 +95,7 @@ enum MsgType
     MSG_APP_UNLOAD_SCRIPT_REQUESTED,       //!< Payload = RoR::ScriptUnitId_t* (owner)
     MSG_APP_SCRIPT_THREAD_STATUS,          //!< Payload = RoR::ScriptEventArgs* (owner)
     MSG_APP_REINIT_INPUT_REQUESTED,
+    MSG_APP_REINIT_UI_REQUESTED,           //!< Reloads fonts and re-applies style, i.e. after changing 'ui_scale_factor'.
     // Networking
     MSG_NET_CONNECT_REQUESTED,
     MSG_NET_CONNECT_STARTED,
@@ -837,6 +838,7 @@ extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard'
 extern CVar* ui_always_show_fullsize;
 extern CVar* ui_dashboard_cinecam;
 extern CVar* ui_keep_search;
+extern CVar* ui_scale_factor;              //!< float; Resizes imgui-based UI (fonts + style sizes); apply by pushing `MSG_APP_REINIT_UI_REQUESTED`.
 
 // ------------------------------------------------------------------------------------------------
 // Global objects

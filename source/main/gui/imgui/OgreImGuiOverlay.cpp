@@ -74,7 +74,7 @@ void ImGuiOverlay::ImGUIRenderable::createMaterial()
     mMaterial->setDepthCheckEnabled(false);
 }
 
-ImFont* ImGuiOverlay::addFont(const String& name, const String& group)
+ImFont* ImGuiOverlay::addFont(const String& name, const String& group, float size_scale)
 {
     FontPtr font = FontManager::getSingleton().getByName(name, group);
     OgreAssert(font, "font does not exist");
@@ -103,8 +103,20 @@ ImFont* ImGuiOverlay::addFont(const String& name, const String& group)
 
     ImFontConfig cfg;
     strncpy(cfg.Name, name.c_str(), 40);
-    return io.Fonts->AddFontFromMemoryTTF(ttfchunk.getPtr(), (int)ttfchunk.size(), font->getTrueTypeSize(), &cfg,
+    return io.Fonts->AddFontFromMemoryTTF(ttfchunk.getPtr(), (int)ttfchunk.size(), font->getTrueTypeSize() * size_scale, &cfg,
                                           cprangePtr);
+}
+
+void ImGuiOverlay::rebuildFontTexture()
+{
+    if (!mInitialised)
+        return; // Will be built by `initialise()`
+
+    TextureManager::getSingleton().remove(mRenderable.mFontTex);
+    mRenderable.mFontTex.reset();
+    mRenderable.createFontTexture();
+    mRenderable.mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(mRenderable.mFontTex);
+    mCodePointRanges.clear();
 }
 
 void ImGuiOverlay::ImGUIRenderable::createFontTexture()

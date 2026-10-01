@@ -584,6 +584,20 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_APP_REINIT_UI_REQUESTED:
+                {
+                    try
+                    {
+                        LOG(fmt::format("[RoR] Reinitializing UI (scale factor: {})", App::ui_scale_factor->getFloat()));
+                        App::GetGuiManager()->ReinitUI(); // OK to invoke directly - no ImGui frame is in progress while processing messages.
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
