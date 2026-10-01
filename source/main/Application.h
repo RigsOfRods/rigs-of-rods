@@ -711,6 +711,7 @@ extern CVar* diag_load_devel_scripts;
 extern CVar* diag_profiler_enabled;
 extern CVar* diag_profiler_rate;
 extern CVar* diag_angelscript_generic_bind_test;
+extern CVar* diag_phony_joystick;
 
 // System
 extern CVar* sys_process_dir;
