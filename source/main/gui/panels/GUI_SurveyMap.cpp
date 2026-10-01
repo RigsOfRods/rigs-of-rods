@@ -79,12 +79,12 @@ void SurveyMap::Draw()
     // Calculate window position
     Ogre::RenderWindow* rw = RoR::App::GetAppContext()->GetRenderWindow();
     ImVec2 view_size(0, 0);
-    ImVec2 view_padding(8, 8);
+    ImVec2 view_padding(ImGui::GetFontSize() * 0.5f, ImGui::GetFontSize() * 0.5f);
     if (mMapMode == SurveyMapMode::BIG)
     {
-        view_padding.y = 40; // Extra space for hints
+        view_padding.y = ImGui::GetFontSize() * 2.5f; // Extra space for hints
         view_size.y = (rw->getWidth() * 0.55f) -
-            ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING));
+            ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING * ImGui::GetFontSize()));
         Vector3 terrn_size = App::GetGameContext()->GetTerrain()->getMaxTerrainSize(); // Y is 'up'!
         if (!terrn_size.isZeroLength())
         {
@@ -103,8 +103,8 @@ void SurveyMap::Draw()
 
     // Open window
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(WINDOW_PADDING, WINDOW_PADDING));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, WINDOW_ROUNDING);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(WINDOW_PADDING, WINDOW_PADDING) * ImGui::GetFontSize());
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, WINDOW_ROUNDING * ImGui::GetFontSize());
     ImGui::SetNextWindowSize(ImVec2((view_size.x + view_padding.x), (view_size.y + view_padding.y)));
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
@@ -121,7 +121,7 @@ void SurveyMap::Draw()
 
         float x = ImGui::GetIO().DisplaySize.x -
             (view_size.x + App::GetGuiManager()->GetTheme().screen_edge_padding.x);
-        ImGui::SetNextWindowPos(ImVec2(x, 100.f));
+        ImGui::SetNextWindowPos(ImVec2(x, ImGui::GetFontSize() * 6.25f));
     }
     ImGui::Begin("SurveyMap", nullptr, flags);
 
@@ -168,7 +168,7 @@ void SurveyMap::Draw()
         for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
         {
             ImVec2 cw_dist = this->CalcWaypointMapPos(tl_screen_pos, view_size, view_origin, i);
-            if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5)
+            if (abs(cw_dist.x) <= ImGui::GetFontSize() * 0.3125f && abs(cw_dist.y) <= ImGui::GetFontSize() * 0.3125f)
             {
                 w_adj = true;
             }
@@ -187,7 +187,7 @@ void SurveyMap::Draw()
 
         ImVec2 p_min = ImGui::GetCursorScreenPos();
         ImVec2 p_max = ImVec2(p_min.x + view_size.x, p_min.y + view_size.y);
-        ImVec2 p_offset = ImVec2(5.f, 5.f);
+        ImVec2 p_offset = ImVec2(ImGui::GetFontSize() * 0.3125f, ImGui::GetFontSize() * 0.3125f);
         ImVec2 _min(p_min + p_offset);
         ImVec2 _max(p_max + p_offset);
         ImVec2 uv_min(texcoords_top_left.x, texcoords_top_left.y);
@@ -196,7 +196,7 @@ void SurveyMap::Draw()
         m_circle_radius = view_size.x/2 - p_offset.x;
 
         // Outline
-        drawlist->AddCircle(ImVec2(p_min.x + view_size.x/2,  p_min.y + view_size.y/2), view_size.x/2 - 2*p_offset.x, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, 20);
+        drawlist->AddCircle(ImVec2(p_min.x + view_size.x/2,  p_min.y + view_size.y/2), view_size.x/2 - 2*p_offset.x, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, ImGui::GetFontSize() * 1.25f);
 
         // The texture
         drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(mMapTexture->getHandle()), _min, _max, uv_min, uv_max, ImGui::GetColorU32(ImVec4(1,1,1,1)), m_circle_radius);
@@ -240,11 +240,11 @@ void SurveyMap::Draw()
         // Draw teleport cursor
         ImVec2 mouse_pos = ImGui::GetMousePos();
         ImDrawList* drawlist = ImGui::GetWindowDrawList();
-        drawlist->AddCircleFilled(mouse_pos, 5, ImGui::GetColorU32(ImVec4(1,0,0,1)));
+        drawlist->AddCircleFilled(mouse_pos, ImGui::GetFontSize() * 0.3125f, ImGui::GetColorU32(ImVec4(1,0,0,1)));
         if (mMapMode == SurveyMapMode::SMALL)
         {
             const char* title = "Teleport/Waypoint";
-            ImVec2 text_pos(mouse_pos.x - (ImGui::CalcTextSize(title).x/2), mouse_pos.y - 25);
+            ImVec2 text_pos(mouse_pos.x - (ImGui::CalcTextSize(title).x/2), mouse_pos.y - ImGui::GetFontSize() * 1.5625f);
             drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), title);
         }
     }
@@ -256,7 +256,7 @@ void SurveyMap::Draw()
         {
             ImVec2 cw_dist = this->DrawWaypoint(tl_screen_pos, view_size, view_origin, std::to_string(i), i);
 
-            if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5)
+            if (abs(cw_dist.x) <= ImGui::GetFontSize() * 0.3125f && abs(cw_dist.y) <= ImGui::GetFontSize() * 0.3125f)
             {
                 if (ImGui::IsMouseClicked(0))
                 {
@@ -285,7 +285,7 @@ void SurveyMap::Draw()
                 float y = App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
                 App::GetGuiManager()->TopMenubar.ai_waypoints[mWaypointNum].position = Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y);
             }
-            else if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5 && ImGui::IsItemClicked(2))
+            else if (abs(cw_dist.x) <= ImGui::GetFontSize() * 0.3125f && abs(cw_dist.y) <= ImGui::GetFontSize() * 0.3125f && ImGui::IsItemClicked(2))
             {
                 App::GetGuiManager()->TopMenubar.ai_waypoints.erase(App::GetGuiManager()->TopMenubar.ai_waypoints.begin() + i);
             }
@@ -379,7 +379,7 @@ void SurveyMap::Draw()
         this->CacheIcons();
     }
 
-    ImGui::Image(reinterpret_cast<ImTextureID>(m_left_mouse_button->getHandle()), ImVec2(28, 24));
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_left_mouse_button->getHandle()), ImVec2(ImGui::GetFontSize() * 1.75f, ImGui::GetFontSize() * 1.5f));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
 
@@ -392,7 +392,7 @@ void SurveyMap::Draw()
 
     ImGui::SameLine();
     ImGui::SetCursorPosY(orig_y);
-    ImGui::Image(reinterpret_cast<ImTextureID>(m_right_mouse_button->getHandle()), ImVec2(28, 24));
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_right_mouse_button->getHandle()), ImVec2(ImGui::GetFontSize() * 1.75f, ImGui::GetFontSize() * 1.5f));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
 
@@ -401,7 +401,7 @@ void SurveyMap::Draw()
 
     ImGui::SameLine();
     ImGui::SetCursorPosY(orig_y);
-    ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_button->getHandle()), ImVec2(28, 24));
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_button->getHandle()), ImVec2(ImGui::GetFontSize() * 1.75f, ImGui::GetFontSize() * 1.5f));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
 
@@ -414,7 +414,7 @@ void SurveyMap::Draw()
 
     ImGui::SameLine();
     ImGui::SetCursorPosY(orig_y);
-    ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_scroll_button->getHandle()), ImVec2(28, 24));
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_scroll_button->getHandle()), ImVec2(ImGui::GetFontSize() * 1.75f, ImGui::GetFontSize() * 1.5f));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
 
@@ -573,14 +573,14 @@ void SurveyMap::DrawMapIcon(const SurveyMapEntity& e, ImVec2 view_pos, ImVec2 vi
 
     if (e.draw_caption)
     {
-        ImVec2 text_pos(img_pos.x - (ImGui::CalcTextSize(e.caption.c_str()).x/2), img_pos.y + 5);
+        ImVec2 text_pos(img_pos.x - (ImGui::CalcTextSize(e.caption.c_str()).x/2), img_pos.y + ImGui::GetFontSize() * 0.3125f);
         ImVec4 text_color(e.caption_color.r, e.caption_color.g, e.caption_color.b, 1.f);
         ImGui::GetWindowDrawList()->AddText(text_pos, ImColor(text_color), e.caption.c_str());
     }
     else
     {
         ImVec2 dist = ImGui::GetMousePos() - img_pos;
-        if (!e.caption.empty() && abs(dist.x) <= 5 && abs(dist.y) <= 5)
+        if (!e.caption.empty() && abs(dist.x) <= ImGui::GetFontSize() * 0.3125f && abs(dist.y) <= ImGui::GetFontSize() * 0.3125f)
         {
             ImGui::BeginTooltip();
             ImGui::Text("%s", e.caption.c_str());
@@ -612,7 +612,7 @@ ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImVec4 col = ImVec4(1,0,0,1);
     ImVec2 dist = ImGui::GetMousePos() - wp_pos;
-    if (abs(dist.x) <= 5 && abs(dist.y) <= 5)
+    if (abs(dist.x) <= ImGui::GetFontSize() * 0.3125f && abs(dist.y) <= ImGui::GetFontSize() * 0.3125f)
     {
         col = ImVec4(1,1,0,1);
 
@@ -628,7 +628,7 @@ ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 
 
     if (mMapMode == SurveyMapMode::BIG || (mMapMode == SurveyMapMode::SMALL && wp_draw))
     {
-        drawlist->AddCircleFilled(wp_pos, 5, ImGui::GetColorU32(ImVec4(col)));
+        drawlist->AddCircleFilled(wp_pos, ImGui::GetFontSize() * 0.3125f, ImGui::GetColorU32(ImVec4(col)));
     }
 
     if (App::GetGuiManager()->TopMenubar.ai_waypoints.size() >= 2 && idx != App::GetGuiManager()->TopMenubar.ai_waypoints.size() - 1)
