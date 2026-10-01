@@ -45,6 +45,7 @@ private:
     void DrawMenubar();
     void DrawPreviewControls();
     void DrawAxisPreview(int axis_index, int axis_value);
+    void DrawSliderPreview(int slider_index, int slider_x, int slider_y);
     void DrawPovPreview(int pov_index, int pov_direction);
     void DrawInteractiveKeybindDigital();
     void DrawInteractiveButtonBinding();
