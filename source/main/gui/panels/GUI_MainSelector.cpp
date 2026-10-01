@@ -152,7 +152,7 @@ void MainSelector::Draw()
     }
 
     // category combobox
-    ImGui::PushItemWidth(LEFT_PANE_WIDTH);
+    ImGui::PushItemWidth(LEFT_PANE_WIDTH * ImGui::GetFontSize());
     if (ImGui::Combo(
         "##SelectorCategory", &m_selected_category,
         &MainSelector::CatComboItemGetter, &m_display_categories, num_categories))
@@ -168,7 +168,7 @@ void MainSelector::Draw()
     // search box
     const ImVec2 searchbox_cursor = ImGui::GetCursorPos();
     const float searchbox_width = ImGui::GetWindowWidth() -
-        (LEFT_PANE_WIDTH + 2 * (ImGui::GetStyle().WindowPadding.x) + ImGui::GetStyle().ItemSpacing.x);
+        (LEFT_PANE_WIDTH * ImGui::GetFontSize() + 2 * (ImGui::GetStyle().WindowPadding.x) + ImGui::GetStyle().ItemSpacing.x);
 
     if (m_kb_focused == true)
     {
@@ -213,11 +213,11 @@ void MainSelector::Draw()
     ImVec2 p_min = ImGui::GetItemRectMin();
     ImVec2 p_max = ImGui::GetItemRectMax();
     ImGui::SetCursorScreenPos(ImVec2(
-        p_max.x - 16.0f - ImGui::GetStyle().FramePadding.x,
+        p_max.x - ImGui::GetFontSize() - ImGui::GetStyle().FramePadding.x,
         p_min.y + ImGui::GetStyle().FramePadding.y - 3.0f));
     if (m_settings_icon)
     {
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_settings_icon->getHandle()), ImVec2(16, 16)))
+        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_settings_icon->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize())))
         {
             ImGui::OpenPopup("##SelectorSearchSettings");
         }
@@ -243,7 +243,7 @@ void MainSelector::Draw()
     ImGui::Separator();
 
     // left
-    ImGui::BeginChild("left pane", ImVec2(LEFT_PANE_WIDTH, 0), true);
+    ImGui::BeginChild("left pane", ImVec2(LEFT_PANE_WIDTH * ImGui::GetFontSize(), 0), true);
     const int num_entries = static_cast<int>(m_display_entries.size());
     bool scroll_to_selected = false;
     // Entry list: handle keyboard
@@ -280,7 +280,7 @@ void MainSelector::Draw()
 
         ImGui::PushID(i);
         drawlist->ChannelsSetCurrent(0);
-        ImVec2 mouse_area(LEFT_PANE_WIDTH, size.y); // Monitor the whole line (excess width gets clipped)
+        ImVec2 mouse_area(LEFT_PANE_WIDTH * ImGui::GetFontSize(), size.y); // Monitor the whole line (excess width gets clipped)
         if (ImGui::Selectable("##dummy", &is_selected, 0, mouse_area)) // Use invisible label + size parameter.
         {
             m_selected_entry = i;
@@ -469,15 +469,15 @@ void MainSelector::Draw()
                     static_cast<int>(sd_entry.sde_entry->sectionconfigs.size()));
             ImGui::SameLine();
         }
-        ImGui::SameLine(ImGui::GetWindowWidth()-280);
-        if (ImGui::Button(_LC("MainSelector", "OK"), ImVec2(120.f, 0.0f)) ||
+        ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetFontSize() * 17.5f);
+        if (ImGui::Button(_LC("MainSelector", "OK"), ImVec2(ImGui::GetFontSize() * 7.5f, 0.0f)) ||
             ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
         {
             this->Apply();
         }
     }
-    ImGui::SameLine(ImGui::GetWindowWidth()-150);
-    if (ImGui::Button(_LC("MainSelector", "Cancel"), ImVec2(120.f, 0.0f)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+    ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetFontSize() * 9.375f);
+    if (ImGui::Button(_LC("MainSelector", "Cancel"), ImVec2(ImGui::GetFontSize() * 7.5f, 0.0f)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
     {
         this->Cancel();
     }
