@@ -145,6 +145,7 @@ public:
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
     bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
     void ApplyUiPreset(); //!< reads cvar 'ui_preset'
+    void ReinitUI(); //!< Reloads fonts and re-applies style; reads cvar 'ui_scale_factor'. Must be called outside ImGui frame (processing `MSG_APP_REINIT_UI_REQUESTED`).
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -174,6 +175,8 @@ public:
 
 private:
     void SetupImGui();
+    void ApplyImGuiStyle(); //!< Resets style to defaults, applies RoR theme and scales by 'ui_scale_factor'
+    float GetUiScaleFactor() const; //!< Reads cvar 'ui_scale_factor', clamped to sane range
 
     void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 

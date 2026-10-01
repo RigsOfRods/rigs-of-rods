@@ -291,6 +291,7 @@ CVar* ui_default_boat_dash;
 CVar* ui_always_show_fullsize;
 CVar* ui_dashboard_cinecam;
 CVar* ui_keep_search;
+CVar* ui_scale_factor;
 
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };
@@ -631,6 +632,7 @@ const char* MsgTypeToString(MsgType type)
     case MSG_APP_UNLOAD_SCRIPT_REQUESTED      : return "MSG_APP_UNLOAD_SCRIPT_REQUESTED";
     case MSG_APP_SCRIPT_THREAD_STATUS         : return "MSG_APP_SCRIPT_THREAD_STATUS";   
     case MSG_APP_REINIT_INPUT_REQUESTED       : return "MSG_APP_REINIT_INPUT_REQUESTED";
+    case MSG_APP_REINIT_UI_REQUESTED          : return "MSG_APP_REINIT_UI_REQUESTED";
 
     case MSG_NET_CONNECT_REQUESTED            : return "MSG_NET_CONNECT_REQUESTED";
     case MSG_NET_CONNECT_STARTED              : return "MSG_NET_CONNECT_STARTED";

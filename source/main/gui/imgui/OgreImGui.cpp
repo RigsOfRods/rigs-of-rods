@@ -35,7 +35,7 @@
 
 using namespace RoR;
 
-void OgreImGui::Init()
+void OgreImGui::Init(float font_scale)
 {
     m_imgui_overlay = std::unique_ptr<Ogre::ImGuiOverlay>(new Ogre::ImGuiOverlay());
 
@@ -77,13 +77,25 @@ void OgreImGui::Init()
     io.KeyMap[ImGuiKey_Slash] = OIS::KC_SLASH;
 
     // Load font
-    m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium",
-        ContentManager::ResourcePack::FONTS.resource_group_name);
+    this->AddFonts(font_scale);
 
     // Start rendering
     m_imgui_overlay->setZOrder(300);
     m_imgui_overlay->initialise(); // Build font texture
     m_imgui_overlay->show();
+}
+
+void OgreImGui::ReloadFonts(float font_scale)
+{
+    ImGui::GetIO().Fonts->Clear();
+    this->AddFonts(font_scale);
+    m_imgui_overlay->rebuildFontTexture();
+}
+
+void OgreImGui::AddFonts(float font_scale)
+{
+    m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium",
+        ContentManager::ResourcePack::FONTS.resource_group_name, font_scale);
 }
 
 void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )

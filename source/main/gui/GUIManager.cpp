@@ -344,9 +344,28 @@ void GUIManager::NewImGuiFrame(float dt)
 
 void GUIManager::SetupImGui()
 {
-    m_imgui.Init();
-    // Colors
+    m_imgui.Init(this->GetUiScaleFactor());
+    this->ApplyImGuiStyle();
+
+    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
+}
+
+void GUIManager::ReinitUI()
+{
+    m_imgui.ReloadFonts(this->GetUiScaleFactor());
+    this->ApplyImGuiStyle();
+}
+
+float GUIManager::GetUiScaleFactor() const
+{
+    return Ogre::Math::Clamp(App::ui_scale_factor->getFloat(), 0.5f, 4.f);
+}
+
+void GUIManager::ApplyImGuiStyle()
+{
     ImGuiStyle& style = ImGui::GetStyle();
+    style = ImGuiStyle(); // Reset sizes, so that scaling isn't applied repeatedly
+    // Colors
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
     style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 0.90f);
@@ -391,8 +410,8 @@ void GUIManager::SetupImGui()
     style.ItemSpacing           = ImVec2(5.f, 5.f);
     style.GrabRounding          = 3.f;
     style.WindowBorderSize      = 0.f;
-
-    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
+    // Scaling
+    style.ScaleAllSizes(this->GetUiScaleFactor());
 }
 
 void GUIManager::DrawCommonGui()

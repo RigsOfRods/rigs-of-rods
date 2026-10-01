@@ -381,6 +381,13 @@ void GameSettings::DrawUiSettings()
 
     DrawGCheckbox(App::ui_always_show_fullsize, _LC("GameSettings", "Always show full size help image"));
 
+    const float ui_scale_factor_old = App::ui_scale_factor->getFloat();
+    DrawGFloatBox(App::ui_scale_factor, _LC("GameSettings", "UI scale factor"));
+    if (ui_scale_factor_old != App::ui_scale_factor->getFloat())
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_APP_REINIT_UI_REQUESTED));
+    }
+
 
     DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
     if (App::gfx_surveymap_icons->getBool())
