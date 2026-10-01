@@ -311,6 +311,13 @@ void GameControls::DrawMenubar()
     }
 }
 
+static const ImU32 PREVIEW_COLOR_BORDER = ImColor(145, 145, 142, 255);
+static const ImU32 PREVIEW_COLOR_BORDER_SHADOW = ImColor(92, 91, 89, 255);
+static const ImU32 PREVIEW_COLOR_BG = ImColor(55, 24, 69, 255);
+static const ImU32 PREVIEW_COLOR_ACTIVE = ImColor(163, 38, 136, 255);
+static const ImU32 PREVIEW_COLOR_MARKER = ImColor(92, 91, 89, 255);
+static const float PREVIEW_LEFT_MARGIN = 13.f; // Space for the index label
+
 void GameControls::DrawPreviewControls()
 {
     if (!m_preview_controls)
@@ -343,10 +350,10 @@ void GameControls::DrawPreviewControls()
         ImGui::TextDisabled("%s:", _LC("GameControls", "Button states"));
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.5f, 0.5f));
-        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(145.f/255.f, 145.f/255.f, 142.f/255.f, 1.f));
-        ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(92.f/255.f, 91.f/255.f, 89.f/255.f, 1.f));
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(55.f/255.f, 24.f/255.f, 69.f/255.f, 1.f));
-        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(163.f/255.f, 38.f/255.f, 136.f/255.f, 1.f));
+        ImGui::PushStyleColor(ImGuiCol_Border, PREVIEW_COLOR_BORDER);
+        ImGui::PushStyleColor(ImGuiCol_BorderShadow, PREVIEW_COLOR_BORDER_SHADOW);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, PREVIEW_COLOR_BG);
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, PREVIEW_COLOR_ACTIVE);
         for (size_t i = 0; i < joy_state->mButtons.size(); ++i)
         {
             // Draw each button preview here
@@ -373,35 +380,37 @@ void GameControls::DrawPreviewControls()
     }
 }
 
-void GameControls::DrawPovPreview(int pov_index, int pov_direction)
+// Reserves space for a preview widget and draws the framed background with index label; returns top-left corner.
+static ImVec2 DrawPreviewFrame(ImVec2 size, int index)
 {
-    // Same colors as the button previews
-    const ImU32 COLOR_BORDER = ImColor(145, 145, 142);
-    const ImU32 COLOR_BORDER_SHADOW = ImColor(92, 91, 89);
-    const ImU32 COLOR_BG = ImColor(55, 24, 69);
-    const ImU32 COLOR_ACTIVE = ImColor(163, 38, 136);
-    const ImU32 COLOR_MARKER = ImColor(92, 91, 89);
-    const float WIDGET_SIZE = ImGui::GetTextLineHeight() * 2.0f;
-    const float WIDGET_LEFT_MARGIN = 15.f;
-
     const ImVec2 top_left = ImGui::GetCursorScreenPos();
-    const ImVec2 bottom_right = top_left + ImVec2(WIDGET_SIZE + WIDGET_LEFT_MARGIN, WIDGET_SIZE);
-    const ImVec2 center = top_left + ImVec2(WIDGET_LEFT_MARGIN,0.f) + ImVec2(WIDGET_SIZE, WIDGET_SIZE) * 0.5f;
-    const float radius = WIDGET_SIZE * 0.5f - 4.f;
-    ImGui::Dummy(ImVec2(WIDGET_SIZE+WIDGET_LEFT_MARGIN, WIDGET_SIZE));
+    const ImVec2 bottom_right = top_left + size;
+    ImGui::Dummy(size);
 
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    drawlist->AddRectFilled(top_left, bottom_right, COLOR_BG);
+    drawlist->AddRectFilled(top_left, bottom_right, PREVIEW_COLOR_BG);
     const ImVec2 SHADOW_OFFSET(0.8f, 0.8f);
-    drawlist->AddRect(top_left+SHADOW_OFFSET, bottom_right+SHADOW_OFFSET, COLOR_BORDER_SHADOW);
-    drawlist->AddRect(top_left, bottom_right, COLOR_BORDER);
-    drawlist->AddText(top_left + ImVec2(2.f, 0.f), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), std::to_string(pov_index).c_str());
+    drawlist->AddRect(top_left+SHADOW_OFFSET, bottom_right+SHADOW_OFFSET, PREVIEW_COLOR_BORDER_SHADOW);
+    drawlist->AddRect(top_left, bottom_right, PREVIEW_COLOR_BORDER);
+    drawlist->AddText(top_left + ImVec2(2.f, 0.f), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), std::to_string(index).c_str());
+    return top_left;
+}
+
+void GameControls::DrawPovPreview(int pov_index, int pov_direction)
+{
+    const float WIDGET_SIZE = ImGui::GetTextLineHeight() * 2.0f;
+
+    const ImVec2 top_left = DrawPreviewFrame(ImVec2(WIDGET_SIZE + PREVIEW_LEFT_MARGIN, WIDGET_SIZE), pov_index);
+    const ImVec2 center = top_left + ImVec2(PREVIEW_LEFT_MARGIN,0.f) + ImVec2(WIDGET_SIZE, WIDGET_SIZE) * 0.5f;
+    const float radius = WIDGET_SIZE * 0.5f - 4.f;
+
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
 
     // Markers for all 8 directions, so the layout is visible even when centered.
     for (int i = 0; i < 8; ++i)
     {
         const float angle = i * (3.14159265f / 4.f);
-        drawlist->AddCircleFilled(center + ImVec2(std::cos(angle), std::sin(angle)) * radius, 1.5f, COLOR_MARKER);
+        drawlist->AddCircleFilled(center + ImVec2(std::cos(angle), std::sin(angle)) * radius, 1.5f, PREVIEW_COLOR_MARKER);
     }
 
     // Resolve direction vector (screen Y points down).
@@ -421,11 +430,11 @@ void GameControls::DrawPovPreview(int pov_index, int pov_direction)
         const float ARROWHEAD_HALFWIDTH = radius * 0.55f;
         const ImVec2 tip = center + dir * radius;
         const ImVec2 base = center + dir * (radius - ARROWHEAD_LEN);
-        drawlist->AddTriangleFilled(tip, base + perp * ARROWHEAD_HALFWIDTH, base - perp * ARROWHEAD_HALFWIDTH, COLOR_ACTIVE);
+        drawlist->AddTriangleFilled(tip, base + perp * ARROWHEAD_HALFWIDTH, base - perp * ARROWHEAD_HALFWIDTH, PREVIEW_COLOR_ACTIVE);
     }
     else
     {
-        drawlist->AddCircleFilled(center, 2.5f, COLOR_BORDER);
+        drawlist->AddCircleFilled(center, 2.5f, PREVIEW_COLOR_BORDER);
     }
 }
 
