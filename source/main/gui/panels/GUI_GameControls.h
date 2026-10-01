@@ -46,6 +46,7 @@ private:
     void DrawPreviewControls();
     void DrawAxisPreview(int axis_index, int axis_value);
     void DrawSliderPreview(int slider_index, int slider_x, int slider_y);
+    void DrawVectorPreview(int vector_index, float vector_x, float vector_y, float vector_z);
     void DrawPovPreview(int pov_index, int pov_direction);
     void DrawInteractiveKeybindDigital();
     void DrawInteractiveButtonBinding();
