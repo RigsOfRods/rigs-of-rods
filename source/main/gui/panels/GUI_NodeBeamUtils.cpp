@@ -40,7 +40,7 @@ void NodeBeamUtils::Draw()
     const bool is_project = actor->getUsedActorEntry()->resource_bundle_type != "Zip";
 
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(ImGui::GetFontSize() * 37.5f, ImGui::GetFontSize() * 42.1875f), ImGuiCond_FirstUseEver);
     int flags = ImGuiWindowFlags_NoCollapse;
     if (is_project)
     {
@@ -90,7 +90,7 @@ void NodeBeamUtils::Draw()
 
 void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
 {
-    ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 31.25f); // Width includes [+/-] buttons
 
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Beams:"));
     if (ImGui::SliderFloat("Spring##Beams", &actor->ar_nb_beams_scale.first, 0.1f, 10.0f, "%.5f"))
@@ -114,9 +114,9 @@ void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
     ImGui::Separator();
 
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Wheels:"));
-    const float WBASE_WIDTH = 125.f;
-    const float WSCALE_WIDTH = 225.f;
-    const float WLABEL_GAP = 20.f;
+    const float WBASE_WIDTH = ImGui::GetFontSize() * 7.8125f;
+    const float WSCALE_WIDTH = ImGui::GetFontSize() * 14.0625f;
+    const float WLABEL_GAP = ImGui::GetFontSize() * 1.25f;
     // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
 
     // wheel spring
@@ -153,7 +153,7 @@ void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
 
     ImGui::Separator();
     ImGui::Spacing();
-    if (ImGui::Button(_LC("NodeBeamUtils", "Reset to default settings"), ImVec2(280.f, 25.f)))
+    if (ImGui::Button(_LC("NodeBeamUtils", "Reset to default settings"), ImVec2(ImGui::GetFontSize() * 17.5f, ImGui::GetFontSize() * 1.5625f)))
     {
         actor->ar_nb_beams_scale = { 1.0f, 1.0f };
         actor->ar_nb_shocks_scale = { 1.0f, 1.0f };
@@ -161,19 +161,19 @@ void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
         actor->SyncReset(true);
     }
     ImGui::SameLine();
-    if (ImGui::Button(_LC("NodeBeamUtils", "Update initial node positions"), ImVec2(280.f, 25.f)))
+    if (ImGui::Button(_LC("NodeBeamUtils", "Update initial node positions"), ImVec2(ImGui::GetFontSize() * 17.5f, ImGui::GetFontSize() * 1.5625f)))
     {
         actor->updateInitPosition();
     }
     ImGui::PopItemWidth();
 
-    ImGui::PushItemWidth(235.f); // Width includes [+/-] buttons
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 14.6875f); // Width includes [+/-] buttons
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("NodeBeamUtils", "Physics steps:"));
     ImGui::SliderInt("Skip##BeamsInt", &actor->ar_nb_skip_steps, 0, 2000);
     ImGui::SameLine();
     ImGui::SliderInt("Measure##BeamsInt", &actor->ar_nb_measure_steps, 2, 6000);
     ImGui::PopItemWidth();
-    ImGui::PushItemWidth(138.f); // Width includes [+/-] buttons
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 8.625f); // Width includes [+/-] buttons
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("NodeBeamUtils", "Beams (spring & damping search interval):"));
     ImGui::SliderFloat("##BSL", &actor->ar_nb_beams_k_interval.first, 0.1f, actor->ar_nb_beams_k_interval.second);
@@ -203,7 +203,7 @@ void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
     ImGui::Separator();
     ImGui::Spacing();
     if (ImGui::Button(m_is_searching ? _LC("NodeBeamUtils", "Stop searching") : actor->ar_nb_initialized ? _LC("NodeBeamUtils", "Continue searching") : _LC("NodeBeamUtils", "Start searching"),
-        ImVec2(280.f, 25.f)))
+        ImVec2(ImGui::GetFontSize() * 17.5f, ImGui::GetFontSize() * 1.5625f)))
     {
         m_is_searching = !m_is_searching;
         if (!m_is_searching)
@@ -212,7 +212,7 @@ void NodeBeamUtils::DrawSpringDampTab(ActorPtr actor)
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button(_LC("NodeBeamUtils", "Reset search"), ImVec2(280.f, 25.f)))
+    if (ImGui::Button(_LC("NodeBeamUtils", "Reset search"), ImVec2(ImGui::GetFontSize() * 17.5f, ImGui::GetFontSize() * 1.5625f)))
     {
         actor->ar_nb_initialized = false;
         m_is_searching = false;
@@ -258,7 +258,7 @@ void NodeBeamUtils::DrawCreateProjectBanner(ActorPtr actor, bool& window_open)
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
     // Draw a banner
-    const ImVec2 PAD(3, 3);
+    const ImVec2 PAD(ImGui::GetFontSize() * 0.1875f, ImGui::GetFontSize() * 0.1875f);
     ImVec2 cursor = ImGui::GetCursorScreenPos();
     ImVec2 rect_min =  cursor - PAD;
     ImVec2 rect_max = cursor + PAD + ImVec2(ImGui::GetWindowContentRegionMax().x, ImGui::GetTextLineHeightWithSpacing());
@@ -289,7 +289,7 @@ void NodeBeamUtils::DrawCreateProjectBanner(ActorPtr actor, bool& window_open)
 
         window_open = false;
     }
-    ImGui::Dummy(ImVec2(1.f, 6.f));
+    ImGui::Dummy(ImVec2(1.f, ImGui::GetFontSize() * 0.375f));
 }
 
 void NodeBeamUtils::DrawMenubar(ActorPtr actor)

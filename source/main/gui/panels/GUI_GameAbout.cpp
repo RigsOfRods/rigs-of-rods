@@ -40,7 +40,7 @@ void GameAbout::Draw()
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(ImGui::GetFontSize() * 29.6875f, ImGui::GetIO().DisplaySize.y - ImGui::GetFontSize() * 2.5f), ImGuiCond_Appearing);
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
