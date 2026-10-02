@@ -100,7 +100,6 @@ GUIManager::GUIManager()
 
     // Configure the chatbox console view
     this->ChatBox.GetConsoleView().cvw_background_color   = m_theme.semitrans_text_bg_color;
-    this->ChatBox.GetConsoleView().cvw_background_padding = m_theme.semitrans_text_bg_padding;
 }
 
 GUIManager::~GUIManager()
@@ -412,6 +411,12 @@ void GUIManager::ApplyImGuiStyle()
     style.WindowBorderSize      = 0.f;
     // Scaling
     style.ScaleAllSizes(this->GetUiScaleFactor());
+
+    // Theme sizes (relative to font size)
+    const float font_size = ImGui::GetIO().Fonts->Fonts[0]->FontSize;
+    m_theme.screen_edge_padding       = ImVec2(0.625f, 0.625f) * font_size;
+    m_theme.semitrans_text_bg_padding = ImVec2(0.25f, 0.125f) * font_size;
+    this->ChatBox.GetConsoleView().cvw_background_padding = m_theme.semitrans_text_bg_padding;
 }
 
 void GUIManager::DrawCommonGui()
