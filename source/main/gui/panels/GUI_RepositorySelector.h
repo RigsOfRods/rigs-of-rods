@@ -144,10 +144,11 @@ class BBCodeDrawingContext;
 class RepositorySelector
 {
 public:
-    const float                         ATTACH_MAX_WIDTH = 160.f;
-    const float                         ATTACH_MAX_HEIGHT = 90.f;
-    const float                         ATTACH_SPINNER_RADIUS = 20.f;
-    const ImVec2                        ATTACH_SPINNER_PADDING = ImVec2(55.f, 25.f);
+    // Sizes are relative to font size (multiply by `ImGui::GetFontSize()`)
+    const float                         ATTACH_MAX_WIDTH = 10.f;
+    const float                         ATTACH_MAX_HEIGHT = 5.625f;
+    const float                         ATTACH_SPINNER_RADIUS = 1.25f;
+    const ImVec2                        ATTACH_SPINNER_PADDING = ImVec2(3.4375f, 1.5625f);
     const ImVec4                        RESOURCE_TITLE_COLOR = ImVec4(1.f, 1.f, 0.7f, 1.f);
     const ImVec4                        RESOURCE_INSTALL_BTN_COLOR = ImVec4(0.830, 0.655, 0.174, 1.f);
 
