@@ -28,6 +28,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "DashBoardManager.h"
 #include "DiscordRpc.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
@@ -590,6 +591,13 @@ int main(int argc, char *argv[])
                     {
                         LOG(fmt::format("[RoR] Reinitializing UI (scale factor: {})", App::ui_scale_factor->getFloat()));
                         App::GetGuiManager()->ReinitUI(); // OK to invoke directly - no ImGui frame is in progress while processing messages.
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                actor->ar_dashboard->applyUiScale(); // MyGUI-based dashboards
+                            }
+                        }
                     }
                     catch (...)
                     {
