@@ -82,7 +82,7 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING * ImGui::GetFontSize());
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
     ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_BG_COLOR);
@@ -95,20 +95,20 @@ void GameMainMenu::DrawMenuPanel()
     }
     else
     {
-        const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
+        const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * ImGui::GetFontSize() * 2);
         const float window_height = (m_num_buttons*btn_height) + (m_num_buttons*ImGui::GetStyle().ItemSpacing.y) + (2*ImGui::GetStyle().WindowPadding.y); // buttons + titlebar; 2x spacing around separator
         const float margin = display_size.y / 15.f;
         const float top = display_size.y - window_height - margin;
         ImGui::SetNextWindowPos(ImVec2(margin, top));
     }
-    ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
+    ImGui::SetNextWindowContentWidth(WINDOW_WIDTH * ImGui::GetFontSize());
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (ImGui::Begin(_LC("MainMenu", title), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         this->HandleInputEvents();
 
         int button_index = 0;
-        ImVec2 btn_size(WINDOW_WIDTH, 0.f);
+        ImVec2 btn_size(WINDOW_WIDTH * ImGui::GetFontSize(), 0.f);
 
         if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
         {
@@ -278,7 +278,7 @@ void GameMainMenu::DrawNoticeBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Notice box"), nullptr, flags))
     {
-        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
         ImGui::SameLine();
         ImGui::Text("%s", cache_ntc.c_str());
         ImGui::End();

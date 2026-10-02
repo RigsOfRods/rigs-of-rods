@@ -28,8 +28,8 @@ namespace GUI {
 class TextureToolWindow
 {
 public:
-    const float LEFT_PANE_WIDTH = 200.f;
-    const float WINDOW_WIDTH = 600.f;
+    const float LEFT_PANE_WIDTH = 12.5f; //!< Relative to font size
+    const float WINDOW_WIDTH = 37.5f;    //!< Relative to font size
 
     void SetVisible(bool visible) { m_is_visible = visible; }
     bool IsVisible() const { return m_is_visible; }

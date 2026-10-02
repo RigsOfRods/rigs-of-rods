@@ -93,7 +93,7 @@ void LoadingWindow::Draw()
                    statusbar_h +
                    ImGui::GetStyle().WindowPadding.y;
 
-    ImGui::SetNextWindowSize(ImVec2(500.f, height));
+    ImGui::SetNextWindowSize(ImVec2(ImGui::GetFontSize() * 31.25f, height));
     ImGui::SetNextWindowPosCenter();
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
     ImGui::Begin(_LC("LoadingWindow", "Please wait"), nullptr, flags);
@@ -101,7 +101,7 @@ void LoadingWindow::Draw()
     
     if (m_percent == PERC_SHOW_SPINNER)
     {
-        float spinner_size = 8.f;
+        float spinner_size = ImGui::GetFontSize() * 0.5f;
         LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
     }
     else if (m_percent == PERC_HIDE_PROGRESSBAR)

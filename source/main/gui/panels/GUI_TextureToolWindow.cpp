@@ -38,7 +38,7 @@ using namespace GUI;
 void TextureToolWindow::Draw()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, 550.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH * ImGui::GetFontSize(), ImGui::GetFontSize() * 34.375f), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin(_LC("TextureToolWindow", "Texture Tool"), &m_is_visible))
     {
         ImGui::End(); // The window is collapsed
@@ -50,7 +50,7 @@ void TextureToolWindow::Draw()
 
     ImGui::Checkbox(_LC("TextureToolWindow", "Dynamic only"), &m_show_dynamic_only);
 
-    ImGui::BeginChild("texture list", ImVec2(LEFT_PANE_WIDTH, 0), true);
+    ImGui::BeginChild("texture list", ImVec2(LEFT_PANE_WIDTH * ImGui::GetFontSize(), 0), true);
     auto itor = Ogre::TextureManager::getSingleton().getResourceIterator();
     while (itor.hasMoreElements())
     {
@@ -80,7 +80,7 @@ void TextureToolWindow::Draw()
 
         // Draw the image
         float max_width = ImGui::GetWindowSize().x -
-            (LEFT_PANE_WIDTH + ImGui::GetStyle().ItemSpacing.x + 2*ImGui::GetStyle().WindowPadding.x);
+            (LEFT_PANE_WIDTH * ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x + 2*ImGui::GetStyle().WindowPadding.x);
         float max_height = ImGui::GetWindowSize().y * 0.5;
         ImVec2 size(m_display_tex->getWidth(), m_display_tex->getHeight());
         size *= max_width / size.x; // Fit size along X
