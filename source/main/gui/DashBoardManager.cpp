@@ -682,6 +682,14 @@ void DashBoardManager::windowResized()
     }
 }
 
+void DashBoardManager::applyUiScale()
+{
+    for (DashBoard* d : m_dashboards)
+    {
+        d->applyUiScale();
+    }
+}
+
 // DASHBOARD class below
 
 DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, RTTLayer* _rttLayer)
@@ -856,6 +864,7 @@ void DashBoard::update(float dt)
                 const float val = this->getSmoothNumeric(animation.linkID, animation.lastVal);
 
                 float scale = (val - animation.vmin) * (animation.wmax - animation.wmin) / (animation.vmax - animation.vmin) + animation.wmin;
+                scale *= m_ui_scale;
                 if (animation.direction == DIRECTION_UP)
                 {
                     finalVerticalTranslation -= scale;
@@ -880,6 +889,7 @@ void DashBoard::update(float dt)
                 const float val = this->getSmoothNumeric(animation.linkID, animation.lastVal);
 
                 float translation = (val - animation.vmin) * (animation.wmax - animation.wmin) / (animation.vmax - animation.vmin) + animation.wmin;
+                translation *= m_ui_scale;
                 if (animation.direction == DIRECTION_UP)
                     finalVerticalTranslation -= translation;
                 else if (animation.direction == DIRECTION_DOWN)
@@ -911,6 +921,106 @@ void DashBoard::windowResized()
     {
         MyGUI::IntSize screenSize = MyGUI::RenderManager::getInstance().getViewSize();
         mainWidget->setSize(screenSize);
+        this->applyUiScale(); // Also refreshes `initialPosition` of controls, which MyGUI just re-aligned.
+    }
+}
+
+// Scales a widget along one axis while keeping it anchored per its MyGUI alignment.
+static void ScaleDashWidgetAxis(int pos, int size, int parent_orig, int parent_new,
+    bool stretch, bool anchor_near, bool anchor_far, float scale, int& out_pos, int& out_size)
+{
+    const float far_margin = static_cast<float>(parent_orig - (pos + size));
+    if (stretch)
+    {
+        out_pos = static_cast<int>(std::round(pos * scale));
+        out_size = parent_new - out_pos - static_cast<int>(std::round(far_margin * scale));
+    }
+    else if (anchor_far)
+    {
+        out_size = static_cast<int>(std::round(size * scale));
+        out_pos = parent_new - static_cast<int>(std::round(far_margin * scale)) - out_size;
+    }
+    else if (anchor_near)
+    {
+        out_pos = static_cast<int>(std::round(pos * scale));
+        out_size = static_cast<int>(std::round(size * scale));
+    }
+    else // center
+    {
+        const float center_offset = (pos + size / 2.f) - (parent_orig / 2.f);
+        out_size = static_cast<int>(std::round(size * scale));
+        out_pos = static_cast<int>(std::round((parent_new / 2.f) + (center_offset * scale) - (out_size / 2.f)));
+    }
+}
+
+void DashBoard::snapshotWidgetOriginsRecursive(MyGUI::Widget* parent)
+{
+    MyGUI::EnumeratorWidgetPtr e = parent->getEnumerator();
+    while (e.next())
+    {
+        MyGUI::Widget* w = e.current();
+        WidgetOrigin origin;
+        origin.coord = w->getCoord();
+        MyGUI::TextBox* txt = w->castType<MyGUI::TextBox>(/* _throw: */ false);
+        if (txt)
+        {
+            origin.font_height = txt->getFontHeight();
+        }
+        m_widget_origins[w] = origin;
+        this->snapshotWidgetOriginsRecursive(w);
+    }
+}
+
+void DashBoard::applyUiScaleRecursive(MyGUI::Widget* parent, MyGUI::IntSize parent_orig_size, MyGUI::IntSize parent_new_size)
+{
+    MyGUI::EnumeratorWidgetPtr e = parent->getEnumerator();
+    while (e.next())
+    {
+        MyGUI::Widget* w = e.current();
+        auto itor = m_widget_origins.find(w);
+        if (itor == m_widget_origins.end())
+        {
+            continue;
+        }
+        const WidgetOrigin& origin = itor->second;
+        const MyGUI::Align align = w->getAlign();
+
+        // NOTE: Setting parent coords makes MyGUI re-align the children, but we overwrite their coords right after.
+        MyGUI::IntCoord coord;
+        ScaleDashWidgetAxis(origin.coord.left, origin.coord.width, parent_orig_size.width, parent_new_size.width,
+            align.isHStretch(), align.isLeft(), align.isRight(), m_ui_scale, coord.left, coord.width);
+        ScaleDashWidgetAxis(origin.coord.top, origin.coord.height, parent_orig_size.height, parent_new_size.height,
+            align.isVStretch(), align.isTop(), align.isBottom(), m_ui_scale, coord.top, coord.height);
+        w->setCoord(coord);
+
+        if (origin.font_height > 0)
+        {
+            w->castType<MyGUI::TextBox>()->setFontHeight(static_cast<int>(std::round(origin.font_height * m_ui_scale)));
+        }
+
+        this->applyUiScaleRecursive(w, origin.coord.size(), coord.size());
+    }
+}
+
+void DashBoard::applyUiScale()
+{
+    if (m_widget_origins.empty())
+    {
+        return; // Not loaded yet, or rendered to texture (independent of screen).
+    }
+
+    m_ui_scale = App::GetGuiManager()->GetUiScaleFactor();
+    this->applyUiScaleRecursive(mainWidget, m_main_origin_size, mainWidget->getSize());
+
+    // Update control data derived from widget coords
+    for (layoutLink_t& ctrl : controls)
+    {
+        ctrl.initialSize = ctrl.widget->getSize();
+        ctrl.initialPosition = ctrl.widget->getPosition();
+        if (ctrl.rotImg)
+        {
+            ctrl.rotImg->setCenter(MyGUI::IntPoint(ctrl.widget->getWidth() * 0.5f, ctrl.widget->getHeight() * 0.5f));
+        }
     }
 }
 
@@ -1360,6 +1470,13 @@ void DashBoard::loadLayoutInternal()
     {
         // NOTE: this confusingly named MyGUI function actually attaches the widget to the `rttLayer` (which means detaching from previous hierarchy, that's what the name is trying to say).
         mainWidget->detachFromWidget(rttLayer->getName());
+    }
+    else if (mainWidget)
+    {
+        // Screen dashboard - scale it with the rest of the UI
+        m_main_origin_size = mainWidget->getSize();
+        this->snapshotWidgetOriginsRecursive(mainWidget);
+        this->applyUiScale();
     }
 }
 
