@@ -410,7 +410,7 @@ void RepositorySelector::Draw()
     ImGui::Begin(_LC("RepositorySelector", "Rigs of Rods Repository"), &keep_open, window_flags);
 
     if (m_resourceview_item_arraypos != RESOURCEITEMARRAYPOS_INVALID
-        && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(16, 16)))
+        && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize())))
     {
         if (m_gallery_mode_attachment_id != -1)
         {
@@ -422,7 +422,7 @@ void RepositorySelector::Draw()
         }
     }
     else if (m_resourceview_item_arraypos == RESOURCEITEMARRAYPOS_INVALID
-        && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
+        && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize())))
     {
         this->Refresh();
     }
@@ -439,9 +439,9 @@ void RepositorySelector::Draw()
 
         // Category dropdown
         ImGui::SetNextItemWidth(ImGui::GetWindowSize().x
-            - 16   // refresh button width
-            - 170  // search box width
-            - 2*80 // sort + view menu width
+            - ImGui::GetFontSize()            // refresh button width
+            - ImGui::GetFontSize() * 10.625f  // search box width
+            - 2*ImGui::GetFontSize() * 5.f    // sort + view menu width
             - 6*ImGui::GetStyle().ItemSpacing.x
             - 2*ImGui::GetStyle().WindowPadding.x);
 
@@ -499,13 +499,13 @@ void RepositorySelector::Draw()
         // Search box
         ImGui::SameLine();
         float searchbox_x = ImGui::GetCursorPosX();
-        ImGui::SetNextItemWidth(170);
+        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.625f);
         float search_pos = ImGui::GetCursorPosX();
         ImGui::InputText("##Search", m_search_input.GetBuffer(), m_search_input.GetCapacity());
 
         // Sort dropdown
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(80);
+        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.f);
 
         if (ImGui::BeginCombo("##repo-selector-sort", _LC("RepositorySelector", "Sort")))
         {
@@ -544,7 +544,7 @@ void RepositorySelector::Draw()
 
         // View mode dropdown
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(80);
+        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.f);
 
         if (ImGui::BeginCombo("##repo-selector-view", _LC("RepositorySelector", "View")))
         {
@@ -628,7 +628,7 @@ void RepositorySelector::Draw()
             if (m_view_mode == "List")
             {
                 ImGui::Columns(2, "repo-selector-columns");
-                ImGui::SetColumnWidth(0, 100.f);
+                ImGui::SetColumnWidth(0, ImGui::GetFontSize() * 6.25f);
                 ImGui::Separator();
             }
             else if (m_view_mode == "Basic")
@@ -680,13 +680,13 @@ void RepositorySelector::Draw()
                     {
                         // Thumbnail
                         ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-                        const ImVec2 thumb_size = ImVec2(ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x, 96);
+                        const ImVec2 thumb_size = ImVec2(ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x, ImGui::GetFontSize() * 6.f);
                         const float spinner_size = ImGui::GetColumnWidth() / 4;
                         const float spinner_cursor_x(((ImGui::GetColumnWidth() - ImGui::GetStyle().ItemSpacing.x) / 2.f) - spinner_size);
                         const float spinner_cursor_y(ImGui::GetCursorPosY() + 5 * ImGui::GetStyle().ItemSpacing.y);
                         this->DrawThumbnail(i, thumb_size, spinner_size, ImVec2(spinner_cursor_x, spinner_cursor_y));
 
-                        float width = (ImGui::GetColumnWidth() + 90);
+                        float width = (ImGui::GetColumnWidth() + ImGui::GetFontSize() * 5.625f);
                         ImGui::NextColumn();
 
                         // Columns already colored, just add a light background
@@ -698,7 +698,7 @@ void RepositorySelector::Draw()
                         float orig_cursor_y = ImGui::GetCursorPosY();
                         std::string item_id = "##" + std::to_string(i);
 
-                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, 0, ImVec2(0, 100)))
+                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, 0, ImVec2(0, ImGui::GetFontSize() * 6.25f)))
                         {
                             m_resourceview_item_arraypos = i;
                             this->OpenResource(m_data.items[i].resource_id);
@@ -716,16 +716,16 @@ void RepositorySelector::Draw()
                         for (int i = 1; i <= 5; i++)
                         {
                             ImGui::SameLine();
-                            ImGui::SetCursorPosX(ImGui::GetColumnWidth() + 16 * i);
-                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
+                            ImGui::SetCursorPosX(ImGui::GetColumnWidth() + ImGui::GetFontSize() * i);
+                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
                         }
 
                         int rating = round(m_data.items[i].rating_avg);
                         for (int i = 1; i <= rating; i++)
                         {
                             ImGui::SameLine();
-                            ImGui::SetCursorPosX(ImGui::GetColumnWidth() + 16 * i);
-                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16));
+                            ImGui::SetCursorPosX(ImGui::GetColumnWidth() + ImGui::GetFontSize() * i);
+                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
                         }
 
                         // Authors, rating count, last update, download count, description
@@ -736,7 +736,7 @@ void RepositorySelector::Draw()
 
                         ImGui::SameLine();
                         std::string rc = std::to_string(m_data.items[i].rating_count) + " ratings";
-                        ImGui::SetCursorPosX(ImGui::GetColumnWidth() - (ImGui::CalcTextSize(rc.c_str()).x / 2) + 16 * 3.5);
+                        ImGui::SetCursorPosX(ImGui::GetColumnWidth() - (ImGui::CalcTextSize(rc.c_str()).x / 2) + ImGui::GetFontSize() * 3.5f);
                         ImGui::TextDisabled("%s", rc.c_str());
 
                         ImGui::TextDisabled("%s:", _LC("RepositorySelector", "Last Update"));
@@ -790,7 +790,7 @@ void RepositorySelector::Draw()
                         float orig_cursor_y = ImGui::GetCursorPosY();
                         std::string item_id = "##" + std::to_string(i);
 
-                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, 0, ImVec2(box_width - ImGui::GetStyle().ItemSpacing.x, 100)))
+                        if (ImGui::Selectable(item_id.c_str(), /*selected:*/false, 0, ImVec2(box_width - ImGui::GetStyle().ItemSpacing.x, ImGui::GetFontSize() * 6.25f)))
                         {
                             m_resourceview_item_arraypos = i;
                             this->OpenResource(m_data.items[i].resource_id);
@@ -805,14 +805,14 @@ void RepositorySelector::Draw()
                         ImGui::PopStyleColor(3);
 
                         // Thumbnail
-                        const ImVec2 thumbnail_size(76, 86);
-                        const float spinner_size = 25;
+                        const ImVec2 thumbnail_size(ImGui::GetFontSize() * 4.75f, ImGui::GetFontSize() * 5.375f);
+                        const float spinner_size = ImGui::GetFontSize() * 1.5625f;
                         const float spinner_cursor_x(ImGui::GetCursorPosX() + 2 * ImGui::GetStyle().ItemSpacing.x);
-                        const float spinner_cursor_y(ImGui::GetCursorPosY() + 20);
+                        const float spinner_cursor_y(ImGui::GetCursorPosY() + ImGui::GetFontSize() * 1.25f);
                         this->DrawThumbnail(i, thumbnail_size, spinner_size, ImVec2(spinner_cursor_x, spinner_cursor_y));
                         if (!m_data.items[i].preview_tex)
                         {
-                            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 76 - (35 + spinner_size)); //adjustment after spinner
+                            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetFontSize() * 4.75f - (ImGui::GetFontSize() * 2.1875f + spinner_size)); //adjustment after spinner
                         }
 
                         // Rating
@@ -820,7 +820,7 @@ void RepositorySelector::Draw()
                         for (int i = 1; i <= 5; i++)
                         {
                             pos_y = ImGui::GetCursorPosY();
-                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(11, 11), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
+                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize() * 0.6875f, ImGui::GetFontSize() * 0.6875f), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
                             if (i < 5) { ImGui::SameLine(); }
                         }
 
@@ -830,14 +830,14 @@ void RepositorySelector::Draw()
                             for (int i = 1; i <= rating; i++)
                             {
                                 ImGui::SetCursorPosY(pos_y);
-                                ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(11, 11));
+                                ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize() * 0.6875f, ImGui::GetFontSize() * 0.6875f));
                                 if (i < rating) { ImGui::SameLine(); }
                             }
                         }
 
                         // Move text top right of the image
-                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
-                        ImGui::SetCursorPosY(ImGui::GetCursorPos().y - 100);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + ImGui::GetFontSize() * 5.375f);
+                        ImGui::SetCursorPosY(ImGui::GetCursorPos().y - ImGui::GetFontSize() * 6.25f);
 
                         // Trim the title, can be long
                         std::string tl = m_data.items[i].title;
@@ -850,14 +850,14 @@ void RepositorySelector::Draw()
                         // Title, version, last update, download count
                         ImGui::Text("%s", tl.c_str());
 
-                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + ImGui::GetFontSize() * 5.375f);
                         ImGui::TextColored(theme.value_blue_text_color, "%s %s", _LC("RepositorySelector", "Version"), m_data.items[i].version.c_str());
 
-                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + ImGui::GetFontSize() * 5.375f);
                         time_t rawtime = (const time_t)m_data.items[i].last_update;
                         ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime(&rawtime)));
 
-                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + 86);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPos().x + ImGui::GetFontSize() * 5.375f);
                         ImGui::TextColored(theme.value_blue_text_color, "%s %d %s", _LC("RepositorySelector", "Downloaded"), m_data.items[i].download_count, _LC("RepositorySelector", "times"));
 
                         // Add space for next item
@@ -910,8 +910,8 @@ void RepositorySelector::Draw()
                         // Rating
                         for (int i = 1; i <= 5; i++)
                         {
-                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
-                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 16 * i);
+                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), ImVec4(1.f, 1.f, 1.f, 0.2f));
+                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetFontSize() * i);
                             ImGui::SameLine();
                         }
                         ImGui::SetCursorPosX(pos_x);
@@ -919,8 +919,8 @@ void RepositorySelector::Draw()
                         int rating = round(m_data.items[i].rating_avg);
                         for (int i = 1; i <= rating; i++)
                         {
-                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16));
-                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 16 * i);
+                            ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
+                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetFontSize() * i);
                             ImGui::SameLine();
                         }
 
@@ -940,7 +940,7 @@ void RepositorySelector::Draw()
 
     if (m_show_spinner)
     {
-        float spinner_size = 27.f;
+        float spinner_size = ImGui::GetFontSize() * 1.6875f;
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
         ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - spinner_size);
         LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
@@ -1046,8 +1046,8 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     Ogre::TexturePtr tex4 = FetchIcon("arrow_left.png");
     ResourceItem& selected_item = m_data.items[m_resourceview_item_arraypos];
 
-    const float INFOBAR_HEIGHT = 100.f;
-    const float INFOBAR_SPACING_LEFTSIDE = 2.f;
+    const float INFOBAR_HEIGHT = ImGui::GetFontSize() * 6.25f;
+    const float INFOBAR_SPACING_LEFTSIDE = ImGui::GetFontSize() * 0.125f;
 
     // --- top info bar, left side ---
 
@@ -1055,7 +1055,7 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     ImVec2 leftmost_cursor = ImGui::GetCursorPos();
     float left_pane_width = searchbox_x - (leftmost_cursor.x + ImGui::GetStyle().ItemSpacing.x);
     ImVec2 backdrop_size = ImVec2(left_pane_width, INFOBAR_HEIGHT + ImGui::GetStyle().WindowPadding.y * 2);
-    ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + backdrop_size, ImColor(0.f, 0.f, 0.f, 0.5f), /*rounding:*/5.f);
+    ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + backdrop_size, ImColor(0.f, 0.f, 0.f, 0.5f), /*rounding:*/ImGui::GetFontSize() * 0.3125f);
     ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().WindowPadding);
 
     // The thumbnail again (like on web repo)
@@ -1125,12 +1125,12 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     int rating = round(selected_item.rating_avg);
     for (int i = 1; i <= 5; i++)
     {
-        ImGui::SetCursorPosX(stars_cursor.x + 16 * (i-1));
+        ImGui::SetCursorPosX(stars_cursor.x + ImGui::GetFontSize() * (i-1));
         ImVec4 tint_color = (i <= rating) ? ImVec4(1, 1, 1, 1) : ImVec4(1.f, 1.f, 1.f, 0.2f);
-        ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), tint_color);
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f), tint_color);
         ImGui::SameLine();
     }
-    ImGui::SetCursorPosX(stars_cursor.x + 16 * 5 + ImGui::GetStyle().ItemSpacing.x);
+    ImGui::SetCursorPosX(stars_cursor.x + ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x);
     ImGui::TextDisabled("(%s", _LC("RepositorySelector", "Rating Count:"));
     ImGui::SameLine();
     ImGui::TextColored(theme.value_blue_text_color, "%d", selected_item.rating_count);
@@ -1172,8 +1172,8 @@ void RepositorySelector::DrawResourceView(float searchbox_x)
     else if (m_data.files.empty())
     {
         // Downloading in progress - show spinner (centered)
-        float spinner_radius = 25.f;
-        ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(ImGui::GetContentRegionAvailWidth() / 2 - spinner_radius, 200.f));
+        float spinner_radius = ImGui::GetFontSize() * 1.5625f;
+        ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(ImGui::GetContentRegionAvailWidth() / 2 - spinner_radius, ImGui::GetFontSize() * 12.5f));
         LoadingIndicatorCircle("spinner", spinner_radius, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
     }
     else
@@ -1261,8 +1261,8 @@ void RepositorySelector::DrawResourceViewRightColumn()
         if (is_installed)
         {
             ImGui::SameLine();
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
-            ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16));
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetFontSize() * 0.21875f);
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
         }
 
         // Buttons (new line)
@@ -1289,7 +1289,7 @@ void RepositorySelector::DrawResourceViewRightColumn()
 
             ImGui::PushStyleColor(ImGuiCol_Button, btn_color);
             ImGui::PushStyleColor(ImGuiCol_Text, text_color);
-            if (ImGui::Button(btn_label.c_str(), ImVec2(100, 0)))
+            if (ImGui::Button(btn_label.c_str(), ImVec2(ImGui::GetFontSize() * 6.25f, 0)))
             {
                 this->RequestInstallRepoFile(selected_item.resource_id, i, file);
             }
@@ -1299,7 +1299,7 @@ void RepositorySelector::DrawResourceViewRightColumn()
         {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            ImGui::Button(_LC("RepositorySelector", "Install"), ImVec2(100, 0));
+            ImGui::Button(_LC("RepositorySelector", "Install"), ImVec2(ImGui::GetFontSize() * 6.25f, 0));
             ImGui::PopItemFlag();
             ImGui::PopStyleVar();
         }
@@ -1307,7 +1307,7 @@ void RepositorySelector::DrawResourceViewRightColumn()
         if (is_installed)
         {
             ImGui::SameLine();
-            if (ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0)))
+            if (ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(ImGui::GetFontSize() * 6.25f, 0)))
             {
                 // Request modcache to remove this file - this will also despawn any actors using it.
                 App::GetGameContext()->PushMessage(Message(MSG_EDI_DELETE_BUNDLE_REQUESTED, m_data.files[i].filename));
@@ -1318,7 +1318,7 @@ void RepositorySelector::DrawResourceViewRightColumn()
             ImGui::SameLine();
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
+            ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(ImGui::GetFontSize() * 6.25f, 0));
             ImGui::PopItemFlag();
             ImGui::PopStyleVar();
         }
@@ -1828,10 +1828,12 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
         // Attachment image is already downloaded - draw it.
         Ogre::TexturePtr& tex = itor->second;
         // Scale down and maintain ratio.
-        float img_scale = ATTACH_MAX_WIDTH / tex->getWidth();
-        if (tex->getHeight() * img_scale > ATTACH_MAX_HEIGHT)
+        const float max_width = ATTACH_MAX_WIDTH * ImGui::GetFontSize();
+        const float max_height = ATTACH_MAX_HEIGHT * ImGui::GetFontSize();
+        float img_scale = max_width / tex->getWidth();
+        if (tex->getHeight() * img_scale > max_height)
         {
-            img_scale = ATTACH_MAX_HEIGHT / tex->getHeight();
+            img_scale = max_height / tex->getHeight();
         }
         ImVec2 img_size(tex->getWidth() * img_scale, tex->getHeight() * img_scale);
         // Update feeder to account the image
@@ -1858,14 +1860,16 @@ void RepositorySelector::DrawAttachment(BBCodeDrawingContext* context, int attac
     else
     {
         // Attachment image is not downloaded yet - draw spinner
-        ImVec2 spinnerbox_size = (ATTACH_SPINNER_PADDING + ImVec2(ATTACH_SPINNER_RADIUS, ATTACH_SPINNER_RADIUS)) * 2.f;
+        const ImVec2 spinner_padding = ATTACH_SPINNER_PADDING * ImGui::GetFontSize();
+        const float spinner_radius = ATTACH_SPINNER_RADIUS * ImGui::GetFontSize();
+        ImVec2 spinnerbox_size = (spinner_padding + ImVec2(spinner_radius, spinner_radius)) * 2.f;
         // Update feeder to account the spinner
         ImVec2 spinnerbox_min;
         context->m_feeder.AddRectWrapped(spinnerbox_size, ImGui::GetStyle().ItemSpacing, context->m_wrap_width, /* [out] */ spinnerbox_min);
         // Draw the spinner body
         ImVec2 backup_screenpos = ImGui::GetCursorScreenPos();
-        ImGui::SetCursorScreenPos(spinnerbox_min + ATTACH_SPINNER_PADDING);
-        LoadingIndicatorCircle("spinner", ATTACH_SPINNER_RADIUS, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+        ImGui::SetCursorScreenPos(spinnerbox_min + spinner_padding);
+        LoadingIndicatorCircle("spinner", spinner_radius, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
         ImGui::SetCursorScreenPos(backup_screenpos);
     }
 }
