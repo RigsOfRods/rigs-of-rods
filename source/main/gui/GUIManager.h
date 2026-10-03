@@ -190,6 +190,7 @@ private:
     bool                 m_gui_kb_capture_requested = false; //!< Effective value, persistent
     Ogre::Timer          m_last_mousemove_time;
     bool                 m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
+    float                m_active_ui_scale_factor = 1.f;     //!< Last applied value of cvar 'ui_scale_factor', clamped to sane range.
 };
 
 } // namespace RoR
