@@ -578,6 +578,9 @@ static CameraMode_t CAMERA_MODE_ALWAYS_HIDDEN = -3;
 static CameraMode_t CAMERA_MODE_ALWAYS_VISIBLE = -2;
 static CameraMode_t CAMERA_MODE_3RDPERSON_ONLY = -1;
 
+static const float UI_SCALE_FACTOR_MIN = 1.f; // For some reason scale <1.f hides mouse pointer.
+static const float UI_SCALE_FACTOR_MAX = 4.f;
+
 enum class TObjSpecialObject
 {
     // Exported to AngelScript:

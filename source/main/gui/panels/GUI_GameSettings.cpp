@@ -371,6 +371,8 @@ void GameSettings::DrawUiSettings()
     this->DrawUiDefaultDashboard(m_ui_known_dash_truck, App::ui_default_truck_dash, CID_DashboardsTruck, _LC("GameSettings", "Default truck dashboard"));
     this->DrawUiDefaultDashboard(m_ui_known_dash_boat, App::ui_default_boat_dash, CID_DashboardsBoat, _LC("GameSettings", "Default boat dashboard"));
 
+    this->DrawUiScaleSlider();
+
     DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
 
     DrawGCheckbox(App::ui_dashboard_cinecam, _LC("GameSettings", "Hide dashboard in cinecam view"));
@@ -380,14 +382,6 @@ void GameSettings::DrawUiSettings()
     DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
 
     DrawGCheckbox(App::ui_always_show_fullsize, _LC("GameSettings", "Always show full size help image"));
-
-    const float ui_scale_factor_old = App::ui_scale_factor->getFloat();
-    DrawGFloatBox(App::ui_scale_factor, _LC("GameSettings", "UI scale factor"));
-    if (ui_scale_factor_old != App::ui_scale_factor->getFloat())
-    {
-        App::GetGameContext()->PushMessage(Message(MSG_APP_REINIT_UI_REQUESTED));
-    }
-
 
     DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
     if (App::gfx_surveymap_icons->getBool())
@@ -557,6 +551,9 @@ void GameSettings::SetVisible(bool v)
     {
         App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
+
+    // Initialize temp values
+    m_ui_scale_slider_temp = App::ui_scale_factor->getFloat();
 
     // Pre-format combobox strings.
     if (m_combo_items_gearbox_mode == "")
@@ -734,4 +731,17 @@ void GameSettings::DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, Cach
     }
     ImGui::SameLine();
     ImGui::Text("%s", label.c_str());
+}
+
+void GameSettings::DrawUiScaleSlider()
+{
+    ImGui::SetNextItemWidth(UI_SELECTOR_WIDTH * ImGui::GetFontSize());
+    ImGui::SliderFloat(_LC("GameSettings", "UI scale factor"), 
+        &m_ui_scale_slider_temp, UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX, "%.2f");
+    // Reinit UI on slider release
+    if (!ImGui::IsItemActive() && m_ui_scale_slider_temp != App::ui_scale_factor->getFloat())
+    {
+        App::ui_scale_factor->setVal(m_ui_scale_slider_temp);
+        App::GetGameContext()->PushMessage(Message(MSG_APP_REINIT_UI_REQUESTED));
+    }
 }

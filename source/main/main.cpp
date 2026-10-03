@@ -589,6 +589,13 @@ int main(int argc, char *argv[])
                 {
                     try
                     {
+                        float ui_scale_clamped = Ogre::Math::Clamp(App::ui_scale_factor->getFloat(), UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX);
+                        if (App::ui_scale_factor->getFloat() != ui_scale_clamped)
+                        {
+                            LOG(fmt::format("[RoR] Invalid value of 'ui_scale_factor' ({}), clamping to bounds <{}, {}>",
+                                App::ui_scale_factor->getFloat(), UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX));
+                            App::ui_scale_factor->setVal(ui_scale_clamped);
+                        }
                         LOG(fmt::format("[RoR] Reinitializing UI (scale factor: {})", App::ui_scale_factor->getFloat()));
                         App::GetGuiManager()->ReinitUI(); // OK to invoke directly - no ImGui frame is in progress while processing messages.
                         if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
