@@ -45,6 +45,8 @@
 #include <OgreOverlayContainer.h>
 #include <OgreOverlayManager.h>
 
+#include <imgui_internal.h>
+
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 
 using namespace RoR;
@@ -345,7 +347,7 @@ void GUIManager::SetupImGui()
 {
     m_imgui.Init(this->GetUiScaleFactor());
     this->ApplyImGuiStyle();
-
+    m_active_ui_scale_factor = this->GetUiScaleFactor();
     App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
 }
 
@@ -353,11 +355,23 @@ void GUIManager::ReinitUI()
 {
     m_imgui.ReloadFonts(this->GetUiScaleFactor());
     this->ApplyImGuiStyle();
+
+    // Resize imgui windows using <imgui_internal.h>
+    float resize_ratio = this->GetUiScaleFactor() / m_active_ui_scale_factor;
+    m_active_ui_scale_factor = this->GetUiScaleFactor();
+    for (ImGuiWindow* window: ImGui::GetCurrentContext()->Windows)
+    {
+        if (!(window->Flags & ImGuiWindowFlags_AlwaysAutoResize) && !(window->Flags & ImGuiWindowFlags_ChildWindow))
+        {
+            const ImVec2 oldsize = window->SizeFull;
+            ImGui::SetWindowSize(window, ImVec2(oldsize.x * resize_ratio, oldsize.y * resize_ratio));
+        }
+    }
 }
 
 float GUIManager::GetUiScaleFactor() const
 {
-    return Ogre::Math::Clamp(App::ui_scale_factor->getFloat(), 0.5f, 4.f);
+    return Ogre::Math::Clamp(App::ui_scale_factor->getFloat(), UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX);
 }
 
 void GUIManager::ApplyImGuiStyle()
