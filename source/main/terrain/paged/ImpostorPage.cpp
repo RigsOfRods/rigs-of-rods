@@ -234,14 +234,14 @@ void ImpostorPage::update()
 
 void ImpostorPage::regenerate(Entity *ent)
 {
-	ImpostorTexture *tex = ImpostorTexture::getTexture(NULL, ent);
+	ImpostorTexture *tex = ImpostorTexManager::getTexture(NULL, ent);
 	if (tex != NULL)
 		tex->regenerate();
 }
 
 void ImpostorPage::regenerateAll()
 {
-	ImpostorTexture::regenerateAll();
+	ImpostorTexManager::regenerateAll();
 }
 
 
@@ -253,7 +253,7 @@ ImpostorBatch::ImpostorBatch(ImpostorPage *group, Entity *entity) :
 m_pTexture  (NULL)
 {
 	// Render impostor texture for this entity
-	m_pTexture = ImpostorTexture::getTexture(group, entity);
+	m_pTexture = ImpostorTexManager::getTexture(group, entity);
 	
 	//Create billboard set
    PagedGeometry *pg = group->getParentPagedGeometry();
@@ -277,7 +277,7 @@ ImpostorBatch::~ImpostorBatch()
 	delete bbset;
 
 	// Delete texture
-	ImpostorTexture::removeTexture(m_pTexture);
+	ImpostorTexManager::removeTexture(m_pTexture);
 }
 
 //Returns a pointer to an ImpostorBatch for the specified entity in the specified
@@ -367,8 +367,8 @@ void ImpostorTexture::loadResource (Ogre::Resource *resource)
 //-------------------------------------------------------------------------------------
 
 
-std::map<String, ImpostorTexture *> ImpostorTexture::selfList;
-unsigned long ImpostorTexture::GUID = 0;
+std::map<String, ImpostorTexture *> ImpostorTexManager::ImpostorTexManager::texList;
+unsigned long ImpostorTexManager::GUID = 0;
 
 //Do not use this constructor yourself - instead, call getTexture()
 //to get/create an ImpostorTexture for an Entity.
@@ -382,7 +382,7 @@ ImpostorTexture::ImpostorTexture(ImpostorPage *group, Entity *entity)
 	//Add self to list of ImpostorTexture's
 	entityKey = ImpostorBatch::generateEntityKey(entity);
 	typedef std::pair<String, ImpostorTexture *> ListItem;
-	selfList.insert(ListItem(entityKey, this));
+	ImpostorTexManager::texList.insert(ListItem(entityKey, this));
 	
 	//Calculate the entity's bounding box and it's diameter
 	boundingBox = entity->getBoundingBox();
@@ -397,7 +397,7 @@ ImpostorTexture::ImpostorTexture(ImpostorPage *group, Entity *entity)
 	//Set up materials
 	for (int o = 0; o < IMPOSTOR_YAW_ANGLES; ++o){
 	for (int i = 0; i < IMPOSTOR_PITCH_ANGLES; ++i){
-		material[i][o] = MaterialManager::getSingleton().create(getUniqueID("ImpostorMaterial"), "Impostors");
+		material[i][o] = MaterialManager::getSingleton().create(ImpostorTexManager::getUniqueID("ImpostorMaterial"), "Impostors");
 
 		Material *m = material[i][o].get();
 		Pass *p = m->getTechnique(0)->getPass(0);
@@ -452,7 +452,7 @@ ImpostorTexture::~ImpostorTexture()
 	}
 	
 	//Remove self from list of ImpostorTexture's
-	selfList.erase(entityKey);
+	ImpostorTexManager::texList.erase(entityKey);
 }
 
 void ImpostorTexture::regenerate()
@@ -464,10 +464,10 @@ void ImpostorTexture::regenerate()
 	updateMaterials();
 }
 
-void ImpostorTexture::regenerateAll()
+void ImpostorTexManager::regenerateAll()
 {
 	std::map<String, ImpostorTexture *>::iterator iter;
-	for (iter = selfList.begin(); iter != selfList.end(); ++iter){
+	for (iter = ImpostorTexManager::texList.begin(); iter != ImpostorTexManager::texList.end(); ++iter){
 		iter->second->regenerate();
 	}
 }
@@ -491,7 +491,7 @@ void ImpostorTexture::renderTextures(bool force)
    Ogre::uint textureSize = ImpostorPage::getImpostorResolution();
 	if (!renderTexture)
    {
-	renderTexture = TextureManager::getSingleton().createManual(getUniqueID("ImpostorTexture"), "Impostors",
+	renderTexture = TextureManager::getSingleton().createManual(ImpostorTexManager::getUniqueID("ImpostorTexture"), "Impostors",
 				TEX_TYPE_2D, textureSize * IMPOSTOR_YAW_ANGLES, textureSize * IMPOSTOR_PITCH_ANGLES, 0, PF_BYTE_RGBA, TU_RENDERTARGET, loader);
 	}
 	renderTexture->setNumMipmaps(MIP_UNLIMITED);
@@ -502,7 +502,7 @@ void ImpostorTexture::renderTextures(bool force)
 	
 	//Set up camera
 	camNode = sceneMgr->getSceneNode("ImpostorPage::cameraNode");
-	renderCamera = sceneMgr->createCamera(getUniqueID("ImpostorCam"));
+	renderCamera = sceneMgr->createCamera(ImpostorTexManager::getUniqueID("ImpostorCam"));
 	camNode->attachObject(renderCamera);
 	renderCamera->setLodBias(1000.0f);
 	renderViewport = renderTarget->addViewport(renderCamera);
@@ -659,11 +659,11 @@ void ImpostorTexture::renderTextures(bool force)
 #endif
 }
 
-void ImpostorTexture::removeTexture(ImpostorTexture* Texture)
+void ImpostorTexManager::removeTexture(ImpostorTexture* Texture)
 {
 	//Search for an existing impostor texture, in case it was already deleted
-	for(std::map<String, ImpostorTexture *>::iterator iter=selfList.begin();
-		iter!=selfList.end(); ++iter)
+	for(std::map<String, ImpostorTexture *>::iterator iter=ImpostorTexManager::texList.begin();
+		iter!=ImpostorTexManager::texList.end(); ++iter)
 	{
 		if(iter->second==Texture)
 		{
@@ -674,15 +674,14 @@ void ImpostorTexture::removeTexture(ImpostorTexture* Texture)
 	// no need to anything if it was not found, chances are that it was already deleted
 }
 
-ImpostorTexture *ImpostorTexture::getTexture(ImpostorPage *group, Entity *entity)
+ImpostorTexture *ImpostorTexManager::getTexture(ImpostorPage *group, Entity *entity)
 {
 	//Search for an existing impostor texture for the given entity
 	String entityKey = ImpostorBatch::generateEntityKey(entity);
-	std::map<String, ImpostorTexture *>::iterator iter;
-	iter = selfList.find(entityKey);
+	auto iter = ImpostorTexManager::texList.find(entityKey);
 	
 	//If found..
-	if (iter != selfList.end()){
+	if (iter != ImpostorTexManager::texList.end()){
 		//Return it
 		return iter->second;		
 	} else {

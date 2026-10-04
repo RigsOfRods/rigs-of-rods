@@ -310,24 +310,15 @@ namespace Forests
    {
       friend class ImpostorBatch;
       friend class ImpostorTextureResourceLoader;
+      friend class ImpostorTexManager;
 
       /// Responsible for making sure that the texture is rerendered when the
       /// texture resource needs to be reloaded.
       void loadResource (Ogre::Resource *resource) override;
    public:
-      /** Returns a pointer to an ImpostorTexture for the specified entity. If one does not
-      already exist, one will automatically be created.
-      */
-      static ImpostorTexture *getTexture(ImpostorPage *group, Ogre::Entity *entity);
-
-      /** remove created texture, note that all of the ImposterTextures
-      must be deleted at once, because there is no track if a texture is still
-      being used by something else
-      */
-      static void removeTexture(ImpostorTexture* Texture);
 
       void regenerate();
-      static void regenerateAll();
+      
 
       ~ImpostorTexture();
 
@@ -337,7 +328,7 @@ namespace Forests
       void renderTextures(bool force);	// Renders the impostor texture grid
       void updateMaterials();				// Updates the materials to use the latest rendered impostor texture grid
 
-      static std::map<Ogre::String, ImpostorTexture *> selfList;
+      
       Ogre::SceneManager *sceneMgr;
       Ogre::Entity *entity;
       Ogre::String entityKey;
@@ -351,12 +342,34 @@ namespace Forests
       Ogre::Real entityDiameter, entityRadius;
       Ogre::Vector3 entityCenter;
 
-      static unsigned long GUID;
-      static inline Ogre::String getUniqueID(const Ogre::String &prefix)
-      {
-         return prefix + Ogre::StringConverter::toString(++GUID);
-      }
+
    };
+
+    // RIGSOFRODS: Factored out from `ImpostorTexture` to reduce confusion.
+    class ImpostorTexManager
+    {
+    public:
+        /** Returns a pointer to an ImpostorTexture for the specified entity. If one does not
+        already exist, one will automatically be created.
+        */
+        static ImpostorTexture *getTexture(ImpostorPage *group, Ogre::Entity *entity);
+
+        /** remove created texture, note that all of the ImposterTextures
+        must be deleted at once, because there is no track if a texture is still
+        being used by something else
+        */
+        static void removeTexture(ImpostorTexture* Texture);
+
+        static void regenerateAll();
+
+        static inline Ogre::String getUniqueID(const Ogre::String &prefix)
+        {
+            return prefix + Ogre::StringConverter::toString(++GUID);
+        }
+
+        static std::map<Ogre::String, ImpostorTexture *> texList;
+        static unsigned long GUID;
+    };
 
 
 
