@@ -621,65 +621,6 @@ public:
 	/** INTERNAL FUNCTION - DO NOT USE */
 	Ogre::Vector3 _convertToLocal(const Ogre::Vector3 &globalVec) const;
 
-	/**
-	\brief Sets or creates a custom parameter for an entity managed by PagedGeometry
-	This can be used to set custom parameters / data for entities which can be accessed
-	from other PagedGeometry subsystems or your own code. Primarily, this is intended
-	for use with GeometryPage implementations or PageLoader implementations.
-
-	PagedGeometry includes a GeometryPage implementation, "WindBatchPage", which applies
-	a wind animation shader to your trees, which you can control using these custom
-	parameters: windFactorX and windFactorY.
-
-	If you're using 3rd party PagedGeometry "plugins" like GeometryPage implementations,
-	etc., there may be more custom parameters available to you. Check with the appropriate
-	module documentation for info on supported custom parameters and their usage.
-
-	\param entity Name of the entity
-	\param paramName Name of the parameter for this entity
-	\param paramValue Value to assign to the parameter
-	*/
-	void setCustomParam(const Ogre::String &entity, const Ogre::String &paramName, float paramValue);
-
-	/**
-	\brief Sets or creates a custom parameter for an entity managed by PagedGeometry
-	This can be used to set custom parameters / data for entities which can be accessed
-	from other PagedGeometry subsystems or your own code. Primarily, this is intended
-	for use with GeometryPage implementations or PageLoader implementations.
-
-	PagedGeometry includes a GeometryPage implementation, "WindBatchPage", which applies
-	a wind animation shader to your trees, which you can control using these custom
-	parameters: windFactorX and windFactorY.
-
-	If you're using 3rd party PagedGeometry "plugins" like GeometryPage implementations,
-	etc., there may be more custom parameters available to you. Check with the appropriate
-	module documentation for info on supported custom parameters and their usage.
-
-	\param entity Name of the entity
-	\param paramName Name of the parameter for this entity
-	\param paramValue Value to assign to the parameter
-	*/
-	void setCustomParam(const Ogre::String &paramName, float paramValue);
-
-	/**
-	\brief Returns the value of the custom parameter
-	\param entity Name of the entity
-	\param paramName Name of the parameter for this entity
-	\param defaultParamValue Value to return if no entry is found
-	\returns float value if entry is found or the defaultParamValue if not
-	*/
-	float getCustomParam(const Ogre::String &entity, const Ogre::String &paramName, float defaultParamValue) const;
-
-	/**
-	\brief Returns the value of the custom parameter
-	\param entity Name of the entity
-	\param paramName Name of the parameter for this entity
-	\param defaultParamValue Value to return if no entry is found
-	\returns float value if entry is found or the defaultParamValue if not
-	*/
-	float getCustomParam(const Ogre::String &paramName, float defaultParamValue) const;
-
-
    /// Returns the rendering queue that paged geometry was constructed with
    Ogre::uint8 getRenderQueue() const  { return m_nRenderQueue; }
 
@@ -721,10 +662,6 @@ protected:
 	Ogre::Timer timer;
 	unsigned long lastTime;
 	Ogre::String tempdir;
-
-private:
-   typedef std::map <Ogre::String, float> TStr2FloatMap;
-	TStr2FloatMap  m_mapCustomParam;
 };
 
 
