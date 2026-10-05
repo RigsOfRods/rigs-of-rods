@@ -19,6 +19,7 @@ Highlights:
 * PagedGeometry, ImpostorPage, TreeLoader: removed `PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM`
 * PagedGeometry, TreeLoader: Removed "per-entity user data" (`PAGEDGEOMETRY_USER_DATA`)
 * TreeLoader2D: removed `TreeIterator`
+* GrassLoader.h/cpp: enums GrassTechnique and FadeTechnique moved to PagedGeometryConfig.h and synchronized to TOBJ fileformat.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

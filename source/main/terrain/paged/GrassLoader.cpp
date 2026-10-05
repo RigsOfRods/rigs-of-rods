@@ -790,6 +790,8 @@ void GrassLayer::setMaximumSize(float width, float height)
 
 void GrassLayer::setRenderTechnique(GrassTechnique style, bool blendBase)
 {
+    ROR_ASSERT(style>=GRASSTECH_MIN && style<=GRASSTECH_MAX);
+
 	if (blend != blendBase || renderTechnique != style){
 		blend = blendBase;
 		renderTechnique = style;

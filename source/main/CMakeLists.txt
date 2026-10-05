@@ -212,7 +212,9 @@ set(SOURCE_FILES
         terrain/paged/GrassLoader.{h,cpp}
         terrain/paged/ImpostorPage.{h,cpp}
         terrain/paged/PagedGeometry.{h,cpp}
+        terrain/paged/PagedGeometryConfig.h
         terrain/paged/PropertyMaps.{h,cpp}
+        terrain/paged/RandomTable.h
         terrain/paged/StaticBillboardSet.{h,cpp}
         terrain/paged/TreeLoader2D.{h,cpp}
         threadpool/ThreadPool.h

@@ -90,7 +90,8 @@ public:
         float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
         float minx, float miny, float minH, float maxx, float maxy, float maxH,
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
-        int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+        Forests::FadeTechnique fadetech, Forests::GrassTechnique techn,
+        int range, int mapsizex, int mapsizez);
 
     void ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type);
 

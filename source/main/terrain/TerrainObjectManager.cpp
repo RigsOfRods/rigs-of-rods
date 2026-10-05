@@ -222,7 +222,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
                     grass.min_x, grass.min_y, grass.min_h,
                     grass.max_x, grass.max_y, grass.max_h,
                     grass.material_name, grass.color_map_filename, grass.density_map_filename,
-                    grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+                    grass.fadetech, grass.technique, grass.range, mapsizex, mapsizez);
             }
             catch (...)
             {
@@ -408,8 +408,8 @@ void TerrainObjectManager::ProcessGrass(
         float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
         float minx, float miny, float minH, float maxx, float maxy, float maxH,
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
-        int growtechnique, int techn, int range,
-        int mapsizex, int mapsizez)
+        Forests::FadeTechnique fadetech, Forests::GrassTechnique techn,
+        int range, int mapsizex, int mapsizez)
 {
 
     //Initialize the PagedGeometry engine
@@ -438,10 +438,7 @@ void TerrainObjectManager::ProcessGrass(
         grassLayer->setSwayDistribution(SwayDistribution);
 
         grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
-        if (techn>10)
-            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
-        else
-            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
+        grassLayer->setRenderTechnique(techn);
 
         grassLayer->setMapBounds(TBounds(0, 0, mapsizex, mapsizez));
 
@@ -460,13 +457,7 @@ void TerrainObjectManager::ProcessGrass(
         grassLayer->setMinimumSize(minx, miny);
         grassLayer->setMaximumSize(maxx, maxy);
 
-        // growtechnique
-        if (growtechnique == 0)
-            grassLayer->setFadeTechnique(FADETECH_GROW);
-        else if (growtechnique == 1)
-            grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
-        else if (growtechnique == 2)
-            grassLayer->setFadeTechnique(FADETECH_ALPHA);
+        grassLayer->setFadeTechnique(fadetech);
 
         m_paged_geometry.push_back(grass);
     } 

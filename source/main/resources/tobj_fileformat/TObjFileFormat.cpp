@@ -306,7 +306,7 @@ void TObjParser::ProcessGrassLine()
             &grass.range,
             &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
             &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
-            &grass.grow_techniq, &grass.min_h,       &grass.max_h,        &grass.technique,
+            &grass.fadetech,     &grass.min_h,       &grass.max_h,        &grass.technique,
                 grass.material_name,
                 grass.color_map_filename,
                 grass.density_map_filename);
@@ -318,21 +318,13 @@ void TObjParser::ProcessGrassLine()
             &grass.range,
             &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
             &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
-            &grass.grow_techniq, &grass.min_h,       &grass.max_h,
+            &grass.fadetech,     &grass.min_h,       &grass.max_h,
                 grass.material_name,
                 grass.color_map_filename,
                 grass.density_map_filename);
     }
 
-    // 0: GRASSTECH_QUAD;       // Grass constructed of randomly placed and rotated quads
-    // 1: GRASSTECH_CROSSQUADS; // Grass constructed of two quads forming a "X" cross shape
-    // 2: GRASSTECH_SPRITE;     // Grass constructed of camera-facing billboard quads
-    if ((grass.technique < 0) || (grass.technique > 2))
-    {
-        LOGSTREAM << "Invalid parameter 'technique': '" << grass.technique << "', falling back to default '1: GRASSTECH_CROSSQUADS'";
-        grass.technique = 1;
-    }
-
+    grass.technique = Forests::ValidateGrassTech(grass.technique);
     m_def->grass.push_back(grass);
 }
 
@@ -517,7 +509,7 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
             grass.range,
             grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
             grass.min_x, grass.min_y, grass.max_x, grass.max_y,
-            grass.grow_techniq, grass.min_h, grass.max_h, grass.technique,
+            (int)grass.fadetech, grass.min_h, grass.max_h, (int)grass.technique,
             grass.material_name,
             grass.color_map_filename,
             grass.density_map_filename);
