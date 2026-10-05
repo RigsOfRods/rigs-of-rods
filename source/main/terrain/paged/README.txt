@@ -10,6 +10,7 @@ Changes are marked with `//RIGSOFRODS`
 Highlights:
 * GrassLoader.h/cpp: enums GrassTechnique and FadeTechnique moved to PagedGeometryConfig.h and synchronized to TOBJ fileformat.
 * PagedGeometry: removed constructor args 'camera' and 'pageSize' which have dedicated setters, added grouping scenenode arg.
+* PagedGeometry.h/cpp: removed dead 'custom parameters'
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
