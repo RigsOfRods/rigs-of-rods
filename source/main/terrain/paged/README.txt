@@ -8,6 +8,7 @@ Omitted files:
 
 Changes are marked with `//RIGSOFRODS`
 Highlights:
+* GrassLoader.h/cpp: enums GrassTechnique and FadeTechnique moved to PagedGeometryConfig.h and synchronized to TOBJ fileformat.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -220,31 +220,6 @@ private:
 	}
 };
 
-
-/** \brief A technique used to render grass. Passed to GrassLayer::setRenderTechnique(). */
-enum GrassTechnique
-{
-	/// Grass constructed of randomly placed and rotated quads
-	GRASSTECH_QUAD,
-	/// Grass constructed of two quads forming a "X" cross shape
-	GRASSTECH_CROSSQUADS,
-	/// Grass constructed of camera-facing billboard quads
-	GRASSTECH_SPRITE
-};
-
-/** \brief A technique used to fade grass into the distance. Passed to GrassLayer::setFadeTechnique(). */
-enum FadeTechnique
-{
-	/// Grass that fades into the distance with transparency. Fairly effective in most cases.
-	FADETECH_ALPHA,
-	/// Grass that fades in by "growing" up out of the ground. Very effective when grass fades in against the sky, or with alpha-rejected grass.
-	FADETECH_GROW,
-	/// Grass that fades in by slowly becoming opaque while it "grows" up out of the ground. Effective with alpha grass fading in against the sky.
-	FADETECH_ALPHAGROW
-};
-
-
-
 /** \brief A data structure giving you full control over grass properties.
 
 Grass is added to the scene through GrassLoader::addLayer(). Through this class you
