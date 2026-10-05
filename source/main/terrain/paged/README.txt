@@ -17,6 +17,7 @@ Highlights:
 * ImpostorPage.h/cpp: factored out `ImpostorTexManager` (`static` only) from `ImpostorTexture`
 * PagedGeometry.h/cpp: removed dead 'custom parameters'
 * PagedGeometry, ImpostorPage, TreeLoader: removed `PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM`
+* PagedGeometry, TreeLoader: Removed "per-entity user data" (`PAGEDGEOMETRY_USER_DATA`)
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -119,10 +119,6 @@ void TreeLoader2D::addTree(Entity *entity, const Vector3 &position, Degree yaw, 
    tree.rotation  = static_cast<uint8>(Ogre::Real(0.708) * yaw.valueDegrees());                       // 0.708 ~= 255 / 360
    tree.scale     = static_cast<uint8>(Ogre::Real(255.) * ((scale - minimumScale) / maximumScale));
 
-#ifdef PAGEDGEOMETRY_USER_DATA
-	tree.userData = userData;
-#endif
-
 	//Add it to the tree list
 	treeList.push_back(tree);
 
@@ -130,20 +126,10 @@ void TreeLoader2D::addTree(Entity *entity, const Vector3 &position, Degree yaw, 
 	geom->reloadGeometryPage(Vector3(pos.x, 0, pos.z));
 }
 
-#ifdef PAGEDGEOMETRY_USER_DATA
-std::vector<void*>
-#else
-void
-#endif
-TreeLoader2D::deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius, Entity *type)
+void TreeLoader2D::deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius, Entity *type)
 {
 	//First convert the coordinate to PagedGeometry's local system
 	Vector3 pos = position;
-
-#ifdef PAGEDGEOMETRY_USER_DATA
-	//Keep a list of user-defined data associated with deleted trees
-	std::vector<void*> deletedUserData;
-#endif
 
 	//If the position is slightly out of bounds, fix it
 	if (pos.x < actualBounds.left)
@@ -202,9 +188,6 @@ TreeLoader2D::deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius, Enti
 					Ogre::Real distSq = distX * distX + distZ * distZ;
 
 					if (distSq <= radiusSq){
-#ifdef PAGEDGEOMETRY_USER_DATA
-						deletedUserData.push_back(treeList[i].userData);
-#endif
 						//If it's within the radius, delete it
 						treeList[i] = treeList.back();
 						treeList.pop_back();
@@ -224,24 +207,10 @@ TreeLoader2D::deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius, Enti
 
 		++it;
 	}
-
-#ifdef PAGEDGEOMETRY_USER_DATA
-	return deletedUserData;
-#endif
 }
 
-#ifdef PAGEDGEOMETRY_USER_DATA
-std::vector<void*>
-#else
-void
-#endif
-TreeLoader2D::deleteTrees(TBounds area, Ogre::Entity *type)
+void TreeLoader2D::deleteTrees(TBounds area, Ogre::Entity *type)
 {
-#ifdef PAGEDGEOMETRY_USER_DATA
-	//Keep a list of user-defined data associated with deleted trees
-	std::vector<void*> deletedUserData;
-#endif
-
 	//If the area is slightly out of bounds, fix it
 	if (area.left < actualBounds.left) area.left = actualBounds.left;
 	else if (area.left > actualBounds.right) area.left = actualBounds.right;
@@ -291,10 +260,6 @@ TreeLoader2D::deleteTrees(TBounds area, Ogre::Entity *type)
 					Ogre::Real posX = (gridBounds.left + (tileX * pageSize) + ((Real)treeList[i].xPos / 65535) * pageSize);
 					Ogre::Real posZ = (gridBounds.top + (tileZ * pageSize) + ((Real)treeList[i].zPos / 65535) * pageSize);
 					if (posX >= area.left && posX <= area.right && posZ >= area.top && posZ <= area.bottom) {
-						//If so, delete it
-#ifdef PAGEDGEOMETRY_USER_DATA
-						deletedUserData.push_back(treeList[i].userData);
-#endif
 						//If it's within the radius, delete it
 						treeList[i] = treeList.back();
 						treeList.pop_back();
@@ -314,91 +279,7 @@ TreeLoader2D::deleteTrees(TBounds area, Ogre::Entity *type)
 
 		++it;
 	}
-
-#ifdef PAGEDGEOMETRY_USER_DATA
-	return deletedUserData;
-#endif
 }
-
-
-#ifdef PAGEDGEOMETRY_USER_DATA
-std::vector<void*> TreeLoader2D::findTrees(const Ogre::Vector3 &position, Real radius, Entity *type)
-{
-	//First convert the coordinate to PagedGeometry's local system
-	Vector3 pos = position;
-
-	//Keep a list of user-defined data associated with deleted trees
-	std::vector<void*> foundUserData;
-
-
-	//If the position is slightly out of bounds, fix it
-	if (pos.x < actualBounds.left)
-		pos.x = actualBounds.left;
-	else if (pos.x > actualBounds.right)
-		pos.x = actualBounds.right;
-
-	if (pos.z < actualBounds.top)
-		pos.z = actualBounds.top;
-	else if (pos.x > actualBounds.bottom)
-		pos.z = actualBounds.bottom;
-
-	//Determine the grid blocks which might contain the requested trees
-	int minPageX = Math::Floor(((pos.x-radius) - gridBounds.left) / pageSize);
-	int minPageZ = Math::Floor(((pos.z-radius) - gridBounds.top) / pageSize);
-	int maxPageX = Math::Floor(((pos.x+radius) - gridBounds.left) / pageSize);
-	int maxPageZ = Math::Floor(((pos.z+radius) - gridBounds.top) / pageSize);
-	Real radiusSq = radius * radius;
-
-	if (minPageX < 0) minPageX = 0; else if (minPageX >= pageGridX) minPageX = pageGridX-1;
-	if (minPageZ < 0) minPageZ = 0; else if (minPageZ >= pageGridZ) minPageZ = pageGridZ-1;
-	if (maxPageX < 0) maxPageX = 0; else if (maxPageX >= pageGridX) maxPageX = pageGridX-1;
-	if (maxPageZ < 0) maxPageZ = 0; else if (maxPageZ >= pageGridZ) maxPageZ = pageGridZ-1;
-
-	PageGridListIterator it, end;
-	if (type == NULL){
-		//Scan all entity types
-		it = pageGridList.begin();
-		end = pageGridList.end();
-	} else {
-		//Only scan entities of the given type
-		it = pageGridList.find(type);
-		assert(it != pageGridList.end());
-		end = it; ++end;
-	}
-
-	//Scan all the grid blocks
-	while (it != end){
-		std::vector<TreeDef> *pageGrid = it->second;
-
-		for (int tileZ = minPageZ; tileZ <= maxPageZ; ++tileZ){
-			for (int tileX = minPageX; tileX <= maxPageX; ++tileX){
-				bool modified = false;
-
-				//Scan all trees in grid block
-				std::vector<TreeDef> &treeList = _getGridPage(pageGrid, tileX, tileZ);
-				uint32 i = 0;
-				while (i < treeList.size()){
-					//Get tree distance
-					float distX = (gridBounds.left + (tileX * pageSize) + ((Real)treeList[i].xPos / 65535) * pageSize) - pos.x;
-					float distZ = (gridBounds.top + (tileZ * pageSize) + ((Real)treeList[i].zPos / 65535) * pageSize) - pos.z;
-					float distSq = distX * distX + distZ * distZ;
-
-					if (distSq <= radiusSq){
-						foundUserData.push_back(treeList[i].userData);
-					}
-					else
-						++i;
-				}
-			}
-		}
-
-		++it;
-	}
-
-	return foundUserData;
-}
-#endif
-
 
 void TreeLoader2D::setColorMap(const Ogre::String &mapFile, MapChannel channel)
 {

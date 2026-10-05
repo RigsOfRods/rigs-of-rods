@@ -44,9 +44,6 @@ class PageLoader;
 /// Define TBounds as a TRect using Real numeric units.
 typedef Ogre::TRect<Ogre::Real> TBounds;
 
-//Enable per-entity user-defined data and callbacks
-//#define PAGEDGEOMETRY_USER_DATA
-
 //-------------------------------------------------------------------------------------
 /**
 \brief A class providing highly optimized methods for rendering massive amounts of geometry.
