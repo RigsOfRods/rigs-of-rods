@@ -44,9 +44,6 @@ class PageLoader;
 /// Define TBounds as a TRect using Real numeric units.
 typedef Ogre::TRect<Ogre::Real> TBounds;
 
-//Enable PagedGeometry::setCoordinateSystem()
-//#define PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-
 //Enable per-entity user-defined data and callbacks
 //#define PAGEDGEOMETRY_USER_DATA
 
@@ -172,33 +169,6 @@ public:
 	{
 		return rootNode;
 	}
-
-	#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	/**
-	\brief Sets the coordinate system to be used by PagedGeometry
-	\param up A vector pointing to whatever direction you consider to be "up"
-	\param right A vector pointing to whatever direction you consider to be "right"
-
-	By default, PagedGeometry uses the standard coordinate system where X is right, Y is up,
-	and Z is back. If you use an alternate coordinate system, for example where Z is up, you'll
-	have to use this function to configure PagedGeometry to use that coordinate system; otherwise,
-	LOD calculations, impostors, etc. will be all messed up.
-
-	To do so, simply supply which directions you consider "right" and "up". For example, if your
-	coordinate system uses X as right, Y as forward, and Z as up, you would set the "right" parameter
-	to Vector3::UNIT_X and the "up" parameter to Vector3::UNIT_Z. The forward direction
-	(Vector3::UNIT_Y in this case) doesn't need to be supplied since it will be automatically calculated
-	from the right and up vectors.
-
-	\warning Be sure to configure PagedGeometry with your coordinate system before using any PageLoader's,
-	since they may depend on the current coordinate system to function properly.
-
-	\note By default this function is disabled and won't appear in the PagedGeometry library. To
-	enable it, reenable the line near the top of PagedGeometry.h where PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	is defined by un-commenting it (then recompile).
-	*/
-	void setCoordinateSystem(Ogre::Vector3 up, Ogre::Vector3 right = Ogre::Vector3::UNIT_X);
-	#endif
 
 	/**
 	\brief Switches to bounded mode and uses the given boundaries
@@ -617,10 +587,6 @@ public:
 	//todo
 	//bool cacheGeometry(unsigned long maxTime = 0);
 
-
-	/** INTERNAL FUNCTION - DO NOT USE */
-	Ogre::Vector3 _convertToLocal(const Ogre::Vector3 &globalVec) const;
-
    /// Returns the rendering queue that paged geometry was constructed with
    Ogre::uint8 getRenderQueue() const  { return m_nRenderQueue; }
 
@@ -634,10 +600,6 @@ protected:
 	Ogre::String shaderLanguage;
 
 	bool geometryAllowedVisible;	//If set to false, all geometry managed by this PagedGeometry is hidden
-
-	#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	Ogre::Quaternion coordinateSystemQuat;	//The orientation of rootNode
-	#endif
 
 	//Camera data
 	Ogre::Camera *sceneCam;

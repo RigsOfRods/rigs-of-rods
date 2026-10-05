@@ -16,6 +16,7 @@ Highlights:
 * GrassLoader.cpp, BatchPage.cpp, StaticBillboardSet.cpp: Programs assigned to (cloned) materials are loaded explicitly, because OGRE 1.11 doesn't load programs assigned to an already loaded material - D3D9 then fails with "Null program bound".
 * ImpostorPage.h/cpp: factored out `ImpostorTexManager` (`static` only) from `ImpostorTexture`
 * PagedGeometry.h/cpp: removed dead 'custom parameters'
+* PagedGeometry, ImpostorPage, TreeLoader: removed `PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM`
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

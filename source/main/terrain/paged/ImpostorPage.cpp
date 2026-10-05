@@ -204,7 +204,7 @@ void ImpostorPage::update()
       return;
 
 	//Calculate the direction the impostor batches should be facing
-	Vector3 camPos = m_pPagedGeom->_convertToLocal(m_pPagedGeom->getCamera()->getDerivedPosition());
+	Vector3 camPos = m_pPagedGeom->getCamera()->getDerivedPosition();
 	
 	// Update all batches
    Ogre::Real distX = camPos.x - m_vecCenter.x;
@@ -220,7 +220,7 @@ void ImpostorPage::update()
 	}
    else
    {
-		Vector3 dir = m_pPagedGeom->_convertToLocal(m_pPagedGeom->getCamera()->getDerivedDirection());
+		Vector3 dir = m_pPagedGeom->getCamera()->getDerivedDirection();
 		yaw = Math::ATan2(-dir.x, -dir.z);
 	}
 

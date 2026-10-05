@@ -65,12 +65,7 @@ TreeLoader2D::~TreeLoader2D()
 
 void TreeLoader2D::addTree(Entity *entity, const Vector3 &position, Degree yaw, Real scale, void* userData)
 {
-	//First convert the coordinate to PagedGeometry's local system
-	#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	Vector3 pos = geom->_convertToLocal(position);
-	#else
 	Vector3 pos = position;
-	#endif
 
 	//Check that the tree is within bounds (DEBUG)
 	#ifdef _DEBUG
@@ -143,11 +138,7 @@ void
 TreeLoader2D::deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius, Entity *type)
 {
 	//First convert the coordinate to PagedGeometry's local system
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	Vector3 pos = geom->_convertToLocal(position);
-#else
 	Vector3 pos = position;
-#endif
 
 #ifdef PAGEDGEOMETRY_USER_DATA
 	//Keep a list of user-defined data associated with deleted trees
@@ -334,11 +325,7 @@ TreeLoader2D::deleteTrees(TBounds area, Ogre::Entity *type)
 std::vector<void*> TreeLoader2D::findTrees(const Ogre::Vector3 &position, Real radius, Entity *type)
 {
 	//First convert the coordinate to PagedGeometry's local system
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	Vector3 pos = geom->_convertToLocal(position);
-#else
 	Vector3 pos = position;
-#endif
 
 	//Keep a list of user-defined data associated with deleted trees
 	std::vector<void*> foundUserData;
