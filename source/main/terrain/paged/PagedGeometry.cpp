@@ -35,10 +35,6 @@ m_nRenderQueue(queue)
 		sceneCam = cam;
 		sceneMgr = sceneCam->getSceneManager();
 		oldCamPos = sceneCam->getDerivedPosition();
-		#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-		rootNode = sceneMgr->getRootSceneNode()->createChildSceneNode();	//Create PagedGeometry's root node
-		#else
-		#endif
 	}
    else
    {
@@ -49,11 +45,6 @@ m_nRenderQueue(queue)
     m_pagedGroupingNode = groupingSceneNode;
 	lastSceneCam = NULL;
 	lastOldCamPos = Vector3::ZERO;
-
-	#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	//Setup default coordinate system
-	coordinateSystemQuat = Quaternion::IDENTITY;
-	#endif
 
 	//Init. timer
 	timer.reset();
@@ -72,12 +63,6 @@ m_nRenderQueue(queue)
 
 PagedGeometry::~PagedGeometry()
 {
-	#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	//Remove PagedGeometry's coordinate system node
-	if (rootNode)
-		sceneMgr->destroySceneNode(rootNode->getName());
-	#endif
-
 	//Remove all page managers and the geometry associated with them
 	removeDetailLevels();
 }
@@ -115,40 +100,8 @@ void PagedGeometry::setCamera(Camera *cam)
 		//then set the scene manager (it won't change after this point).
 		if (sceneMgr == NULL)
 			sceneMgr = sceneCam->getSceneManager();
-			#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-			rootNode = sceneMgr->getRootSceneNode()->createChildSceneNode();
-			rootNode->setOrientation(coordinateSystemQuat);
-			#else
-			#endif
 	}
 }
-
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-void PagedGeometry::setCoordinateSystem(Vector3 up, Vector3 right)
-{
-	up.z = -up.z;
-	Vector3 forward = right.crossProduct(up);
-	coordinateSystemQuat = Quaternion(right, up, forward);
-
-	if (rootNode)
-		rootNode->setOrientation(coordinateSystemQuat);
-}
-#endif
-
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-Vector3 PagedGeometry::_convertToLocal(const Vector3 &globalVec) const
-{
-	assert(getSceneNode());
-	//Convert from the given global position to the local coordinate system of PagedGeometry's root scene node.
-	return (getSceneNode()->getOrientation().Inverse() * globalVec);
-}
-#else
-//Default coordinate system - no conversion
-Vector3 PagedGeometry::_convertToLocal(const Vector3 &globalVec) const
-{
-	return globalVec;
-}
-#endif
 
 void PagedGeometry::setPageSize(Real size)
 {
@@ -180,8 +133,8 @@ void PagedGeometry::setBounds(TBounds bounds)
 
 TBounds PagedGeometry::convertAABToTBounds( const Ogre::AxisAlignedBox & aab ) const
 {
-	Vector3 minimum = _convertToLocal(aab.getMinimum());
-	Vector3 maximum = _convertToLocal(aab.getMaximum());
+	const Vector3 minimum(aab.getMinimum());
+	const Vector3 maximum(aab.getMaximum());
 	return TBounds (minimum.x, minimum.z, maximum.x, maximum.z);
 }
 
@@ -212,7 +165,7 @@ void PagedGeometry::update()
 	lastTime = tmp;
 
 	//Get camera position and speed
-	Vector3 camPos = _convertToLocal(sceneCam->getDerivedPosition());
+	Vector3 camPos = sceneCam->getDerivedPosition();
 	Vector3 camSpeed;	//Speed in units-per-millisecond
 	if (deltaTime == 0){
 		camSpeed.x = 0;
@@ -232,7 +185,7 @@ void PagedGeometry::update()
 		std::list<GeometryPageManager *>::iterator it;
 		GeometryPageManager *prevMgr = NULL;
 		for (it = managerList.begin(); it != managerList.end(); ++it)
-      {
+		{
 			GeometryPageManager *mgr = *it;
 			mgr->update(deltaTime, camPos, camSpeed, enableCache, prevMgr);
 			prevMgr = mgr;
@@ -240,7 +193,7 @@ void PagedGeometry::update()
 	}
 
 	//Update misc. subsystems
-   StaticBillboardSet::updateAll(_convertToLocal(sceneCam->getDerivedDirection()));
+	StaticBillboardSet::updateAll(sceneCam->getDerivedDirection());
 }
 
 void PagedGeometry::reloadGeometry()
@@ -259,21 +212,11 @@ void PagedGeometry::reloadGeometryPage(const Vector3 &point)
 	if (!pageLoader)
 		return;
 
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-	point = _convertToLocal(point);
-#endif
-
 	std::list<GeometryPageManager *>::iterator it;
 	for (it = managerList.begin(); it != managerList.end(); ++it)
 	{
 		GeometryPageManager *mgr = *it;
-		mgr->reloadGeometryPage(
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-			_convertToLocal(point)
-#else
-			point
-#endif
-			);
+		mgr->reloadGeometryPage(point);
 	}
 }
 
@@ -286,13 +229,7 @@ void PagedGeometry::reloadGeometryPages(const Ogre::Vector3 &center, Real radius
 	for (it = managerList.begin(); it != managerList.end(); ++it)
 	{
 		GeometryPageManager *mgr = *it;
-		mgr->reloadGeometryPages(
-#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
-			_convertToLocal(center)
-#else
-			center
-#endif
-			, radius);
+		mgr->reloadGeometryPages(center, radius);
 	}
 }
 
