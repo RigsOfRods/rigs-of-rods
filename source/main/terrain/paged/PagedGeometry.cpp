@@ -364,37 +364,6 @@ void PagedGeometry::_addDetailLevel(GeometryPageManager *mgr, Real maxRange, Rea
 	managerList.push_back(mgr);
 }
 
-//-----------------------------------------------------------------------------
-///
-void PagedGeometry::setCustomParam(const Ogre::String &entity, const Ogre::String &paramName, float paramValue)
-{
-	setCustomParam(entity + "." + paramName, paramValue);
-}
-
-//-----------------------------------------------------------------------------
-///
-void PagedGeometry::setCustomParam(const Ogre::String &paramName, float paramValue)
-{
-	m_mapCustomParam[paramName] = paramValue;
-}
-
-//-----------------------------------------------------------------------------
-///
-float PagedGeometry::getCustomParam(const Ogre::String &entity, const Ogre::String &paramName, float defaultParamValue) const
-{
-	return getCustomParam(entity + "." + paramName, defaultParamValue);
-}
-
-//-----------------------------------------------------------------------------
-///
-float PagedGeometry::getCustomParam(const Ogre::String &paramName, float defaultParamValue) const
-{
-	TStr2FloatMap::const_iterator it = m_mapCustomParam.find(paramName);
-   return it != m_mapCustomParam.end() ? it->second : defaultParamValue;
-}
-
-
-
 //-------------------------------------------------------------------------------------
 
 GeometryPageManager::GeometryPageManager(PagedGeometry *mainGeom)
