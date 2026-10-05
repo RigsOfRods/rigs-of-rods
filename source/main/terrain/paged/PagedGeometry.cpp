@@ -26,25 +26,14 @@ using namespace std;
 namespace Forests {
 
 //-------------------------------------------------------------------------------------
-PagedGeometry::PagedGeometry(Camera* cam, const Real pageSize, Ogre::RenderQueueGroupID queue) :
+PagedGeometry::PagedGeometry(Ogre::SceneNode* groupingSceneNode, Ogre::RenderQueueGroupID queue) :
 m_nRenderQueue(queue)
 {
-	//Setup camera, scene manager, and scene node
-	if (cam)
-	{
-		sceneCam = cam;
-		sceneMgr = sceneCam->getSceneManager();
-		oldCamPos = sceneCam->getDerivedPosition();
+	sceneCam = NULL;
+	sceneMgr = NULL;
+	m_pagedGroupingNode = groupingSceneNode;
+	oldCamPos = Vector3::ZERO;
 
-		rootNode = sceneMgr->getRootSceneNode();
-	}
-   else
-   {
-		sceneCam = NULL;
-		sceneMgr = NULL;
-		rootNode = NULL;
-		oldCamPos = Vector3::ZERO;
-	}
 	lastSceneCam = NULL;
 	lastOldCamPos = Vector3::ZERO;
 
@@ -112,13 +101,6 @@ void PagedGeometry::setCamera(Camera *cam)
 		//then set the scene manager (it won't change after this point).
 		if (sceneMgr == NULL)
 			sceneMgr = sceneCam->getSceneManager();
-
-		//If rootNode is NULL (this also only occurs the first time a camera is set),
-		//the create a scene node (it won't change after this point) for the coordinate
-		//system translations.
-		if (rootNode == NULL){
-			rootNode = sceneMgr->getRootSceneNode();
-		}
 	}
 }
 

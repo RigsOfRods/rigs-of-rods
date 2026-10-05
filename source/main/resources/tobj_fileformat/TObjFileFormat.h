@@ -68,6 +68,8 @@ struct TObjTree
     char     color_map[TObj::STR_LEN];
     char     density_map[TObj::STR_LEN];
     char     collision_mesh[TObj::STR_LEN];
+
+    int      origin_tobj_line_number{};
 };
 
 // -----------------------------------------------------------------------------
@@ -88,6 +90,8 @@ struct TObjGrass
     char     material_name[TObj::STR_LEN]{};
     char     color_map_filename[TObj::STR_LEN]{};
     char     density_map_filename[TObj::STR_LEN]{};
+
+    int      origin_tobj_line_number{};
 };
 
 // -----------------------------------------------------------------------------

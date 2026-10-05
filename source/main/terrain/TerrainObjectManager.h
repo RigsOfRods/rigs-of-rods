@@ -84,14 +84,16 @@ public:
         float scalefrom, float scaleto,
         char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
         float gridspacing, float highdens,
-        int minDist, int maxDist, int mapsizex, int mapsizez);
+        int minDist, int maxDist, int mapsizex, int mapsizez,
+        Ogre::SceneNode* pagedGroupingNode);
 
     void ProcessGrass(
         float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
         float minx, float miny, float minH, float maxx, float maxy, float maxH,
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
         Forests::FadeTechnique fadetech, Forests::GrassTechnique techn,
-        int range, int mapsizex, int mapsizez);
+        int range, int mapsizex, int mapsizez,
+        Ogre::SceneNode* pagedGroupingNode);
 
     void ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type);
 
