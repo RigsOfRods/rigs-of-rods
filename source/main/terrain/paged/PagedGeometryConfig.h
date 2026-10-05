@@ -7,9 +7,6 @@
 #define PAGEDGEOMETRY_VERSION_PATCH 0
 #define PAGEDGEOMETRY_VERSION       "1.3.0"
 
-/* Define if we use the alternate coordsystem */
-/* #undef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM */
-
 /* Define if we use ogre random */
 /* #undef PAGEDGEOMETRY_USE_OGRE_RANDOM */
 
