@@ -19,9 +19,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 namespace Forests {
 
-class TreeIterator3D;
-class TreeIterator2D;
-
 /** \brief A PageLoader-derived object you can use with PagedGeometry to easily place trees on your terrain. 
 
 \note TreeLoader2D is derived from PageLoader - this implementation provides you with an easy way
@@ -136,17 +133,6 @@ public:
 		heightFunctionUserData = userData;
 	}
 
-	/** \brief Gets an iterator which can be used to access all added trees.
-	
-	The returned TreeIterator can be used to iterate through every tree that was added
-	to this TreeLoader fairly efficiently.
-
-	\see The TreeIterator class documentation for more info.
-	\warning Be sure to test TreeIterator3D::hasMoreElements() before calling other members of the
-	TreeIterator3D class.
-	*/
-	TreeIterator2D getTrees();
-
 	/** \brief Sets the color map used to color trees
 	\param mapFile The color map image
 	\param channel The color channel(s) to from the image to use
@@ -243,7 +229,6 @@ public:
 	void loadPage(PageInfo &page);
 
 private:
-	friend class TreeIterator2D;
 
 	struct TreeDef
 	{
@@ -303,74 +288,6 @@ private:
 
 
 
-//The TreeRef class is used by both TreeLoader2D and TreeLoader3D.
-//This #ifndef makes sure TreeRef isn't declared twice in case both treeloaders are used.
-#ifndef TreeRef_Declared
-#define TreeRef_Declared
-
-class TreeRef
-{
-public:
-	/** Returns the tree's position */
-	inline Ogre::Vector3 &getPosition() { return position; }
-
-	/** Returns the tree's yaw as a degree value */
-	inline Ogre::Degree &getYaw() { return yaw; }
-
-	/** Returns the tree's uniform scale value */
-	inline Ogre::Real &getScale() { return scale; }
-	
-	/** Returns the tree's orientation as a Quaternion */
-	inline Ogre::Quaternion getOrientation() { return Ogre::Quaternion(yaw, Ogre::Vector3::UNIT_Y); }
-
-	/** Returns the entity used to create the tree */
-	inline Ogre::Entity *getEntity() { return entity; }
-
-private:
-	friend class TreeIterator3D;
-	friend class TreeIterator2D;
-	Ogre::Vector3 position;
-	Ogre::Degree yaw;
-	Ogre::Real scale;
-	Ogre::Entity *entity;
-};
-
-#endif
-
-
-class TreeIterator2D
-{
-public:
-	TreeIterator2D(TreeLoader2D *trees);
-
-	/** Returns true if there are more trees available to be read */
-	inline bool hasMoreElements() const { return hasMore; }
-
-	/** Returns the next tree, and advances to the next */
-	TreeRef getNext();
-
-	/** Returns the next tree, without advancing to the next */
-	inline TreeRef &peekNext() { return prevTreeDat; }
-
-	/** Returns a pointer to the next tree, without advancing to the next */
-	inline TreeRef *peekNextPtr() { return &prevTreeDat; }
-	
-	/** Moves the iterator on to the next tree */
-	void moveNext();
-
-private:
-	void _readTree();
-
-	TreeLoader2D *trees;
-	TreeLoader2D::PageGridListIterator currentGrid;
-	int currentX, currentZ;
-	std::vector<TreeLoader2D::TreeDef> *currentTreeList;
-	std::vector<TreeLoader2D::TreeDef>::iterator currentTree;
-
-	TreeRef currentTreeDat, prevTreeDat;
-	bool hasMore;
-};
-
-}
+} // namespace Forests
 
 #endif

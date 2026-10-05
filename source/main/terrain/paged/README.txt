@@ -18,6 +18,7 @@ Highlights:
 * PagedGeometry.h/cpp: removed dead 'custom parameters'
 * PagedGeometry, ImpostorPage, TreeLoader: removed `PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM`
 * PagedGeometry, TreeLoader: Removed "per-entity user data" (`PAGEDGEOMETRY_USER_DATA`)
+* TreeLoader2D: removed `TreeIterator`
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ LICENSE ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
