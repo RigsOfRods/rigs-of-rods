@@ -10,10 +10,6 @@
 /* Define if we use ogre random */
 /* #undef PAGEDGEOMETRY_USE_OGRE_RANDOM */
 
-/* Define if we support user data */
-/* #undef PAGEDGEOMETRY_USER_DATA */
-
-
 /* some helpful OIS macro */
 /* #undef OIS_USING_DIR */
 

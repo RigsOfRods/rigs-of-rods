@@ -87,12 +87,8 @@ public:
 
 	\note If the "type" parameter is set to an entity, only trees created with that entity
 	will be deleted. */
-	#ifdef PAGEDGEOMETRY_USER_DATA
-		std::vector<void*>
-	#else
-		void
-	#endif
-	deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius = 0.001f, Ogre::Entity *type = NULL);
+
+	void deleteTrees(const Ogre::Vector3 &position, Ogre::Real radius = 0.001f, Ogre::Entity *type = NULL);
 
 	/** \brief Deletes trees within a certain rectangular area.
 	\param area The area where trees are to be deleted
@@ -100,23 +96,7 @@ public:
 
 	\note If the "type" parameter is set to an entity, only trees created with that entity
 	will be deleted. */
-	#ifdef PAGEDGEOMETRY_USER_DATA
-		std::vector<void*>
-	#else
-		void
-	#endif
-	deleteTrees(TBounds area, Ogre::Entity *type = NULL);
-
-#ifdef PAGEDGEOMETRY_USER_DATA
-	/** \brief Find trees within a certain radius of the given coordinates.
-		\param position The coordinate of the tree(s) to look for
-		\param radius The radius from the given coordinate where trees will be deleted
-		\param type The type of tree to find (optional)
-
-		\note If the "type" parameter is set to an entity, only trees created with that entity
-		will be found. */
-	std::vector<void*> findTrees(const Ogre::Vector3 &position, float radius, Ogre::Entity *type = NULL);
-#endif
+	void deleteTrees(TBounds area, Ogre::Entity *type = NULL);
 
 	/** \brief Sets the height function used to calculate tree height coordinates
 	\param heightFunction A pointer to a height function
@@ -269,9 +249,6 @@ private:
 	{
 		Ogre::uint16 xPos, zPos;
 		Ogre::uint8 scale, rotation;
-#ifdef PAGEDGEOMETRY_USER_DATA
-		void* userData;
-#endif
 	};
 
 	//Information about the 2D grid of pages
@@ -349,11 +326,6 @@ public:
 	/** Returns the entity used to create the tree */
 	inline Ogre::Entity *getEntity() { return entity; }
 
-#ifdef PAGEDGEOMETRY_USER_DATA
-	/** Returns the user-defined data associated with this tree */
-	inline void* getUserData() { return userData; }
-#endif
-
 private:
 	friend class TreeIterator3D;
 	friend class TreeIterator2D;
@@ -361,9 +333,6 @@ private:
 	Ogre::Degree yaw;
 	Ogre::Real scale;
 	Ogre::Entity *entity;
-#ifdef PAGEDGEOMETRY_USER_DATA
-	void* userData;
-#endif
 };
 
 #endif
