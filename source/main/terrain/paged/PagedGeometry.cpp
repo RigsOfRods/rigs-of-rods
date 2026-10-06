@@ -26,7 +26,7 @@ using namespace std;
 namespace Forests {
 
 //-------------------------------------------------------------------------------------
-PagedGeometry::PagedGeometry(Camera* cam, const Real pageSize, Ogre::RenderQueueGroupID queue) :
+PagedGeometry::PagedGeometry(Camera* cam, const Real pageSize, Ogre::SceneNode* groupingSceneNode, Ogre::RenderQueueGroupID queue) :
 m_nRenderQueue(queue)
 {
 	//Setup camera, scene manager, and scene node
@@ -35,20 +35,18 @@ m_nRenderQueue(queue)
 		sceneCam = cam;
 		sceneMgr = sceneCam->getSceneManager();
 		oldCamPos = sceneCam->getDerivedPosition();
-
 		#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
 		rootNode = sceneMgr->getRootSceneNode()->createChildSceneNode();	//Create PagedGeometry's root node
 		#else
-		rootNode = sceneMgr->getRootSceneNode();
 		#endif
 	}
    else
    {
 		sceneCam = NULL;
 		sceneMgr = NULL;
-		rootNode = NULL;
 		oldCamPos = Vector3::ZERO;
 	}
+    m_pagedGroupingNode = groupingSceneNode;
 	lastSceneCam = NULL;
 	lastOldCamPos = Vector3::ZERO;
 
@@ -117,18 +115,11 @@ void PagedGeometry::setCamera(Camera *cam)
 		//then set the scene manager (it won't change after this point).
 		if (sceneMgr == NULL)
 			sceneMgr = sceneCam->getSceneManager();
-
-		//If rootNode is NULL (this also only occurs the first time a camera is set),
-		//the create a scene node (it won't change after this point) for the coordinate
-		//system translations.
-		if (rootNode == NULL){
 			#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
 			rootNode = sceneMgr->getRootSceneNode()->createChildSceneNode();
 			rootNode->setOrientation(coordinateSystemQuat);
 			#else
-			rootNode = sceneMgr->getRootSceneNode();
 			#endif
-		}
 	}
 }
 

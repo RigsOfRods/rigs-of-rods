@@ -95,7 +95,7 @@ public:
 
 	\see setCamera(), setPageSize(), setBounds(), setInfinite(), setPageLoader()
 	*/
-	PagedGeometry(Ogre::Camera *cam = NULL, Ogre::Real pageSize = 100, Ogre::RenderQueueGroupID queue = Ogre::RENDER_QUEUE_6);
+	PagedGeometry(Ogre::Camera *cam = NULL, Ogre::Real pageSize = 100, Ogre::SceneNode* groupingSceneNode = NULL, Ogre::RenderQueueGroupID queue = Ogre::RENDER_QUEUE_6);
 
 	~PagedGeometry();
 
@@ -152,25 +152,14 @@ public:
 	\brief Gets the scene node to which all PagedGeometry geometry is attached
 	\returns A SceneNode
 
-	\note Feel free to ignore this function - you can fully make use of PagedGeometry's features
-	without it.
-
 	This function returns the SceneNode which PagedGeometry uses to render all it's
 	geometry. Everything that PagedGeometry renders to the screen can be found under
 	this scene node.
 
-	You don't need to use this function at all to fully make use of PagedGeometry's
-	features - it's primary use is for PagedGeometry's internal subsystems to be able
-	to create geometry using the proper scene node.
-
-	\warning If no camera has been set yet, this will return NULL, since PagedGeometry
-	can't create the SceneNode until it know which SceneManager to use (which is determined
-	from the assigned camera). However, once a camera is set, the SceneNode this function
-	returns will always remain the same - even if the camera is later set to NULL.
 	*/
 	inline Ogre::SceneNode *getSceneNode() const
 	{
-		return rootNode;
+		return m_pagedGroupingNode;
 	}
 
 	#ifdef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM
@@ -685,7 +674,7 @@ protected:
 	void _addDetailLevel(GeometryPageManager *mgr, Ogre::Real maxRange, Ogre::Real transitionLength);
 
 	Ogre::SceneManager *sceneMgr;
-	Ogre::SceneNode *rootNode;				//PagedGeometry's own "root" node
+	Ogre::SceneNode *m_pagedGroupingNode;
 	bool shadersEnabled;
 
 	bool geometryAllowedVisible;	//If set to false, all geometry managed by this PagedGeometry is hidden

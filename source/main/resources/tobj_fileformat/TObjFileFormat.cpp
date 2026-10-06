@@ -327,6 +327,7 @@ void TObjParser::ProcessTreesLine()
          tree.tree_mesh,      tree.color_map,         tree.density_map,
         &tree.grid_spacing,   tree.collision_mesh);
 
+    tree.origin_tobj_line_number = m_line_number;
     m_def->trees.push_back(tree);
 }
 
@@ -358,6 +359,7 @@ void TObjParser::ProcessGrassLine()
     }
 
     grass.technique = Forests::ValidateGrassTech(grass.technique);
+    grass.origin_tobj_line_number = m_line_number;
     m_def->grass.push_back(grass);
 }
 
