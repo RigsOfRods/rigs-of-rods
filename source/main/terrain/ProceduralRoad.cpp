@@ -36,9 +36,17 @@ using namespace RoR;
 
 static int id_counter = 0;
 
-ProceduralRoad::ProceduralRoad()
+ProceduralRoad::ProceduralRoad(const std::string& _groundmodelName)
 {
     mid = id_counter++;
+    if (_groundmodelName != "")
+    {
+        m_customGroundmodel = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(_groundmodelName);
+        if (!m_customGroundmodel)
+        {
+            LOG(fmt::format("[RoR|ProceduralRoad] Custom ground model '{}' not found, using defaults.", _groundmodelName));
+        }
+    }
 }
 
 ProceduralRoad::~ProceduralRoad()
@@ -396,9 +404,14 @@ void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Tex
     }
     if (collision)
     {
-        ground_model_t* gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("concrete");
-        if (texfit == TextureFit::TEXFIT_ROAD || texfit == TextureFit::TEXFIT_ROADS1 || texfit == TextureFit::TEXFIT_ROADS2 || texfit == TextureFit::TEXFIT_ROADS3 || texfit == TextureFit::TEXFIT_ROADS4)
-            gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("asphalt");
+        ground_model_t* gm = m_customGroundmodel;
+        if (!gm)
+        {
+            if (texfit == TextureFit::TEXFIT_ROAD || texfit == TextureFit::TEXFIT_ROADS1 || texfit == TextureFit::TEXFIT_ROADS2 || texfit == TextureFit::TEXFIT_ROADS3 || texfit == TextureFit::TEXFIT_ROADS4)
+                gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("asphalt");
+            else
+                gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("concrete");
+        }
         addCollisionQuad(p1, p2, p3, p4, gm, flip);
     }
     tricount += 2;

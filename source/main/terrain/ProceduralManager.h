@@ -78,6 +78,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
     int smoothing_num_splits = 0; // 0=off
     bool collision_enabled = true; //!< Generate collision triangles?
     std::string custom_material; //!< If empty, the default material is used.
+    std::string custom_groundmodel; //!< If empty, the default ground model ("asphalt" for roads, "concrete" for others) is used for collision triangles.
 };
 
 class ProceduralManager: public RefCountingObject<ProceduralManager>

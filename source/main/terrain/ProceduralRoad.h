@@ -63,7 +63,7 @@ class ProceduralRoad : public RefCountingObject<ProceduralRoad>
 {
 public:
 
-    ProceduralRoad();
+    ProceduralRoad(const std::string& _groundmodelName = "");
     virtual ~ProceduralRoad() override;
 
     void addBlock(Ogre::Vector3 pos, Ogre::Quaternion rot, RoadType type, float width, float bwidth, float bheight, int pillartype = 1);
@@ -75,7 +75,7 @@ public:
     void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, ground_model_t* gm, bool flip = false);
     void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, std::string const& gm_name, bool flip = false);
     void finish(Ogre::SceneNode* snode, const std::string& materialName = ""); //!< If materialName is empty, the default material will be used.
-    void setCollisionEnabled(bool v) { collision = v; }
+    void setCollisionEnabled(bool v) { collision = v; } //!< Must be set before any quads are added. Default: true.
 
     static const unsigned int MAX_VERTEX = 50000;
     static const unsigned int MAX_TRIS = 50000;
@@ -113,6 +113,7 @@ private:
     RoadType lasttype;
     int mid = 0;
     bool collision = true; //!< Register collision triangles?
+    ground_model_t* m_customGroundmodel = nullptr;
     std::vector<int> registeredCollTris;
 };
 
