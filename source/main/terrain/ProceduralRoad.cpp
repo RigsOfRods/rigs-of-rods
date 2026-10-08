@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "ContentManager.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "Terrain.h"
@@ -58,7 +59,7 @@ ProceduralRoad::~ProceduralRoad()
     }
 }
 
-void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
+void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode, const std::string& materialName)
 {
     Vector3 pts[8];
     computePoints(pts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
@@ -66,7 +67,7 @@ void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
     addQuad(pts[7], pts[4], pts[3], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
     addQuad(pts[3], pts[2], pts[1], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
 
-    createMesh();
+    createMesh(materialName);
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
@@ -578,8 +579,10 @@ void ProceduralRoad::addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::
     }
 }
 
-void ProceduralRoad::createMesh()
+void ProceduralRoad::createMesh(const std::string& materialName /*= "" */)
 {
+    ROR_ASSERT(App::GetGameContext()->GetTerrain());
+
     AxisAlignedBox aab;
     union
     {
@@ -591,7 +594,20 @@ void ProceduralRoad::createMesh()
     msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     mainsub = msh->createSubMesh();
-    mainsub->setMaterialName("road2");
+    // Make sure custom material exists
+    if (materialName == "")
+    {
+        mainsub->setMaterialName(PROROAD_DEFAULT_MATERIAL, ContentManager::ResourcePack::MATERIALS.resource_group_name);
+    }
+    else if (!MaterialManager::getSingleton().resourceExists(materialName, App::GetGameContext()->GetTerrain()->getTerrainFileResourceGroup()))
+    {
+        LOG(fmt::format("[RoR|ProceduralRoad] Custom material '{}' does not exist. Using default.", materialName));
+        mainsub->setMaterialName(PROROAD_DEFAULT_MATERIAL, ContentManager::ResourcePack::MATERIALS.resource_group_name);
+    }
+    else
+    {
+        mainsub->setMaterialName(materialName, App::GetGameContext()->GetTerrain()->getTerrainFileResourceGroup());
+    }
 
     /// Define the vertices
     size_t vbufCount = (2 * 3 + 2) * vertexcount;

@@ -15,10 +15,30 @@ namespace Script2Game {
 class ProceduralObjectClass
 {
 public:
+    
+    /**
+    * Property (read/write), default 0: Use 0 to disable smoothing.
+    */
+    int smoothing_num_splits;
+    
+    /**
+    * Property (read/write), default true: Disabling collisions makes loading map faster (useful for debugging).
+    */
+    bool collision_enabled;    
+    
+    /**
+    * Property (read/write), default "": Set to empty string to use default material.
+    */
+    string custom_material_name;
+    
     /**
     * Name of the road/street this spline represents.
     */
-    string name;
+    string getName();
+    /**
+    * Name of the road/street this spline represents.
+    */
+    void setName(const string&in name);    
     
     /**
     * Adds point at the end.

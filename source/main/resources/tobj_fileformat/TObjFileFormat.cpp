@@ -158,6 +158,9 @@ bool TObjParser::ProcessCurrentLine()
         m_in_procedural_road = false;
         return true;
     }
+
+    // Procedural road directives:
+
     if (strncmp("smoothing_num_splits", m_cur_line_trimmed, 20) == 0)
     {
         if (m_in_procedural_road)
@@ -181,6 +184,21 @@ bool TObjParser::ProcessCurrentLine()
                 LOG(fmt::format("[RoR|TObj] not enough parameters at line '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
             }
             m_cur_procedural_obj->collision_enabled = Ogre::StringConverter::parseBool(valuebuf, false);
+        }
+        return true;
+    }
+    if (strncmp("custom_material", m_cur_line_trimmed, 15) == 0)
+    {
+        if (m_in_procedural_road)
+        {
+            char valuebuf[100] = {};
+            int result = sscanf(m_cur_line_trimmed, "custom_material %s", &valuebuf);
+            if (result != 1)
+            {
+                LOG(fmt::format("[RoR|TObj] not enough parameters at line '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
+            }
+            valuebuf[99] = '\0';
+            m_cur_procedural_obj->custom_material = valuebuf;
         }
         return true;
     }
