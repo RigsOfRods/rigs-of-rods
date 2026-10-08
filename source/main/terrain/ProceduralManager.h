@@ -77,6 +77,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
     ProceduralRoadPtr road;
     int smoothing_num_splits = 0; // 0=off
     bool collision_enabled = true; //!< Generate collision triangles?
+    std::string custom_material; //!< If empty, the default material is used.
 };
 
 class ProceduralManager: public RefCountingObject<ProceduralManager>

@@ -167,7 +167,7 @@ void ProceduralManager::rebuildObjectMesh(ProceduralObjectPtr po)
             po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
         }
     }
-    po->road->finish(pGroupingSceneNode);
+    po->road->finish(pGroupingSceneNode, po->custom_material);
 }
 
 void ProceduralManager::addObject(ProceduralObjectPtr po)

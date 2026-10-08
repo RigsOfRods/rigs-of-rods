@@ -100,8 +100,7 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addBlock(vector3 pos, quaternion rot, RoadType type, float width, float border_width, float border_height, int pillar_type = 1)", asMETHOD(RoR::ProceduralRoad, addBlock), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, TextureFit texfit, vector3 pos, vector3 lastpos, float width, bool flip = false)", asMETHOD(RoR::ProceduralRoad, addQuad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addCollisionQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, const string&in gm_name, bool flip = false)", asMETHODPR(RoR::ProceduralRoad, addCollisionQuad, (Ogre::Vector3, Ogre::Vector3, Ogre::Vector3, Ogre::Vector3, std::string const&, bool), void), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralRoadClass", "void createMesh()", asMETHOD(RoR::ProceduralRoad, createMesh), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralRoadClass", "void finish()", asMETHOD(RoR::ProceduralRoad, finish), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralRoadClass", "void finish(Ogre::SceneNode& groupingSceneNode, const string&in materialName = \"\")", asMETHOD(RoR::ProceduralRoad, finish), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void setCollisionEnabled(bool v)", asMETHOD(RoR::ProceduralRoad, setCollisionEnabled), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // class ProceduralObject (ref)
@@ -120,6 +119,8 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_smoothing_num_splits(int) property", asFUNCTIONPR([](ProceduralObject* self, int n) { self->smoothing_num_splits = n; }, (ProceduralObject*, int), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "bool get_collision_enabled() property", asFUNCTIONPR([](ProceduralObject* self) { return self->collision_enabled; }, (ProceduralObject*), bool), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_collision_enabled(bool) property", asFUNCTIONPR([](ProceduralObject* self, bool n) { self->collision_enabled = n; }, (ProceduralObject*, bool), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "string get_custom_material() property", asFUNCTIONPR([](ProceduralObject* self) { return self->custom_material; }, (ProceduralObject*), std::string), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_custom_material(const string&in) property", asFUNCTIONPR([](ProceduralObject* self, const std::string& n) { self->custom_material = n; }, (ProceduralObject*, const std::string&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
 
     // class ProceduralManager (ref)
     ProceduralManager::RegisterRefCountingObject(engine, "ProceduralManagerClass");

@@ -32,11 +32,7 @@ public:
     /**
     * For internal use by ProceduralManagerClass - do not use unless you know what you're doing!
     */    
-    void createMesh();
-    /**
-    * For internal use by ProceduralManagerClass - do not use unless you know what you're doing!
-    */    
-    void finish();
+    void finish(Ogre::SceneNode@ groupingSceneNode, const string&in materialName = "");
     /**
     * For internal use by ProceduralManagerClass - do not use unless you know what you're doing!
     */    
