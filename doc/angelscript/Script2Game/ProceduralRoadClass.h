@@ -18,6 +18,10 @@ class ProceduralRoadClass
 {
 public:
     /**
+    * If `groundmodelName` is empty, the default ground model ("asphalt" for roads, "concrete" for others) is used for collision triangles.
+    */
+    ProceduralRoad(const string&in groundmodelName = "")
+    /**
     * For internal use by ProceduralManagerClass - do not use unless you know what you're doing!
     */
     void addBlock(vector3 pos, quaternion rot, RoadType type, float width, float border_width, float border_height, int pillar_type = 1);

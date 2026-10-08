@@ -117,7 +117,7 @@ void ProceduralManager::rebuildObjectMesh(ProceduralObjectPtr po)
     if (po->road)
         this->deleteObjectMesh(po);
 
-    po->road = new ProceduralRoad();
+    po->road = new ProceduralRoad(po->custom_groundmodel);
     po->road->setCollisionEnabled(po->collision_enabled);
 
     Ogre::SimpleSpline spline;

@@ -202,6 +202,21 @@ bool TObjParser::ProcessCurrentLine()
         }
         return true;
     }
+    if (strncmp("custom_groundmodel", m_cur_line_trimmed, 18) == 0)
+    {
+        if (m_in_procedural_road)
+        {
+            char valuebuf[100] = {};
+            int result = sscanf(m_cur_line_trimmed, "custom_groundmodel %s", &valuebuf);
+            if (result != 1)
+            {
+                LOG(fmt::format("[RoR|TObj] not enough parameters at line '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
+            }
+            valuebuf[99] = '\0';
+            m_cur_procedural_obj->custom_groundmodel = valuebuf;
+        }
+        return true;
+    }
 
     // ** Process entries (ODEF or special objects)
 
