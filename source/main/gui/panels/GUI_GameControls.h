@@ -1,6 +1,7 @@
 /*
     This source file is part of Rigs of Rods
     Copyright 2020 tritonas00
+    Copyright 2021 - 2026 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,7 +21,6 @@
 #pragma once
 
 #include "InputEngine.h"
-#include "OgreImGui.h"
 
 namespace RoR {
 namespace GUI {
@@ -28,37 +28,50 @@ namespace GUI {
 class GameControls
 {
 public:
-    const ImVec4      GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+    const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
 
     void SetVisible(bool visible);
     bool IsVisible() const { return m_is_visible; }
     bool IsHovered() const { return m_is_hovered; }
 
     bool IsInteractiveKeyBindingActive() { return m_interactive_keybinding_active; }
-    void Draw();
+    void Draw(float dt);
 
 private:
     void DrawEventEditBox();             //!< Only the editing UI, embeddable.
     void DrawEvent(RoR::events ev_code); //!< One line in table
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
+    void DrawMenubar();
+    void DrawPreviewControls();
+    void DrawAxisPreview(int axis_index, int axis_value);
+    void DrawSliderPreview(int slider_index, int slider_x, int slider_y);
+    void DrawVectorPreview(int vector_index, float vector_x, float vector_y, float vector_z);
+    void DrawPovPreview(int pov_index, int pov_direction);
+    void DrawInteractiveKeybindDigital();
+    void DrawInteractiveButtonBinding();
 
     // Edit bindings (used for both expert and interactive modes)
+    void UpdateInteractiveKeybinding();
     void ApplyChanges();
     void CancelChanges();
 
     void SaveMapFile();
     void ReloadMapFile();
 
-    bool               ShouldDisplay(event_trigger_t& trig);
+    bool ShouldDisplay(event_trigger_t& trig);
+    void UpdateFlashingColor(float dt);
 
     bool m_is_visible = false;
     bool m_is_hovered = false;
     float m_colum_widths[3] = {}; //!< body->header width sync
+    Ogre::ColourValue m_flashing_color = Ogre::ColourValue(1.f, 0.5f, 0.5f, 1.f);
+    float m_flashing_timer = 0.f;
 
     // Mode/config file selection
-    int m_active_mapping_file = InputEngine::DEFAULT_MAPFILE_DEVICEID;
+    int m_active_mapping_deviceid = InputEngine::DEFAULT_MAPFILE_DEVICEID;
     bool m_unsaved_changes = false;
+    bool m_preview_controls = false;
 
     // Editing context
     RoR::events      m_active_event = events::EV_MODE_LAST; // Invalid
@@ -67,6 +80,10 @@ private:
     Str<1000>        m_active_buffer;
     bool             m_interactive_keybinding_active = false;
     bool             m_interactive_keybinding_expl = true;
+    bool             m_interactive_keybinding_analog = false;
+    bool             m_interactive_keybinding_delete_on_cancel = false;
+    int              m_interactive_pov_number = -1;         //!< POV hat being pressed during interactive binding, -1 if none.
+    std::map<int, float> m_interactive_pov_hold_times;      //!< OIS::Pov direction -> seconds held; longest one wins on release.
 };
 
 } // namespace GUI

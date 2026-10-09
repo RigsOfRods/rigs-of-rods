@@ -514,10 +514,10 @@ public:
 
     /// @name Event config files
     /// @{
-    bool                loadConfigFile(int deviceID = -1);                  //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
-    bool                saveConfigFile(int deviceID = -1);                  //!< Wites events with matching deviceID to loaded file with matching deviceID (or default file if deviceID is -1).
-    std::string const&  getLoadedConfigFile(int deviceID = -1);             //!< Returns filename from `loadConfigFile()` call.
-    bool                processLine(const char* line, int deviceID = -1);
+    bool                loadConfigFile(int deviceID = DEFAULT_MAPFILE_DEVICEID);                  //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
+    bool                saveConfigFile(int deviceID = DEFAULT_MAPFILE_DEVICEID);                  //!< Wites events with matching deviceID to loaded file with matching deviceID (or default file if deviceID is -1).
+    std::string         getLoadedConfigFile(int deviceID = DEFAULT_MAPFILE_DEVICEID);             //!< Returns filename from `loadConfigFile()` call.
+    bool                processLine(const char* line, int deviceID = DEFAULT_MAPFILE_DEVICEID);
     bool                updateConfigline(event_trigger_t* t);
     /// @}
 
@@ -525,7 +525,7 @@ public:
     /// @{
     void                addEvent(int eventID, event_trigger_t& t);          //!< Registers new trigger for this event.
     void                addEvent(int eventID);                              //!< Registers new event without trigger.
-    void                addEventDefault(int eventID, int deviceID = -1);    //!< Adds a new trigger with builtin value for this event.
+    void                addEventDefault(int eventID, int deviceID = DEFAULT_MAPFILE_DEVICEID);    //!< Adds a new trigger with builtin value for this event.
     void                updateEvent(int eventID, const event_trigger_t& t);
     void                eraseEvent(int eventID, const event_trigger_t* t);
     void                clearEvents(int eventID);                           //!< Clears all bindings for given event.

@@ -414,6 +414,134 @@ using namespace std;
 using namespace Ogre;
 using namespace OIS;
 
+/// Fake joystick for testing without physical devices, enabled by cvar 'diag_phony_joystick'.
+/// Has 4 of each component and animates them one by one in an endless sequence.
+class PhonyJoyStick : public OIS::JoyStick
+{
+public:
+    static const int NUM_COMPONENTS = 4;
+
+    PhonyJoyStick(int devID)
+        : OIS::JoyStick("Phony Debug Joystick", /*buffered:*/true, devID, /*creator:*/nullptr)
+    {
+        this->_initialize();
+
+        // Build the animation sequence: every component gets its turn.
+        for (int i = 0; i < NUM_COMPONENTS; i++) { m_steps.push_back({ OIS_Button,  i, 0, 0.5f }); }
+        for (int i = 0; i < NUM_COMPONENTS; i++) { m_steps.push_back({ OIS_Axis,    i, 0, 1.0f }); }
+        for (int i = 0; i < NUM_COMPONENTS; i++) { m_steps.push_back({ OIS_Slider,  i, 0, 1.0f }); // X
+                                                   m_steps.push_back({ OIS_Slider,  i, 1, 1.0f }); } // Y
+        for (int i = 0; i < NUM_COMPONENTS; i++) { m_steps.push_back({ OIS_POV,     i, 0, 1.6f }); }
+        for (int i = 0; i < NUM_COMPONENTS; i++) { m_steps.push_back({ OIS_Vector3, i, 0, 1.5f }); }
+        for (const Step& step : m_steps) { m_sequence_duration += step.duration; }
+    }
+
+    virtual void setBuffered(bool buffered) override { mBuffered = buffered; }
+    virtual OIS::Interface* queryInterface(OIS::Interface::IType type) override { return nullptr; }
+
+    virtual void _initialize() override
+    {
+        mState.mButtons.resize(NUM_COMPONENTS);
+        mState.mAxes.resize(NUM_COMPONENTS);
+        mState.mVectors.resize(NUM_COMPONENTS);
+        mSliders = NUM_COMPONENTS;
+        mPOVs = NUM_COMPONENTS;
+        mState.clear();
+    }
+
+    virtual void capture() override
+    {
+        const OIS::JoyStickState prev_state = mState;
+        mState.clear(); // Everything at rest except the currently animated component.
+
+        // Find active step and progress within it (0..1)
+        float time = std::fmod(m_timer.getMilliseconds() / 1000.f, m_sequence_duration);
+        size_t step_idx = 0;
+        while (time >= m_steps[step_idx].duration && step_idx < m_steps.size() - 1)
+        {
+            time -= m_steps[step_idx].duration;
+            step_idx++;
+        }
+        const Step& step = m_steps[step_idx];
+        const float progress = time / step.duration;
+        const float sweep = std::sin(progress * 2.f * Ogre::Math::PI); // 0 -> max -> 0 -> min -> 0
+
+        switch (step.type)
+        {
+        case OIS_Button:
+            mState.mButtons[step.index] = (progress < 0.7f); // press, then release before the next one
+            break;
+        case OIS_Axis:
+            mState.mAxes[step.index].abs = (int)(sweep * MAX_AXIS);
+            break;
+        case OIS_Slider:
+            ((step.sub == 0) ? mState.mSliders[step.index].abX : mState.mSliders[step.index].abY) = (int)(sweep * MAX_AXIS);
+            break;
+        case OIS_POV:
+        {
+            static const int POV_DIRECTIONS[] = { Pov::North, Pov::NorthEast, Pov::East, Pov::SouthEast, Pov::South, Pov::SouthWest, Pov::West, Pov::NorthWest };
+            mState.mPOV[step.index].direction = POV_DIRECTIONS[std::min((int)(progress * 8), 7)];
+            break;
+        }
+        case OIS_Vector3:
+        {
+            // Sweep X, Y, Z in thirds of the step
+            const int axis = std::min((int)(progress * 3), 2);
+            const float value = std::sin(std::fmod(progress * 3.f, 1.f) * 2.f * Ogre::Math::PI);
+            OIS::Vector3& vec = mState.mVectors[step.index];
+            ((axis == 0) ? vec.x : (axis == 1) ? vec.y : vec.z) = value;
+            break;
+        }
+        default:
+            break;
+        }
+
+        this->NotifyChanges(prev_state);
+    }
+
+private:
+    struct Step
+    {
+        OIS::ComponentType type;
+        int index;
+        int sub;        //!< Slider: 0=X, 1=Y
+        float duration; //!< Seconds
+    };
+
+    /// Fires listener events for components that changed, like real buffered devices do.
+    void NotifyChanges(const OIS::JoyStickState& prev)
+    {
+        if (!mBuffered || !mListener)
+            return;
+
+        const OIS::JoyStickEvent ev(this, mState);
+        for (int i = 0; i < NUM_COMPONENTS; i++)
+        {
+            if (mState.mButtons[i] != prev.mButtons[i])
+            {
+                if (mState.mButtons[i])
+                    mListener->buttonPressed(ev, i);
+                else
+                    mListener->buttonReleased(ev, i);
+            }
+            if (mState.mAxes[i].abs != prev.mAxes[i].abs)
+                mListener->axisMoved(ev, i);
+            if (mState.mSliders[i].abX != prev.mSliders[i].abX || mState.mSliders[i].abY != prev.mSliders[i].abY)
+                mListener->sliderMoved(ev, i);
+            if (mState.mPOV[i].direction != prev.mPOV[i].direction)
+                mListener->povMoved(ev, i);
+            const OIS::Vector3& v = mState.mVectors[i];
+            const OIS::Vector3& pv = prev.mVectors[i];
+            if (v.x != pv.x || v.y != pv.y || v.z != pv.z)
+                mListener->vector3Moved(ev, i);
+        }
+    }
+
+    std::vector<Step> m_steps;
+    float m_sequence_duration = 0.f;
+    Ogre::Timer m_timer;
+};
+
 const std::string InputEngine::DEFAULT_MAPFILE = "input.map";
 
 InputEngine::InputEngine() :
@@ -460,7 +588,10 @@ void InputEngine::destroy()
             {
                 if (!mJoy[i])
                     continue;
-                mInputManager->destroyInputObject(mJoy[i]);
+                if (dynamic_cast<PhonyJoyStick*>(mJoy[i]))
+                    delete mJoy[i]; // Not created by OIS, `destroyInputObject()` would throw.
+                else
+                    mInputManager->destroyInputObject(mJoy[i]);
                 mJoy[i] = 0;
             }
         }
@@ -563,6 +694,13 @@ void InputEngine::setup()
     catch (OIS::Exception& ex)
     {
         LOG(String("Exception raised on joystick creation: ") + String(ex.eText));
+    }
+
+    if (App::diag_phony_joystick->getBool() && free_joysticks < MAX_JOYSTICKS)
+    {
+        mJoy[free_joysticks] = new PhonyJoyStick(free_joysticks);
+        free_joysticks++;
+        LOG("Creating Joystick " + TOSTRING(free_joysticks) + " (" + mJoy[free_joysticks - 1]->vendor() + ") - fake device, see cvar 'diag_phony_joystick'");
     }
 
     try
@@ -1952,13 +2090,13 @@ bool InputEngine::saveConfigFile(int deviceID)
         return this->saveMapping(m_loaded_configs[deviceID], deviceID);
 }
 
-std::string const& InputEngine::getLoadedConfigFile(int deviceID /*= -1*/)
+std::string InputEngine::getLoadedConfigFile(int deviceID /*= DEFAULT_MAPFILE_DEVICEID*/)
 {
     ROR_ASSERT(deviceID < free_joysticks);
-    if (deviceID == -1)
-        return DEFAULT_MAPFILE;
+    if (deviceID == DEFAULT_MAPFILE_DEVICEID)
+        return fmt::format("({}) {}", _LC("InputEngine", "Keyboard"), DEFAULT_MAPFILE);
     else
-        return m_loaded_configs[deviceID];
+        return fmt::format("({}) {}", _LC("InputEngine", "Controller"), m_loaded_configs[deviceID]);
 }
 
 bool InputEngine::loadMapping(String fileName, int deviceID)
