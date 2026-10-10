@@ -134,7 +134,7 @@ void FetchServerlist(std::string portal_url)
 
 inline void DrawTableHeader(const char* title) // Internal helper
 {
-    float table_padding_y = 4.f;
+    float table_padding_y = ImGui::GetFontSize() * 0.25f;
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + table_padding_y);
     ImGui::Text("%s", title);
     ImGui::NextColumn();
@@ -148,7 +148,7 @@ MultiplayerSelector::MultiplayerSelector()
 void MultiplayerSelector::Draw()
 {
     int window_flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(ImGui::GetFontSize() * 46.875f, ImGui::GetFontSize() * 25.f), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter();
     bool keep_open = true;
     ImGui::Begin(m_window_title, &keep_open, window_flags);
@@ -197,15 +197,15 @@ void MultiplayerSelector::DrawSettingsTab()
     DrawGCheckbox(App::mp_pseudo_collisions,  _LC("MultiplayerSelector", "Multiplayer collisions"));
     DrawGCheckbox(App::mp_cyclethru_net_actors, _LC("MultiplayerSelector", "Include remote actors when cycling via hotkeys"));
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE * ImGui::GetFontSize());
     ImGui::Separator();
 
-    ImGui::PushItemWidth(250.f);
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 15.625f);
 
     DrawGTextEdit(App::mp_player_name,        _LC("MultiplayerSelector", "Player nickname"), m_player_name_buf);
     DrawGTextEdit(App::mp_server_password,    _LC("MultiplayerSelector", "Default server password"), m_password_buf);
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE * ImGui::GetFontSize());
     ImGui::Separator();
 
     DrawGTextEdit(App::mp_player_token,       _LC("MultiplayerSelector", "User token"), m_user_token_buf);
@@ -221,13 +221,13 @@ void MultiplayerSelector::DrawDirectTab()
 {
     ImGui::PushID("direct");
 
-    ImGui::PushItemWidth(250.f);
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 15.625f);
     DrawGTextEdit(App::mp_server_host,  _LC("MultiplayerSelector", "Server host"), m_server_host_buf);
     DrawGIntBox(App::mp_server_port,    _LC("MultiplayerSelector", "Server port"));
     ImGui::InputText(                   _LC("MultiplayerSelector", "Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
     ImGui::PopItemWidth();
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE * ImGui::GetFontSize());
     if (ImGui::Button(_LC("MultiplayerSelector", "Join")))
     {
         App::mp_server_password->setStr(m_password_buf.GetBuffer());
@@ -256,7 +256,7 @@ void MultiplayerSelector::DrawServerlistTab()
 
     if (m_show_spinner)
     {
-        float spinner_size = 25.f;
+        float spinner_size = ImGui::GetFontSize() * 1.5625f;
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
         ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - spinner_size);
         LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
@@ -278,7 +278,7 @@ void MultiplayerSelector::DrawServerlistTab()
         ImGui::SetColumnOffset(3, 0.74f * table_width);   // Col #3: Version
         ImGui::SetColumnOffset(4, 0.82f * table_width);   // Col #4: Host/Port
         // Draw table header
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT * ImGui::GetFontSize());
         DrawTableHeader(_LC("MultiplayerSelector", "Name"));
         DrawTableHeader(_LC("MultiplayerSelector", "Terrain"));
         DrawTableHeader(_LC("MultiplayerSelector", "Users"));
@@ -291,7 +291,7 @@ void MultiplayerSelector::DrawServerlistTab()
             ImGui::PushID(i);
 
             // First column (name)
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT * ImGui::GetFontSize());
             MpServerInfo& server = m_serverlist_data[i];
             if (ImGui::Selectable(server.display_name.c_str(), m_selected_item == i, ImGuiSelectableFlags_SpanAllColumns))
             {
@@ -310,7 +310,7 @@ void MultiplayerSelector::DrawServerlistTab()
             {
                 // Draw lock icon for password-protected servers.
                 ImGui::SameLine();
-                ImGui::Image(reinterpret_cast<ImTextureID>(m_lock_icon->getHandle()), ImVec2(16, 16));
+                ImGui::Image(reinterpret_cast<ImTextureID>(m_lock_icon->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
             }
             ImGui::NextColumn();
 
@@ -334,7 +334,7 @@ void MultiplayerSelector::DrawServerlistTab()
         if (m_selected_item != -1 && m_serverlist_data[m_selected_item].net_version == RORNET_VERSION)
         {
             MpServerInfo& server = m_serverlist_data[m_selected_item];
-            if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(200.f, 0.f)))
+            if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(ImGui::GetFontSize() * 12.5f, 0.f)))
             {
                 App::mp_server_password->setStr(m_password_buf.GetBuffer());
                 App::mp_server_host->setStr(server.net_host.c_str());
@@ -345,7 +345,7 @@ void MultiplayerSelector::DrawServerlistTab()
             {
                 // TODO: Find out why this is always visible ~ ulteq 01/2019
                 ImGui::SameLine();
-                ImGui::PushItemWidth(250.f);
+                ImGui::PushItemWidth(ImGui::GetFontSize() * 15.625f);
                 ImGui::InputText(_LC("MultiplayerSelector", "Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
                 ImGui::PopItemWidth();
             }

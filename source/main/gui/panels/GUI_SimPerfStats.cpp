@@ -41,7 +41,7 @@ void SimPerfStats::Draw()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::SetNextWindowPos(theme.screen_edge_padding);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
-    ImVec2 histogram_size = ImVec2(60.f, 35.f);
+    ImVec2 histogram_size = ImVec2(ImGui::GetFontSize() * 3.75f, ImGui::GetFontSize() * 2.1875f);
     ImGui::Begin("FPS", &m_is_visible, flags);
 
     const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()->getStatistics();

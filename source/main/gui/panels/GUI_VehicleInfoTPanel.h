@@ -54,8 +54,12 @@ private:
     Ogre::Timer m_startupdemo_timer;
     bool m_startupdemo_init = false;
     ImVec4 m_panel_translucent_color = ImVec4(0.1f, 0.1f, 0.1f, 0.5f);
+    ImVec4 m_panel_transluc_scrollbar_bg = ImVec4(0.1f, 0.1f, 0.1f, 0.4f); // Drawn on top of semi-transparent panel, make it just a shade
     ImVec4 m_transluc_textdis_color = ImVec4(0.64f, 0.64f, 0.63f, 1.f);
     float GetPanelWidth();
+    void BeginTabContents(); //!< Opens scrollable child window which fits the panel to screen
+    void EndTabContents();
+    float m_tab_contents_height = 0.f; //!< Measured on previous frame; 0 = unknown
     /// @}
 
     /// @name 'Vehicle commands' tab

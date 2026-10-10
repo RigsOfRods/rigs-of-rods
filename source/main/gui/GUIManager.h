@@ -91,10 +91,11 @@ public:
 
         ImVec4 semitransparent_window_bg = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
         ImVec4 semitrans_text_bg_color   = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
+        ImVec4 semitrans_scrollbar_bg    = ImVec4(0.1f, 0.1f, 0.1f, 0.3f); // Drawn on top of a transparent panel; make it just a shade
         ImVec4 color_mark_max_darkness   = ImVec4(0.2, 0.2, 0.2, 0.0); //!< If all RGB components are darker than this, text is auto-lightened.
 
-        ImVec2 screen_edge_padding       = ImVec2(10.f, 10.f);
-        ImVec2 semitrans_text_bg_padding = ImVec2(4.f, 2.f);
+        ImVec2 screen_edge_padding       = ImVec2(0.f, 0.f); //!< Set by `ApplyImGuiStyle()` relative to font size.
+        ImVec2 semitrans_text_bg_padding = ImVec2(0.f, 0.f); //!< Set by `ApplyImGuiStyle()` relative to font size.
 
         ImVec4 tip_panel_bg_color        = ImVec4(0.3f, 0.6f, 0.45f, 1.f);
 
@@ -145,6 +146,8 @@ public:
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
     bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
     void ApplyUiPreset(); //!< reads cvar 'ui_preset'
+    void ReinitUI(); //!< Reloads fonts and re-applies style; reads cvar 'ui_scale_factor'. Must be called outside ImGui frame (processing `MSG_APP_REINIT_UI_REQUESTED`).
+    float GetUiScaleFactor() const; //!< Reads cvar 'ui_scale_factor', clamped to sane range
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -174,6 +177,7 @@ public:
 
 private:
     void SetupImGui();
+    void ApplyImGuiStyle(); //!< Resets style to defaults, applies RoR theme and scales by 'ui_scale_factor'
 
     void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
@@ -186,6 +190,7 @@ private:
     bool                 m_gui_kb_capture_requested = false; //!< Effective value, persistent
     Ogre::Timer          m_last_mousemove_time;
     bool                 m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
+    float                m_active_ui_scale_factor = 1.f;     //!< Last applied value of cvar 'ui_scale_factor', clamped to sane range.
 };
 
 } // namespace RoR

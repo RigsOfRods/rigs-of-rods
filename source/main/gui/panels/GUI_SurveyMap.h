@@ -49,8 +49,8 @@ class SurveyMap
 {
 public:
 
-    const float WINDOW_PADDING = 4.f;
-    const float WINDOW_ROUNDING = 2.f;
+    const float WINDOW_PADDING = 0.25f;   //!< Relative to font size
+    const float WINDOW_ROUNDING = 0.125f; //!< Relative to font size
 
     void CreateTerrainTextures();
     void Draw();

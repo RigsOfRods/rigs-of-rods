@@ -46,14 +46,14 @@ namespace GUI {
 class TopMenubar
 {
 public:
-    const float   MENU_Y_OFFSET         = 40.f;
-    const float   PANEL_HOVERBOX_HEIGHT = 50.f;
+    const float   MENU_Y_OFFSET         = 2.5f;   //!< Relative to font size
+    const float   PANEL_HOVERBOX_HEIGHT = 3.125f; //!< Relative to font size
     const ImVec4  GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
     const ImVec4  WHITE_TEXT            = ImVec4(0.9f, 0.9f, 0.9f, 1.f);
     const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
-    const ImVec2  MENU_HOVERBOX_PADDING = ImVec2(25.f, 10.f);
+    const ImVec2  MENU_HOVERBOX_PADDING = ImVec2(1.5625f, 0.625f); //!< Relative to font size
     const int     TUNING_SUBJECTID_USE_NAME = -2;
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };

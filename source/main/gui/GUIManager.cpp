@@ -45,6 +45,8 @@
 #include <OgreOverlayContainer.h>
 #include <OgreOverlayManager.h>
 
+#include <imgui_internal.h>
+
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 
 using namespace RoR;
@@ -100,7 +102,6 @@ GUIManager::GUIManager()
 
     // Configure the chatbox console view
     this->ChatBox.GetConsoleView().cvw_background_color   = m_theme.semitrans_text_bg_color;
-    this->ChatBox.GetConsoleView().cvw_background_padding = m_theme.semitrans_text_bg_padding;
 }
 
 GUIManager::~GUIManager()
@@ -344,9 +345,40 @@ void GUIManager::NewImGuiFrame(float dt)
 
 void GUIManager::SetupImGui()
 {
-    m_imgui.Init();
-    // Colors
+    m_imgui.Init(this->GetUiScaleFactor());
+    this->ApplyImGuiStyle();
+    m_active_ui_scale_factor = this->GetUiScaleFactor();
+    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
+}
+
+void GUIManager::ReinitUI()
+{
+    m_imgui.ReloadFonts(this->GetUiScaleFactor());
+    this->ApplyImGuiStyle();
+
+    // Resize imgui windows using <imgui_internal.h>
+    float resize_ratio = this->GetUiScaleFactor() / m_active_ui_scale_factor;
+    m_active_ui_scale_factor = this->GetUiScaleFactor();
+    for (ImGuiWindow* window: ImGui::GetCurrentContext()->Windows)
+    {
+        if (!(window->Flags & ImGuiWindowFlags_AlwaysAutoResize) && !(window->Flags & ImGuiWindowFlags_ChildWindow))
+        {
+            const ImVec2 oldsize = window->SizeFull;
+            ImGui::SetWindowSize(window, ImVec2(oldsize.x * resize_ratio, oldsize.y * resize_ratio));
+        }
+    }
+}
+
+float GUIManager::GetUiScaleFactor() const
+{
+    return Ogre::Math::Clamp(App::ui_scale_factor->getFloat(), UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX);
+}
+
+void GUIManager::ApplyImGuiStyle()
+{
     ImGuiStyle& style = ImGui::GetStyle();
+    style = ImGuiStyle(); // Reset sizes, so that scaling isn't applied repeatedly
+    // Colors
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
     style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 0.90f);
@@ -391,8 +423,14 @@ void GUIManager::SetupImGui()
     style.ItemSpacing           = ImVec2(5.f, 5.f);
     style.GrabRounding          = 3.f;
     style.WindowBorderSize      = 0.f;
+    // Scaling
+    style.ScaleAllSizes(this->GetUiScaleFactor());
 
-    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
+    // Theme sizes (relative to font size)
+    const float font_size = ImGui::GetIO().Fonts->Fonts[0]->FontSize;
+    m_theme.screen_edge_padding       = ImVec2(0.625f, 0.625f) * font_size;
+    m_theme.semitrans_text_bg_padding = ImVec2(0.25f, 0.125f) * font_size;
+    this->ChatBox.GetConsoleView().cvw_background_padding = m_theme.semitrans_text_bg_padding;
 }
 
 void GUIManager::DrawCommonGui()

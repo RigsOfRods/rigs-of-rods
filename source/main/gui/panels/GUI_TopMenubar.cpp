@@ -204,7 +204,7 @@ void TopMenubar::Draw(float dt)
     {
         m_open_menu = TopMenu::TOPMENU_NONE;
         m_confirm_remove_all = false;
-        this->DrawSpecialStateBox(10.f);
+        this->DrawSpecialStateBox(ImGui::GetFontSize() * 0.625f);
         return;
     }
 
@@ -314,14 +314,14 @@ void TopMenubar::Draw(float dt)
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 
-    this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + 10.f);
+    this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + ImGui::GetFontSize() * 0.625f);
 
     ImVec2 menu_pos;
     ActorPtr current_actor = App::GetGameContext()->GetPlayerActor();
     switch (m_open_menu)
     {
     case TopMenu::TOPMENU_SIM:
-        menu_pos.y = window_pos.y + sim_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + sim_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = sim_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Sim menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -464,16 +464,16 @@ void TopMenubar::Draw(float dt)
                 App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             }
 
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
 
     case TopMenu::TOPMENU_ACTORS:
-        menu_pos.y = window_pos.y + actors_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + actors_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = actors_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Actors menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -495,16 +495,16 @@ void TopMenubar::Draw(float dt)
                 }
 #endif // USE_SOCKETW
             }
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
 
     case TopMenu::TOPMENU_SAVEGAMES:
-        menu_pos.y = window_pos.y + savegames_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + savegames_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = savegames_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Savegames"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -563,23 +563,23 @@ void TopMenubar::Draw(float dt)
                 }
             }
 
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
 
     case TopMenu::TOPMENU_SETTINGS:
-        menu_pos.y = window_pos.y + settings_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + settings_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = settings_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Settings menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
             // AUDIO SETTINGS
             ImGui::Separator();
-            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 7.8125f); // Width includes [+/-] buttons
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
             DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
 
@@ -692,16 +692,16 @@ void TopMenubar::Draw(float dt)
                 DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
             }
             ImGui::PopItemWidth();
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
 
     case TopMenu::TOPMENU_TOOLS:
-        menu_pos.y = window_pos.y + tools_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + tools_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = tools_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Tools menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -820,7 +820,7 @@ void TopMenubar::Draw(float dt)
                 ImGui::EndTooltip();
             }
 
-            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 7.8125f); // Width includes [+/-] buttons
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Visual options:"));
             DrawGIntSlider(App::gfx_polygon_mode, _LC("TopMenubar", "Polygon mode"), 1, 3);
@@ -833,16 +833,16 @@ void TopMenubar::Draw(float dt)
                 ImGui::EndTooltip();
             }
 
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
 
     case TopMenu::TOPMENU_AI:
-        menu_pos.y = window_pos.y + ai_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + ai_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = ai_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "AI menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -852,7 +852,7 @@ void TopMenubar::Draw(float dt)
                 ai_menu = false;
             }
 
-            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 7.8125f); // Width includes [+/-] buttons
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "General options:"));
 
             if (ai_num < 1)
@@ -1132,7 +1132,7 @@ void TopMenubar::Draw(float dt)
 
             ImGui::Separator();
 
-            if (ImGui::Button(StripColorMarksFromText(ai_dname).c_str(), ImVec2(250, 0)))
+            if (ImGui::Button(StripColorMarksFromText(ai_dname).c_str(), ImVec2(ImGui::GetFontSize() * 15.625f, 0)))
             {
                 ai_select = true;
 
@@ -1150,7 +1150,7 @@ void TopMenubar::Draw(float dt)
             if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
             {
                 ImGui::PushID("vehicle2");
-                if (ImGui::Button(StripColorMarksFromText(ai_dname2).c_str(), ImVec2(250, 0)))
+                if (ImGui::Button(StripColorMarksFromText(ai_dname2).c_str(), ImVec2(ImGui::GetFontSize() * 15.625f, 0)))
                 {
                     ai_select2 = true;
 
@@ -1180,7 +1180,7 @@ void TopMenubar::Draw(float dt)
                 ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
             }
 
-            if (ImGui::Button(_LC("TopMenubar", "Start"), ImVec2(80, 0)))
+            if (ImGui::Button(_LC("TopMenubar", "Start"), ImVec2(ImGui::GetFontSize() * 5.f, 0)))
             {
                 if (ai_mode == 4) // Chase driving mode uses special waypoint setup
                 {
@@ -1221,7 +1221,7 @@ void TopMenubar::Draw(float dt)
 
             ImGui::SameLine();
 
-            if (ImGui::Button(_LC("TopMenubar", "Stop All"), ImVec2(80, 0)))
+            if (ImGui::Button(_LC("TopMenubar", "Stop All"), ImVec2(ImGui::GetFontSize() * 5.f, 0)))
             {
                 if (ai_mode == 4) // Chase driving mode
                 {
@@ -1266,7 +1266,7 @@ void TopMenubar::Draw(float dt)
                 ImGui::PushStyleColor(ImGuiCol_Button, RED_TEXT);
             }
 
-            if (ImGui::Button(label.c_str(), ImVec2(80, 0)))
+            if (ImGui::Button(label.c_str(), ImVec2(ImGui::GetFontSize() * 5.f, 0)))
             {
                 if (!ai_rec)
                 {
@@ -1294,7 +1294,7 @@ void TopMenubar::Draw(float dt)
                     if (j_row.HasMember("terrain") && App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
                     {
                         display_count++;
-                        if (ImGui::Button(j_row["preset"].GetString(), ImVec2(250, 0)))
+                        if (ImGui::Button(j_row["preset"].GetString(), ImVec2(ImGui::GetFontSize() * 15.625f, 0)))
                         {
                             ai_waypoints.clear();
 
@@ -1328,7 +1328,7 @@ void TopMenubar::Draw(float dt)
                 {
                     if (ai_presets_extern_fetching)
                     {
-                        float spinner_size = 8.f;
+                        float spinner_size = ImGui::GetFontSize() * 0.5f;
                         ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
                         LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
                     }
@@ -1353,7 +1353,7 @@ void TopMenubar::Draw(float dt)
                     ImGui::Text("%s", _LC("TopMenubar", "Supported terrains:"));
                     ImGui::Separator();
 
-                    ImGui::BeginChild("terrains-scrolling", ImVec2(0.f, 200), false);
+                    ImGui::BeginChild("terrains-scrolling", ImVec2(0.f, ImGui::GetFontSize() * 12.5f), false);
 
                     for (size_t i = 0; i < num_rows; i++)
                     {
@@ -1379,7 +1379,7 @@ void TopMenubar::Draw(float dt)
                 }
                 else
                 {
-                    if (ImGui::Button(_LC("TopMenubar", "Export"), ImVec2(250, 0)))
+                    if (ImGui::Button(_LC("TopMenubar", "Export"), ImVec2(ImGui::GetFontSize() * 15.625f, 0)))
                     {
                         std::string s;
 
@@ -1410,7 +1410,7 @@ void TopMenubar::Draw(float dt)
                                                       ai_waypoints.size()), "lightbulb.png");
                     }
 
-                    ImGui::BeginChild("waypoints-scrolling", ImVec2(0.f, 200), false);
+                    ImGui::BeginChild("waypoints-scrolling", ImVec2(0.f, ImGui::GetFontSize() * 12.5f), false);
 
                     for (int i = 0; i < ai_waypoints.size(); i++)
                     {
@@ -1418,7 +1418,7 @@ void TopMenubar::Draw(float dt)
                         ImGui::AlignTextToFramePadding();
                         ImGui::Text("%d", i);
                         ImGui::SameLine();
-                        if (ImGui::Button("teleport", ImVec2(60, 0)))
+                        if (ImGui::Button("teleport", ImVec2(ImGui::GetFontSize() * 3.75f, 0)))
                         {
                             Ogre::Vector3* payload = new Ogre::Vector3(ai_waypoints[i].position);
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_TELEPORT_PLAYER_REQUESTED, (void*)payload));
@@ -1431,7 +1431,7 @@ void TopMenubar::Draw(float dt)
                             ImGui::EndTooltip();
                         }
                         ImGui::SameLine();
-                        ImGui::SetNextItemWidth(90);
+                        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.625f);
 
                         if (ai_waypoints[i].speed < -1)
                         {
@@ -1455,16 +1455,16 @@ void TopMenubar::Draw(float dt)
             }
 
             ImGui::PopItemWidth();
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
 
     case TopMenu::TOPMENU_TUNING:
-        menu_pos.y = window_pos.y + tuning_cursor.y + MENU_Y_OFFSET;
+        menu_pos.y = window_pos.y + tuning_cursor.y + MENU_Y_OFFSET * ImGui::GetFontSize();
         menu_pos.x = tuning_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Tuning menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -1629,8 +1629,8 @@ void TopMenubar::Draw(float dt)
                             const ImVec2 min = checkbox_cursor + ImGui::GetStyle().FramePadding*1.4f;
                             const ImVec2 max = checkbox_cursor + (ImVec2(square_sz, square_sz) - ImGui::GetStyle().FramePadding*1.5f);
                             const ImColor X_COLOR(0.5f, 0.48f, 0.45f);
-                            ImGui::GetWindowDrawList()->AddLine(min, max, X_COLOR, 4.f);
-                            ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, max.y), ImVec2(max.x, min.y), X_COLOR, 4.f);
+                            ImGui::GetWindowDrawList()->AddLine(min, max, X_COLOR, ImGui::GetFontSize() * 0.25f);
+                            ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, max.y), ImVec2(max.x, min.y), X_COLOR, ImGui::GetFontSize() * 0.25f);
                         }
                         if (conflict_w_hovered)
                         {
@@ -1639,7 +1639,7 @@ void TopMenubar::Draw(float dt)
                             const ImVec2 min = checkbox_cursor;
                             const ImVec2 max = checkbox_cursor + ImVec2(square_sz + 0.5f, square_sz);
                             const ImColor SQ_COLOR(0.7f, 0.1f, 0.f);
-                            ImGui::GetWindowDrawList()->AddRect(min, max, SQ_COLOR, 0.f, ImDrawCornerFlags_None, 3.f);
+                            ImGui::GetWindowDrawList()->AddRect(min, max, SQ_COLOR, 0.f, ImDrawCornerFlags_None, ImGui::GetFontSize() * 0.1875f);
                         }                        
                         // Record when checkbox is hovered - for drawing conflict markers
                         if (ImGui::IsItemHovered())
@@ -1984,7 +1984,7 @@ void TopMenubar::Draw(float dt)
 
                         // Draw RTT material name
                         ImGui::SameLine();
-                        ImGui::Dummy(ImVec2(3, 3));
+                        ImGui::Dummy(ImVec2(ImGui::GetFontSize() * 0.1875f, ImGui::GetFontSize() * 0.1875f));
                         ImGui::SameLine();
                         ImGui::Text("%s", tuning_actor->GetGfxActor()->getVideoCameras()[videocameraid].vcam_mat_name_orig.c_str());
 
@@ -2067,9 +2067,9 @@ void TopMenubar::Draw(float dt)
                 }
             }
 
-            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
-            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x * ImGui::GetFontSize();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y * ImGui::GetFontSize();
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
@@ -2102,7 +2102,7 @@ bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
     }
 
     ImVec2 box_min(0,0);
-    ImVec2 box_max(ImGui::GetIO().DisplaySize.x, ImGui::GetStyle().WindowPadding.y + PANEL_HOVERBOX_HEIGHT);
+    ImVec2 box_max(ImGui::GetIO().DisplaySize.x, ImGui::GetStyle().WindowPadding.y + PANEL_HOVERBOX_HEIGHT * ImGui::GetFontSize());
     ImVec2 mouse_pos = ImGui::GetIO().MousePos;
     const bool window_hovered ((mouse_pos.x >= box_min.x) && (mouse_pos.x <= box_max.x) &&
                             (mouse_pos.y >= box_min.y) && (mouse_pos.y <= box_max.y));
@@ -2168,14 +2168,14 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             ImGui::PushID(id.c_str());
             if (actor->ar_state == ActorState::NETWORKED_OK)
             {
-                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize())))
                 {
                    App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                 }
             }
             else if (actor->ar_state == ActorState::NETWORKED_HIDDEN)
             {
-                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16)))
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize())))
                 {
                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                 }
@@ -2304,7 +2304,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     else if (App::GetGameContext()->GetPlayerActor() &&
             App::GetGameContext()->GetPlayerActor()->ar_state == ActorState::LOCAL_REPLAY)
     {
-        content_width = 300;
+        content_width = ImGui::GetFontSize() * 18.75f;
         m_state_box = StateBox::STATEBOX_REPLAY;
         special_text = _LC("TopMenubar", "Replay");
     }
@@ -2312,7 +2312,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     {
         special_text = fmt::format(_LC("TopMenubar", "Live repair mode, hit '{}' to stop"),
             App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_REPAIR_TRUCK));
-        content_width = 450;
+        content_width = ImGui::GetFontSize() * 28.125f;
         m_state_box = StateBox::STATEBOX_LIVE_REPAIR;
         special_color = GREEN_TEXT;
         special_text_centering_weight = 0.7f;
@@ -2321,7 +2321,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     {
         special_text = fmt::format(_LC("TopMenubar", "Quick repair ('{}' for Live repair)"),
             App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_LIVE_REPAIR_MODE));
-        content_width = 450;
+        content_width = ImGui::GetFontSize() * 28.125f;
         m_state_box = StateBox::STATEBOX_QUICK_REPAIR;
         special_color = ORANGE_TEXT;
         special_text_centering_weight = 0.7f;
@@ -2372,7 +2372,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         if (App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "Zip")
         {
             // This is a read-only (ZIPped) terrain; offer the importer script.
-            content_width = ImGui::CalcTextSize(special_text.c_str()).x + 25.f;
+            content_width = ImGui::CalcTextSize(special_text.c_str()).x + ImGui::GetFontSize() * 1.5625f;
             m_state_box = StateBox::STATEBOX_IMPORT_TERRAIN;
         }
         else
@@ -2451,22 +2451,22 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
             {
                 // Draw special element on the right
                 ImGui::SameLine();
-                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.f, 0.f));
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetFontSize() * 0.125f, 0.f));
                 if (m_state_box == StateBox::STATEBOX_QUICK_REPAIR && App::sim_live_repair_interval->getFloat() > 0)
                 {
                     const float fraction = App::GetGameContext()->GetRepairMode().GetLiveRepairTimer() / App::sim_live_repair_interval->getFloat();
-                    ImGui::ProgressBar(fraction, ImVec2(15.f, ImGui::GetTextLineHeight() / 2.f), "");
+                    ImGui::ProgressBar(fraction, ImVec2(ImGui::GetFontSize() * 0.9375f, ImGui::GetTextLineHeight() / 2.f), "");
                     ImGui::SameLine();
                 }
                 DrawGCheckbox(App::ui_show_live_repair_controls, _LC("LiveRepair", "Show controls"));
                 ImGui::PopStyleVar(); // FramePadding
 
-                const ImVec2 MINI_SPACING = ImVec2(2.f,0.f);
+                const ImVec2 MINI_SPACING = ImVec2(ImGui::GetFontSize() * 0.125f, 0.f);
                 ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, MINI_SPACING);
 
                 if (App::ui_show_live_repair_controls->getBool())
                 {
-                    const float INDENT = 15.f;
+                    const float INDENT = ImGui::GetFontSize() * 0.9375f;
                     ImGui::Separator();
                     ImGui::TextDisabled("%s:", _LC("LiveRepair", "Movement"));
                       ImGui::Columns(3);
@@ -2493,8 +2493,8 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                     ImGui::TextDisabled("%s:", _LC("LiveRepair", "Modifiers"));
                       ImGui::Columns(4);
                       ImGui::SetColumnWidth(0, INDENT);
-                      ImGui::SetColumnWidth(1, 125);
-                      ImGui::SetColumnWidth(2, 125);
+                      ImGui::SetColumnWidth(1, ImGui::GetFontSize() * 7.8125f);
+                      ImGui::SetColumnWidth(2, ImGui::GetFontSize() * 7.8125f);
                         ImGui::NextColumn();
                         DrawRepairBoxModkey(OIS::KC_LMENU,_LC("LiveRepair", "Slow step")); // Left alt
                         DrawRepairBoxModkey(OIS::KC_LSHIFT,_LC("LiveRepair", "Fast step"));
@@ -2540,7 +2540,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                     + (ImGui::GetWindowContentRegionWidth() / 2 - ImGui::CalcTextSize(lbl_usemenu.c_str()).x / 2));
                 ImGui::TextDisabled("%s", lbl_usemenu.c_str());
             }
-            const ImVec2 PAD = ImVec2(5, 5); // To bridge top menubar hoverbox and statebox hoverbox
+            const ImVec2 PAD = ImVec2(ImGui::GetFontSize() * 0.3125f, ImGui::GetFontSize() * 0.3125f); // To bridge top menubar hoverbox and statebox hoverbox
             m_state_box_hoverbox_min = box_pos - PAD;
             m_state_box_hoverbox_max.x = box_pos.x + ImGui::GetWindowWidth();
             m_state_box_hoverbox_max.y = box_pos.y + ImGui::GetWindowHeight();
@@ -2729,7 +2729,7 @@ void TopMenubar::DrawTuningProtectedChkRightAligned(const int subject_id, bool p
         tuning_rwidget_cursorx_min = ImGui::GetCursorPosX();
     std::string protectchk_text = _LC("Tuning", "Protected");
     float protectchk_w = ImGui::CalcTextSize(protectchk_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
-    float protectchk_cursorx = (ImGui::GetWindowContentRegionWidth() - protectchk_w) - 20.f;
+    float protectchk_cursorx = (ImGui::GetWindowContentRegionWidth() - protectchk_w) - ImGui::GetFontSize() * 1.25f;
     if (protectchk_cursorx < tuning_rwidget_cursorx_min)
         protectchk_cursorx = tuning_rwidget_cursorx_min;
     ImGui::SetCursorPosX(protectchk_cursorx);

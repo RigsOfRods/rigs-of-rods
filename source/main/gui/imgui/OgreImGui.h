@@ -54,7 +54,8 @@ static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  
 class OgreImGui: public Ogre::RenderQueueListener
 {
 public:
-    void Init();
+    void Init(float font_scale);
+    void ReloadFonts(float font_scale); //!< Must not be called while an ImGui frame is in progress.
 
     // Input-injecting functions
     void InjectMouseMoved( const OIS::MouseEvent &arg );
@@ -68,5 +69,7 @@ public:
         const Ogre::String& invocation, bool& skipThisInvocation) override;
 
 private:
+    void AddFonts(float font_scale);
+
     std::unique_ptr<Ogre::ImGuiOverlay> m_imgui_overlay;
 };

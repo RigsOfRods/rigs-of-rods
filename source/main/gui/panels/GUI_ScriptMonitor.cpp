@@ -33,9 +33,9 @@ void ScriptMonitor::Draw()
 {
     // Table setup
     ImGui::Columns(3);
-    ImGui::SetColumnWidth(0, 25);
-    ImGui::SetColumnWidth(1, 200);
-    ImGui::SetColumnWidth(2, 200);
+    ImGui::SetColumnWidth(0, ImGui::GetFontSize() * 1.5625f);
+    ImGui::SetColumnWidth(1, ImGui::GetFontSize() * 12.5f);
+    ImGui::SetColumnWidth(2, ImGui::GetFontSize() * 12.5f);
 
     // Header
     ImGui::TextDisabled(_LC("ScriptMonitor", "ID"));
@@ -169,7 +169,7 @@ void ScriptMonitor::Draw()
 
                 ImVec2 rem_size = ImGui::CalcTextSize(_LC("ScriptMonitor", "Remove"));
                 ImGui::SameLine();
-                ImGui::SetCursorPosX(((cursorx + 190) - rem_size.x) - 2*ImGui::GetStyle().FramePadding.x);
+                ImGui::SetCursorPosX(((cursorx + ImGui::GetFontSize() * 11.875f) - rem_size.x) - 2*ImGui::GetStyle().FramePadding.x);
                 if (ImGui::SmallButton(_LC("ScriptMonitor", "Remove")))
                 {
                     CvarRemoveFileFromList(App::app_recent_scripts, filename);
@@ -187,12 +187,12 @@ void ScriptMonitor::DrawCommentedSeparator(const char* text)
 {
     ImGui::NextColumn(); // begin new row
     ImGui::NextColumn(); // skip ID column
-    ImVec2 pos = ImGui::GetCursorScreenPos() + ImVec2(10.f, 0.f);
-    ImGui::Dummy(ImVec2(0.1f, 2.5f));
+    ImVec2 pos = ImGui::GetCursorScreenPos() + ImVec2(ImGui::GetFontSize() * 0.625f, 0.f);
+    ImGui::Dummy(ImVec2(0.1f, ImGui::GetFontSize() * 0.15625f));
     ImGui::Separator();
-    ImGui::Dummy(ImVec2(0.1f, 2.5f));
+    ImGui::Dummy(ImVec2(0.1f, ImGui::GetFontSize() * 0.15625f));
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    ImVec2 padding(5.f, 0.f);
+    ImVec2 padding(ImGui::GetFontSize() * 0.3125f, 0.f);
     ImVec2 rect_max = pos + padding*2 + ImGui::CalcTextSize(text);
     drawlist->AddRectFilled(pos, rect_max, ImColor(ImGui::GetStyle().Colors[ImGuiCol_PopupBg]), ImGui::GetStyle().WindowRounding);
     drawlist->AddText(pos + padding, ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]), text);

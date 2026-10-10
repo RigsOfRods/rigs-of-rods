@@ -28,6 +28,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "DashBoardManager.h"
 #include "DiscordRpc.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
@@ -576,6 +577,34 @@ int main(int argc, char *argv[])
                         App::GetAppContext()->SetUpInput();
                         LOG(fmt::format("[RoR] DONE Reinitializing input engine."));
                         App::GetGuiManager()->LoadingWindow.SetVisible(false); // Shown by `GUI::GameSettings` when changing 'grab mode'
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
+                case MSG_APP_REINIT_UI_REQUESTED:
+                {
+                    try
+                    {
+                        float ui_scale_clamped = Ogre::Math::Clamp(App::ui_scale_factor->getFloat(), UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX);
+                        if (App::ui_scale_factor->getFloat() != ui_scale_clamped)
+                        {
+                            LOG(fmt::format("[RoR] Invalid value of 'ui_scale_factor' ({}), clamping to bounds <{}, {}>",
+                                App::ui_scale_factor->getFloat(), UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX));
+                            App::ui_scale_factor->setVal(ui_scale_clamped);
+                        }
+                        LOG(fmt::format("[RoR] Reinitializing UI (scale factor: {})", App::ui_scale_factor->getFloat()));
+                        App::GetGuiManager()->ReinitUI(); // OK to invoke directly - no ImGui frame is in progress while processing messages.
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                actor->ar_dashboard->applyUiScale(); // MyGUI-based dashboards
+                            }
+                        }
                     }
                     catch (...)
                     {

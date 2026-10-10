@@ -138,7 +138,7 @@ void AngelScriptExamples::DrawRowIntCheckbox(const char* nameStr, std::string co
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref, on)); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
-    ImGui::PushItemWidth(96);
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 6.f);
     ImGui::InputInt("", &var_ref, 1, 1);
     ImGui::PopItemWidth();
     ImGui::SameLine();

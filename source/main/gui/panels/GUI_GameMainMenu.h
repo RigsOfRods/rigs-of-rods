@@ -34,10 +34,10 @@ class GameMainMenu
 {
 public:
     // This class implements hand-made keyboard focus - button count must be known for wrapping
-    const float   WINDOW_WIDTH          = 200.f;
+    const float   WINDOW_WIDTH          = 12.5f; //!< Relative to font size
     const ImVec4  WINDOW_BG_COLOR       = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
     const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.25f, 0.25f, 0.24f, 0.6f); // Drawn on top of a transparent panel; make it just a shade
-    const ImVec2  BUTTON_PADDING        = ImVec2(4.f, 6.f);
+    const ImVec2  BUTTON_PADDING        = ImVec2(0.25f, 0.375f); //!< Relative to font size
 
     inline bool   IsVisible() const                { return m_is_visible; }
     inline void   SetVisible(bool v)               { m_is_visible = v; m_kb_focus_index = -1; }

@@ -63,7 +63,7 @@ void CollisionsDebug::Draw()
     {
         this->SetDrawEventBoxes(m_draw_collision_boxes);
     }
-    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST * ImGui::GetFontSize());
     if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_box_draw_distance))
     {
         for (Ogre::SceneNode* snode : m_collision_boxes)
@@ -91,7 +91,7 @@ void CollisionsDebug::Draw()
     {
         this->SetDrawCollisionMeshes(m_draw_collision_meshes);
     }
-    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST * ImGui::GetFontSize());
     if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_mesh_draw_distance))
     {
         for (Ogre::SceneNode* snode : m_collision_meshes)
@@ -121,7 +121,7 @@ void CollisionsDebug::Draw()
         int tris = static_cast<int>(f*Collisions::CELL_BLOCKSIZE);
         ImGui::TextColored(color, "%d ", tris);
     }
-    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST * ImGui::GetFontSize());
     ImGui::InputInt("Debug area extent (around character)", &m_cell_generator_distance_limit);
     ImGui::SameLine();
     ImGui::TextDisabled("(?)");
@@ -135,7 +135,7 @@ void CollisionsDebug::Draw()
     {
         this->SetDrawCollisionCells(m_draw_collision_cells);
     }
-    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST * ImGui::GetFontSize());
     if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_cell_draw_distance))
     {
         for (Ogre::SceneNode* snode : m_collision_cells)
@@ -380,7 +380,7 @@ void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vect
         ImVec2 text_pos(pos.x - ((text_size.x / 2)), pos.y - ((text_size.y / 2)));
 
         // Draw background rectangle
-        const float PADDING = 4.f;
+        const float PADDING = ImGui::GetFontSize() * 0.25f;
         drawlist->AddRectFilled(
             text_pos - ImVec2(PADDING, PADDING),
             text_pos + text_size + ImVec2(PADDING, PADDING),

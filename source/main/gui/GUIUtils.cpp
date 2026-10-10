@@ -451,7 +451,7 @@ void RoR::ImDrawEventHighlighted(events input_event)
         col = App::GetGuiManager()->GetTheme().highlight_text_color;
     }
     std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
-    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    const ImVec2 PAD = ImVec2(ImGui::GetFontSize() * 0.125f, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
     ImGui::BeginChildFrame(ImGuiID(input_event), ImGui::CalcTextSize(text.c_str()) + PAD*2);
     ImGui::TextColored(col, "%s", text.c_str());
@@ -467,7 +467,7 @@ bool RoR::ImDrawEventHighlightedButton(events input_event, bool* btn_hovered /*=
         col = App::GetGuiManager()->GetTheme().highlight_text_color;
     }
     std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
-    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    const ImVec2 PAD = ImVec2(ImGui::GetFontSize() * 0.125f, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
     ImGui::PushStyleColor(ImGuiCol_Text, col);
     ImGui::PushID(input_event);
@@ -494,7 +494,7 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
         col = App::GetGuiManager()->GetTheme().highlight_text_color;
     }
     std::string text = App::GetInputEngine()->getModifierKeyName(key);
-    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    const ImVec2 PAD = ImVec2(ImGui::GetFontSize() * 0.125f, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
     ImGui::BeginChildFrame(ImGuiID(key), ImGui::CalcTextSize(text.c_str()) + PAD*2);
     ImGui::TextColored(col, "%s", text.c_str());
@@ -505,7 +505,7 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
 ImVec2 RoR::ImCalcEventHighlightedSize(events input_event)
 {
     std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
-    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    const ImVec2 PAD = ImVec2(ImGui::GetFontSize() * 0.125f, 0.f);
     return ImGui::CalcTextSize(text.c_str()) + PAD*2;
 }
 

@@ -30,6 +30,7 @@ enum MsgType
     MSG_APP_LOAD_SCRIPT_REQUESTED,             //!< Request loading a script from resource(file) or memory; Params 'filename' (string)/'buffer'(string - has precedence over filename), 'category' (ScriptCategory), 'associated_actor' (int - only for SCRIPT_CATEGORY_ACTOR)
     MSG_APP_UNLOAD_SCRIPT_REQUESTED,           //!< Request unloading a script; Param 'id' (int - the ID of the script unit, see 'Script Monitor' tab in console UI.)   
     MSG_APP_REINIT_INPUT_REQUESTED,            //!< Request restarting the entire input subsystem (mouse, keyboard, controllers) including reloading input mappings. Use with caution.
+    MSG_APP_REINIT_UI_REQUESTED,               //!< Request reloading UI fonts and re-applying UI style, i.e. after changing cvar 'ui_scale_factor'. No params.
     // Networking
     MSG_NET_CONNECT_REQUESTED,                 //!< Request connection to multiplayer server specified by cvars 'mp_server_host, mp_server_port, mp_server_password'. No params.
     MSG_NET_CONNECT_STARTED,                   //!< Networking notification, DO NOT PUSH MANUALLY.
