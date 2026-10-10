@@ -139,10 +139,13 @@ inline void RegisterTerrain(AngelScript::asIScriptEngine* engine)
 }
 
 /// defined in ProceduralRoadAngelscript.cpp
+void RegisterProceduralRoadCommon(AngelScript::asIScriptEngine* engine);
 void RegisterProceduralRoadNative(AngelScript::asIScriptEngine* engine);
+void RegisterProceduralRoadGeneric(AngelScript::asIScriptEngine* engine);
 inline void RegisterProceduralRoad(AngelScript::asIScriptEngine* engine)
 {
-    RegisterAngelScriptBinding("ProceduralRoad", engine, &RegisterProceduralRoadNative, nullptr);
+    RegisterProceduralRoadCommon(engine);
+    RegisterAngelScriptBinding("ProceduralRoad", engine, &RegisterProceduralRoadNative, &RegisterProceduralRoadGeneric);
 }
 
 /// defined in GenericFileFormatAngelscript.cpp

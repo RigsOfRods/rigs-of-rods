@@ -19,79 +19,43 @@
 
 /// @file
 /// @author Petr Ohlidal
- 
+
+#include "AngelScriptBindings.h"
 #include "ProceduralManager.h"
 #include "ProceduralRoad.h"
 #include "ScriptEngine.h"
+#include "wrappers/ProceduralRoadAngelscriptWrappers.h"
 
 using namespace RoR;
 using namespace AngelScript;
-
-static ProceduralPoint* ProceduralPointFactory()
-{
-    return new ProceduralPoint();
-}
-
-static ProceduralObject* ProceduralObjectFactory()
-{
-    return new ProceduralObject();
-}
-
-static ProceduralRoad* ProceduralRoadFactory(const std::string& groundmodelName = "")
-{
-    return new ProceduralRoad(groundmodelName);
-}
+using namespace ProceduralRoadAngelscriptWrappers;
 
 void RoR::RegisterProceduralRoadNative(asIScriptEngine* engine)
 {
     int result = 0;
 
-    // enum RoadType
-    result = engine->RegisterEnum("RoadType"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_AUTOMATIC", (int)RoadType::ROAD_AUTOMATIC); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_FLAT", (int)RoadType::ROAD_FLAT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_LEFT", (int)RoadType::ROAD_LEFT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_RIGHT", (int)RoadType::ROAD_RIGHT); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_BOTH", (int)RoadType::ROAD_BOTH); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_BRIDGE", (int)RoadType::ROAD_BRIDGE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("RoadType", "ROAD_MONORAIL", (int)RoadType::ROAD_MONORAIL); ROR_ASSERT(result >= 0);
-
-    // enum TextureFit
-    result = engine->RegisterEnum("TextureFit"); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_NONE", (int)TextureFit::TEXFIT_NONE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_BRICKWALL", (int)TextureFit::TEXFIT_BRICKWALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_ROADS1", (int)TextureFit::TEXFIT_ROADS1); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_ROADS2", (int)TextureFit::TEXFIT_ROADS2); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_ROAD", (int)TextureFit::TEXFIT_ROAD); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_ROADS3", (int)TextureFit::TEXFIT_ROADS3); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_ROADS4", (int)TextureFit::TEXFIT_ROADS4); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_CONCRETEWALL", (int)TextureFit::TEXFIT_CONCRETEWALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_CONCRETEWALLI", (int)TextureFit::TEXFIT_CONCRETEWALLI); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_CONCRETETOP", (int)TextureFit::TEXFIT_CONCRETETOP); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("TextureFit", "TEXFIT_CONCRETEUNDER", (int)TextureFit::TEXFIT_CONCRETEUNDER); ROR_ASSERT(result >= 0);
+    // NOTE: enums RoadType and TextureFit are registered in RegisterProceduralRoadCommon()
 
     // struct ProceduralPoint (ref)
-    // NOTE: Using property-accessors because `offsetof()` cannot be used with derived classes (see https://stackoverflow.com/q/1129894)
-    // NOTE: Using lambdas to define the property-accessor functions because #lazy.
     ProceduralPoint::RegisterRefCountingObject(engine, "ProceduralPointClass");
     ProceduralPointPtr::RegisterRefCountingObjectPtr(engine, "ProceduralPointClassPtr", "ProceduralPointClass");
     result = engine->RegisterObjectBehaviour("ProceduralPointClass", asBEHAVE_FACTORY, "ProceduralPointClass@+ f()", asFUNCTION(ProceduralPointFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
-    //get (note: for compound data types like vector3 we must return non-const references so that expressions like `ppoint.position.y = 100.f` still compile and work):
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "vector3& get_position() property", asFUNCTIONPR([](ProceduralPoint* self) -> Ogre::Vector3& { return self->position; }, (ProceduralPoint*), Ogre::Vector3&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "quaternion& get_rotation() property", asFUNCTIONPR([](ProceduralPoint* self) -> Ogre::Quaternion& { return self->rotation; }, (ProceduralPoint*), Ogre::Quaternion&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "float get_width() property", asFUNCTIONPR([](ProceduralPoint* self) { return self->width; }, (ProceduralPoint*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "float get_border_width() property", asFUNCTIONPR([](ProceduralPoint* self) { return self->bwidth; }, (ProceduralPoint*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "float get_border_height() property", asFUNCTIONPR([](ProceduralPoint* self) { return self->bheight; }, (ProceduralPoint*), float), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "RoadType get_type() property", asFUNCTIONPR([](ProceduralPoint* self) { return self->type; }, (ProceduralPoint*), RoadType), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "int get_pillar_type() property", asFUNCTIONPR([](ProceduralPoint* self) { return self->pillartype; }, (ProceduralPoint*), int), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    //get:
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "vector3& get_position() property", asFUNCTION(ProceduralPoint_get_position), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "quaternion& get_rotation() property", asFUNCTION(ProceduralPoint_get_rotation), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "float get_width() property", asFUNCTION(ProceduralPoint_get_width), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "float get_border_width() property", asFUNCTION(ProceduralPoint_get_border_width), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "float get_border_height() property", asFUNCTION(ProceduralPoint_get_border_height), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "RoadType get_type() property", asFUNCTION(ProceduralPoint_get_type), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "int get_pillar_type() property", asFUNCTION(ProceduralPoint_get_pillar_type), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     //set:
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_position(const vector3& in pos) property", asFUNCTIONPR([](ProceduralPoint* self, const Ogre::Vector3& pos) { self->position = pos; }, (ProceduralPoint*, const Ogre::Vector3&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_rotation(const quaternion& in rot) property", asFUNCTIONPR([](ProceduralPoint* self, const Ogre::Quaternion& rot) { self->rotation = rot; }, (ProceduralPoint*, const Ogre::Quaternion&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_width(float width) property", asFUNCTIONPR([](ProceduralPoint* self, float width) { self->width = width; }, (ProceduralPoint*, float), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_border_width(float bwidth) property", asFUNCTIONPR([](ProceduralPoint* self, float bwidth) { self->bwidth = bwidth; }, (ProceduralPoint*, float), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_border_height(float bheight) property", asFUNCTIONPR([](ProceduralPoint* self, float bheight) { self->bheight = bheight; }, (ProceduralPoint*, float), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_type(RoadType type) property", asFUNCTIONPR([](ProceduralPoint* self, RoadType type) { self->type = type; }, (ProceduralPoint*, RoadType), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_pillar_type(int type) property", asFUNCTIONPR([](ProceduralPoint* self, int type) { self->pillartype = type; }, (ProceduralPoint*, int), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_position(const vector3& in pos) property", asFUNCTION(ProceduralPoint_set_position), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_rotation(const quaternion& in rot) property", asFUNCTION(ProceduralPoint_set_rotation), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_width(float width) property", asFUNCTION(ProceduralPoint_set_width), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_border_width(float bwidth) property", asFUNCTION(ProceduralPoint_set_border_width), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_border_height(float bheight) property", asFUNCTION(ProceduralPoint_set_border_height), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_type(RoadType type) property", asFUNCTION(ProceduralPoint_set_type), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralPointClass", "void set_pillar_type(int type) property", asFUNCTION(ProceduralPoint_set_pillar_type), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
 
     // class ProceduralRoad (ref)
     ProceduralRoad::RegisterRefCountingObject(engine, "ProceduralRoadClass");
@@ -115,14 +79,14 @@ void RoR::RegisterProceduralRoadNative(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralPointClassPtr @getPoint(int pos)", asMETHOD(RoR::ProceduralObject, getPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "int getNumPoints()", asMETHOD(RoR::ProceduralObject, getNumPoints), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralRoadClassPtr @getRoad()", asMETHOD(ProceduralObject, getRoad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "int get_smoothing_num_splits() property", asFUNCTIONPR([](ProceduralObject* self) { return self->smoothing_num_splits; },(ProceduralObject*),int ), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_smoothing_num_splits(int) property", asFUNCTIONPR([](ProceduralObject* self, int n) { self->smoothing_num_splits = n; }, (ProceduralObject*, int), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "bool get_collision_enabled() property", asFUNCTIONPR([](ProceduralObject* self) { return self->collision_enabled; }, (ProceduralObject*), bool), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_collision_enabled(bool) property", asFUNCTIONPR([](ProceduralObject* self, bool n) { self->collision_enabled = n; }, (ProceduralObject*, bool), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "string get_custom_material() property", asFUNCTIONPR([](ProceduralObject* self) { return self->custom_material; }, (ProceduralObject*), std::string), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_custom_material(const string&in) property", asFUNCTIONPR([](ProceduralObject* self, const std::string& n) { self->custom_material = n; }, (ProceduralObject*, const std::string&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "string get_custom_groundmodel() property", asFUNCTIONPR([](ProceduralObject* self) { return self->custom_groundmodel; }, (ProceduralObject*), std::string), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_custom_groundmodel(const string&in) property", asFUNCTIONPR([](ProceduralObject* self, const std::string& n) { self->custom_groundmodel = n; }, (ProceduralObject*, const std::string&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "int get_smoothing_num_splits() property", asFUNCTION(ProceduralObject_get_smoothing_num_splits), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_smoothing_num_splits(int) property", asFUNCTION(ProceduralObject_set_smoothing_num_splits), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "bool get_collision_enabled() property", asFUNCTION(ProceduralObject_get_collision_enabled), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_collision_enabled(bool) property", asFUNCTION(ProceduralObject_set_collision_enabled), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "string get_custom_material() property", asFUNCTION(ProceduralObject_get_custom_material), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_custom_material(const string&in) property", asFUNCTION(ProceduralObject_set_custom_material), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "string get_custom_groundmodel() property", asFUNCTION(ProceduralObject_get_custom_groundmodel), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_custom_groundmodel(const string&in) property", asFUNCTION(ProceduralObject_set_custom_groundmodel), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
 
     // class ProceduralManager (ref)
     ProceduralManager::RegisterRefCountingObject(engine, "ProceduralManagerClass");
