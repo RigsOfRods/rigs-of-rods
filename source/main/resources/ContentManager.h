@@ -95,6 +95,7 @@ private:
     bool resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager) override;
 
     // Ogre::ScriptCompilerListener
+    bool postConversion(Ogre::ScriptCompiler *compiler, const Ogre::AbstractNodeListPtr& nodes) override;
     bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
 
     bool              m_base_resource_loaded;

@@ -37,6 +37,7 @@
 #include "ODefFileFormat.h"
 #include "PlatformUtils.h"
 #include "ProceduralRoad.h"
+#include "PropertyMaps.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
@@ -45,6 +46,12 @@
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
+
+// PagedGeometry
+#include "TreeLoader2D.h"
+#include "BatchPage.h"
+#include "GrassLoader.h"
+#include "ImpostorPage.h"
 
 #include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <Overlay/OgreFontManager.h>
@@ -55,9 +62,9 @@
 
 using namespace Ogre;
 using namespace RoR;
-#ifdef USE_PAGED
+
 using namespace Forests;
-#endif //USE_PAGED
+
 
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
@@ -80,13 +87,13 @@ TerrainObjectManager::~TerrainObjectManager()
         if (mo)
             delete mo;
     }
-#ifdef USE_PAGED
+
     for (auto geom : m_paged_geometry)
     {
         delete geom->getPageLoader();
         delete geom;
     }
-#endif //USE_PAGED
+
 
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
 
@@ -189,12 +196,17 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         {
             try
             {
+                // NOTE: OGRE scenenodes must be globally unique, that's why the repetitive TOBJ name.
+                Ogre::SceneNode* trees_grouping_node = this->getGroupingSceneNode()->createChildSceneNode(
+                    fmt::format("Paged Grass ({}, line {})", tobj->document_name, tree.origin_tobj_line_number));
+
                 this->ProcessTree(
                     tree.yaw_from, tree.yaw_to,
                     tree.scale_from, tree.scale_to,
                     tree.color_map, tree.density_map, tree.tree_mesh, tree.collision_mesh,
                     tree.grid_spacing, tree.high_density,
-                    tree.min_distance, tree.max_distance, mapsizex, mapsizez);
+                    tree.min_distance, tree.max_distance, mapsizex, mapsizez,
+                    trees_grouping_node);
             }
             catch (...)
             {
@@ -210,12 +222,17 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         {
             try
             {
+                // NOTE: OGRE scenenodes must be globally unique, that's why the repetitive TOBJ name.
+                Ogre::SceneNode* grass_grouping_node = this->getGroupingSceneNode()->createChildSceneNode(
+                    fmt::format("Paged Grass ({}, line {})", tobj->document_name, grass.origin_tobj_line_number));
+
                 this->ProcessGrass(
                     grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
                     grass.min_x, grass.min_y, grass.min_h,
                     grass.max_x, grass.max_y, grass.max_h,
                     grass.material_name, grass.color_map_filename, grass.density_map_filename,
-                    grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+                    grass.fadetech, grass.technique, grass.range, mapsizex, mapsizez,
+                    grass_grouping_node);
             }
             catch (...)
             {
@@ -277,9 +294,10 @@ void TerrainObjectManager::ProcessTree(
     float scalefrom, float scaleto,
     char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
     float gridspacing, float highdens,
-    int minDist, int maxDist, int mapsizex, int mapsizez)
+    int minDist, int maxDist, int mapsizex, int mapsizez,
+    Ogre::SceneNode* pagedGroupingNode)
 {
-#ifdef USE_PAGED
+
     if (strnlen(ColorMap, 3) == 0)
     {
         LOG("tree ColorMap map zero!");
@@ -299,7 +317,7 @@ void TerrainObjectManager::ProcessTree(
     densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
     //densityMap->setMapBounds(TRect(0, 0, mapsizex, mapsizez));
 
-    PagedGeometry* geom = new PagedGeometry();
+    PagedGeometry* geom = new PagedGeometry(pagedGroupingNode);
     geom->setTempDir(App::sys_cache_dir->getStr() + PATH_SLASH);
     geom->setCamera(App::GetCameraManager()->GetCamera());
     geom->setPageSize(50);
@@ -394,22 +412,24 @@ void TerrainObjectManager::ProcessTree(
         }
     }
     m_paged_geometry.push_back(geom);
-#endif //USE_PAGED
+
 }
 
 void TerrainObjectManager::ProcessGrass(
         float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
         float minx, float miny, float minH, float maxx, float maxy, float maxH,
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
-        int growtechnique, int techn, int range,
-        int mapsizex, int mapsizez)
+        Forests::FadeTechnique fadetech, Forests::GrassTechnique techn,
+        int range, int mapsizex, int mapsizez,
+        Ogre::SceneNode* pagedGroupingNode)
 {
-#ifdef USE_PAGED
+
     //Initialize the PagedGeometry engine
     try
     {
-        PagedGeometry *grass = new PagedGeometry(App::GetCameraManager()->GetCamera(), 30);
-        //Set up LODs
+        PagedGeometry *grass = new PagedGeometry(pagedGroupingNode);
+        grass->setCamera(App::GetCameraManager()->GetCamera());
+        grass->setPageSize(30);
 
         grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80
 
@@ -431,10 +451,7 @@ void TerrainObjectManager::ProcessGrass(
         grassLayer->setSwayDistribution(SwayDistribution);
 
         grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
-        if (techn>10)
-            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
-        else
-            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
+        grassLayer->setRenderTechnique(techn);
 
         grassLayer->setMapBounds(TBounds(0, 0, mapsizex, mapsizez));
 
@@ -453,13 +470,7 @@ void TerrainObjectManager::ProcessGrass(
         grassLayer->setMinimumSize(minx, miny);
         grassLayer->setMaximumSize(maxx, maxy);
 
-        // growtechnique
-        if (growtechnique == 0)
-            grassLayer->setFadeTechnique(FADETECH_GROW);
-        else if (growtechnique == 1)
-            grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
-        else if (growtechnique == 2)
-            grassLayer->setFadeTechnique(FADETECH_ALPHA);
+        grassLayer->setFadeTechnique(fadetech);
 
         m_paged_geometry.push_back(grass);
     } 
@@ -467,7 +478,7 @@ void TerrainObjectManager::ProcessGrass(
     {
         LOG("error loading grass!");
     }
-#endif //USE_PAGED
+
 }
 
 void TerrainObjectManager::ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type)
@@ -1093,18 +1104,12 @@ void TerrainObjectManager::LoadPredefinedActors()
     }
 }
 
-bool TerrainObjectManager::UpdateTerrainObjects(float dt)
+void TerrainObjectManager::UpdatePagedGeometry()
 {
-#ifdef USE_PAGED
     for (auto geom : m_paged_geometry)
     {
         geom->update();
     }
-#endif //USE_PAGED
-    this->UpdateAnimatedObjects(dt);
-    this->UpdateParticleEffectObjects();
-
-    return true;
 }
 
 void TerrainObjectManager::ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event)

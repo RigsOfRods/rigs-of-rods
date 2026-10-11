@@ -144,7 +144,9 @@ void GfxScene::UpdateScene(float dt)
     }
 
     // Terrain - animated meshes and paged geometry
-    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdateTerrainObjects(dt);
+    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdatePagedGeometry();
+    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdateAnimatedObjects(dt);
+    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdateParticleEffectObjects();
 
     // Terrain - lightmap; TODO: ported as-is from Terrain::update(), is it needed? ~ only_a_ptr, 05/2018
     App::GetGameContext()->GetTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017

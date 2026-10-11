@@ -105,6 +105,7 @@ void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt
         water->UpdateWater();
         water->ClearForcedCameraTransform();
     }
+    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdatePagedGeometry();
 }
 
 void SurveyMapTextureCreator::postRenderTargetUpdate(const RenderTargetEvent &evt)

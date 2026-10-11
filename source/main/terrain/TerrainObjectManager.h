@@ -29,14 +29,9 @@
 #include "ProceduralManager.h"
 #include "SurveyMapEntity.h"
 
-#ifdef USE_PAGED
+
 #include "PagedGeometry.h"
-#include "TreeLoader2D.h"
-#include "TreeLoader3D.h"
-#include "BatchPage.h"
-#include "GrassLoader.h"
-#include "ImpostorPage.h"
-#endif //USE_PAGED
+
 
 #include <map>
 #include <unordered_map>
@@ -75,20 +70,30 @@ public:
     bool           GetEditorObjectFlagRotYXZ(TerrainEditorObjectPtr const& object);
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return m_has_predefined_actors; };
-    bool           UpdateTerrainObjects(float dt);
+    
+
+    /// @name Updates
+    /// @{
+    void           UpdateAnimatedObjects(float dt);
+    void           UpdateParticleEffectObjects();
+    void           UpdatePagedGeometry();
+    /// @}
 
     void ProcessTree(
         float yawfrom, float yawto,
         float scalefrom, float scaleto,
         char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
         float gridspacing, float highdens,
-        int minDist, int maxDist, int mapsizex, int mapsizez);
+        int minDist, int maxDist, int mapsizex, int mapsizez,
+        Ogre::SceneNode* pagedGroupingNode);
 
     void ProcessGrass(
         float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
         float minx, float miny, float minH, float maxx, float maxy, float maxH,
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
-        int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+        Forests::FadeTechnique fadetech, Forests::GrassTechnique techn,
+        int range, int mapsizex, int mapsizez,
+        Ogre::SceneNode* pagedGroupingNode);
 
     void ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type);
 
@@ -117,11 +122,6 @@ protected:
 
     RoR::ODefDocument* FetchODef(std::string const & odef_name);
     void           ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event);
-    
-    // Update functions
-
-    void           UpdateAnimatedObjects(float dt);
-    void           UpdateParticleEffectObjects();
 
     // Helpers
 
@@ -146,9 +146,9 @@ protected:
     Ogre::SceneNode*          m_tobj_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
     Ogre::SceneNode*          m_angelscript_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
 
-#ifdef USE_PAGED
+
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
-#endif //USE_PAGED
+
 };
 
 /// @} // addtogroup Terrain
