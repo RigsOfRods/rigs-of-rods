@@ -1,0 +1,230 @@
+abstract pass airdashpass
+{
+    lighting off // To silence "force-disabling" warning in RoR.log
+    depth_check off // To silence "force-disabling" warning in RoR.log
+}
+
+abstract material airdashelement
+{
+	technique
+	{
+		pass: airdashpass
+        {
+            texture_unit
+            {
+                texture $texname
+            }
+        }
+	}
+}
+
+abstract material airdashalphaclamp
+{
+	technique
+	{
+		pass: airdashpass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                tex_address_mode clamp
+                texture $texname
+            }
+        }
+	}
+}
+
+material tracks/ap-up: airdashelement
+{
+	set $texname ap-up.dds
+}
+material tracks/ap-dn: airdashelement
+{
+	set $texname ap-dn.dds
+}
+material tracks/hdg-on: airdashelement
+{
+	set $texname hdg-on.dds
+}
+material tracks/hdg-off: airdashelement
+{
+	set $texname hdg-off.dds
+}
+material tracks/wlv-on: airdashelement
+{
+	set $texname wlv-on.dds
+}
+material tracks/wlv-off: airdashelement
+{
+	set $texname wlv-off.dds
+}
+material tracks/nav-on: airdashelement
+{
+	set $texname nav-on.dds
+}
+material tracks/nav-off: airdashelement
+{
+	set $texname nav-off.dds
+}
+material tracks/hold-on: airdashelement
+{
+	set $texname hold-on.dds
+}
+material tracks/hold-off: airdashelement
+{
+	set $texname hold-off.dds
+}
+material tracks/vs-on: airdashelement
+{
+	set $texname vs-on.dds
+}
+material tracks/vs-off: airdashelement
+{
+	set $texname vs-off.dds
+}
+material tracks/athr-on: airdashelement
+{
+	set $texname athr-on.dds
+}
+material tracks/athr-off: airdashelement
+{
+	set $texname athr-off.dds
+}
+material tracks/gpws-on: airdashelement
+{
+	set $texname gpws-on.dds
+}
+material tracks/gpws-off: airdashelement
+{
+	set $texname gpws-off.dds
+}
+material tracks/brks-on: airdashelement
+{
+	set $texname brks-on.dds
+}
+material tracks/brks-off: airdashelement
+{
+	set $texname brks-off.dds
+}
+material tracks/val-bg: airdashelement
+{
+	set $texname val-bg.dds
+}
+material tracks/dashbar: airdashelement
+{
+	set $texname dashbar.dds
+}
+material tracks/thrusttrack: airdashelement
+{
+	set $texname thrusttrack.dds
+}
+material tracks/engfire-off: airdashelement
+{
+	set $texname engfire-off.dds
+}
+material tracks/engfire-on: airdashelement
+{
+	set $texname engfire-on.dds
+}
+material tracks/engstart-off: airdashelement
+{
+	set $texname engstart-off.dds
+}
+material tracks/engstart-on: airdashelement
+{
+	set $texname engstart-on.dds
+}
+material tracks/airrpm: airdashelement
+{
+	set $texname airrpm.dds
+}
+material tracks/airtorque: airdashelement
+{
+	set $texname airtorque.dds
+}
+material tracks/airpitch: airdashelement
+{
+	set $texname airpitch.dds
+}
+material tracks/airspeed: airdashelement
+{
+	set $texname airspeed.dds
+}
+material tracks/altimeter: airdashelement
+{
+	set $texname altimeter.dds
+}
+material tracks/vvi: airdashelement
+{
+	set $texname vvi.dds
+}
+
+material tracks/hsi-rose: airdashalphaclamp
+{
+	set $texname hsi-rose.dds
+}
+
+material tracks/hsi-bug: airdashalphaclamp
+{
+	set $texname hsi-bug.dds
+}
+
+material tracks/hsi-v: airdashalphaclamp
+{
+	set $texname hsi-v.dds
+}
+
+material tracks/hsi-h: airdashalphaclamp
+{
+	set $texname hsi-h.dds
+}
+
+material tracks/adi
+{
+	technique
+	{
+		pass: airdashpass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture adi.dds
+			}
+		}
+	}
+}
+material tracks/adi-bugs: airdashalphaclamp
+{
+	set $texname adi-bugs.dds
+}
+material tracks/adi-tape: airdashalphaclamp
+{
+	set $texname adi-tape.dds
+}
+material tracks/aoa: airdashelement
+{
+	set $texname aoa.dds
+}
+material tracks/hsi: airdashelement
+{
+	set $texname hsi.dds
+}
+
+material tracks/airhelp: airdashelement
+{
+	set $texname airhelp.dds
+}
+
+material tracks/black
+{
+	technique
+	{
+		pass: airdashpass
+		{
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.0 0.0 0.0 1.0 0.0
+			}
+		}
+	}
+}

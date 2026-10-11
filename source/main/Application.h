@@ -49,10 +49,13 @@
 #define RGN_CONFIG "Config"
 #define RGN_CONTENT "Content"
 #define RGN_SAVEGAMES "Savegames"
-#define RGN_MANAGED_MATS "ManagedMaterials"
-#define RGN_SCRIPTS "Scripts"
-#define RGN_SERVER_SCRIPTS "ServerScripts"
+#define RGN_GAME_SCRIPTS "Game Scripts" // For 'Script Editor' gadget to browse builtin scripts.
+#define RGN_USER_SCRIPTS "User Scripts" // For 'Script Editor' gadget to browse user-made scripts.
+#define RGN_SERVER_SCRIPTS "ServerScripts" // RoRServer-compatible scripts, separated to avoid mixups.
 #define RGN_LOGS "Logs"
+#define RGN_UI_ICONS "UI Icons"
+#define RGN_COUNTRIES "Countries"
+#define RGN_WALLPAPERS "Wallpapers"
 
 // Legacy macros
 #define TOSTRING(x)     Ogre::StringConverter::toString(x)

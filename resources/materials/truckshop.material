@@ -9,7 +9,7 @@ material default
 		}
 	}
 }
-material truckshop: RoR/Managed_Mats/Base
+material truckshop: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex truckshopdiffuse.dds
+	set $diffuse_tex truckshopdiffuse.dds
 }

@@ -574,7 +574,11 @@ if (ROR_CREATE_CONTENT_FOLDER)
     recursive_zip_folder("${CMAKE_SOURCE_DIR}/content" "${RUNTIME_OUTPUT_DIRECTORY}/content")
 endif ()
 
-fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DIRECTORY}/resources/managed_materials")
+# PRUNE here because ContentManager loads managed materials from this directory rather than
+# from the .zip, so a leftover script from a deleted file still gets parsed and can claim a
+# material name away from the current definition.
+fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DIRECTORY}/resources/managed_materials" PRUNE)
+# No PRUNE below: these two share one destination, so each would delete the other's files.
 fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 

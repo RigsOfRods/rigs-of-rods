@@ -1,0 +1,34 @@
+material tracks/pressuremat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				texture pressure.dds
+			}
+		}
+	}
+}
+
+material tracks/pressureneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture pressureneedle.dds
+			}
+		}
+	}
+}

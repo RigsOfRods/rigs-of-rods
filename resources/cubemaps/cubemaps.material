@@ -8,7 +8,7 @@ material Examples/MorningCubeMap
 
 			texture_unit
 			{
-				cubic_texture morning.jpg combinedUVW
+				texture morning.jpg cubic
 				tex_address_mode clamp
 				env_map cubic_reflection
 			}
@@ -28,7 +28,7 @@ material Examples/MorningCubeMap
 			}
 			texture_unit
 			{
-				cubic_texture morning.jpg combinedUVW
+				texture morning.jpg cubic
 				tex_address_mode clamp
 				env_map cubic_reflection
 			}
@@ -47,7 +47,7 @@ material Examples/EveningSkyBox
 
 			texture_unit
 			{
-				cubic_texture evening.jpg separateUV
+				texture evening.jpg cubic
 				tex_address_mode clamp
 			}
 		}
@@ -83,7 +83,7 @@ material Examples/EarlyMorningSkyBox
 
 			texture_unit
 			{
-				cubic_texture early_morning.jpg separateUV
+				texture early_morning.jpg cubic
 				tex_address_mode clamp
 			}
 		}
@@ -101,7 +101,7 @@ material Examples/StormySkyBox
 
 			texture_unit
 			{
-				cubic_texture stormy.jpg separateUV
+				texture stormy.jpg cubic
 				tex_address_mode clamp
 			}
 		}

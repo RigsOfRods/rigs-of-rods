@@ -10,7 +10,6 @@ material tree_01/root
 
 			texture_unit
 			{
-				texture_alias textureUnit_0
 				texture tree_01a.png
 			}
 		}
@@ -28,13 +27,12 @@ material tree_01/leaves
 		pass
 		{
 			cull_hardware none
-			cull_software none
+			
 			//lighting off
 			scene_blend alpha_blend
 			alpha_rejection greater 128
 			texture_unit
 			{
-				texture_alias textureUnit_0
 				texture tree_01b.png
 			}
 		}
@@ -58,7 +56,6 @@ material tree_01/tree_01c
 			alpha_rejection greater 128
 			texture_unit
 			{
-				texture_alias textureUnit_0
 				texture tree_01c.png
 			}
 		}

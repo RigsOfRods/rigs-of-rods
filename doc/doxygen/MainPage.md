@@ -65,6 +65,8 @@ Please see [rigs-of-rods Wiki](https://github.com/RigsOfRods/rigs-of-rods/wiki) 
 
 For introduction to the game development, see [codebase overview](@ref CodebaseOverviewPage) page.
 
+See also, see [How we utilize OGRE resource groups](@ref UtilizingOgreResourceGroupsPage) page.
+
 For technical reference, use the 'Topics' link on the top of this page - it shows the entire codebase separated to categories (loosely matching the source tree).
 
 
