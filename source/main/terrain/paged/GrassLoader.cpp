@@ -62,7 +62,6 @@ GrassLoader::GrassLoader(PagedGeometry *geom)
 
 	windTimer.reset();
 	lastTime = 0;
-	autoEdgeBuildEnabled=true;
 }
 
 GrassLoader::~GrassLoader()
@@ -342,7 +341,6 @@ Mesh *GrassLoader::generateGrass_QUAD(PageInfo &page, GrassLayer *layer, const f
 	}
 
 	subMesh->indexData->indexBuffer->unlock();
-	//subMesh->setBuildEdgesEnabled(autoEdgeBuildEnabled);
 
 	//Finish up mesh
 	AxisAlignedBox bounds(page.bounds.left - page.centerPoint.x, minY, page.bounds.top - page.centerPoint.z,
@@ -352,7 +350,6 @@ Mesh *GrassLoader::generateGrass_QUAD(PageInfo &page, GrassLayer *layer, const f
 	mesh->_setBoundingSphereRadius(temp.length() * 0.5f);
 
 	LogManager::getSingleton().setLogDetail(static_cast<LoggingLevel>(0));
-	mesh->setAutoBuildEdgeLists(autoEdgeBuildEnabled);
 	mesh->load();
 	LogManager::getSingleton().setLogDetail(LL_NORMAL);
 
@@ -559,7 +556,6 @@ Mesh *GrassLoader::generateGrass_CROSSQUADS(PageInfo &page, GrassLayer *layer, c
 	}
 
 	subMesh->indexData->indexBuffer->unlock();
-	//subMesh->setBuildEdgesEnabled(autoEdgeBuildEnabled);
 
 
 	//Finish up mesh
@@ -570,7 +566,6 @@ Mesh *GrassLoader::generateGrass_CROSSQUADS(PageInfo &page, GrassLayer *layer, c
 	mesh->_setBoundingSphereRadius(temp.length() * 0.5f);
 
 	LogManager::getSingleton().setLogDetail(static_cast<LoggingLevel>(0));
-	mesh->setAutoBuildEdgeLists(autoEdgeBuildEnabled);
 	mesh->load();
 	LogManager::getSingleton().setLogDetail(LL_NORMAL);
 
@@ -707,8 +702,6 @@ Mesh *GrassLoader::generateGrass_SPRITE(PageInfo &page, GrassLayer *layer, const
 	}
 
 	subMesh->indexData->indexBuffer->unlock();
-	//subMesh->setBuildEdgesEnabled(autoEdgeBuildEnabled);
-
 
 	//Finish up mesh
 	AxisAlignedBox bounds(page.bounds.left - page.centerPoint.x, minY, page.bounds.top - page.centerPoint.z,
@@ -718,7 +711,6 @@ Mesh *GrassLoader::generateGrass_SPRITE(PageInfo &page, GrassLayer *layer, const
 	mesh->_setBoundingSphereRadius(temp.length() * 0.5f);
 
 	LogManager::getSingleton().setLogDetail(static_cast<LoggingLevel>(0));
-	mesh->setAutoBuildEdgeLists(autoEdgeBuildEnabled);
 	mesh->load();
 	LogManager::getSingleton().setLogDetail(LL_NORMAL);
 
