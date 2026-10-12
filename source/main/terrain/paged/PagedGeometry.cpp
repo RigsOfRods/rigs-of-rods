@@ -753,13 +753,11 @@ void GeometryPageManager::_loadPage(GeometryPage *page)
 	info.centerPoint = page->_centerPoint;
 	info.xIndex = page->_xIndex;
 	info.zIndex = page->_zIndex;
-	info.userData = page->_userData;
 
 	//Check if page needs unloading (if a delayed unload has been issued)
 	if (page->_needsUnload){
 		page->removeEntities();
 		mainGeom->getPageLoader()->unloadPage(info);
-		page->_userData = 0;
 		page->_needsUnload = false;
 
 		page->clearBoundingBox();
@@ -770,8 +768,6 @@ void GeometryPageManager::_loadPage(GeometryPage *page)
 
 	mainGeom->getPageLoader()->geomPage = page;
 	mainGeom->getPageLoader()->loadPage(info);
-
-	page->_userData = info.userData;
 
 	page->build();
 	page->setVisible(page->_visible);
@@ -796,12 +792,10 @@ void GeometryPageManager::_unloadPage(GeometryPage *page)
 	info.centerPoint = page->_centerPoint;
 	info.xIndex = page->_xIndex;
 	info.zIndex = page->_zIndex;
-	info.userData = page->_userData;
 
 	//Unload the page
 	page->removeEntities();
 	mainGeom->getPageLoader()->unloadPage(info);
-	page->_userData = 0;
 	page->_needsUnload = false;
 
 	page->clearBoundingBox();
@@ -949,9 +943,6 @@ GeometryPage::GeometryPage()
 	_trueBoundsUndefined = true;
 	_inactiveTime = 0; _xIndex = _zIndex = 0; 
 	_centerPoint = Ogre::Vector3::ZERO; 
-	_userData = NULL;
-	mHasQueryFlag = false;
-	mQueryFlag = 0;
 }
 
 void GeometryPage::addEntityToBoundingBox(Ogre::Entity *ent, const Ogre::Vector3 &position, const Ogre::Quaternion &rotation, const Ogre::Vector3 &scale)
