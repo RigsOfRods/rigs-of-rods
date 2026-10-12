@@ -345,7 +345,7 @@ public:
 	\see The GeometryPage class documention for more information on adding custom
 	page types.
 	*/
-	template <class PageType> inline GeometryPageManager* addDetailLevel(Ogre::Real maxRange, Ogre::Real transitionLength = 0, const Ogre::Any &data = Ogre::Any(), Ogre::uint32 queryFlag = 0);
+	template <class PageType> inline GeometryPageManager* addDetailLevel(Ogre::Real maxRange, Ogre::Real transitionLength = 0, const Ogre::Any &data = Ogre::Any());
 
 	/**
 	\brief Removes all detail levels from the PagedGeometry object.
@@ -695,22 +695,6 @@ public:
 	*/
 	virtual void init(PagedGeometry *geom, const Ogre::Any &data) = 0;
 
-	void setQueryFlag(Ogre::uint32 flag)
-	{
-		mHasQueryFlag = true;
-		mQueryFlag = flag;
-	};
-
-	bool hasQueryFlag()
-	{
-		return mHasQueryFlag;
-	};
-
-	Ogre::uint32 getQueryFlag()
-	{
-		return mQueryFlag;
-	};
-
 	/**
 	\brief Prepare a geometry page for entities
 	\param left The minimum x-coordinate any entities will have.
@@ -897,11 +881,6 @@ private:
 
 	Ogre::AxisAlignedBox _trueBounds;	//Actual bounding box of the 3D geometry added to this page
 	bool _trueBoundsUndefined;			//Flag indicating if _trueBounds has not been defined yet
-
-	void *_userData;	//Misc. data associated with this page by the PageLoader
-
-	bool mHasQueryFlag;
-	Ogre::uint32 mQueryFlag;
 };
 
 
@@ -963,20 +942,6 @@ struct PageInfo
 	issues which may occur otherwise.
 	*/
 	int zIndex;
-
-	/**
-	\brief Misc. custom data to associate with this page tile.
-
-	This field can be set in PageLoader::loadPage() to point to custom data
-	allocated during the loading of a page. You can later retreive this data in
-	PageLoader::unloadPage() in order to deallocate the data if desired.
-
-	\warning After a page is unloaded, userData becomes NULL. Don't attempt to
-	use userData to reference an object longer than the page's life span;
-	anything userData points to should be fully deallocated when
-	PageLoader::unloadPage() is called.
-	*/
-	void *userData;
 
 	std::vector<Ogre::Mesh*> meshList;
 };
@@ -1271,7 +1236,7 @@ public:
 	inline TPGeometryPages getLoadedPages() const { return loadedList; }
 
 	/** \brief Internal function - DO NOT USE */
-	template <class PageType> void initPages(const TBounds& bounds, const Ogre::Any &data = Ogre::Any(), Ogre::uint32 queryFlag = 0);
+	template <class PageType> void initPages(const TBounds& bounds, const Ogre::Any &data = Ogre::Any());
 
 	/** \brief Internal function - DO NOT USE */
 	void update(unsigned long deltaTime, Ogre::Vector3 &camPos, Ogre::Vector3 &camSpeed, bool &enableCache, GeometryPageManager *prevManager);
@@ -1360,7 +1325,7 @@ private:
 
 //-------------------------------------------------------------------------------------
 
-template <class PageType> inline GeometryPageManager* PagedGeometry::addDetailLevel(Ogre::Real maxRange, Ogre::Real transitionLength, const Ogre::Any &data, Ogre::uint32 queryFlag)
+template <class PageType> inline GeometryPageManager* PagedGeometry::addDetailLevel(Ogre::Real maxRange, Ogre::Real transitionLength, const Ogre::Any &data)
 {
 	//Create a new page manager
 	GeometryPageManager *mgr = new GeometryPageManager(this);
@@ -1374,12 +1339,12 @@ template <class PageType> inline GeometryPageManager* PagedGeometry::addDetailLe
 	_addDetailLevel(mgr, maxRange, transitionLength);
 
 	//And initialize the paged (dependent on maximum viewing distance)
-	mgr->initPages<PageType>(getBounds(), data, queryFlag);
+	mgr->initPages<PageType>(getBounds(), data);
 
 	return mgr;
 }
 
-template <class PageType> inline void GeometryPageManager::initPages(const TBounds& bounds, const Ogre::Any &data, Ogre::uint32 queryFlag)
+template <class PageType> inline void GeometryPageManager::initPages(const TBounds& bounds, const Ogre::Any &data)
 {
 	// Calculate grid size, if left is Real minimum, it means that bounds are infinite
 	// scrollBuffer is used as a flag. If it is allocated than infinite bounds are used
@@ -1434,9 +1399,7 @@ template <class PageType> inline void GeometryPageManager::initPages(const TBoun
 			page->_pending = false;
 			page->_keepLoaded = false;
 			page->_visible = false;
-			page->_userData = 0;
 			page->_fadeEnable = false;
-			page->setQueryFlag(queryFlag);
 
 			page->clearBoundingBox();
 

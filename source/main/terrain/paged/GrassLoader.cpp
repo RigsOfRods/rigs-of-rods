@@ -1451,9 +1451,6 @@ void GrassPage::addEntity(Entity *entity, const Vector3 &position, const Quatern
 	nodeList.push_back(node);
 
 	entity->setCastShadows(false);
-	if(hasQueryFlag())
-		entity->setQueryFlags(getQueryFlag());
-	entity->setRenderQueueGroup(entity->getRenderQueueGroup());
 	node->attachObject(entity);
 }
 
