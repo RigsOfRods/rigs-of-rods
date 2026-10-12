@@ -93,9 +93,6 @@ public:
 	*/
 	inline void setWindDirection(Ogre::Vector3 &dir) { windDir = dir; }
 
-	inline void setBuildEdgesEnabled(bool value) { autoEdgeBuildEnabled=value; }
-	inline bool getBuildEdgesEnabled() { return autoEdgeBuildEnabled; }
-
 	/** \brief Returns the global wind direction for this GrassLoader.
 
 	\see setWindDirection() for more information about the wind direction. */
@@ -210,8 +207,6 @@ private:
 	Ogre::Timer windTimer;
 	Ogre::Vector3 windDir;
 	unsigned long lastTime;
-
-	bool autoEdgeBuildEnabled;
 
 	static unsigned long GUID;
 	static inline Ogre::String getUniqueID()
