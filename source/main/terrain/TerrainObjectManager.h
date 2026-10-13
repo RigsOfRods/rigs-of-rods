@@ -29,14 +29,9 @@
 #include "ProceduralManager.h"
 #include "SurveyMapEntity.h"
 
-#ifdef USE_PAGED
+
 #include "PagedGeometry.h"
-#include "TreeLoader2D.h"
-#include "TreeLoader3D.h"
-#include "BatchPage.h"
-#include "GrassLoader.h"
-#include "ImpostorPage.h"
-#endif //USE_PAGED
+
 
 #include <map>
 #include <unordered_map>
@@ -146,9 +141,9 @@ protected:
     Ogre::SceneNode*          m_tobj_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
     Ogre::SceneNode*          m_angelscript_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
 
-#ifdef USE_PAGED
+
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
-#endif //USE_PAGED
+
 };
 
 /// @} // addtogroup Terrain
