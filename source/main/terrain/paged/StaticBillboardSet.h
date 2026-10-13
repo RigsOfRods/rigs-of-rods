@@ -36,24 +36,6 @@ namespace Forests
    class SBMaterialRef;
    typedef std::map<Ogre::Material*, SBMaterialRef*> SBMaterialRefList;
 
-   /** Different methods used to render billboards. This can be supplied as a parameter
-   to the StaticBillboardSet constructor to manually select how you want billboards
-   rendered (although in almost all cases BB_METHOD_ACCELERATED is the best choice).*/
-   enum BillboardMethod
-   {
-      /** This mode accelerates the performance of billboards by using vertex shaders
-      to keep billboards facing the camera. Note: If the computer's hardware is not
-      capable	of vertex shaders, it will automatically fall back to BB_METHOD_COMPATIBLE
-      mode.*/
-      BB_METHOD_ACCELERATED = 1,
-
-      /** Unlike BB_METHOD_ACCELERATED, this does not use vertex shaders to align
-      billboards to the camera. This is more compatible with old video cards,
-      although it can result in poor performance with high amounts of billboards.*/
-      BB_METHOD_COMPATIBLE = 0
-   };
-
-
    //--------------------------------------------------------------------------
    /// A faster alternative to Ogre's built-in BillboardSet class.
    ///
@@ -96,7 +78,7 @@ namespace Forests
       documentation for more information. In almost all cases, this should be set to
       BB_METHOD_ACCELERATED for optimal speed and efficiency.
       */
-      StaticBillboardSet(Ogre::SceneManager *mgr, Ogre::SceneNode *rootSceneNode, BillboardMethod method = BB_METHOD_ACCELERATED);
+      StaticBillboardSet(Ogre::SceneManager *mgr, Ogre::SceneNode *rootSceneNode);
       ~StaticBillboardSet();
 
       /**
@@ -116,33 +98,7 @@ namespace Forests
       void createBillboard(const Ogre::Vector3 &position, float xScale = 1.0f, float yScale = 1.0f,
          const Ogre::ColourValue &color = Ogre::ColourValue::White, Ogre::uint16 texcoordIndexU = 0, Ogre::uint16 texcoordIndexV = 0)
       {
-         if (mRenderMethod == BB_METHOD_ACCELERATED)
-         {
             mBillboardBuffer.push_back(new StaticBillboard(position, xScale, yScale, color, texcoordIndexU, texcoordIndexV));
-
-            //mBillboardBuffer.push_back(bb);
-
-            ////bb->position = position;
-            //bb->xPos = (float)position.x;
-            //bb->yPos = (float)position.y;
-            //bb->zPos = (float)position.z;
-            //bb->xScaleHalf = xScale * 0.5f;
-            //bb->yScaleHalf = yScale * 0.5f;
-
-            //bb->texcoordIndexU = texcoordIndexU;
-            //bb->texcoordIndexV = texcoordIndexV;
-
-            //Ogre::uint32 packedColor;
-            //Ogre::Root::getSingleton().getRenderSystem()->convertColourValue(color, &packedColor);
-            //bb->color = packedColor;
-         }
-         else
-         {
-            Ogre::Billboard *bb = mpFallbackBillboardSet->createBillboard(position, color);
-            bb->setDimensions(xScale, yScale);
-            bb->setTexcoordRect(texcoordIndexU * mfUFactor, texcoordIndexV * mfVFactor,
-               (texcoordIndexU + 1) * mfUFactor, (texcoordIndexV + 1) * mfVFactor);
-         }
       }
 
       /**
@@ -159,11 +115,6 @@ namespace Forests
       /// Returns the current billboard origin.
       /// This returns the current billboard origin as set by setBillboardOrigin().
       Ogre::BillboardOrigin getBillboardOrigin() const   { return mBBOrigin; }
-
-      /// Returns the method used to render billboards.
-      /// The billboard render method is set in the constructor. See the BillboardMethod enum
-      /// documentation for more information on billboard render methods.
-      BillboardMethod getRenderMethod() const            { return mRenderMethod; }
 
       ///Sets whether or not this StaticBillboardSet will be rendered.
       /// \param visible The desired visibility state of the StaticBillboardSet (true/false)
@@ -253,7 +204,6 @@ namespace Forests
 
       bool                    mVisible;                  ///<
       bool                    mFadeEnabled;              ///<
-      BillboardMethod         mRenderMethod;             ///<
 
       Ogre::SceneManager*     mpSceneMgr;                ///<
       Ogre::SceneNode*        mpSceneNode;               ///<
@@ -264,7 +214,6 @@ namespace Forests
       Ogre::MaterialPtr       mPtrFadeMaterial;          ///<
       float                   mfUFactor, mfVFactor;      ///<
 
-      Ogre::BillboardSet*     mpFallbackBillboardSet;    ///<
       Ogre::BillboardOrigin   mBBOrigin;                 ///<
       Ogre::Real              mFadeVisibleDist;          ///<
       Ogre::Real              mFadeInvisibleDist;        ///<
