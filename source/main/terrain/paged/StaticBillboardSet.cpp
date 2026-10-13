@@ -52,35 +52,23 @@ unsigned long StaticBillboardSet::GUID             = 0;
 
 //-----------------------------------------------------------------------------
 /// Constructor
-StaticBillboardSet::StaticBillboardSet(SceneManager *mgr, SceneNode *rootSceneNode, BillboardMethod method) :
+StaticBillboardSet::StaticBillboardSet(SceneManager *mgr, SceneNode *rootSceneNode) :
 mVisible                (true),
 mFadeEnabled            (false),
-mRenderMethod           (method),
 mpSceneMgr              (mgr),
 mpSceneNode             (NULL),
 mpEntity                (NULL),
 mfUFactor               (1.f),
 mfVFactor               (1.f),
-mpFallbackBillboardSet  (NULL),
 mBBOrigin               (BBO_CENTER),
 mFadeVisibleDist        (0.f),
 mFadeInvisibleDist      (0.f)
 {
    assert(rootSceneNode);
 
-   //Fall back to BB_METHOD_COMPATIBLE if vertex shaders are not available
-   if (method == BB_METHOD_ACCELERATED)
-   {
-      const RenderSystemCapabilities *caps = Root::getSingleton().getRenderSystem()->getCapabilities();
-      if (!caps->hasCapability(RSC_VERTEX_PROGRAM))
-         mRenderMethod = BB_METHOD_COMPATIBLE;
-   }
-
    mpSceneNode = rootSceneNode->createChildSceneNode();
    mEntityName = getUniqueID("SBSentity");
 
-   if (mRenderMethod == BB_METHOD_ACCELERATED)
-   {
       //Load vertex shader to align billboards to face the camera (if not loaded already)
       if (s_nSelfInstances == 0)
       {
@@ -284,14 +272,6 @@ mFadeInvisibleDist      (0.f)
          // compile it
          vertexShader2->load();
       }
-   }
-   else
-   {
-      //Compatible billboard method
-      mpFallbackBillboardSet = mgr->createBillboardSet(getUniqueID("SBS"), 100);
-      mpSceneNode->attachObject(mpFallbackBillboardSet);
-      mfUFactor = mfVFactor = Ogre::Real(0.);
-   }
 
 
    ++s_nSelfInstances;
@@ -302,8 +282,7 @@ mFadeInvisibleDist      (0.f)
 /// Destructor
 StaticBillboardSet::~StaticBillboardSet()
 {
-   if (mRenderMethod == BB_METHOD_ACCELERATED)
-   {
+
       clear(); // Delete mesh data
 
       //Update material reference list
@@ -319,10 +298,7 @@ StaticBillboardSet::~StaticBillboardSet()
          HighLevelGpuProgramManager::getSingleton().remove("Sprite_vp");
          HighLevelGpuProgramManager::getSingleton().remove("SpriteFade_vp");
       }
-   }
-   else
-      //Remove billboard set
-      mpSceneMgr->destroyBillboardSet(mpFallbackBillboardSet);
+
 
    //Delete scene node
    if (mpSceneNode->getParent())
@@ -336,8 +312,7 @@ StaticBillboardSet::~StaticBillboardSet()
 ///
 void StaticBillboardSet::clear()
 {
-   if (mRenderMethod == BB_METHOD_ACCELERATED)
-   {
+
       //Delete the entity and mesh data
       if (mpEntity)
       {
@@ -358,9 +333,7 @@ void StaticBillboardSet::clear()
             delete mBillboardBuffer[--i];
          mBillboardBuffer.clear();
       }
-   }
-   else
-      mpFallbackBillboardSet->clear();
+
 }
 
 
@@ -368,8 +341,7 @@ void StaticBillboardSet::clear()
 /// Performs final steps required for the created billboards to appear in the scene.
 void StaticBillboardSet::build()
 {
-   if (mRenderMethod == BB_METHOD_ACCELERATED)
-   {
+
       //Delete old entity and mesh data
       if (mpEntity)
       {
@@ -555,7 +527,6 @@ void StaticBillboardSet::build()
       // Add to scene
       mpSceneNode->attachObject(mpEntity);
       mpEntity->setVisible(mVisible);
-   }
 }
 
 
@@ -567,8 +538,6 @@ void StaticBillboardSet::setMaterial(const String &materialName, const Ogre::Str
    if (!needUpdateMat)
       return;
 
-   if (mRenderMethod == BB_METHOD_ACCELERATED)
-   {
       //Update material reference list
       if (mFadeEnabled)
       {
@@ -591,13 +560,7 @@ void StaticBillboardSet::setMaterial(const String &materialName, const Ogre::Str
       //Apply material to entity
       if (mpEntity)
          mpEntity->setMaterial(mFadeEnabled ? mPtrFadeMaterial : mPtrMaterial);
-   }
-   else  // old GPU compatibility
-   {
-      mPtrMaterial = Ogre::static_pointer_cast<Material>(MaterialManager::getSingleton().getByName(materialName, resourceGroup));
-      mpFallbackBillboardSet->setMaterialName(mPtrMaterial->getName(), mPtrMaterial->getGroup());
-      // SVA. Since Ogre 1.7.3 Ogre::BillboardSet have setMaterial(const MaterialPtr&) method
-   }
+
 }
 
 
@@ -605,8 +568,6 @@ void StaticBillboardSet::setMaterial(const String &materialName, const Ogre::Str
 ///
 void StaticBillboardSet::setFade(bool enabled, Real visibleDist, Real invisibleDist)
 {
-   if (mRenderMethod == BB_METHOD_ACCELERATED)
-   {
       if (enabled)
       {
          if (!mPtrMaterial)
@@ -654,7 +615,6 @@ void StaticBillboardSet::setFade(bool enabled, Real visibleDist, Real invisibleD
             mFadeInvisibleDist = invisibleDist;
          }
       }
-   }
 }
 
 
@@ -743,7 +703,6 @@ MaterialPtr StaticBillboardSet::getFadeMaterial(const Ogre::MaterialPtr &protoMa
 ///
 void StaticBillboardSet::updateAll(const Vector3 &cameraDirection)
 {
-   // s_nSelfInstances will only be greater than 0 if one or more StaticBillboardSet's are using BB_METHOD_ACCELERATED
    if (s_nSelfInstances == 0)
       return;
 
@@ -857,8 +816,6 @@ void StaticBillboardSet::setBillboardOrigin(BillboardOrigin origin)
 {
    assert((origin == BBO_CENTER || origin == BBO_BOTTOM_CENTER) && "Invalid origin - only BBO_CENTER and BBO_BOTTOM_CENTER is supported");
    mBBOrigin = origin;
-   if (mRenderMethod != BB_METHOD_ACCELERATED)
-      mpFallbackBillboardSet->setBillboardOrigin(origin);
 }
 
 
