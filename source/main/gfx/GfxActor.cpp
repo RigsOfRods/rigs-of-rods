@@ -1853,6 +1853,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_has_engine      = true;
         m_simbuf.simbuf_gear            = m_actor->ar_engine->getGear();
         m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
+        m_simbuf.simbuf_engine_ignition = m_actor->ar_engine->hasContact();
         m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->getRPM();
         m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->getTurboPSI();
         m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->getAcc();
@@ -2736,6 +2737,14 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
         if (m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT)
             signal = 1.0f;
         cstate -= signal;
+        div++;
+    }
+
+    //ignition
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_IGNITION)
+    {
+        float ignition = m_simbuf.simbuf_engine_ignition;
+        cstate += ignition;
         div++;
     }
 

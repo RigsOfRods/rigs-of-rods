@@ -618,7 +618,7 @@ void Actor::CalcHydros()
     //direction
     if (ar_hydro_dir_state != 0 || ar_hydro_dir_command != 0)
     {
-        if (!ar_hydro_speed_coupling)
+        if (!ar_hydro_speed_coupling_active)
         {
             // need a maximum rate for analog devices, otherwise hydro beams break
             float smoothing   = Math::Clamp(App::io_analog_smoothing->getFloat(),   0.5f, 2.0f);
@@ -631,7 +631,7 @@ void Actor::CalcHydros()
         {
             if (ar_hydro_dir_command != 0)
             {
-                if (!App::io_hydro_coupling->getBool())
+                if (!ar_hydro_speed_coupling_enabled)
                 {
                     float rate = std::max(1.2f, 30.0f / (10.0f));
                     if (ar_hydro_dir_state > ar_hydro_dir_command)

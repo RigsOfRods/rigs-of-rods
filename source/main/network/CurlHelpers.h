@@ -41,6 +41,7 @@ struct CurlTaskContext
     MsgType ctc_msg_failure = MSG_INVALID; //!< Sent on failure; Payload: `RoR::ScriptEventArgs` (see 'gameplay/ScriptEvents.h') with args for `RoR::SE_ANGELSCRIPT_THREAD_STATUS`
     // Status
     double ctc_old_perc = 0; // not threadsafe but whatever
+    ServerScriptEngine* ctc_script_engine = nullptr; // only for rorserver to invoke 'curlStatus' callback.
 };
 
 bool GetUrlAsString(const std::string& url, CURLcode& curl_result, long& response_code, std::string& response_payload);

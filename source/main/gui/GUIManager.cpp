@@ -399,7 +399,9 @@ void GUIManager::DrawCommonGui()
     // UI usable in both main menu and simulation
     // ------------------------------------------
 
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !App::ui_hide_gui->getBool() && !this->SurveyMap.IsVisible())
+    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED || App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
+        && !App::ui_hide_gui->getBool()
+        && !this->SurveyMap.IsVisible())
     {
         this->MpClientList.Draw();
     }
@@ -507,7 +509,7 @@ void GUIManager::UpdateInputEvents(float dt)
 
         // EV_COMMON_ENTER_CHATMODE
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) &&
-            App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+            (App::mp_state->getEnum<MpState>() == MpState::CONNECTED || App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT))
         {
             this->ChatBox.SetVisible(!this->ChatBox.IsVisible());
         }

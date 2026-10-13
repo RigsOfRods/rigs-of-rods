@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <stdio.h> // sprintf
+#include <stdio.h> // snprintf
 #include <string>
+#include <algorithm> // std::sort
 
 #include "scriptarray.h"
 
@@ -137,7 +138,7 @@ static bool ScriptArrayTemplateCallback(asITypeInfo *ti, bool &dontGarbageCollec
 	if( (typeId & asTYPEID_MASK_OBJECT) && !(typeId & asTYPEID_OBJHANDLE) )
 	{
 		asITypeInfo *subtype = ti->GetEngine()->GetTypeInfoById(typeId);
-		asDWORD flags = subtype->GetFlags();
+		asQWORD flags = subtype->GetFlags();
 		if( (flags & asOBJ_VALUE) && !(flags & asOBJ_POD) )
 		{
 			// Verify that there is a default constructor
@@ -188,8 +189,9 @@ static bool ScriptArrayTemplateCallback(asITypeInfo *ti, bool &dontGarbageCollec
 			if( !found )
 			{
 				// No default factory
-				// TODO: Should format the message to give the name of the subtype for better understanding
-				ti->GetEngine()->WriteMessage("array", 0, 0, asMSGTYPE_ERROR, "The subtype has no default factory");
+				char buffer[1024];
+				snprintf(buffer, sizeof(buffer), "The subtype '%s' has no default factory", subtype ? subtype->GetEngine()->GetTypeDeclaration(subtype->GetTypeId()) : "UNKNOWN");
+				ti->GetEngine()->WriteMessage("array", 0, 0, asMSGTYPE_ERROR, buffer);
 				return false;
 			}
 		}
@@ -210,16 +212,16 @@ static bool ScriptArrayTemplateCallback(asITypeInfo *ti, bool &dontGarbageCollec
 
 		// It is not necessary to set the array as garbage collected for all handle types.
 		// If it is possible to determine that the handle cannot refer to an object type
-		// that can potentially form a circular reference with the array then it is not 
+		// that can potentially form a circular reference with the array then it is not
 		// necessary to make the array garbage collected.
 		asITypeInfo *subtype = ti->GetEngine()->GetTypeInfoById(typeId);
-		asDWORD flags = subtype->GetFlags();
+		asQWORD flags = subtype->GetFlags();
 		if( !(flags & asOBJ_GC) )
 		{
 			if( (flags & asOBJ_SCRIPT_OBJECT) )
 			{
 				// Even if a script class is by itself not garbage collected, it is possible
-				// that classes that derive from it may be, so it is not possible to know 
+				// that classes that derive from it may be, so it is not possible to know
 				// that no circular reference can occur.
 				if( (flags & asOBJ_NOINHERIT) )
 				{
@@ -240,6 +242,30 @@ static bool ScriptArrayTemplateCallback(asITypeInfo *ti, bool &dontGarbageCollec
 
 	// The type is ok
 	return true;
+}
+
+
+asUINT CScriptArray_opForBegin(const CScriptArray*)
+{
+	return 0;
+}
+
+bool CScriptArray_opForEnd(asUINT iter, const CScriptArray*arr)
+{
+	if (arr == 0 || arr->GetSize() <= iter)
+		return true;
+
+	return false;
+}
+
+asUINT CScriptArray_opForNext(asUINT iter, const CScriptArray*)
+{
+	return iter + 1;
+}
+
+asUINT CScriptArray_opForValue1(asUINT iter, const CScriptArray*)
+{
+	return iter;
 }
 
 // Registers the template array type
@@ -273,7 +299,7 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 
 	// Templates receive the object type as the first parameter. To the script writer this is hidden
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in)", asFUNCTIONPR(CScriptArray::Create, (asITypeInfo*), CScriptArray*), asCALL_CDECL); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint length)", asFUNCTIONPR(CScriptArray::Create, (asITypeInfo*, asUINT), CScriptArray*), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint length) explicit", asFUNCTIONPR(CScriptArray::Create, (asITypeInfo*, asUINT), CScriptArray*), asCALL_CDECL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint length, const T &in value)", asFUNCTIONPR(CScriptArray::Create, (asITypeInfo*, asUINT, void *), CScriptArray*), asCALL_CDECL); assert( r >= 0 );
 
 	// Register the factory that will be used for initialization lists
@@ -287,6 +313,13 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "T &opIndex(uint index)", asMETHODPR(CScriptArray, At, (asUINT), void*), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "const T &opIndex(uint index) const", asMETHODPR(CScriptArray, At, (asUINT) const, const void*), asCALL_THISCALL); assert( r >= 0 );
 
+	// Support for foreach
+	r = engine->RegisterObjectMethod("array<T>", "uint opForBegin() const", asFUNCTIONPR(CScriptArray_opForBegin, (const CScriptArray *), asUINT), asCALL_CDECL_OBJLAST); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "bool opForEnd(uint) const", asFUNCTIONPR(CScriptArray_opForEnd, (asUINT, const CScriptArray*), bool), asCALL_CDECL_OBJLAST); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "uint opForNext(uint) const", asFUNCTIONPR(CScriptArray_opForNext, (asUINT, const CScriptArray*), asUINT), asCALL_CDECL_OBJLAST); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "const T &opForValue0(uint index) const", asMETHODPR(CScriptArray, At, (asUINT) const, const void*), asCALL_THISCALL); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "uint opForValue1(uint index) const", asFUNCTIONPR(CScriptArray_opForValue1, (asUINT, const CScriptArray*), asUINT), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
 	// The assignment operator
 	r = engine->RegisterObjectMethod("array<T>", "array<T> &opAssign(const array<T>&in)", asMETHOD(CScriptArray, operator=), asCALL_THISCALL); assert( r >= 0 );
 
@@ -298,7 +331,10 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "void removeLast()", asMETHOD(CScriptArray, RemoveLast), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void removeRange(uint start, uint count)", asMETHOD(CScriptArray, RemoveRange), asCALL_THISCALL); assert(r >= 0);
 	// TODO: Should length() and resize() be deprecated as the property accessors do the same thing?
+	// TODO: Register as size() for consistency with other types
+#if AS_USE_ACCESSORS != 1
 	r = engine->RegisterObjectMethod("array<T>", "uint length() const", asMETHOD(CScriptArray, GetSize), asCALL_THISCALL); assert( r >= 0 );
+#endif
 	r = engine->RegisterObjectMethod("array<T>", "void reserve(uint length)", asMETHOD(CScriptArray, Reserve), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void resize(uint length)", asMETHODPR(CScriptArray, Resize, (asUINT), void), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void sortAsc()", asMETHODPR(CScriptArray, SortAsc, (), void), asCALL_THISCALL); assert( r >= 0 );
@@ -307,22 +343,24 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "void sortDesc(uint startAt, uint count)", asMETHODPR(CScriptArray, SortDesc, (asUINT, asUINT), void), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void reverse()", asMETHOD(CScriptArray, Reverse), asCALL_THISCALL); assert( r >= 0 );
 	// The token 'if_handle_then_const' tells the engine that if the type T is a handle, then it should refer to a read-only object
-	r = engine->RegisterObjectMethod("array<T>", "int find(const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, Find, (void*) const, int), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "int find(const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, Find, (const void*) const, int), asCALL_THISCALL); assert( r >= 0 );
 	// TODO: It should be "int find(const T&in value, uint startAt = 0) const"
-	r = engine->RegisterObjectMethod("array<T>", "int find(uint startAt, const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, Find, (asUINT, void*) const, int), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("array<T>", "int findByRef(const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, FindByRef, (void*) const, int), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "int find(uint startAt, const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, Find, (asUINT, const void*) const, int), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "int findByRef(const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, FindByRef, (const void*) const, int), asCALL_THISCALL); assert( r >= 0 );
 	// TODO: It should be "int findByRef(const T&in value, uint startAt = 0) const"
-	r = engine->RegisterObjectMethod("array<T>", "int findByRef(uint startAt, const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, FindByRef, (asUINT, void*) const, int), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "int findByRef(uint startAt, const T&in if_handle_then_const value) const", asMETHODPR(CScriptArray, FindByRef, (asUINT, const void*) const, int), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "bool opEquals(const array<T>&in) const", asMETHOD(CScriptArray, operator==), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "bool isEmpty() const", asMETHOD(CScriptArray, IsEmpty), asCALL_THISCALL); assert( r >= 0 );
 
 	// Sort with callback for comparison
-	r = engine->RegisterFuncdef("bool array<T>::less(const T&in a, const T&in b)");
+	r = engine->RegisterFuncdef("bool array<T>::less(const T&in if_handle_then_const a, const T&in if_handle_then_const b)");
 	r = engine->RegisterObjectMethod("array<T>", "void sort(const less &in, uint startAt = 0, uint count = uint(-1))", asMETHODPR(CScriptArray, Sort, (asIScriptFunction*, asUINT, asUINT), void), asCALL_THISCALL); assert(r >= 0);
 
+#if AS_USE_STLNAMES != 1 && AS_USE_ACCESSORS == 1
 	// Register virtual properties
-	r = engine->RegisterObjectMethod("array<T>", "uint get_length() const", asMETHOD(CScriptArray, GetSize), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("array<T>", "void set_length(uint)", asMETHODPR(CScriptArray, Resize, (asUINT), void), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "uint get_length() const property", asMETHOD(CScriptArray, GetSize), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "void set_length(uint) property", asMETHODPR(CScriptArray, Resize, (asUINT), void), asCALL_THISCALL); assert( r >= 0 );
+#endif
 
 	// Register GC behaviours in case the array needs to be garbage collected
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_GETREFCOUNT, "int f()", asMETHOD(CScriptArray, GetRefCount), asCALL_THISCALL); assert( r >= 0 );
@@ -555,8 +593,37 @@ void CScriptArray::SetValue(asUINT index, void *value)
 	void *ptr = At(index);
 	if( ptr == 0 ) return;
 
-	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
-		objType->GetEngine()->AssignScriptObject(ptr, value, objType->GetSubType());
+	if ((subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE))
+	{
+		asITypeInfo *subType = objType->GetSubType();
+		if (subType->GetFlags() & asOBJ_ASHANDLE)
+		{
+			// For objects that should work as handles we must use the opHndlAssign method
+			// TODO: Must support alternative syntaxes as well
+			// TODO: Move the lookup of the opHndlAssign method to Precache() so it is only done once
+			string decl = string(subType->GetName()) + "& opHndlAssign(const " + string(subType->GetName()) + "&in)";
+			asIScriptFunction* func = subType->GetMethodByDecl(decl.c_str());
+			if (func)
+			{
+				// TODO: Reuse active context if existing
+				asIScriptEngine* engine = objType->GetEngine();
+				asIScriptContext* ctx = engine->RequestContext();
+				ctx->Prepare(func);
+				ctx->SetObject(ptr);
+				ctx->SetArgAddress(0, value);
+				// TODO: Handle errors
+				ctx->Execute();
+				engine->ReturnContext(ctx);
+			}
+			else
+			{
+				// opHndlAssign doesn't exist, so try ordinary value assign instead
+				objType->GetEngine()->AssignScriptObject(ptr, value, subType);
+			}
+		}
+		else
+			objType->GetEngine()->AssignScriptObject(ptr, value, subType);
+	}
 	else if( subTypeId & asTYPEID_OBJHANDLE )
 	{
 		void *tmp = *(void**)ptr;
@@ -955,7 +1022,7 @@ void CScriptArray::Construct(SArrayBuffer *buf, asUINT start, asUINT end)
 			*d = (void*)engine->CreateScriptObject(subType);
 			if( *d == 0 )
 			{
-				// Set the remaining entries to null so the destructor 
+				// Set the remaining entries to null so the destructor
 				// won't attempt to destroy invalid objects later
 				memset(d, 0, sizeof(void*)*(max-d));
 
@@ -993,7 +1060,7 @@ void CScriptArray::Destruct(SArrayBuffer *buf, asUINT start, asUINT end)
 
 
 // internal
-bool CScriptArray::Less(const void *a, const void *b, bool asc, asIScriptContext *ctx, SArrayCache *cache)
+bool CScriptArray::Less(const void *a, const void *b, bool asc)
 {
 	if( !asc )
 	{
@@ -1008,54 +1075,20 @@ bool CScriptArray::Less(const void *a, const void *b, bool asc, asIScriptContext
 		// Simple compare of values
 		switch( subTypeId )
 		{
-			#define COMPARE(T) *((T*)a) < *((T*)b)
-			case asTYPEID_BOOL: return COMPARE(bool);
-			case asTYPEID_INT8: return COMPARE(signed char);
-			case asTYPEID_UINT8: return COMPARE(unsigned char);
-			case asTYPEID_INT16: return COMPARE(signed short);
-			case asTYPEID_UINT16: return COMPARE(unsigned short);
-			case asTYPEID_INT32: return COMPARE(signed int);
-			case asTYPEID_UINT32: return COMPARE(unsigned int);
-			case asTYPEID_FLOAT: return COMPARE(float);
+			#define COMPARE(T) *((const T*)a) < *((const T*)b)
+			case asTYPEID_BOOL:   return COMPARE(bool);
+			case asTYPEID_INT8:   return COMPARE(asINT8);
+			case asTYPEID_INT16:  return COMPARE(asINT16);
+			case asTYPEID_INT32:  return COMPARE(asINT32);
+			case asTYPEID_INT64:  return COMPARE(asINT64);
+			case asTYPEID_UINT8:  return COMPARE(asBYTE);
+			case asTYPEID_UINT16: return COMPARE(asWORD);
+			case asTYPEID_UINT32: return COMPARE(asDWORD);
+			case asTYPEID_UINT64: return COMPARE(asQWORD);
+			case asTYPEID_FLOAT:  return COMPARE(float);
 			case asTYPEID_DOUBLE: return COMPARE(double);
-			default: return COMPARE(signed int); // All enums fall in this case
+			default: return COMPARE(signed int); // All enums fall in this case. TODO: update this when enums can have different sizes and types
 			#undef COMPARE
-		}
-	}
-	else
-	{
-		int r = 0;
-
-		if( subTypeId & asTYPEID_OBJHANDLE )
-		{
-			// Allow sort to work even if the array contains null handles
-			if( *(void**)a == 0 ) return true;
-			if( *(void**)b == 0 ) return false;
-		}
-
-		// Execute object opCmp
-		if( cache && cache->cmpFunc )
-		{
-			// TODO: Add proper error handling
-			r = ctx->Prepare(cache->cmpFunc); assert(r >= 0);
-
-			if( subTypeId & asTYPEID_OBJHANDLE )
-			{
-				r = ctx->SetObject(*((void**)a)); assert(r >= 0);
-				r = ctx->SetArgObject(0, *((void**)b)); assert(r >= 0);
-			}
-			else
-			{
-				r = ctx->SetObject((void*)a); assert(r >= 0);
-				r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
-			}
-
-			r = ctx->Execute();
-
-			if( r == asEXECUTION_FINISHED )
-			{
-				return (int)ctx->GetReturnDWord() < 0;
-			}
 		}
 	}
 
@@ -1144,17 +1177,19 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx, S
 		// Simple compare of values
 		switch( subTypeId )
 		{
-			#define COMPARE(T) *((T*)a) == *((T*)b)
-			case asTYPEID_BOOL: return COMPARE(bool);
-			case asTYPEID_INT8: return COMPARE(signed char);
-			case asTYPEID_UINT8: return COMPARE(unsigned char);
-			case asTYPEID_INT16: return COMPARE(signed short);
-			case asTYPEID_UINT16: return COMPARE(unsigned short);
-			case asTYPEID_INT32: return COMPARE(signed int);
-			case asTYPEID_UINT32: return COMPARE(unsigned int);
-			case asTYPEID_FLOAT: return COMPARE(float);
+			#define COMPARE(T) *((const T*)a) == *((const T*)b)
+			case asTYPEID_BOOL:   return COMPARE(bool);
+			case asTYPEID_INT8:   return COMPARE(asINT8);
+			case asTYPEID_INT16:  return COMPARE(asINT16);
+			case asTYPEID_INT32:  return COMPARE(asINT32);
+			case asTYPEID_INT64:  return COMPARE(asINT64);
+			case asTYPEID_UINT8:  return COMPARE(asBYTE);
+			case asTYPEID_UINT16: return COMPARE(asWORD);
+			case asTYPEID_UINT32: return COMPARE(asDWORD);
+			case asTYPEID_UINT64: return COMPARE(asQWORD);
+			case asTYPEID_FLOAT:  return COMPARE(float);
 			case asTYPEID_DOUBLE: return COMPARE(double);
-			default: return COMPARE(signed int); // All enums fall here
+			default: return COMPARE(signed int); // All enums fall here. TODO: update this when enums can have different sizes and types
 			#undef COMPARE
 		}
 	}
@@ -1165,7 +1200,7 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx, S
 		if( subTypeId & asTYPEID_OBJHANDLE )
 		{
 			// Allow the find to work even if the array contains null handles
-			if( *(void**)a == *(void**)b ) return true;
+			if( *(const void*const*)a == *(const void*const*)b ) return true;
 		}
 
 		// Execute object opEquals if available
@@ -1176,13 +1211,13 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx, S
 
 			if( subTypeId & asTYPEID_OBJHANDLE )
 			{
-				r = ctx->SetObject(*((void**)a)); assert(r >= 0);
-				r = ctx->SetArgObject(0, *((void**)b)); assert(r >= 0);
+				r = ctx->SetObject(*((void**)const_cast<void*>(a))); assert(r >= 0);
+				r = ctx->SetArgObject(0, *((void**)const_cast<void*>(b))); assert(r >= 0);
 			}
 			else
 			{
-				r = ctx->SetObject((void*)a); assert(r >= 0);
-				r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
+				r = ctx->SetObject(const_cast<void*>(a)); assert(r >= 0);
+				r = ctx->SetArgObject(0, const_cast<void*>(b)); assert(r >= 0);
 			}
 
 			r = ctx->Execute();
@@ -1201,13 +1236,13 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx, S
 
 			if( subTypeId & asTYPEID_OBJHANDLE )
 			{
-				r = ctx->SetObject(*((void**)a)); assert(r >= 0);
-				r = ctx->SetArgObject(0, *((void**)b)); assert(r >= 0);
+				r = ctx->SetObject(*((void**)const_cast<void*>(a))); assert(r >= 0);
+				r = ctx->SetArgObject(0, *((void**)const_cast<void*>(b))); assert(r >= 0);
 			}
 			else
 			{
-				r = ctx->SetObject((void*)a); assert(r >= 0);
-				r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
+				r = ctx->SetObject(const_cast<void*>(a)); assert(r >= 0);
+				r = ctx->SetArgObject(0, const_cast<void*>(b)); assert(r >= 0);
 			}
 
 			r = ctx->Execute();
@@ -1222,22 +1257,22 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx, S
 	return false;
 }
 
-int CScriptArray::FindByRef(void *ref) const
+int CScriptArray::FindByRef(const void *ref) const
 {
 	return FindByRef(0, ref);
 }
 
-int CScriptArray::FindByRef(asUINT startAt, void *ref) const
+int CScriptArray::FindByRef(asUINT startAt, const void *ref) const
 {
 	// Find the matching element by its reference
 	asUINT size = GetSize();
 	if( subTypeId & asTYPEID_OBJHANDLE )
 	{
 		// Dereference the pointer
-		ref = *(void**)ref;
+		ref = *(const void*const*)ref;
 		for( asUINT i = startAt; i < size; i++ )
 		{
-			if( *(void**)At(i) == ref )
+			if( *(const void*const*)At(i) == ref )
 				return i;
 		}
 	}
@@ -1254,12 +1289,12 @@ int CScriptArray::FindByRef(asUINT startAt, void *ref) const
 	return -1;
 }
 
-int CScriptArray::Find(void *value) const
+int CScriptArray::Find(const void *value) const
 {
 	return Find(0, value);
 }
 
-int CScriptArray::Find(asUINT startAt, void *value) const
+int CScriptArray::Find(asUINT startAt, const void *value) const
 {
 	// Check if the subtype really supports find()
 	// TODO: Can't this be done at compile time too by the template callback
@@ -1281,13 +1316,13 @@ int CScriptArray::Find(asUINT startAt, void *value) const
 #if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(__S3E__)
 					sprintf_s(tmp, 512, "Type '%s' has multiple matching opEquals or opCmp methods", subType->GetName());
 #else
-					sprintf(tmp, "Type '%s' has multiple matching opEquals or opCmp methods", subType->GetName());
+					snprintf(tmp, sizeof(tmp), "Type '%s' has multiple matching opEquals or opCmp methods", subType->GetName());
 #endif
 				else
 #if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(__S3E__)
 					sprintf_s(tmp, 512, "Type '%s' does not have a matching opEquals or opCmp method", subType->GetName());
 #else
-					sprintf(tmp, "Type '%s' does not have a matching opEquals or opCmp method", subType->GetName());
+					snprintf(tmp, sizeof(tmp), "Type '%s' does not have a matching opEquals or opCmp method", subType->GetName());
 #endif
 				ctx->SetException(tmp);
 			}
@@ -1353,11 +1388,24 @@ int CScriptArray::Find(asUINT startAt, void *value) const
 
 // internal
 // Copy object handle or primitive value
-// Even in arrays of objects the objects are allocated on 
+// Even in arrays of objects the objects are allocated on
 // the heap and the array stores the pointers to the objects
 void CScriptArray::Copy(void *dst, void *src)
 {
 	memcpy(dst, src, elementSize);
+}
+
+
+// internal
+// Swap two elements
+// Even in arrays of objects the objects are allocated on 
+// the heap and the array stores the pointers to the objects.
+void CScriptArray::Swap(void* a, void* b)
+{
+	asBYTE tmp[16];
+	Copy(tmp, a);
+	Copy(a, b);
+	Copy(b, tmp);
 }
 
 
@@ -1431,13 +1479,13 @@ void CScriptArray::Sort(asUINT startAt, asUINT count, bool asc)
 #if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(__S3E__)
 					sprintf_s(tmp, 512, "Type '%s' has multiple matching opCmp methods", subType->GetName());
 #else
-					sprintf(tmp, "Type '%s' has multiple matching opCmp methods", subType->GetName());
+					snprintf(tmp, sizeof(tmp), "Type '%s' has multiple matching opCmp methods", subType->GetName());
 #endif
 				else
 #if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(__S3E__)
 					sprintf_s(tmp, 512, "Type '%s' does not have a matching opCmp method", subType->GetName());
 #else
-					sprintf(tmp, "Type '%s' does not have a matching opCmp method", subType->GetName());
+					snprintf(tmp, sizeof(tmp), "Type '%s' does not have a matching opCmp method", subType->GetName());
 #endif
 
 				ctx->SetException(tmp);
@@ -1470,12 +1518,11 @@ void CScriptArray::Sort(asUINT startAt, asUINT count, bool asc)
 		return;
 	}
 
-	asBYTE tmp[16];
-	asIScriptContext *cmpContext = 0;
-	bool isNested = false;
-
 	if( subTypeId & ~asTYPEID_MASK_SEQNBR )
 	{
+		asIScriptContext *cmpContext = 0;
+		bool isNested = false;
+
 		// Try to reuse the active context
 		cmpContext = asGetActiveContext();
 		if( cmpContext )
@@ -1486,38 +1533,83 @@ void CScriptArray::Sort(asUINT startAt, asUINT count, bool asc)
 				cmpContext = 0;
 		}
 		if( cmpContext == 0 )
-		{
 			cmpContext = objType->GetEngine()->RequestContext();
+
+		// Do the sorting
+		struct {
+			bool               asc;
+			asIScriptContext  *cmpContext;
+			asIScriptFunction *cmpFunc;
+			bool operator()(void *a, void *b) const
+			{
+				if( !asc )
+				{
+					// Swap items
+					void *TEMP = a;
+					a = b;
+					b = TEMP;
+				}
+
+				int r = 0;
+
+				// Allow sort to work even if the array contains null handles
+				if( a == 0 ) return true;
+				if( b == 0 ) return false;
+
+				// Execute object opCmp
+				if( cmpFunc )
+				{
+					// TODO: Add proper error handling
+					r = cmpContext->Prepare(cmpFunc); assert(r >= 0);
+					r = cmpContext->SetObject(a); assert(r >= 0);
+					r = cmpContext->SetArgObject(0, b); assert(r >= 0);
+					r = cmpContext->Execute();
+
+					if( r == asEXECUTION_FINISHED )
+					{
+						return (int)cmpContext->GetReturnDWord() < 0;
+					}
+				}
+
+				return false;
+			}
+		} customLess = {asc, cmpContext, cache ? cache->cmpFunc : 0};
+		std::sort((void**)GetArrayItemPointer(start), (void**)GetArrayItemPointer(end), customLess);
+
+		// Clean up
+		if( cmpContext )
+		{
+			if( isNested )
+			{
+				asEContextState state = cmpContext->GetState();
+				cmpContext->PopState();
+				if( state == asEXECUTION_ABORTED )
+					cmpContext->Abort();
+			}
+			else
+				objType->GetEngine()->ReturnContext(cmpContext);
 		}
 	}
-
-	// Insertion sort
-	for( int i = start + 1; i < end; i++ )
+	else
 	{
-		Copy(tmp, GetArrayItemPointer(i));
+		// TODO: Use std::sort for primitive types too
 
-		int j = i - 1;
-
-		while( j >= start && Less(GetDataPointer(tmp), At(j), asc, cmpContext, cache) )
+		// Insertion sort
+		asBYTE tmp[16];
+		for( int i = start + 1; i < end; i++ )
 		{
-			Copy(GetArrayItemPointer(j + 1), GetArrayItemPointer(j));
-			j--;
-		}
+			Copy(tmp, GetArrayItemPointer(i));
 
-		Copy(GetArrayItemPointer(j + 1), tmp);
-	}
+			int j = i - 1;
 
-	if( cmpContext )
-	{
-		if( isNested )
-		{
-			asEContextState state = cmpContext->GetState();
-			cmpContext->PopState();
-			if( state == asEXECUTION_ABORTED )
-				cmpContext->Abort();
+			while( j >= start && Less(GetDataPointer(tmp), At(j), asc) )
+			{
+				Copy(GetArrayItemPointer(j + 1), GetArrayItemPointer(j));
+				j--;
+			}
+
+			Copy(GetArrayItemPointer(j + 1), tmp);
 		}
-		else
-			objType->GetEngine()->ReturnContext(cmpContext);
 	}
 }
 
@@ -1545,7 +1637,6 @@ void CScriptArray::Sort(asIScriptFunction *func, asUINT startAt, asUINT count)
 		return;
 	}
 
-	asBYTE tmp[16];
 	asIScriptContext *cmpContext = 0;
 	bool isNested = false;
 
@@ -1561,31 +1652,31 @@ void CScriptArray::Sort(asIScriptFunction *func, asUINT startAt, asUINT count)
 	if (cmpContext == 0)
 		cmpContext = objType->GetEngine()->RequestContext();
 
-	// Insertion sort
-	for (asUINT i = start + 1; i < end; i++)
+	// TODO: Security issue: If the array is accessed from the callback while the sort is going on the result may be unpredictable
+	//       For example, the callback resizes the array in the middle of the sort
+	//       Possible solution: set a lock flag on the array, and prohibit modifications while the lock flag is set
+
+	// Bubble sort
+	// TODO: optimize: Use an efficient sort algorithm
+	for (asUINT i = start; i+1 < end; i++)
 	{
-		Copy(tmp, GetArrayItemPointer(i));
-
-		asUINT j = i - 1;
-
-		while (j != 0xFFFFFFFF && j >= start )
+		asUINT best = i;
+		for (asUINT j = i + 1; j < end; j++)
 		{
 			cmpContext->Prepare(func);
-			cmpContext->SetArgAddress(0, GetDataPointer(tmp));
-			cmpContext->SetArgAddress(1, At(j));
+			cmpContext->SetArgAddress(0, At(j));
+			cmpContext->SetArgAddress(1, At(best));
 			int r = cmpContext->Execute();
 			if (r != asEXECUTION_FINISHED)
 				break;
 			if (*(bool*)(cmpContext->GetAddressOfReturnValue()))
-			{
-				Copy(GetArrayItemPointer(j + 1), GetArrayItemPointer(j));
-				j--;
-			}
-			else
-				break;
+				best = j;
 		}
 
-		Copy(GetArrayItemPointer(j + 1), tmp);
+		// With Swap we guarantee that the array always sees all references
+		// if the GC calls the EnumReferences in the middle of the sorting
+		if( best != i )
+			Swap(GetArrayItemPointer(i), GetArrayItemPointer(best));
 	}
 
 	if (cmpContext)
@@ -1642,8 +1733,37 @@ void CScriptArray::CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src)
 				void **s   = (void**)src->data;
 
 				asITypeInfo *subType = objType->GetSubType();
-				for( ; d < max; d++, s++ )
-					engine->AssignScriptObject(*d, *s, subType);
+				if (subType->GetFlags() & asOBJ_ASHANDLE)
+				{
+					// For objects that should work as handles we must use the opHndlAssign method
+					// TODO: Must support alternative syntaxes as well
+					// TODO: Move the lookup of the opHndlAssign method to Precache() so it is only done once
+					string decl = string(subType->GetName()) + "& opHndlAssign(const " + string(subType->GetName()) + "&in)";
+					asIScriptFunction *func = subType->GetMethodByDecl(decl.c_str());
+					if (func)
+					{
+						// TODO: Reuse active context if existing
+						asIScriptContext* ctx = engine->RequestContext();
+						for (; d < max; d++, s++)
+						{
+							ctx->Prepare(func);
+							ctx->SetObject(*d);
+							ctx->SetArgAddress(0, *s);
+							// TODO: Handle errors
+							ctx->Execute();
+						}
+						engine->ReturnContext(ctx);
+					}
+					else
+					{
+						// opHndlAssign doesn't exist, so try ordinary value assign instead
+						for (; d < max; d++, s++)
+							engine->AssignScriptObject(*d, *s, subType);
+					}
+				}
+				else
+					for( ; d < max; d++, s++ )
+						engine->AssignScriptObject(*d, *s, subType);
 			}
 			else
 			{
@@ -1687,6 +1807,14 @@ void CScriptArray::Precache()
 
 	// Create the cache
 	cache = reinterpret_cast<SArrayCache*>(userAlloc(sizeof(SArrayCache)));
+	if( !cache )
+	{
+		asIScriptContext *ctx = asGetActiveContext();
+		if( ctx )
+			ctx->SetException("Out of memory");
+		asReleaseExclusiveLock();
+		return;
+	}
 	memset(cache, 0, sizeof(SArrayCache));
 
 	// If the sub type is a handle to const, then the methods must be const too
@@ -1783,10 +1911,26 @@ void CScriptArray::EnumReferences(asIScriptEngine *engine)
 	if( subTypeId & asTYPEID_MASK_OBJECT )
 	{
 		void **d = (void**)buffer->data;
-		for( asUINT n = 0; n < buffer->numElements; n++ )
+
+		asITypeInfo *subType = engine->GetTypeInfoById(subTypeId);
+		if ((subType->GetFlags() & asOBJ_REF))
 		{
-			if( d[n] )
-				engine->GCEnumCallback(d[n]);
+			// For reference types we need to notify the GC of each instance
+			for (asUINT n = 0; n < buffer->numElements; n++)
+			{
+				if (d[n])
+					engine->GCEnumCallback(d[n]);
+			}
+		}
+		else if ((subType->GetFlags() & asOBJ_VALUE) && (subType->GetFlags() & asOBJ_GC))
+		{
+			// For value types we need to forward the enum callback
+			// to the object so it can decide what to do
+			for (asUINT n = 0; n < buffer->numElements; n++)
+			{
+				if (d[n])
+					engine->ForwardGCEnumReferences(d[n], subType);
+			}
 		}
 	}
 }
@@ -2090,6 +2234,26 @@ static void ScriptArrayReleaseAllHandles_Generic(asIScriptGeneric *gen)
 	self->ReleaseAllHandles(engine);
 }
 
+static void ScriptArray_opForBegin_Generic(asIScriptGeneric* gen)
+{
+	*reinterpret_cast<asUINT*>(gen->GetAddressOfReturnLocation()) = CScriptArray_opForBegin(reinterpret_cast<CScriptArray*>(gen->GetObject()));
+}
+
+static void ScriptArray_opForEnd_Generic(asIScriptGeneric* gen)
+{
+	*reinterpret_cast<bool*>(gen->GetAddressOfReturnLocation()) = CScriptArray_opForEnd(gen->GetArgDWord(0), reinterpret_cast<CScriptArray*>(gen->GetObject()));
+}
+
+static void ScriptArray_opForNext_Generic(asIScriptGeneric* gen)
+{
+	*reinterpret_cast<asUINT*>(gen->GetAddressOfReturnLocation()) = CScriptArray_opForNext(gen->GetArgDWord(0), reinterpret_cast<CScriptArray*>(gen->GetObject()));
+}
+
+static void ScriptArray_opForValue1_Generic(asIScriptGeneric* gen)
+{
+	*reinterpret_cast<asUINT*>(gen->GetAddressOfReturnLocation()) = CScriptArray_opForValue1(gen->GetArgDWord(0), reinterpret_cast<CScriptArray*>(gen->GetObject()));
+}
+
 static void RegisterScriptArray_Generic(asIScriptEngine *engine)
 {
 	int r = 0;
@@ -2101,14 +2265,21 @@ static void RegisterScriptArray_Generic(asIScriptEngine *engine)
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_TEMPLATE_CALLBACK, "bool f(int&in, bool&out)", asFUNCTION(ScriptArrayTemplateCallback_Generic), asCALL_GENERIC); assert( r >= 0 );
 
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in)", asFUNCTION(ScriptArrayFactory_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint length)", asFUNCTION(ScriptArrayFactory2_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint length) explicit", asFUNCTION(ScriptArrayFactory2_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint length, const T &in value)", asFUNCTION(ScriptArrayFactoryDefVal_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_LIST_FACTORY, "array<T>@ f(int&in, int&in) {repeat T}", asFUNCTION(ScriptArrayListFactory_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_ADDREF, "void f()", asFUNCTION(ScriptArrayAddRef_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_RELEASE, "void f()", asFUNCTION(ScriptArrayRelease_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "T &opIndex(uint index)", asFUNCTION(ScriptArrayAt_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "const T &opIndex(uint index) const", asFUNCTION(ScriptArrayAt_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("array<T>", "array<T> &opAssign(const array<T>&in)", asFUNCTION(ScriptArrayAssignment_Generic), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterObjectMethod("array<T>", "uint opForBegin() const", asFUNCTION(ScriptArray_opForBegin_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "bool opForEnd(uint) const", asFUNCTION(ScriptArray_opForEnd_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "uint opForNext(uint) const", asFUNCTION(ScriptArray_opForNext_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "const T &opForValue0(uint index) const", asFUNCTION(ScriptArrayAt_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterObjectMethod("array<T>", "uint opForValue1(uint index) const", asFUNCTION(ScriptArray_opForValue1_Generic), asCALL_GENERIC); assert(r >= 0);
+
+	r = engine->RegisterObjectMethod("array<T>", "array<T> &opAssign(const array<T>&in)", asFUNCTION(ScriptArrayAssignment_Generic), asCALL_GENERIC); assert(r >= 0);
 
 	r = engine->RegisterObjectMethod("array<T>", "void insertAt(uint index, const T&in value)", asFUNCTION(ScriptArrayInsertAt_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void insertAt(uint index, const array<T>& arr)", asFUNCTION(ScriptArrayInsertAtArray_Generic), asCALL_GENERIC); assert(r >= 0);
@@ -2116,7 +2287,9 @@ static void RegisterScriptArray_Generic(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "void removeAt(uint index)", asFUNCTION(ScriptArrayRemoveAt_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void removeLast()", asFUNCTION(ScriptArrayRemoveLast_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void removeRange(uint start, uint count)", asFUNCTION(ScriptArrayRemoveRange_Generic), asCALL_GENERIC); assert(r >= 0);
+#if AS_USE_ACCESSORS != 1
 	r = engine->RegisterObjectMethod("array<T>", "uint length() const", asFUNCTION(ScriptArrayLength_Generic), asCALL_GENERIC); assert( r >= 0 );
+#endif
 	r = engine->RegisterObjectMethod("array<T>", "void reserve(uint length)", asFUNCTION(ScriptArrayReserve_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void resize(uint length)", asFUNCTION(ScriptArrayResize_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void sortAsc()", asFUNCTION(ScriptArraySortAsc_Generic), asCALL_GENERIC); assert( r >= 0 );
@@ -2130,10 +2303,12 @@ static void RegisterScriptArray_Generic(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "int findByRef(uint startAt, const T&in if_handle_then_const value) const", asFUNCTION(ScriptArrayFindByRef2_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "bool opEquals(const array<T>&in) const", asFUNCTION(ScriptArrayEquals_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "bool isEmpty() const", asFUNCTION(ScriptArrayIsEmpty_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterFuncdef("bool array<T>::less(const T&in a, const T&in b)");
+	r = engine->RegisterFuncdef("bool array<T>::less(const T&in if_handle_then_const a, const T&in if_handle_then_const b)");
 	r = engine->RegisterObjectMethod("array<T>", "void sort(const less &in, uint startAt = 0, uint count = uint(-1))", asFUNCTION(ScriptArraySortCallback_Generic), asCALL_GENERIC); assert(r >= 0);
-	r = engine->RegisterObjectMethod("array<T>", "uint get_length() const", asFUNCTION(ScriptArrayLength_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("array<T>", "void set_length(uint)", asFUNCTION(ScriptArrayResize_Generic), asCALL_GENERIC); assert( r >= 0 );
+#if AS_USE_STLNAMES != 1 && AS_USE_ACCESSORS == 1
+	r = engine->RegisterObjectMethod("array<T>", "uint get_length() const property", asFUNCTION(ScriptArrayLength_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "void set_length(uint) property", asFUNCTION(ScriptArrayResize_Generic), asCALL_GENERIC); assert( r >= 0 );
+#endif
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_GETREFCOUNT, "int f()", asFUNCTION(ScriptArrayGetRefCount_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_SETGCFLAG, "void f()", asFUNCTION(ScriptArraySetFlag_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_GETGCFLAG, "bool f()", asFUNCTION(ScriptArrayGetFlag_Generic), asCALL_GENERIC); assert( r >= 0 );

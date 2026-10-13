@@ -149,7 +149,17 @@ const char* RoR::ActorSimAttrToString(ActorSimAttr attr)
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:         return "ENGTURBO2_ANTILAG_ENABLED";     
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:          return "ENGTURBO2_ANTILAG_CHANCE";      
     case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:         return "ENGTURBO2_ANTILAG_MIN_RPM";     
-    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:           return "ENGTURBO2_ANTILAG_POWER";       
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:           return "ENGTURBO2_ANTILAG_POWER";
+
+    // Turbojets
+    case ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST:           return "TURBOJET_MAX_DRY_THRUST";
+    case ACTORSIMATTR_TURBOJET_MAX_WET_THRUST:           return "TURBOJET_MAX_WET_THRUST";
+
+    // Propeller engine (turboprops/pistonprops)
+    case ACTORSIMATTR_PROPENGINE_MAX_POWER:              return "PROPENGINE_MAX_POWER";
+
+    // Screwprops
+    case ACTORSIMATTR_SCREWPROP_MAX_POWER:               return "SCREWPROP_MAX_POWER";
 
     default: return "";
     }

@@ -10,7 +10,7 @@
       ],
       "registryUrls": [
         "https://center2.conan.io",
-        "https://conan.cloudsmith.io/rigs-of-rods/deps/"
+        "https://nexus.anotherfoxguy.com/repository/rigs-of-rods/"
       ]
     }
   ],

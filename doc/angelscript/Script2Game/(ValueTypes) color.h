@@ -27,10 +27,9 @@ public:
     
     ///@name Constructors
     /// @{
-    color(float, float, float, float);
-    color(const color &in);
     color();
-    color(float);
+    color(float r, float g, float b, float a);
+    color(const color &in);
     /// @}
 }
 

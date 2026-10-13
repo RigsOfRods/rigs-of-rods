@@ -170,6 +170,8 @@ namespace RoR
     class  RTTLayer;
     class  Screwprop;
     class  ScriptEngine;
+    class  ServerScriptEngine;
+    class  ServerScriptSequencer;
     class  ShadowManager;
     class  Skidmark;
     class  SkidmarkConfig;

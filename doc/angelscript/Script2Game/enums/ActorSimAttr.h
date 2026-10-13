@@ -59,7 +59,17 @@ enum ActorSimAttr
     ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED, //!<  Param #11 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE, //!<  Param #12 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!<  Param #13 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  Param #14 of 'engturbo2'    
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  Param #14 of 'engturbo2'  
+
+    // Turbojets
+    ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST, //!< - Param #5 of 'turbojets': Maximum thrust without afterburner, in kilonewtons (indexed)
+    ACTORSIMATTR_TURBOJET_MAX_WET_THRUST, //!< - Param #6 of 'turbojets': Maximum thrust with afterburner, in kilonewtons (indexed)
+
+    // Propeller engine (turboprops/pistonprops)
+    ACTORSIMATTR_PROPENGINE_MAX_POWER, //!< - Param #7 of 'turboprops'/Param #8 of 'pistonprops', in kilowatts (indexed)
+
+    // Screwprops
+    ACTORSIMATTR_SCREWPROP_MAX_POWER, //!< - Param #4 of 'screwprops' (indexed)  
 };
 
 } // namespace Script2Game

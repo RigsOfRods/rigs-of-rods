@@ -77,6 +77,15 @@ void ScriptMonitor::Draw()
             ImGui::Text("%s", _LC("ScriptMonitor", "(terrain)"));
             break;
 
+        case ScriptCategory::AI_BOT:
+            ImGui::Text("(%s) [%d]", _LC("ScriptMonitor", "bot"), unit.associatedNetUid);
+            ImGui::SameLine();
+            if (ImGui::Button(_LC("ScriptMonitor", "Kill")))
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(id)));
+            }
+            break;
+
         case ScriptCategory::CUSTOM:
         case ScriptCategory::GADGET:
         {

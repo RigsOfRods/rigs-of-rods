@@ -52,6 +52,7 @@
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
         App::sys_savegames_dir ->setStr(PathCombine(App::sys_user_dir->getStr(), "savegames"));
         App::sys_screenshot_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "screenshots"));
         App::sys_scripts_dir   ->setStr(PathCombine(App::sys_user_dir->getStr(), "scripts"));
+        App::sys_server_scripts_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "server_scripts"));
         App::sys_projects_dir  ->setStr(PathCombine(App::sys_user_dir->getStr(), "projects"));
         App::sys_repo_attachments_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "repo_attachments"));
 
@@ -220,8 +222,10 @@ int main(int argc, char *argv[])
         App::GetAppContext()->SetUpInput();
 
 #ifdef USE_ANGELSCRIPT
-        App::CreateScriptEngine();
         CreateFolder(App::sys_scripts_dir->getStr());
+        App::CreateScriptEngine();
+        CreateFolder(App::sys_server_scripts_dir->getStr());
+        App::CreateServerScript();
         CreateFolder(App::sys_projects_dir->getStr());
 #endif
 
@@ -497,8 +501,35 @@ int main(int argc, char *argv[])
                     try
                     {
                         ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
+                        int32_t netuid = -1;
+                        if (request->lsr_category == ScriptCategory::AI_BOT)
+                        {
+                            // Network user must be registered before script's `main()` runs.
+                            ROR_ASSERT(App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT && "AI_BOT scripts can only be loaded under 'mp_state = LOCAL_SCRIPT (3)'.");
+                            RoRnet::UserInfo u;
+                            std::memset(&u, 0, sizeof(u));
+                            strcpy(u.username, "Bot");
+                            strcpy(u.language, "cz_CZ");
+                            strcpy(u.sessiontype, "normal");
+                            strcpy(u.clientname, "Script");
+                            strcpy(u.clientversion, "Script");
+                            u.authstatus = RoRnet::AUTH_RANKED;
+                            // Register with server script - fills UID and color
+                            App::GetServerScript()->createClient(u);
+                            netuid = u.uniqueid;
+                            // Register locally
+                            App::GetNetwork()->AddBotUserInfo(u);
+                            App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_LOAD_SCRIPT_REQUESTED
+                        }
                         // Notifications for script manipulations are sent by loadScript().
-                        App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
+                        ScriptUnitID_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, netuid, request->lsr_buffer);
+                        if (nid == SCRIPTUNITID_INVALID && request->lsr_category == ScriptCategory::AI_BOT)
+                        {
+                            // AI_BOT failed, clean up network user
+                            App::GetServerScript()->queueMessageUserLeave(netuid);
+                            App::GetNetwork()->RemoveBotUserInfo(netuid);
+                            App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_LOAD_SCRIPT_REQUESTED
+                        }
                     }
                     catch (...)
                     {
@@ -513,8 +544,24 @@ int main(int argc, char *argv[])
                     ScriptUnitID_t* id = static_cast<ScriptUnitID_t*>(m.payload);
                     try
                     {
+                        ScriptCategory cat = App::GetScriptEngine()->getScriptUnit(*id).scriptCategory;
+                        int32_t netuid = App::GetScriptEngine()->getScriptUnit(*id).associatedNetUid;
                         // Notifications for script manipulations are sent by unloadScript().
                         App::GetScriptEngine()->unloadScript(*id);
+                        if (cat == ScriptCategory::AI_BOT)
+                        {
+                            // AI_BOT script unloaded, clean up local network user
+                            App::GetNetwork()->RemoveBotUserInfo(netuid);
+                            App::GetGuiManager()->MpClientList.UpdateClients(); // OK to invoke directly - processing MSG_APP_UNLOAD_SCRIPT_REQUESTED
+                            // Also clean up any actors spawned by the bot
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                            {
+                                if (actor->ar_driveable == AI && actor->ar_net_source_id == netuid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                                }
+                            }
+                        }
                     }
                     catch (...)
                     {
@@ -564,6 +611,13 @@ int main(int argc, char *argv[])
 #if USE_SOCKETW
                     try
                     {
+                        if (App::GetServerScript()->IsRunning())
+                        {
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                _L("Stopping local server script engine before connecting to remote server."));
+                            App::GetServerScript()->Close();
+                            App::mp_state->setVal((int)MpState::DISABLED);
+                        }
                         App::GetNetwork()->StartConnecting();
                     }
                     catch (...) 
@@ -1287,10 +1341,11 @@ int main(int argc, char *argv[])
                     try
                     {
                         ROR_ASSERT(actor_ptr);
-                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
-                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        ActorPtr actor = *actor_ptr;
+                        const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        if (valid_remote_actor || valid_ai_actor)
                         {
-                            ActorPtr actor = *actor_ptr;
                             actor->ar_muted_by_peeropt = true;
                             actor->muteAllSounds();
                         }
@@ -1309,10 +1364,11 @@ int main(int argc, char *argv[])
                     try
                     {
                         ROR_ASSERT(actor_ptr);
-                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
-                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        ActorPtr actor = *actor_ptr;
+                        const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        if (valid_remote_actor || valid_ai_actor)
                         {
-                            ActorPtr actor = *actor_ptr;
                             actor->ar_muted_by_peeropt = false;
                             actor->unmuteAllSounds();
                         }
@@ -2027,6 +2083,19 @@ int main(int argc, char *argv[])
             }
 #endif // USE_SOCKETW
 
+            // Set arcade controls and hydro coupling settings for player actors
+            // Default to false for other actors.
+            if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+            {
+                ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                {
+                    bool is_player_actor = player_actor != nullptr && actor->getInstanceId() == player_actor->getInstanceId();
+                    actor->ar_arcade_controls = is_player_actor && App::io_arcade_controls->getBool();
+                    actor->ar_hydro_speed_coupling_enabled = is_player_actor && App::io_hydro_coupling->getBool();
+                }
+            }
+
             // Process input events
             OgreProfileBegin("Input processing");
             if (dt != 0.f)
@@ -2065,36 +2134,36 @@ int main(int argc, char *argv[])
                             if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                             {
                                 App::GetGameContext()->UpdateSimInputEvents(dt);
-                                App::GetGameContext()->UpdateSkyInputEvents(dt);
-                                if (App::GetGameContext()->GetPlayerActor() &&
-                                    App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::NETWORKED_OK) // we are in a vehicle
+                            }
+
+                            App::GetGameContext()->UpdateSkyInputEvents(dt);
+                            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_state != ActorState::NETWORKED_OK)
                                 {
-                                    App::GetGameContext()->UpdateCommonInputEvents(dt);
-                                    if (App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::LOCAL_REPLAY)
+                                    App::GetGameContext()->UpdateCommonInputEvents(dt, actor);
+                                    if (actor->ar_state != ActorState::LOCAL_REPLAY)
                                     {
-                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
+                                        if (actor->ar_driveable == TRUCK)
                                         {
-                                            App::GetGameContext()->UpdateTruckInputEvents(dt);
+                                            App::GetGameContext()->UpdateTruckInputEvents(dt, actor);
                                         }
-                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
+                                        if (actor->ar_driveable == AIRPLANE)
                                         {
-                                            App::GetGameContext()->UpdateAirplaneInputEvents(dt);
+                                            App::GetGameContext()->UpdateAirplaneInputEvents(dt, actor);
                                         }
-                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
+                                        if (actor->ar_driveable == BOAT)
                                         {
-                                            App::GetGameContext()->UpdateBoatInputEvents(dt);
+                                            App::GetGameContext()->UpdateBoatInputEvents(dt, actor);
                                         }
                                     }
-                                    App::GetGameContext()->GetPlayerActor()->UpdatePropAnimInputEvents();
-                                    for (ActorPtr linked_actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
+
+                                    actor->UpdatePropAnimInputEvents();
+                                    for (ActorPtr linked_actor : actor->ar_linked_actors)
                                     {
                                         linked_actor->UpdatePropAnimInputEvents();
                                     }
                                 }
-                            }
-                            else // free cam mode
-                            {
-                                App::GetGameContext()->UpdateSkyInputEvents(dt);
                             }
                         }
                     } // app state SIMULATION

@@ -1,4 +1,3 @@
-
 // \title Screwprops
 // \brief Demo of ScrewpropClass binding
 // ===================================================
@@ -7,6 +6,8 @@
 
 // Window [X] button handler
 imgui_utils::CloseWindowPrompt closeBtnHandler;
+array<float> originalScrewpropPowers;
+int lastTruckNum;
 
 string YesOrNo(bool b)
 {
@@ -23,6 +24,11 @@ string RudderDeflection(float rudderDefl)
     return formatFloat(rudderDefl * 100, '', 0, 1) + " %% (" + direction + ")";
 }
 
+void main()
+{
+    lastTruckNum = game.getCurrentTruckNumber();
+}
+
 void frameStep(float dt)
 {
     ImGui::SetNextWindowSize(vector2(440, 520));
@@ -30,6 +36,18 @@ void frameStep(float dt)
     {
         closeBtnHandler.draw();
         BeamClass@ truck = game.getCurrentTruck();
+        int currentTruckID = -1;
+        if (@truck != null)
+            currentTruckID = truck.getInstanceId();
+
+        if (lastTruckNum != currentTruckID)
+        {
+            // The current truck has changed. Empty the list to add the new power values afterwards.
+            lastTruckNum = currentTruckID;
+            while (originalScrewpropPowers.length() > 0)
+                originalScrewpropPowers.removeLast();
+        }
+
         if (@truck != null)
         {
             ImGui::Text("Vehicle: " + truck.getTruckName());
@@ -43,10 +61,14 @@ void frameStep(float dt)
                     ImGui::Separator();
                     ScrewpropClass@ screwprop = truck.getScrewprop(i);
 
+                    float maxForce = truck.getIndexedSimAttribute(ACTORSIMATTR_SCREWPROP_MAX_POWER, i);
+                    if (int(originalScrewpropPowers.length()) < screwpropCount)
+                        originalScrewpropPowers.insertLast(maxForce);
+
                     ImGui::Text("Screwprop #" + formatInt(i + 1) + ":");
                     ImGui::BulletText("Throttle: " + formatFloat(screwprop.getThrottle() * 100, '', 0, 1) + " %%");
                     ImGui::BulletText("Rudder deflection: " + RudderDeflection(screwprop.getRudder()));
-                    ImGui::BulletText("Max force: " + formatFloat(screwprop.getMaxPower() / 1000, '', 0, 1) + " kN");
+                    ImGui::BulletText("Max force: " + formatFloat(maxForce / 1000, '', 0, 1) + " kN");
                     ImGui::BulletText("Reverser: " + YesOrNo(screwprop.getReverse()));
                     ImGui::BulletText("Reference node: " + formatInt(screwprop.getRefNode()));
                     ImGui::BulletText("Back node: " + formatInt(screwprop.getBackNode()));
@@ -59,6 +81,11 @@ void frameStep(float dt)
                     ImGui::PushID("THR" + formatInt(i));
                     if (ImGui::SliderFloat("Set throttle", throttle, -100, 100))
                         screwprop.setThrottle(throttle / 100);
+                    ImGui::PopID();
+
+                    ImGui::PushID("MAXPWR" + formatInt(i));
+                    if (ImGui::SliderFloat("Set max force", maxForce, 0, originalScrewpropPowers[i] * 2))
+                        truck.setIndexedSimAttribute(ACTORSIMATTR_SCREWPROP_MAX_POWER, maxForce, i);
                     ImGui::PopID();
 
                     ImGui::PushID("RUDD" + formatInt(i));

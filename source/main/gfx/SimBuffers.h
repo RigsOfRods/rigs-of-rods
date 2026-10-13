@@ -142,6 +142,7 @@ struct ActorSB
     float             simbuf_hydro_dir_state          = 0;     // State of steering actuator ('hydro'), for steeringwheel display
     float             simbuf_brake                    = 0;
     bool              simbuf_has_engine               = false;
+    bool              simbuf_engine_ignition          = false;
     int               simbuf_gear                     = 0;
     int               simbuf_autoshift                = 0;    
     float             simbuf_engine_rpm               = 0;

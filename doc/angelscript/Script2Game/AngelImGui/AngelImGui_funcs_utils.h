@@ -33,7 +33,6 @@ namespace AngelImGui { // Dummy namespace, just to distinguish AngelScript from 
     vector2 GetItemRectMin();
     vector2 GetItemRectMax();
     vector2 GetItemRectSize();
-    void SetItemAllowOverlap();
     bool IsWindowFocused(int = 0);
     bool IsWindowHovered(int = 0);
     bool IsRectVisible(const vector2&);
@@ -46,7 +45,6 @@ namespace AngelImGui { // Dummy namespace, just to distinguish AngelScript from 
     bool BeginChildFrame(uint, const vector2&, int = 0);
     void EndChildFrame();
 
-    int GetKeyIndex(int);
     bool IsKeyDown(int);
     bool IsKeyPressed(int, bool = true);
     bool IsKeyReleased(int);
@@ -63,8 +61,6 @@ namespace AngelImGui { // Dummy namespace, just to distinguish AngelScript from 
     void ResetMouseDragDelta(int = 0);
     int GetMouseCursor();
     void SetMouseCursor(int);
-    void CaptureKeyboardFromApp(bool = true);
-    void CaptureMouseFromApp(bool = true);
 
 
     string GetClipboardText();

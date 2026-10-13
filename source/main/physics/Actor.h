@@ -145,23 +145,33 @@ public:
     void              setNodeMass(int nodeNumber, float m);
     void              setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass);
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
+    void              setIndexedSimAttribute(ActorSimAttr attr, float val, int index); //!< - Sets a sim attribute for a particular object (e.g. aircraft engine) at the specified index.
     float             getSimAttribute(ActorSimAttr attr);
+    float             getIndexedSimAttribute(ActorSimAttr attr, int index);
     void              recalculateNodeMasses();
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
+    void              wakeUp();
+    void              sendToSleep();
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
     void              updateInitPosition();
     void              propagateNodeBeamChangesToDef(); //!< Back-propagates changes done by N/B-utils UI to the def-document.
+    bool              shouldSetSimAttribute(ActorSimAttr attr, float val, int index = -1);
     /// @}
 
     /// @name User interaction
     /// @{
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    bool              getParkingBrake() { return ar_parking_brake; }
+    bool              getTractionControl() { return tc_mode; }
+    bool              getAntiLockBrake() { return alb_mode; }
+    bool              getCruiseControl() { return cc_mode; }
     void              parkingbrakeToggle();
     void              tractioncontrolToggle();
     void              antilockbrakeToggle();
+    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     bool              isLocked();                          //!< Are hooks locked?
@@ -169,6 +179,10 @@ public:
     void              clearForcedCinecam();
     bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
     int               getNumCinecams() { return ar_num_cinecams; }
+    int               getCameraCount() { return ar_num_cameras; }
+    int               getCameraPosNode(int camIndex) { return camIndex >= 0 && camIndex < ar_num_cameras ? ar_camera_node_pos[camIndex] : NODENUM_INVALID; }
+    int               getCameraDirNode(int camIndex) { return camIndex >= 0 && camIndex < ar_num_cameras ? ar_camera_node_dir[camIndex] : NODENUM_INVALID; }
+    int               getCameraRollNode(int camIndex) { return camIndex >= 0 && camIndex < ar_num_cameras ? ar_camera_node_roll[camIndex] : NODENUM_INVALID; }
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
@@ -177,8 +191,6 @@ public:
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
-    bool              getParkingBrake() { return ar_parking_brake; }
-    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
     int               getAxleDiffMode() { return m_num_axle_diffs; }
@@ -192,6 +204,29 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
+    //! @}
+
+    /// @name Input engine overrides
+    /// @{
+    float             getEventValue(int eventID, bool pure = false, InputSourceType valueSource = InputSourceType::IST_ANY);
+    bool              getEventBoolValue(int eventID);
+    bool              getEventBoolValueBounce(int eventID, float time = 0.2f);
+    void              clearEventSimulatedValues();
+    bool              hasEventSimulatedValue(int eventID);
+    float             getEventSimulatedValue(int eventID);
+    void              setEventSimulatedValue(int eventID, float value);
+    void              resetEventSimulatedValue(int eventID);
+
+    // not exported to scripting:
+
+    // Determines whether input event values for this actor must be read from
+    // the simulated values map. This allows us to send simulated inputs to actors
+    // other than the player actor, without it being affected by InputEngine
+    // values.
+    bool              ShouldAllowNonSimulatedInputs();
+    bool              isEventAnalog(int eventID);
+    bool              isEventDefined(int eventID);
+    float             getEventBounceTime(int eventID);
     //! @}
 
     /// @name Vehicle lights
@@ -448,6 +483,13 @@ public:
     
     float             ar_posnode_spawn_height = 0.f;
     VehicleAIPtr      ar_vehicle_ai;
+
+    // Overrides the input event values from InputEngine with custom values
+    // for this actor.
+    // As soon as an event-value pair is added to this map, values from the
+    // InputEngine are ignored.
+    std::map<int, float> ar_actor_event_simulated_values;
+
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
     float             ar_wheel_speed = 0.f;         //!< Physics state; wheel speed in m/s
@@ -468,9 +510,9 @@ public:
     bool              ar_trailer_parking_brake = false;
     float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle = -0.52f;          //!< Sim state; rear view mirror angle
-    float             ar_elevator = 0.f;                    //!< Sim state; aerial controller
-    float             ar_rudder = 0.f;                      //!< Sim state; aerial/marine controller
-    float             ar_aileron = 0.f;                     //!< Sim state; aerial controller
+    float             ar_elevator = 0.f;                    //!< Sim state; aircraft elevator
+    float             ar_rudder = 0.f;                      //!< Sim state; aircraft rudder (boat rudders are controlled in RoR::Screwprop)
+    float             ar_aileron = 0.f;                     //!< Sim state; aircraft aileron
     int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
     std::string       ar_filename;                    //!< Attribute; filled at spawn
@@ -555,7 +597,8 @@ public:
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
-    bool ar_hydro_speed_coupling:1;
+    bool ar_hydro_speed_coupling_active:1;
+    bool ar_hydro_speed_coupling_enabled:1; //!< Should we use hydro coupling? This gets updated for the player actor according to 'io_hydro_coupling' CVar. For other actors, it's false.
     bool ar_collision_relevant:1;      //!< Physics state;
     bool ar_is_police:1;        //!< Gfx/sfx attr
     bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
@@ -564,6 +607,7 @@ public:
     bool ar_toggle_ropes:1;     //!< Sim state
     bool ar_toggle_ties:1;      //!< Sim state
     bool ar_cparticles_active:1;//!< Gfx state
+    bool ar_arcade_controls:1; //!< Should we use arcade controls? This gets updated for the player actor according to 'io_arcade_controls' CVar. For other actors, it's false.
 
 private:
 

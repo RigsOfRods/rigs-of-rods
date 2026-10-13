@@ -24,6 +24,7 @@
 /// @date   24th of February 2009
 
 #include "ScriptEngine.h"
+#include "autowrapper/aswrappedcall.h"
 
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
@@ -54,6 +55,7 @@
 #include "PlatformUtils.h"
 #include "ScriptEvents.h"
 #include "ScriptUtils.h"
+#include "ServerScriptEngine.h"
 #include "Utils.h"
 #include "VehicleAI.h"
 
@@ -163,31 +165,39 @@ void ScriptEngine::init()
     AngelScript::RegisterScriptDictionary(engine);
 
     // some useful global functions
-    result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
-    result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
+    if (strstr(AngelScript::asGetLibraryOptions(), "AS_MAX_PORTABILITY") || App::diag_angelscript_generic_bind_test->getBool())
+    {
+        result = engine->RegisterGlobalFunction("void log(const string &in)", WRAP_FN(logString), AngelScript::asCALL_GENERIC); ROR_ASSERT(result >= 0);
+        result = engine->RegisterGlobalFunction("void print(const string &in)", WRAP_FN(logString), AngelScript::asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    }
+    else
+    {
+        result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT(result >= 0);
+        result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT(result >= 0);
+    }
 
-    RegisterOgreObjects(engine);   // vector2/3, degree, radian, quaternion, color
-    RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
-    RegisterLocalStorage(engine);  // LocalStorage
-    RegisterInputEngine(engine);   // InputEngineClass, inputEvents
-    RegisterImGuiBindings(engine); // ImGUi::
-    RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
-    RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
-    RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
-    RegisterDashBoardManager(engine); // DashBoardManagerClass, DashboardDataTypes
-    RegisterTurbojet(engine); // TurbojetClass
-    RegisterTurboprop(engine); // TurbopropClass
-    RegisterAircraftEngine(engine); // AircraftEngineClass, AircraftEngineTypes
-    RegisterAutopilot(engine); // AutopilotClass, APHeadingMode, APAltitudeMode
-    RegisterScrewprop(engine); // ScrewpropClass
-    RegisterActor(engine);         // BeamClass
-    RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
-    RegisterTerrain(engine);       // TerrainClass
-    RegisterMessageQueue(engine);  // enum MsgType
-    RegisterSoundScript(engine);   // SoundTriggers, ModulationSource, SoundScriptTemplate...
-    RegisterGameScript(engine);    // GameScriptClass
-    RegisterScriptEvents(engine);  // scriptEvents
-    RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
+    RegisterOgreObjects(engine);        // vector2/3, degree, radian, quaternion, color
+    RegisterCacheSystem(engine);        // LoaderType, CacheEntryClass, CacheSystemClass
+    RegisterLocalStorage(engine);       // LocalStorage
+    RegisterInputEngine(engine);        // InputEngineClass, inputEvents
+    RegisterImGuiBindings(engine);      // ImGui::
+    RegisterVehicleAi(engine);          // VehicleAIClass, aiEvents, AiValues
+    RegisterConsole(engine);            // ConsoleClass, CVarClass, CVarFlags
+    RegisterEngine(engine);             // EngineClass, enum autoswitch, enum
+    RegisterDashBoardManager(engine);   // DashBoardManagerClass, DashboardDataTypes
+    RegisterTurbojet(engine);           // TurbojetClass
+    RegisterTurboprop(engine);          // TurbopropClass
+    RegisterAircraftEngine(engine);     // AircraftEngineClass, AircraftEngineTypes
+    RegisterAutopilot(engine);          // AutopilotClass, APHeadingMode, APAltitudeMode
+    RegisterScrewprop(engine);          // ScrewpropClass
+    RegisterActor(engine);              // BeamClass
+    RegisterProceduralRoad(engine);     // procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
+    RegisterTerrain(engine);            // TerrainClass
+    RegisterMessageQueue(engine);       // enum MsgType
+    RegisterSoundScript(engine);        // SoundTriggers, ModulationSource, SoundScriptTemplate...
+    RegisterGameScript(engine);         // GameScriptClass
+    RegisterScriptEvents(engine);       // scriptEvents
+    RegisterGenericFileFormat(engine);  // TokenType, GenericDocumentClass, GenericDocReaderClass
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
@@ -336,9 +346,12 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitID_t nid)
             AngelScript::asIScriptFunction* func = context->GetExceptionFunction();
             if (func)
             {
+                const char *sectionName;
+                int s_col, s_row;
+                func->GetDeclaredAt(&sectionName, &s_row, &s_col);
                 SLOG("\tcontext.ExceptionFunction.Declaration: " + ptr2str(func->GetDeclaration()));
                 SLOG("\tcontext.ExceptionFunction.ModuleName: " + ptr2str(func->GetModuleName()));
-                SLOG("\tcontext.ExceptionFunction.ScriptSectionName: " + ptr2str(func->GetScriptSectionName()));
+                SLOG("\tcontext.ExceptionFunction.ScriptSectionName: " + ptr2str(sectionName));
                 SLOG("\tcontext.ExceptionFunction.ObjectName: " + ptr2str(func->GetObjectName()));
             }
         }
@@ -833,7 +846,7 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
 
 ScriptUnitID_t ScriptEngine::loadScript(
     String scriptOrGadgetFileName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
-    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
+    ActorPtr associatedActor /*= nullptr*/, int32_t associatedNetUid /* = -1*/, std::string buffer /* =""*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
@@ -884,6 +897,10 @@ ScriptUnitID_t ScriptEngine::loadScript(
     else if (category == ScriptCategory::ACTOR)
     {
         m_script_units[unit_id].associatedActor = associatedActor;
+    }
+    else if (category == ScriptCategory::AI_BOT)
+    {
+        m_script_units[unit_id].associatedNetUid = associatedNetUid;
     }
 
     // Perform the actual script loading, building and running main().
@@ -1097,6 +1114,23 @@ void ScriptEngine::unloadScript(ScriptUnitID_t nid)
     {
         m_terrain_script_unit = SCRIPTUNITID_INVALID;
     }
+}
+
+void ScriptEngine::unloadBotByUid(int32_t bot_net_uid)
+{
+    for (const auto& pair: m_script_units)
+    {
+        const ScriptUnit& unit = pair.second;
+        if (unit.scriptCategory == ScriptCategory::AI_BOT && unit.associatedNetUid == bot_net_uid)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(pair.first)));
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                fmt::format("Unloading AI bot script with net UID {} (script unit ID {})", bot_net_uid, pair.first));
+            return;
+        }
+    }
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+        fmt::format("No AI bot script found with net UID {}", bot_net_uid));
 }
 
 void ScriptEngine::setForwardScriptLogToConsole(bool doForward)

@@ -117,7 +117,7 @@ void ProceduralManager::rebuildObjectMesh(ProceduralObjectPtr po)
     if (po->road)
         this->deleteObjectMesh(po);
 
-    po->road = new ProceduralRoad();
+    po->road = new ProceduralRoad(po->custom_groundmodel);
     po->road->setCollisionEnabled(po->collision_enabled);
 
     Ogre::SimpleSpline spline;
@@ -167,7 +167,7 @@ void ProceduralManager::rebuildObjectMesh(ProceduralObjectPtr po)
             po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
         }
     }
-    po->road->finish(pGroupingSceneNode);
+    po->road->finish(pGroupingSceneNode, po->custom_material);
 }
 
 void ProceduralManager::addObject(ProceduralObjectPtr po)

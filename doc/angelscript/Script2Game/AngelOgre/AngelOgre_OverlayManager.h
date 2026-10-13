@@ -34,13 +34,10 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
         // Templates
         OverlayElement@ createOverlayElementFromTemplate(const string&in, const string&in, const string&in, bool=false);
         OverlayElement@ cloneOverlayElementFromTemplate(const string&in, const string&in);
-        array<OverlayElement@>@ getTemplates();
-        bool isTemplate(const string&in);
     };
     
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
     
 } // namespace AngelOgre (dummy, just to distinguish AngelScript from C++)
-
 

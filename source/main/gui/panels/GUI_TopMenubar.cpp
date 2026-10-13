@@ -478,7 +478,7 @@ void TopMenubar::Draw(float dt)
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Actors menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+            if (App::mp_state->getEnum<MpState>() == MpState::DISABLED)
             {
                 this->DrawActorListSinglePlayer();
             }
@@ -1182,7 +1182,7 @@ void TopMenubar::Draw(float dt)
 
             if (ImGui::Button(_LC("TopMenubar", "Start"), ImVec2(80, 0)))
             {
-                if (ai_mode == 4) // Chase driving mode
+                if (ai_mode == 4) // Chase driving mode uses special waypoint setup
                 {
                     ai_waypoints.clear();
                     if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
@@ -1197,20 +1197,20 @@ void TopMenubar::Draw(float dt)
                         waypoint.position = App::GetGameContext()->GetPlayerCharacter()->getPosition() + Ogre::Vector3(20, 0, 0);
                         ai_waypoints.push_back(waypoint);
                     }
-                    App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
+                }
+
+                if (ai_waypoints.empty())
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                    fmt::format(_LC("TopMenubar", "Select a preset, record or open survey map ({}) to set waypoints."),
+                                                    App::GetInputEngine()->getEventCommandTrimmed(EV_SURVEY_MAP_CYCLE)), "lightbulb.png");
                 }
                 else
                 {
-                    if (ai_waypoints.empty())
-                    {
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                      fmt::format(_LC("TopMenubar", "Select a preset, record or open survey map ({}) to set waypoints."),
-                                                      App::GetInputEngine()->getEventCommandTrimmed(EV_SURVEY_MAP_CYCLE)), "lightbulb.png");
-                    }
-                    else
-                    {
-                        App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
-                    }
+                    LoadScriptRequest* rq = new LoadScriptRequest();
+                    rq->lsr_category = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) ? ScriptCategory::AI_BOT : ScriptCategory::CUSTOM;
+                    rq->lsr_filename = "AI.as";
+                    App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, rq));
                 }
             }
 
@@ -1221,18 +1221,31 @@ void TopMenubar::Draw(float dt)
 
             ImGui::SameLine();
 
-            if (ImGui::Button(_LC("TopMenubar", "Stop"), ImVec2(80, 0)))
+            if (ImGui::Button(_LC("TopMenubar", "Stop All"), ImVec2(80, 0)))
             {
                 if (ai_mode == 4) // Chase driving mode
                 {
                     ai_waypoints.clear();
                 }
 
-                for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                if (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
                 {
-                    if (actor->ar_driveable == AI)
+                    for (const auto& pair: App::GetScriptEngine()->getScriptUnits())
                     {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                        if (pair.second.scriptCategory == ScriptCategory::AI_BOT)
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(pair.first)));
+                        }
+                    }
+                }
+                else
+                {
+                    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                    {
+                        if (actor->ar_driveable == AI)
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                        }
                     }
                 }
             }

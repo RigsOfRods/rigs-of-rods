@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "ContentManager.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "Terrain.h"
@@ -36,9 +37,17 @@ using namespace RoR;
 
 static int id_counter = 0;
 
-ProceduralRoad::ProceduralRoad()
+ProceduralRoad::ProceduralRoad(const std::string& _groundmodelName)
 {
     mid = id_counter++;
+    if (_groundmodelName != "")
+    {
+        m_customGroundmodel = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(_groundmodelName);
+        if (!m_customGroundmodel)
+        {
+            LOG(fmt::format("[RoR|ProceduralRoad] Custom ground model '{}' not found, using defaults.", _groundmodelName));
+        }
+    }
 }
 
 ProceduralRoad::~ProceduralRoad()
@@ -59,7 +68,7 @@ ProceduralRoad::~ProceduralRoad()
     }
 }
 
-void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
+void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode, const std::string& materialName)
 {
     Vector3 pts[8];
     computePoints(pts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
@@ -67,7 +76,7 @@ void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
     addQuad(pts[7], pts[4], pts[3], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
     addQuad(pts[3], pts[2], pts[1], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
 
-    createMesh();
+    createMesh(materialName);
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
@@ -396,9 +405,14 @@ void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Tex
     }
     if (collision)
     {
-        ground_model_t* gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("concrete");
-        if (texfit == TextureFit::TEXFIT_ROAD || texfit == TextureFit::TEXFIT_ROADS1 || texfit == TextureFit::TEXFIT_ROADS2 || texfit == TextureFit::TEXFIT_ROADS3 || texfit == TextureFit::TEXFIT_ROADS4)
-            gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("asphalt");
+        ground_model_t* gm = m_customGroundmodel;
+        if (!gm)
+        {
+            if (texfit == TextureFit::TEXFIT_ROAD || texfit == TextureFit::TEXFIT_ROADS1 || texfit == TextureFit::TEXFIT_ROADS2 || texfit == TextureFit::TEXFIT_ROADS3 || texfit == TextureFit::TEXFIT_ROADS4)
+                gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("asphalt");
+            else
+                gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("concrete");
+        }
         addCollisionQuad(p1, p2, p3, p4, gm, flip);
     }
     tricount += 2;
@@ -579,8 +593,10 @@ void ProceduralRoad::addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::
     }
 }
 
-void ProceduralRoad::createMesh()
+void ProceduralRoad::createMesh(const std::string& materialName /*= "" */)
 {
+    ROR_ASSERT(App::GetGameContext()->GetTerrain());
+
     AxisAlignedBox aab;
     union
     {
@@ -592,7 +608,20 @@ void ProceduralRoad::createMesh()
     msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     mainsub = msh->createSubMesh();
-    mainsub->setMaterialName("road2");
+    // Make sure custom material exists
+    if (materialName == "")
+    {
+        mainsub->setMaterialName(PROROAD_DEFAULT_MATERIAL, ContentManager::ResourcePack::MATERIALS.resource_group_name);
+    }
+    else if (!MaterialManager::getSingleton().resourceExists(materialName, App::GetGameContext()->GetTerrain()->getTerrainFileResourceGroup()))
+    {
+        LOG(fmt::format("[RoR|ProceduralRoad] Custom material '{}' does not exist. Using default.", materialName));
+        mainsub->setMaterialName(PROROAD_DEFAULT_MATERIAL, ContentManager::ResourcePack::MATERIALS.resource_group_name);
+    }
+    else
+    {
+        mainsub->setMaterialName(materialName, App::GetGameContext()->GetTerrain()->getTerrainFileResourceGroup());
+    }
 
     /// Define the vertices
     size_t vbufCount = (2 * 3 + 2) * vertexcount;

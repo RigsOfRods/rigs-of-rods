@@ -50,6 +50,7 @@
 #define RGN_CONTENT "Content"
 #define RGN_SAVEGAMES "Savegames"
 #define RGN_SCRIPTS "Scripts"
+#define RGN_SERVER_SCRIPTS "ServerScripts"
 #define RGN_LOGS "Logs"
 #define RGN_UI_ICONS "UI Icons"
 #define RGN_COUNTRIES "Countries"
@@ -328,6 +329,7 @@ enum class MpState
     DISABLED,  //!< Not connected for whatever reason.
     CONNECTING,
     CONNECTED,
+    LOCAL_SCRIPT, //!< Not actually connected to network, but running server script locally.
 };
 
 enum class SimState
@@ -710,6 +712,7 @@ extern CVar* diag_use_mygui_logfile;
 extern CVar* diag_load_devel_scripts;
 extern CVar* diag_profiler_enabled;
 extern CVar* diag_profiler_rate;
+extern CVar* diag_angelscript_generic_bind_test;
 
 // System
 extern CVar* sys_process_dir;
@@ -723,6 +726,7 @@ extern CVar* sys_profiler_dir;
 extern CVar* sys_savegames_dir;
 extern CVar* sys_screenshot_dir;
 extern CVar* sys_scripts_dir;
+extern CVar* sys_server_scripts_dir;
 extern CVar* sys_projects_dir;
 extern CVar* sys_repo_attachments_dir;
 
@@ -833,6 +837,8 @@ extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard'
 extern CVar* ui_legacy_truck_renderdash;   //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_always_show_fullsize;
+extern CVar* ui_dashboard_cinecam;
+extern CVar* ui_keep_search;
 
 // ------------------------------------------------------------------------------------------------
 // Global objects
@@ -853,6 +859,7 @@ GfxScene*            GetGfxScene();
 SoundScriptManager*  GetSoundScriptManager();
 LanguageEngine*      GetLanguageEngine();
 ScriptEngine*        GetScriptEngine();
+ServerScriptSequencer* GetServerScript();
 Network*             GetNetwork();
 GameContext*         GetGameContext();
 OutGauge*            GetOutGauge();
@@ -868,6 +875,7 @@ void CreateCameraManager();
 void CreateGfxScene();
 void CreateSoundScriptManager();
 void CreateScriptEngine();
+void CreateServerScript();
 
 // Cleanups
 void DestroyOverlayWrapper();

@@ -77,6 +77,8 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
     ProceduralRoadPtr road;
     int smoothing_num_splits = 0; // 0=off
     bool collision_enabled = true; //!< Generate collision triangles?
+    std::string custom_material; //!< If empty, the default material is used.
+    std::string custom_groundmodel; //!< If empty, the default ground model ("asphalt" for roads, "concrete" for others) is used for collision triangles.
 };
 
 class ProceduralManager: public RefCountingObject<ProceduralManager>
@@ -104,6 +106,9 @@ public:
 
     /// Deletes the road mesh
     void deleteObjectMesh(ProceduralObjectPtr po);
+
+    /// Scene node under which all road meshes are attached
+    Ogre::SceneNode* getGroupingSceneNode() { return pGroupingSceneNode; }
 
 private:
 

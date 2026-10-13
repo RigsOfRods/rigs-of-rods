@@ -373,6 +373,8 @@ void GameSettings::DrawUiSettings()
 
     DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
 
+    DrawGCheckbox(App::ui_dashboard_cinecam, _LC("GameSettings", "Hide dashboard in cinecam view"));
+
     DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
     
     DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));

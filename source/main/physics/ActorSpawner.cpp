@@ -2037,6 +2037,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_GEAR);
             anim.animOpt3 = 0;
         }
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_IGNITION)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_IGNITION);
+        }
 
         /* Motor/Gear-indexed sources */
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
@@ -5845,7 +5848,7 @@ void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Ri
 void ActorSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override)
 {
     std::string material_name = material_override;
-    if (material_name.empty())
+    if (material_name == "")
     {
         if (beam.bm_type == BEAM_HYDRO)
         {
@@ -5854,16 +5857,6 @@ void ActorSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, bool visible
         else
         {
             material_name = beam_defaults->beam_material_name;
-            // Check for existing substitute
-            auto it = m_managed_materials.find(material_name);
-            if (it != m_managed_materials.end())
-            {
-                auto material = it->second;
-                if (material)
-                {
-                    material_name = material->getName();
-                }
-            }
         }
     }
 
@@ -5875,7 +5868,8 @@ void ActorSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, bool visible
     try
     {
         Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("beam", beam_index), "beam.mesh");
-        entity->setMaterialName(material_name);
+        Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(material_name, m_custom_resource_group);
+        entity->setMaterial(mat);
 
         BeamGfx beamx;
         beamx.rod_diameter = beam_defaults->visual_beam_diameter;

@@ -109,7 +109,6 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
         @remarks
             Use this to override the bounding box setting of the node.
         */
-        void hideBoundingBox(bool bHide);
 
         /** This allows scene managers to determine if the node's bounding box
             should be added to the rendering queue.
@@ -254,5 +253,4 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
 /// @}    //addtogroup ScriptSideAPIs
     
 } // namespace AngelOgre (dummy, just to distinguish AngelScript from C++)
-
 

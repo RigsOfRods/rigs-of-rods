@@ -61,6 +61,7 @@ enum class ScriptCategory
     ACTOR,   //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
     TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
     GADGET,  //!< Associated with a .gadget mod file, launched via UI or any method given below for CUSTOM scripts (use .gadget suffix - game will fix up category to `GADGET`).
+    AI_BOT,  //!< Only valid under `MpState::LOCAL_SCRIPT`; registers as RoRnet user in the server script (i.e. for competitive racing).
     CUSTOM   //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'app_custom_scripts'; C) commandline '-runscript'; If used with .gadget file, game will fix up category to `GADGET`.
 };
 
@@ -81,6 +82,7 @@ struct ScriptUnit
     AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
+    int32_t associatedNetUid = -1; //!< For ScriptCategory::AI_BOT ~ used to identify the bot in the server script.
     CacheEntryPtr originatingGadget; //!< For ScriptCategory::GADGET ~ determines resource group
     Ogre::String scriptName; //!< Name of the '.as' file exclusively.
     Ogre::String scriptHash;
@@ -186,17 +188,23 @@ public:
      * @param filename '.as' file or '.gadget' file to load; if buffer is supplied, this is only a display name.
      * @param category How to treat the script?
      * @param associatedActor Only for category ACTOR
+     * @param associatedNetUid Only for category AI_BOT
      * @param buffer String with full script body; if empty, a file will be loaded as usual.
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
     ScriptUnitID_t loadScript(Ogre::String filename, ScriptCategory category = ScriptCategory::TERRAIN,
-        ActorPtr associatedActor = nullptr, std::string buffer = "");
+        ActorPtr associatedActor = nullptr, int32_t associatedNetUid = -1, std::string buffer = "");
 
     /**
      * Unloads a script
      * @param unique_id The script unit ID as returned by `loadScript()`
      */
     void unloadScript(ScriptUnitID_t unique_id);
+
+    /**
+    * Helper for ServerScriptEngine - requests unloading the AI_BOT script.
+    */
+    void unloadBotByUid(int32_t bot_net_uid);
 
     /**
      * Calls the script's framestep function to be able to use timed things inside the script

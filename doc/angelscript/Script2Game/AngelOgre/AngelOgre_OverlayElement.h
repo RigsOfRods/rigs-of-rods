@@ -8,22 +8,6 @@ namespace AngelOgre { // Dummy namespace, just to distinguish AngelScript from C
 /** \addtogroup Script2Game
  *  @{
  */  
- 
-    // Register the GuiMetricsMode enum
-    enum GuiMetricsMode
-    {
-        GMM_PIXELS,
-        GMM_RELATIVE,
-        GMM_RELATIVE_ASPECT_ADJUSTED
-    }
-
-    // Register the GuiHorizontalAlignment enum
-    enum GuiHorizontalAlignment
-    {
-        GHA_LEFT,
-        GHA_CENTER,
-        GHA_RIGHT
-    }
 
 
     class  OverlayElement

@@ -35,6 +35,7 @@
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "Terrain.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
@@ -460,6 +461,109 @@ public:
     }
 };
 
+class LoadServerScriptCmd : public ConsoleCmd
+{
+public:
+    LoadServerScriptCmd() : ConsoleCmd("loadserverscript", "[filename]", _L("Runs a RoRServer AngelScript file")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+#ifdef USE_ANGELSCRIPT
+        if (args.size() == 1)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Missing parameter: ") << m_usage;
+        }
+        else if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Not allowed while connected to network.");
+        }
+        else if (App::GetServerScript()->IsRunning())
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Server script is already running.");
+        }
+        else
+        {
+            int result = App::GetServerScript()->Initialize(args[1]);
+            if (result != 0)
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("Failed to load server script. See 'RoRServerScript.log'.");
+            }
+            else
+            {
+                App::mp_state->setVal(MpState::LOCAL_SCRIPT);
+
+                // Construct user credentials
+                RoRnet::UserInfo c;
+                memset(&c, 0, sizeof(RoRnet::UserInfo));
+                strncpy(c.username, App::mp_player_name->getStr().substr(0, RORNET_MAX_USERNAME_LEN).c_str(), RORNET_MAX_USERNAME_LEN);
+                strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
+                strncpy(c.clientname, "LocalPlayer", 10);
+                std::string language = App::app_language->getStr().substr(0, 2);
+                std::string country = App::app_country->getStr().substr(0, 2);
+                strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
+                strcpy(c.sessiontype, "normal");
+                c.authstatus = RoRnet::AUTH_ADMIN; // Register player as admin - serverscript engine assigns UID but doesn't do auth.
+                // Notify serverscript engine that player is added (assigns UID)
+                App::GetServerScript()->createClient(c);
+                // Save user data locally to display in Player List UI.
+                App::GetNetwork()->SetLocalUserData(c);
+                // Refresh PlayerList UI to show local player.
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+
+                reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                reply << fmt::format(_L("Server script '{}' started"), args[1]);
+            }
+        }
+#else
+        reply_type = Console::CONSOLE_SYSTEM_ERROR;
+        reply << _L("Scripting disabled in this build");
+#endif
+        
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
+class UnloadServerScriptCmd : public ConsoleCmd
+{
+public:
+    UnloadServerScriptCmd() : ConsoleCmd("unloadserverscript", "", _L("Stops a running RoRServer script")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+#ifdef USE_ANGELSCRIPT
+        if (!App::GetServerScript()->IsRunning())
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Server script was not running.");
+        }
+        else
+        {
+            App::GetServerScript()->Close();
+            App::mp_state->setVal(MpState::DISABLED);
+            reply_type = Console::CONSOLE_SYSTEM_REPLY;
+            reply << _L("Server script stopped.");
+        }
+#else
+        reply_type = Console::CONSOLE_SYSTEM_ERROR;
+        reply << _L("Scripting disabled in this build");
+#endif
+        
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
 // -------------------------------------------------------------------------------------
 // CVar (builtin) console commmands
 
@@ -693,6 +797,8 @@ void Console::regBuiltinCommands()
     // Additions
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new LoadServerScriptCmd();      m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new UnloadServerScriptCmd();    m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SpeedOfSoundCmd();          m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));

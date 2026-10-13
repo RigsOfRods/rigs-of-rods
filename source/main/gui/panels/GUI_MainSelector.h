@@ -92,6 +92,7 @@ private:
     std::string        m_search_string;
     std::string        m_filter_guid;                //!< Used for skins
     Str<500>           m_search_input;
+    Ogre::TexturePtr   m_settings_icon;
     bool               m_show_details = false;
     bool               m_searchbox_was_active = false;
     CacheEntryPtr      m_advertised_entry; //!< Always shown on top, even if not existing in modcache (i.e. dummy default skin)
@@ -105,6 +106,7 @@ private:
     std::map<LoaderType, int> m_last_selected_category; //!< Last category-combobox position for each loader type
     std::map<LoaderType, int> m_last_selected_cid;      //!< Last selected category-ID for each loader type
     std::map<LoaderType, int> m_last_selected_entry;    //!< Stores the last manually selected entry index for each loader type
+    std::map<LoaderType, std::string> m_kept_searchstring; //!< Stays empty if 'ui_keep_search' is false
 };
 
 } // namespace GUI

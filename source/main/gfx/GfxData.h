@@ -76,6 +76,7 @@ const PropAnimFlag_t PROP_ANIM_FLAG_ELEVATORS     = BITMASK64(32);
 const PropAnimFlag_t PROP_ANIM_FLAG_DASHBOARD     = BITMASK64(33); //!< Used with dashboard system inputs, see `enum DashData` in file DashBoardManager.h
 const PropAnimFlag_t PROP_ANIM_FLAG_SIGNALSTALK   = BITMASK64(34); //!< Turn indicator stalk position (-1=left, 0=off, 1=right)
 const PropAnimFlag_t PROP_ANIM_FLAG_GEAR          = BITMASK64(35); //!< 'gearreverse' (animOpt3=-1), 'gearneutral' (animOpt3=0), 'gear#' (animOpt3=#)
+const PropAnimFlag_t PROP_ANIM_FLAG_IGNITION      = BITMASK64(36);
 
 typedef BitMask_t PropAnimMode_t;
 

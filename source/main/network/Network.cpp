@@ -33,6 +33,7 @@
 #include "Language.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ServerScriptEngine.h"
 #include "Utils.h"
 
 #include <Ogre.h>
@@ -836,7 +837,14 @@ void Network::RemovePeerOptions(PeerOptionsRequest* rq)
 
 void Network::BroadcastChatMsg(const char* msg)
 {
-    AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, (int)std::strlen(msg), msg);
+    if (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT)
+    {
+        App::GetServerScript()->queueMessagePlayerChat(m_uid, msg);
+    }
+    else
+    {
+        AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, (int)std::strlen(msg), msg);
+    }
 }
 
 void Network::WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
@@ -875,6 +883,40 @@ std::string Network::UserAuthToStringLong(RoRnet::UserInfo const &user)
     else if (user.authstatus & AUTH_RANKED)   { return _LC("NetUserAuth","Ranked user");            }
     else if (user.authstatus & AUTH_BANNED)   { return _LC("NetUserAuth","Banned user");            }
     else                                      { return _LC("NetUserAuth","Guest");                  }
+}
+
+// ============================================
+// Plumbing for local serverscripts and AI bots
+
+void Network::SetLocalUserData(RoRnet::UserInfo const& user)
+{
+    ROR_ASSERT(App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT);
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    m_userdata = user;
+    m_uid = user.uniqueid;
+}
+
+void Network::AddBotUserInfo(RoRnet::UserInfo const& user)
+{
+    // Lock and update userlist
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    m_users.push_back(user);
+    m_users_peeropts.push_back(BitMask_t(0));
+}
+
+void Network::RemoveBotUserInfo(int uid)
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    auto user = std::find_if(m_users.begin(), m_users.end(), [uid](const RoRnet::UserInfo& u) { return static_cast<int>(u.uniqueid) == uid; });
+    if (user != m_users.end())
+    {
+        // Erase matching peer options
+        int peeropt_offset = (int)std::distance(m_users.begin(), user);
+        auto peeropt_itor = m_users_peeropts.begin() + peeropt_offset;
+        m_users_peeropts.erase(peeropt_itor);
+        // omit `m_disconnected_users` for bots.
+        m_users.erase(user);
+    }
 }
 
 #endif // USE_SOCKETW

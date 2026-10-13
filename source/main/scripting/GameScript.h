@@ -501,6 +501,7 @@ public:
     AngelScript::CScriptArray* getWaypoints(int x);
     AngelScript::CScriptArray* getWaypointsSpeed();
     void addWaypoint(const Ogre::Vector3& pos);
+    void clearWaypoints();
     int getAIVehicleCount();
     int getAIVehicleDistance();
     int getAIVehiclePositionScheme();

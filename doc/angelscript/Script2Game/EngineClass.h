@@ -13,7 +13,7 @@ namespace Script2Game {
  * @brief Binding of RoR::EngineSim; A land vehicle engine + transmission
  * @note Obtain the object using `BeamClass::getEngine()`.
  */
-class EngineSimClass
+class EngineClass
 {
 public:
 

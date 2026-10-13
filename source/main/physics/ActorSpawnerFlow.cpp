@@ -202,7 +202,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     PROCESS_ELEMENT(RigDef::Keyword::ANIMATORS, animators, ProcessAnimator);
     PROCESS_ELEMENT(RigDef::Keyword::FUSEDRAG, fusedrag, ProcessFusedrag);
     PROCESS_ELEMENT(RigDef::Keyword::TURBOJETS, turbojets, ProcessTurbojet);
-    PROCESS_ELEMENT(RigDef::Keyword::PROPS, props, ProcessProp);
+    PROCESS_ELEMENT(RigDef::Keyword::PROPS, props, ProcessProp); // CAUTION: Must be done before 'turboprops2' because `ActorSpawner::BuildAeroEngine()` resizes the prop meshes!
     PROCESS_ELEMENT(RigDef::Keyword::TRACTIONCONTROL, tractioncontrol, ProcessTractionControl);
     PROCESS_ELEMENT(RigDef::Keyword::ROTATORS, rotators, ProcessRotator);
     PROCESS_ELEMENT(RigDef::Keyword::ROTATORS2, rotators2, ProcessRotator2);

@@ -393,6 +393,7 @@ struct Animation
     static const BitMask64_t SOURCE_AUTOSHIFTERLIN    = BITMASK64(35);
     static const BitMask64_t SOURCE_GEAR_NEUTRAL      = BITMASK64(36);
     static const BitMask64_t SOURCE_GEAR_REVERSE      = BITMASK64(37);
+    static const BitMask64_t SOURCE_IGNITION          = BITMASK64(38);
 
     // Mode flags
     static const BitMask_t MODE_ROTATION_X          = BITMASK(1);

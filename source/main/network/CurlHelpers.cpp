@@ -24,6 +24,8 @@
 #include "GameContext.h"
 #include "RoRVersion.h"
 #include "ScriptEvents.h"
+#include "ServerScriptEngine.h"
+#include "ServerScriptCurlHelpers.h"
 
 #include <fmt/format.h>
 
