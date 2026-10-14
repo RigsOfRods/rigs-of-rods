@@ -44,6 +44,7 @@ enum ActorSimAttr
     ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE, //!< Max throttle to maintain idle RPM - Param #9 of 'engoption'
     ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE, //!< Min throttle to maintain idle RPM - Param #10 of 'engoption'
     ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE, //!< How much engine brakes on zero throttle - Param #11 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE, //!< Node number representing air intake - stalls engine if submerged in water (pass '-1' to disable); Defaults to cinecam ref node (classic behavior) except for electric engine where it's disabled by default.
 
     // Engturbo2 (actually 'engturbo' with Param #1 [type] set to "2" - the recommended variant)
     ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR, //!< Time to spool up - Param #2 of 'engturbo2'

@@ -618,6 +618,13 @@ void ActorSpawner::FinalizeRig()
 
     this->UpdateCollcabContacterNodes();
 
+    // Set the engine air intake node to the camera ref node - user can override via `ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE` if desired.
+    // For electric engine, leave it as NODENUM_INVALID (engine needs no air intake).
+    if (m_actor->ar_engine && m_actor->ar_engine->getEngineType() != 'e' && m_actor->ar_num_cameras > 0)
+    {
+        m_actor->ar_engine->m_air_intake_node = m_actor->ar_camera_node_pos[0];
+    }
+
     m_flex_factory.SaveFlexbodiesToCache();
 
     m_actor->GetGfxActor()->SortFlexbodies();
