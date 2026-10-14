@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "RefCountingObject.h"
+#include "SimData.h"
 
 #include <Ogre.h>
 #include <vector>
@@ -224,6 +225,7 @@ private:
     bool           m_engine_is_priming;     //!< Engine
     TorqueCurve*   m_torque_curve;
     float          m_air_pressure;
+    NodeNum_t      m_air_intake_node = NODENUM_INVALID; //!< Node number of the air intake node (if any) - defaults to cinecam ref node (classic behavior) but can be overriden by ACTORSIMATTR_AIRINTAKENODE
 
     // Ignition
     bool           m_contact;               //!< Ignition switch is in ON/RUN position.
