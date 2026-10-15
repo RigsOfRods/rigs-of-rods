@@ -305,7 +305,7 @@ material ppx_env			// per pixel  with cubic reflection
 			texture_unit envMap
 			{
 				env_map cubic_reflection
-				cubic_texture ReflectionCube combinedUVW
+				texture ReflectionCube cubic
 			}
 		}
 	}
@@ -373,7 +373,7 @@ material ppx_glass_env		// per pixel  with cubic reflection  glass (alpha)
 			texture_unit envMap
 			{
 				env_map cubic_reflection
-				cubic_texture ReflectionCube combinedUVW
+				texture ReflectionCube cubic
 			}
 		}
 	}

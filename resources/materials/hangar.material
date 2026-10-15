@@ -1,15 +1,16 @@
 import * from "managed_mats.material"
 
-material hangarskin: RoR/Managed_Mats/Base
+material hangarskin: RoR/Managed_Mats/BaseDiffuse
 {
-	set_texture_alias diffuse_tex hangarskindiffuse.dds
-}
-material hangarskintrans: RoR/Managed_Mats/Transparent
-{
-	set_texture_alias diffuse_tex hangarskindiffuse.dds
+	set $diffuse_tex hangarskindiffuse.dds
 }
 
-material hangarskin2: RoR/Managed_Mats/Base
+material hangarskintrans: RoR/Managed_Mats/Transparent
 {
-	set_texture_alias diffuse_tex  hangarskindiffuse.dds
+	set $diffuse_tex hangarskindiffuse.dds
+}
+
+material hangarskin2: RoR/Managed_Mats/BaseDiffuse
+{
+	set $diffuse_tex  hangarskindiffuse.dds
 }

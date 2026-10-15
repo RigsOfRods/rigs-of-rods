@@ -221,7 +221,7 @@ void GameSettings::DrawGeneralSettings()
 #endif
 
     // Country selection
-    static Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("FlagsRG", "*");
+    static Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_COUNTRIES, "*");
     if (!fl->empty())
     {
         static std::vector<std::string> countries;

@@ -50,8 +50,19 @@ function(recursive_zip_folder in_dir out_dir)
     set_property(TARGET zip_folder_${FROM_DIR_NAME} PROPERTY FOLDER "Scripts")
 endfunction(recursive_zip_folder)
 
+# fast_copy(<from_dir> <to_dir> [PRUNE])
+#
+# Deploys <from_dir> into <to_dir>, one copy command per file.
+#
+# PRUNE additionally deletes files under <to_dir> that no longer exist in <from_dir>.
+# It is opt-in because several fast_copy() calls may share one destination, and there each
+# would happily delete the other's files.
 function(fast_copy FROM_DIR TO_DIR)
-    file(GLOB_RECURSE files "${FROM_DIR}/*")
+    cmake_parse_arguments(PARSE_ARGV 2 ARG "PRUNE" "" "")
+
+    # CONFIGURE_DEPENDS re-runs the glob at build time, so adding or removing a file no
+    # longer needs a manual re-configure to be noticed.
+    file(GLOB_RECURSE files CONFIGURE_DEPENDS "${FROM_DIR}/*")
     get_filename_component(FROM_DIR_NAME ${FROM_DIR} NAME)
 
     foreach (file IN LISTS files)
@@ -72,6 +83,15 @@ function(fast_copy FROM_DIR TO_DIR)
             DEPENDS ${ALL_FILES}
     )
     set_property(TARGET fast_copy_${FROM_DIR_NAME} PROPERTY FOLDER "Scripts")
+
+    if (ARG_PRUNE)
+        add_custom_command(
+                TARGET fast_copy_${FROM_DIR_NAME} POST_BUILD
+                COMMENT "Pruning stale files in ${TO_DIR}"
+                COMMAND ${CMAKE_COMMAND} "-DFROM_DIR=${FROM_DIR}" "-DTO_DIR=${TO_DIR}"
+                        -P "${CMAKE_SOURCE_DIR}/cmake/PruneStaleFiles.cmake"
+        )
+    endif ()
 endfunction()
 
 function(extract_pot source_files_list)
@@ -92,7 +112,7 @@ function(extract_pot source_files_list)
 endfunction()
 
 function(compile_mo)
-    file(GLOB_RECURSE potfiles ${CMAKE_SOURCE_DIR}/languages/*/*.po CONFIGURE_DEPENDS)
+    file(GLOB_RECURSE potfiles CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/languages/*/*.po)
 
     foreach (file IN LISTS potfiles)
         get_filename_component(dir ${file} DIRECTORY)

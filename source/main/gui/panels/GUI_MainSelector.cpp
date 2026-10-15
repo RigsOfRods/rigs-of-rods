@@ -201,9 +201,7 @@ void MainSelector::Draw()
     {
         try
         {
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
-            m_settings_icon = Ogre::TextureManager::getSingleton().load(
-                "cog.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
+            m_settings_icon = Ogre::TextureManager::getSingleton().load("cog.png", RGN_UI_ICONS);
         }
         catch (...) {} // Logged by OGRE
     }

@@ -1,6 +1,6 @@
-import * from "managed_mats.material"
 
-material tracks/character: RoR/Managed_Mats/Base
+
+material tracks/character
 {
 	technique BaseTechnique
 	{
@@ -27,4 +27,11 @@ material tracks/character: RoR/Managed_Mats/Base
 	}
 }
 
-
+// Dummy referenced directly by the mesh, just to silence a warning from log.
+material character
+{
+    technique
+    {
+        pass {}
+    }
+}
