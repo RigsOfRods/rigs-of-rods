@@ -119,8 +119,9 @@ OUTPUT_LANGUAGE        = English
 # descriptions after the members that are listed in the file and class
 # documentation (similar to Javadoc). Set to NO to disable this.
 # The default value is: YES.
+## RIGSOFRODS: This is duplicity, we want full description in one place.
 
-BRIEF_MEMBER_DESC      = YES
+BRIEF_MEMBER_DESC      = NO
 
 # If the REPEAT_BRIEF tag is set to YES, doxygen will prepend the brief
 # description of a member or function before the detailed description
@@ -128,6 +129,7 @@ BRIEF_MEMBER_DESC      = YES
 # Note: If both HIDE_UNDOC_MEMBERS and BRIEF_MEMBER_DESC are set to NO, the
 # brief descriptions will be completely suppressed.
 # The default value is: YES.
+## RIGSOFRODS: We suppress <briefdescription> in layout and put <detaileddescription> on top.
 
 REPEAT_BRIEF           = YES
 
@@ -638,8 +640,10 @@ HIDE_COMPOUND_REFERENCE= NO
 # If the SHOW_HEADERFILE tag is set to YES then the documentation for a class
 # will show which file needs to be included to use the class.
 # The default value is: YES.
+## RIGSOFRODS: Since we put <detaileddescription> on top, this is duplicate with the "Defined on %line% in %file%" text.
+##             Also it's plain confusing with AngelScript which uses phony files for the exported game APIs.
 
-SHOW_HEADERFILE        = YES
+SHOW_HEADERFILE        = NO
 
 # If the SHOW_INCLUDE_FILES tag is set to YES then doxygen will put a list of
 # the files that are included by a file in the documentation of that file.
@@ -805,7 +809,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            =
+LAYOUT_FILE            = @PROJECT_SOURCE_DIR@/doc/doxygen/DoxygenLayout.xml
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -1690,8 +1694,9 @@ FULL_SIDEBAR           = NO
 # in the overview section.
 # Minimum value: 0, maximum value: 20, default value: 4.
 # This tag requires that the tag GENERATE_HTML is set to YES.
+## RIGSOFRODS: this is just a duplicity, we rely on the detailed view with field comments.
 
-ENUM_VALUES_PER_LINE   = 4
+ENUM_VALUES_PER_LINE   = 0
 
 # If the treeview is enabled (see GENERATE_TREEVIEW) then this tag can be used
 # to set the initial width (in pixels) of the frame in which the tree is shown.
