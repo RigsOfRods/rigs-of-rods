@@ -586,6 +586,10 @@ endif ()
 
 #  Install targets
 # -----------------------
+if (APPLE)
+    include(MacOSBundle)
+    ror_configure_macos_bundle(${BINNAME})
+else ()
 install(TARGETS ${BINNAME} DESTINATION . COMPONENT "Base_Game")
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages COMPONENT "Base_Game")
@@ -608,6 +612,8 @@ else ()
     install(FILES ${CMAKE_SOURCE_DIR}/tools/linux/.itch.toml DESTINATION .)
     install(CODE "file(GLOB_RECURSE files ${RUNTIME_OUTPUT_DIRECTORY}/*.so)
             file(INSTALL \${files} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib FOLLOW_SYMLINK_CHAIN)")
+endif ()
+
 endif ()
 
 
@@ -664,6 +670,13 @@ if (WIN32 AND NOT ROR_BUILD_INSTALLER STREQUAL "Off")
 
 else ()
     set(CPACK_GENERATOR ZIP)
+endif ()
+
+if (APPLE)
+    set(CPACK_PACKAGE_FILE_NAME "rigs-of-rods-${PROJECT_VERSION}-macos-${CMAKE_OSX_ARCHITECTURES}")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
+    set(CPACK_MONOLITHIC_INSTALL ON)
+    set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 endif ()
 
 include(CPack)
