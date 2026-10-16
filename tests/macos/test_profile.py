@@ -121,6 +121,21 @@ class PrefixControls(unittest.TestCase):
             profile.finalize(build)
             data = json.loads((build / 'macos/Release/build.json').read_text())
             self.assertEqual(len(data['plugins']), 5)
+            self.assertEqual(len(data['framework_sources']), 1)
+            framework = data['framework_sources'][0]
+            selected = copied / 'lib/Release/MyGUIEngine.framework'
+            self.assertEqual(framework, profile.framework_source(selected, copied.resolve()))
+            image = Path(framework['source_image'])
+            framework_root = Path(framework['source_root'])
+            self.assertEqual(image, (selected / selected.stem).resolve())
+            self.assertEqual(Path(framework['destination_image']).relative_to(framework['destination_root']), image.relative_to(framework_root))
+            self.assertEqual(Path(framework['destination_root']), Path('Contents/Frameworks') / selected.name)
+            self.assertEqual(profile.framework_source(image, copied.resolve()), framework)
+            escaped = copied / 'fixture/MyGUIEngine.framework'
+            escaped.mkdir(parents=True)
+            (escaped / escaped.stem).symlink_to(image)
+            with self.assertRaisesRegex(ValueError, 'escapes its framework root'):
+                profile.framework_source(escaped, copied.resolve())
             cfg = (build / 'bin/plugins.cfg').read_text()
             self.assertFalse((build / 'bin/plugins_d.cfg').exists())
             for plugin in data['plugins']:

@@ -99,6 +99,31 @@ def dylib(path, prefix):
     return path
 
 
+def framework_source(selection, prefix):
+    selected = Path(selection)
+    if selected.is_dir() and selected.suffix == '.framework':
+        root = selected
+        selected = root / root.stem
+    else:
+        root = next((path for path in selected.parents if path.suffix == '.framework'), None)
+        if root is None:
+            raise ValueError('selected MyGUI engine must identify a versioned framework')
+    root = inside(root, prefix)
+    image = inside(selected, prefix)
+    if root not in image.parents:
+        raise ValueError('selected MyGUI framework image escapes its framework root')
+    suffix = image.relative_to(root)
+    if len(suffix.parts) != 3 or suffix.parts[0] != 'Versions' or suffix.name != root.stem:
+        raise ValueError('selected MyGUI framework must retain its exact Versions/<version>/<image> identity')
+    description = run('file', '-b', str(image))
+    if ('Mach-O' not in description or 'dynamically linked shared library' not in description or
+            run('lipo', '-archs', str(image)) != 'arm64'):
+        raise ValueError('selected MyGUI framework image must be an arm64 Mach-O shared library')
+    destination = Path('Contents/Frameworks') / root.name
+    return dict(name=root.stem, source_root=str(root), source_image=str(image),
+                destination_root=str(destination), destination_image=str(destination / suffix))
+
+
 def handoff(a):
     prefix, manifest, receipt = contract(a.prefix, a.sdk, a.deployment_target)
     source, build = a.source.resolve(), a.build.resolve()
@@ -134,7 +159,8 @@ def handoff(a):
                 configuration_sha256=manifest['configuration_sha256'],
                 recipe_revision=manifest['recipe_revision'], effective_features=effective,
                 required_features=required, source_directory=str(source), content_revision=content(source), resource_roots=roots,
-                rtshader_glsl_root=str(rtss), plugins=plugins, build_plugin_folder=str(folder),
+                rtshader_glsl_root=str(rtss), plugins=plugins,
+                framework_sources=[framework_source(a.mygui_engine, prefix)], build_plugin_folder=str(folder),
                 bundle_plugin_folder='../PlugIns/OGRE', dynamic_modules=[],
                 package_version='../../source/version_info/package-version.json',
                 package_version_requirement='Requires the version metadata contribution before packaging; this profile is build-only.')
@@ -220,6 +246,7 @@ def main():
             p.add_argument('--plugin', nargs=2, action='append', required=True)
             p.add_argument('--plugin-folder', required=True)
             p.add_argument('--caelum', required=True)
+            p.add_argument('--mygui-engine', required=True)
     p = sub.add_parser('content')
     p.add_argument('--source', type=Path, required=True)
     p = sub.add_parser('finalize')

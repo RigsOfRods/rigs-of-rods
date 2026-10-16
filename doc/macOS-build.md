@@ -72,6 +72,11 @@ The manifest records the actual prefix receipt/recipe, content gitlink, required
 RTShaderLib GLSL source root, effective features, five plugin identities and
 their build/bundle cfg entries. OGRE plugin versions come from canonical installed
 files; Caelum has linked and plugin roles with one Frameworks destination.
+`framework_sources` records the selected Release MyGUI framework's canonical root
+and image, and its intended bundle root/image destinations. It retains the exact
+`Versions/<version>/<image>` suffix from that selection. The packager must use
+this identity to resolve the executable-relative MyGUI load name; the raw build
+does not have the eventual Frameworks layout.
 
 `build.json` references `source/version_info/package-version.json` from the
 version metadata contribution [#3473](https://github.com/RigsOfRods/rigs-of-rods/pull/3473). That contribution must be integrated and

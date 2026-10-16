@@ -74,7 +74,8 @@ function(ror_macos_build_handoff target)
     execute_process(COMMAND "${Python3_EXECUTABLE}" "${ROR_MACOS_HELPER}" handoff
         --prefix "${ROR_DEPENDENCY_DIR}" --source "${CMAKE_SOURCE_DIR}" --build "${CMAKE_BINARY_DIR}"
         --sdk "${CMAKE_OSX_SYSROOT}" --deployment-target "${CMAKE_OSX_DEPLOYMENT_TARGET}"
-        --plugin-folder "${OGRE_PLUGIN_DIR}" --caelum "${Caelum_LIBRARY}" ${plugin_args}
+        --plugin-folder "${OGRE_PLUGIN_DIR}" --caelum "${Caelum_LIBRARY}"
+        --mygui-engine "${MyGUI_MyGUIEngine_LIBRARY_REL}" ${plugin_args}
         RESULT_VARIABLE result ERROR_VARIABLE error)
     if(NOT result EQUAL 0)
         message(FATAL_ERROR "macOS handoff: ${error}")
