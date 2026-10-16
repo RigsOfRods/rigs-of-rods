@@ -1,104 +1,80 @@
 # Native macOS arm64 Release build
 
-This opt-in profile configures and compiles RoR using a prebuilt, clean
-`ror-dependencies` native-macos-gl3 prefix (dependency version 30). It supports
-native Apple Silicon, a single-configuration generator, and Release only. Ninja is the qualified wrapper workflow.
-Debug, RelWithDebInfo, MinSizeRel, cross compilation and multi-configuration
-generators are rejected until their own dependencies and application are built
-and qualified.
+Use a native Apple Silicon host, CMake 3.16 or later, Ninja, Git and an Apple
+command line toolchain. The opt-in `ROR_MACOS_GL3_PROFILE` supports a
+single-configuration Release build with the `ror-dependencies`
+`native-macos-gl3` Release prefix (dependency version 30). Use the same SDK and
+minimum macOS version as that prefix. Debug, other architectures and
+multi-configuration generators need separate qualification.
 
-The source stack requires the platform/OpenAL foundation (#3469), resource ZIP
-fixes (#3468), executable-relative plugin paths (#3470), and effective required
-feature gate (#3472). These are separate contributions; this profile does not
-assert that they have merged into upstream master. The reviewed dependency
-recipe is `d738cd79009362e70b654e14cc7bd1d9f8c311dc`; its source inventory,
-patches and build instructions belong to ror-dependencies. RoR does not duplicate
-dependency downloads or per-library pins. Revalidate the combined stack after
-rebasing or changing the recipe.
+The qualified prefix was built at recipe revision
+`d738cd79009362e70b654e14cc7bd1d9f8c311dc`, with Apple clang 21.0.0,
+CMake 4.4.4, SDK 27.0 and minimum macOS 11.0. Later recipe documentation or
+metadata changes do not make it a rebuilt prefix. Dependency pins, patches,
+licenses and build instructions remain in `ror-dependencies`. Keep the complete
+versioned `MyGUIEngine.framework`, including its `Versions` directory and
+symlinks: its install name expects the eventual app's Frameworks layout.
 
-Install CMake (3.16 or later), Ninja, Python 3.7 or later, Git and an Apple command line
-toolchain. Build the dependency recipe first and retain its installed
-`version.cmake`, `share/ror-dependencies/manifest.json` and
-`share/ror-dependencies/build-receipt.txt` and successful schema 1
-`share/ror-dependencies/build-receipt.json`. The wrapper validates the prefix's
-profile, clean recipe identity, architecture, configuration, SDK version and
-deployment target, and matches the configured graph/configuration identities
-between manifest and completion receipt. The checked baseline uses macOS SDK 27.0 and minimum OS 11.0.
-Initialize the exact base content gitlink selected by this source commit:
+This public profile branch is stacked on the proposed platform/OpenAL (#3469),
+resource ZIP (#3468), executable-relative plugin/window scale (#3470), and
+required-feature (#3472) commits. They are not asserted to have merged upstream.
+#3472 was closed unmerged; its implementation, tests and receipt are removed by
+an additive simplification commit, preserving the existing public history. The
+native profile requires no package-version JSON or Python packaging handoff. Revalidate
+the combined source stack after changing its foundations or dependency recipe.
+
+Initialize the content revision selected by this checkout, then configure into a
+**new build directory**. When changing dependencies or feature selection, remove
+that build directory's `CMakeCache.txt` before configuring again; using a new
+build directory also avoids stale generated files. Do not reuse a build directory
+from the previous JSON handoff workflow. Review the discovery and feature summary
+at the end of configuration.
 
 ```sh
 git submodule update --init --checkout content
+sdk=$(xcrun --sdk macosx --show-sdk-path)
+prefix=/absolute/prefix-release
+cmake -S . -B /absolute/ror-build-release -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+  -DCMAKE_OSX_SYSROOT="$sdk" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+  -DROR_MACOS_GL3_PROFILE=ON -DROR_DEPENDENCY_DIR="$prefix" \
+  -DROR_CREATE_CONTENT_FOLDER=ON -DROR_BUILD_INSTALLER=Off \
+  -DROR_USE_OPENAL=ON -DROR_USE_ANGELSCRIPT=ON -DROR_USE_CURL=ON \
+  -DROR_USE_SOCKETW=ON -DROR_USE_DISCORD_RPC=ON \
+  -DROR_USE_CAELUM=ON -DROR_USE_PAGED=ON
+cmake --build /absolute/ror-build-release --parallel 3
+```
+
+The seven `ON` options are explicit inputs. A short profile check rejects any
+that dependency discovery effectively disables, including a missing optional
+package. Ordinary package discovery and target linking provide dependency
+errors. The developer `plugins.cfg` selects installed GL3Plus, STBI, ParticleFX,
+OctreeSceneManager and Caelum. The profile selects OpenAL Soft from the prefix,
+sets its `CMAKE_PREFIX_PATH`, disables package registries and excludes the usual
+Homebrew `/opt/homebrew` and `/usr/local` prefixes. Use a clean CMake environment;
+these settings are not a recursive audit of every imported dependency path.
+
+The optional wrapper supplies the same options, verifies the content gitlink and
+tracked cleanliness, and refuses an existing CMake cache:
+
+```sh
 scripts/macos/build.sh --deps-prefix /absolute/prefix-release \
   --build-dir /absolute/ror-build-release --config Release --jobs 3
 ```
 
-All four options are required. Paths containing spaces are supported. Use a new
-build directory for an incompatible cache; the wrapper never cleans or repurposes
-one. It checks content HEAD and tracked cleanliness against `git ls-tree HEAD
-content` and builds no optional content packs. At least 4 GiB free disk space is
-required before configure and compile.
+Paths containing spaces are supported. `SDKROOT` selects the SDK via xcrun;
+`MACOSX_DEPLOYMENT_TARGET` defaults to 11.0. Additional `-DNAME=value` settings
+can follow `--`. Caller compiler flags are preserved. The qualified Command Line
+Tools installation needed libc++ headers explicitly; where necessary append
+`-- "-DCMAKE_CXX_FLAGS=-isystem \"$sdk/usr/include/c++/v1\""`, retaining any
+other flags. This workaround needs toolchain revalidation before being removed.
+The wrapper checks for at least 4 GiB free space before configure and compile.
 
-`SDKROOT` selects the SDK through xcrun; `MACOSX_DEPLOYMENT_TARGET` defaults to
-11.0. Both must match the dependency receipt. Caller compiler flags are preserved.
-Additional CMake settings can follow `--` as `-DNAME=value` arguments, for example
-`-- '-DROR_CUSTOM_VERSION=local build'`. The wrapper supplies the profile's
-configuration, architecture, feature switches and concrete OpenAL Soft selectors.
-Direct CMake configuration may leave feature switches OFF, in which case the
-existing required-feature gate fails with an actionable error. Any caller
-`ROR_REQUIRED_FEATURES` entries remain required.
-
-The qualification build used Apple clang 21.0.0, CMake 4.4.4, SDK 27.0 and
-deployment 11.0. That Command Line Tools installation needed an explicit libc++
-header workaround. Supply it through caller flags when needed, retaining your
-other flags, for example:
-
-```sh
-sdk=$(xcrun --sdk macosx --show-sdk-path)
-scripts/macos/build.sh --deps-prefix /absolute/prefix-release \
-  --build-dir /absolute/ror-build-release --config Release --jobs 3 \
-  -- "-DCMAKE_CXX_FLAGS=-isystem \"$sdk/usr/include/c++/v1\""
-```
-
-This is a toolchain qualification, not an unconditional SDK include path in RoR.
-A clean build with ordinary toolchain discovery remains necessary before removing
-that qualification. Pins alone do not promise byte-identical output; the version
-generator's timestamp behavior also applies.
-
-Build outputs are `bin/RoR`, resources/content/languages in `bin`, the effective
-`ror-features.cmake` receipt, and `macos/Release/build.json` (schema 1). CMake
-generates the exact target path; the serializer JSON-escapes it and all other
-values. Both the wrapper and the ordinary CMake ALL build finalize the handoff.
-The manifest records the actual prefix receipt/recipe, content gitlink, required
-RTShaderLib GLSL source root, effective features, five plugin identities and
-their build/bundle cfg entries. OGRE plugin versions come from canonical installed
-files; Caelum has linked and plugin roles with one Frameworks destination.
-`framework_sources` records the selected Release MyGUI framework's canonical root
-and image, and its intended bundle root/image destinations. It retains the exact
-`Versions/<version>/<image>` suffix from that selection. The packager must use
-this identity to resolve the executable-relative MyGUI load name; the raw build
-does not have the eventual Frameworks layout.
-
-`build.json` references `source/version_info/package-version.json` from the
-version metadata contribution [#3473](https://github.com/RigsOfRods/rigs-of-rods/pull/3473). That contribution must be integrated and
-built before packaging; an absent version file does not imply package readiness.
-Selected imported Release paths use CMake’s configuration mapping; all selected
-absolute interface paths and target references are checked. The existing MyGUI
-Debug/Release expressions on unmapped targets and LINK_ONLY target references are
-supported. Configuration mappings on conditional imported inputs are rejected; these
-expressions require the qualified unmapped Release targets, keeping the MyGUI
-framework source hint identical to the selected link input. Unknown
-expressions, bare library names and alternate link mechanisms fail explicitly.
-The profile handoff is invalidated on every reconfigure, including profile OFF;
-serializer/template/dependency metadata changes trigger reconfiguration.
-Local manifest paths are build inputs and must not be redistributed unchanged.
-Future packaging must follow linked Mach-O dependencies and render the recorded
-bundle-relative plugin cfg. It must also include font notices (#3471), dependency
-notices and corresponding sources as applicable.
-
-This slice supports configure/build only; `cmake --install` fails before copying
-files. It does not assemble/sign a bundle, install into Applications or user data,
-download optional content, or launch RoR. Compile and static artifact checks do
-not establish GL3 UI/RTSS rendering, terrain/water/Caelum/Paged material parity,
-window lifecycle, Retina/input behavior or runtime capability. The RTShaderLib
-resource root is a packaging input; registering it and validating shaders belong
-to the GL3 UI contribution.
+Build outputs are `bin/RoR` and its resources/content/languages. The raw executable
+is not an installed app: MyGUI's app-relative framework install name needs the
+bundle layout supplied by the separate CMake/CPack contribution. This build
+profile supplies no bundle portability or signing guarantee. Its inherited
+non-Apple install rules alone do not produce a usable native app. Compile checks
+do not establish GL3 UI/RTSS/material/terrain/water/Caelum/Paged rendering,
+window lifecycle, Retina/input behavior or runtime capability. The wrapper
+configures and compiles only; it never launches RoR.

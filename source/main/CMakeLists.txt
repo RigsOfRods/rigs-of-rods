@@ -553,7 +553,10 @@ endif ()
 extract_pot("${SOURCE_FILES}")
 
 if(ROR_MACOS_GL3_PROFILE)
-    ror_macos_build_handoff(${BINNAME})
+    target_link_options(${BINNAME} PRIVATE -Wl,-headerpad_max_install_names)
+    set(PLUGINS_FOLDER "${OGRE_PLUGIN_DIR}")
+    file(RELATIVE_PATH PLUGIN_CAELUM "${OGRE_PLUGIN_DIR}" "${Caelum_LIBRARY}")
+    configure_file(plugins-macos.cfg.in "${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg" @ONLY)
 else()
 # Configure plugins.cfg
 # -----------------------
@@ -611,9 +614,6 @@ endif ()
 
 #  Install targets
 # -----------------------
-if(ROR_MACOS_GL3_PROFILE)
-    install(CODE [[message(FATAL_ERROR "The native macOS GL3 profile supports configure/build only. Bundle packaging is a separate contribution; do not use cmake --install.")]])
-else()
 install(TARGETS ${BINNAME} DESTINATION . COMPONENT "Base_Game")
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages COMPONENT "Base_Game")
@@ -638,8 +638,6 @@ else ()
             file(INSTALL \${files} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib FOLLOW_SYMLINK_CHAIN)")
 endif ()
 
-
-endif()
 
 #  CPack
 # -----------------------

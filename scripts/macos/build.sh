@@ -25,17 +25,16 @@ done
 for option in "$@"; do
     [[ "$option" == -D*=* ]] || fail 'After --, pass only -DNAME=value CMake settings.'
 done
-for tool in cmake ninja python3 git xcrun; do command -v "$tool" >/dev/null || fail "Required tool missing: $tool"; done
+for tool in cmake ninja git xcrun; do command -v "$tool" >/dev/null || fail "Required tool missing: $tool"; done
 source_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)
 [[ -d "$prefix" ]] || fail 'Dependency prefix does not exist; build the native ror-dependencies profile first.'
-prefix=$(python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve(strict=True))' "$prefix")
-build=$(python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve())' "$build")
+prefix=$(cd "$prefix" && pwd -P)
+[[ ! -f "$build/CMakeCache.txt" ]] || fail 'Use a fresh build directory or remove its CMakeCache.txt before configuring.'
+content_pin=$(git -C "$source_root" rev-parse HEAD:content)
+[[ "$(git -C "$source_root/content" rev-parse HEAD)" == "$content_pin" ]] || fail 'Initialize pinned content: git submodule update --init --checkout content'
+[[ -z "$(git -C "$source_root/content" status --porcelain --untracked-files=no)" ]] || fail 'Use a clean checkout of the pinned content submodule.'
 sdk=$(xcrun --sdk "${SDKROOT:-macosx}" --show-sdk-path)
 deployment=${MACOSX_DEPLOYMENT_TARGET:-11.0}
-helper="$source_root/scripts/macos/profile.py"
-python3 "$helper" preflight --prefix "$prefix" --sdk "$sdk" --deployment-target "$deployment"
-python3 "$helper" content --source "$source_root"
-python3 "$helper" cache --source "$source_root" --build "$build" --prefix "$prefix" --sdk "$sdk" --deployment-target "$deployment"
 mkdir -p "$build"
 free_kib=$(df -Pk "$build" | awk 'END {print $4}')
 ((free_kib >= 4194304)) || fail 'Build requires at least 4 GiB free disk space.'
@@ -50,7 +49,6 @@ configure=(cmake -S "$source_root" -B "$build" "$@" -G Ninja
     -DROR_USE_SOCKETW=ON -DROR_USE_DISCORD_RPC=ON -DROR_USE_CAELUM=ON -DROR_USE_PAGED=ON)
 printf '%q ' "${configure[@]}"; printf '\n'
 "${configure[@]}"
-python3 "$helper" finalize --build "$build"
 free_kib=$(df -Pk "$build" | awk 'END {print $4}')
 ((free_kib >= 4194304)) || fail 'Build requires at least 4 GiB free disk space.'
 cmake --build "$build" --config "$config" --parallel "$jobs"

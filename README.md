@@ -36,33 +36,7 @@ Ready to drive? Grab the latest version from the **[Rigs of Rods website](https:
 Read the official guide for compilation instructions on every supported platform.
 
 For detailed instructions on compiling from source, see the **[Guide to building Rigs of Rods](https://github.com/RigsOfRods/rigs-of-rods/wiki)** for Windows and Linux.
-
-### Requiring optional build features
-
-`ROR_REQUIRED_FEATURES` is a CMake cache string containing a semicolon-separated
-list of exact option names. It defaults to empty, preserving optional dependency
-behavior on every platform. To require all seven optional subsystems:
-
-```sh
-cmake -S . -B build -DROR_REQUIRED_FEATURES="ROR_USE_OPENAL;ROR_USE_DISCORD_RPC;ROR_USE_SOCKETW;ROR_USE_ANGELSCRIPT;ROR_USE_CURL;ROR_USE_CAELUM;ROR_USE_PAGED"
-```
-
-These are the only supported names. A requirement does not enable an option:
-configuration fails if it is explicitly `OFF`, its dependency is unavailable, or
-its required link target is missing. Install/provide the dependency and enable the
-option (for example, `-DROR_USE_OPENAL=ON`) to resolve the failure.
-`cmake_dependent_option` can retain `ON` in `CMakeCache.txt` while resolving the
-feature to `OFF`; the gate checks the effective value used by the build.
-
-After the gate succeeds, `build/ror-features.cmake` records all seven effective
-`ON`/`OFF` values and the sorted, deduplicated requirements as CMake `set()` calls.
-It contains no machine paths. Use it only from a successful configuration; it
-records dependency discovery and does not certify runtime or rendering behavior.
-The configure-only regression uses synthetic discovery and needs no game build:
-
-```sh
-cmake -DTEST_BINARY_DIR=build/required-feature-tests -P tests/cmake/required-features/test.cmake
-```
+For the native Apple Silicon Release profile, see [macOS build instructions](doc/macOS-build.md).
 
 ## Join the community
 
