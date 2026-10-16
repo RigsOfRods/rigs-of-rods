@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.rigsofrods.RoR</string>
+    <key>CFBundleName</key>
+    <string>Rigs of Rods</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleIconFile</key>
+    <string>ror.icns</string>
+    <key>CFBundleShortVersionString</key>
+    <string>@ROR_BUNDLE_VERSION@</string>
+    <key>CFBundleVersion</key>
+    <string>@ROR_BUNDLE_VERSION@</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    @ROR_BUNDLE_MINIMUM_OS@
+</dict>
+</plist>
