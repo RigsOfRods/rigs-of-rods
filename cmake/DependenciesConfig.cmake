@@ -50,3 +50,7 @@ cmake_dependent_option(ROR_USE_CAELUM "use caelum" ON "TARGET Caelum::Caelum" OF
 # --- PagedGeometry -- Ogre addon ---
 find_package(PagedGeometry)
 cmake_dependent_option(ROR_USE_PAGED "use pagedgeometry" ON "TARGET PagedGeometry::PagedGeometry" OFF)
+
+# Validate opt-in requirements after all dependent options have resolved.
+include(RequiredFeatures)
+ror_check_required_features()
