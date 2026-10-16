@@ -88,4 +88,14 @@ if(NOT receipt STREQUAL reordered)
 endif()
 # Reconfigure a previously successful gate and ensure rejection removes its receipt.
 configure_case(valid "ROR_USE_OPENAL" "OpenAL" "" "Required feature ROR_USE_OPENAL is OFF" -DROR_USE_OPENAL=ON)
+# -U makes these first-configure cases repeatable with no requirements cache.
+configure_case(normal-off "" "" "" "Required feature ROR_USE_OPENAL is OFF"
+    -UROR_REQUIRED_FEATURES -DTEST_NORMAL_REQUIRED_FEATURES=ROR_USE_OPENAL -DROR_USE_OPENAL=OFF)
+configure_case(normal-on "" "" "" ""
+    -UROR_REQUIRED_FEATURES -DTEST_NORMAL_REQUIRED_FEATURES=ROR_USE_OPENAL -DROR_USE_OPENAL=ON)
+file(READ "${TEST_BINARY_DIR}/normal-on/ror-features.cmake" receipt)
+string(FIND "${receipt}" [=[set(ROR_REQUIRED_FEATURES "ROR_USE_OPENAL")]=] requirement_position)
+if(requirement_position EQUAL -1)
+    message(FATAL_ERROR "Receipt lost the supplied normal requirement")
+endif()
 message(STATUS "All required-feature configure checks passed (synthetic discovery only)")
