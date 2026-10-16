@@ -13,6 +13,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import tarfile
 import unittest
 from unittest.mock import patch
 import zipfile
@@ -27,6 +28,77 @@ import verify
 
 def command(*args):
     return subprocess.check_output([str(a) for a in args], text=True, stderr=subprocess.STDOUT).strip()
+
+
+def fixture_commit(path):
+    command('git', '-C', path, 'init', '-q')
+    command('git', '-C', path, 'add', '.')
+    command('git', '-C', path, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Synthetic source fixture')
+    return command('git', '-C', path, 'rev-parse', 'HEAD')
+
+
+def fixture_tools(root):
+    tools = root / 'committed-packaging-tools'
+    tools.mkdir()
+    for name in source_companion.TOOL_FILES:
+        target = tools / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / name, target)
+    fixture_commit(tools)
+    return tools
+
+
+class SourceCompanion(unittest.TestCase):
+    def test_four_committed_sources_and_untracked_tools_rejection(self):
+        with tempfile.TemporaryDirectory(prefix='ror-source-only-fixture-') as directory:
+            root = Path(directory).resolve()
+            source = root / 'game-source'
+            content = source / 'content'
+            content.mkdir(parents=True)
+            (content / 'LICENSE').write_text('synthetic content notice')
+            content_revision = fixture_commit(content)
+            (source / 'COPYING').write_text('synthetic game source notice')
+            source_revision = fixture_commit(source)
+            recipe = root / 'recipe'
+            (recipe / 'cmake').mkdir(parents=True)
+            cache = root / 'cache'
+            cache.mkdir()
+            components = {}
+            for index in range(16):
+                name = 'synthetic-%02d' % index
+                path = cache / (name + '.tar.gz')
+                path.write_text('synthetic source bytes ' + name)
+                components[name] = dict(sha256=source_companion.digest(path), patches=[], installed_notices=['licenses/' + name])
+            recipe_inventory = recipe / 'cmake/macos-sources.json'
+            package.write_json(recipe_inventory, dict(components=components))
+            recipe_revision = fixture_commit(recipe)
+            tools = fixture_tools(root)
+            tool_revision = command('git', '-C', tools, 'rev-parse', 'HEAD')
+            handoff = dict(content_revision=content_revision)
+            version = dict(full_revision=source_revision)
+            manifest = dict(components=components, recipe_revision=recipe_revision, configuration_sha256='b' * 64,
+                            source_inventory_sha256=source_companion.digest(recipe_inventory))
+            inputs = source_companion.source_inputs(cache, recipe, source, version, handoff, manifest, tools)
+            notices = root / 'notices'
+            notices.mkdir()
+            (notices / 'NOTICE').write_text('synthetic fixture only')
+            destination = root / 'output'
+            destination.mkdir()
+            path, inventory = source_companion.create(destination, inputs, handoff, version, manifest, notices)
+            self.assertEqual(inventory['packaging_revision'], tool_revision)
+            self.assertEqual(set(inventory['trees']), {'rigs-of-rods', 'base-content', 'dependency-recipe', 'packaging-tools'})
+            binary_inventory = dict(version=version, content_revision=content_revision, recipe_revision=recipe_revision,
+                                    packaging_revision=tool_revision, source_inventory_sha256=manifest['source_inventory_sha256'], configuration_sha256='b' * 64)
+            verify.verify_source(path, binary_inventory, manifest)
+            with tarfile.open(path, 'r:gz') as outer:
+                with tarfile.open(fileobj=outer.extractfile('corresponding-source/packaging-tools.tar'), mode='r:') as archive:
+                    selected = {m.name for m in archive.getmembers() if m.isfile()}
+                    self.assertEqual(selected, {'packaging-tools/' + name for name in source_companion.TOOL_FILES})
+                    for name in source_companion.TOOL_FILES:
+                        self.assertEqual(archive.extractfile('packaging-tools/' + name).read(), (tools / name).read_bytes())
+            (tools / 'untracked-private-fixture.txt').write_text('must not be archived')
+            with self.assertRaisesRegex(ValueError, 'clean, including untracked'):
+                source_companion.source_inputs(cache, recipe, source, version, handoff, manifest, tools)
 
 
 class ParserAndSafety(unittest.TestCase):
@@ -267,16 +339,16 @@ class NativeFixtures(unittest.TestCase):
         directory = self.build / 'macos/Release'
         directory.mkdir(parents=True)
         package.write_json(directory / 'build.json', handoff)
-        return case, cache, recipe
+        return case, cache, recipe, fixture_tools(case)
 
     def test_full_synthetic_package_final_zip_source_and_altered_signature(self):
-        case, cache, recipe = self.make_contract()
+        case, cache, recipe, tools = self.make_contract()
         # Actual MyGUI imports name the future framework location before an app
         # exists. Only the exact handoff-declared framework identity can map it.
         command('install_name_tool', '-change', '@rpath/MyGUIEngine.framework/Versions/3.4.0/MyGUIEngine',
                 '@executable_path/../Frameworks/MyGUIEngine.framework/Versions/3.4.0/MyGUIEngine', self.exe)
         output = case / 'output'
-        args = argparse.Namespace(build_dir=self.build, deps_prefix=self.prefix, output=output, config='Release', source_cache=cache, recipe_source=recipe, replace=False)
+        args = argparse.Namespace(build_dir=self.build, deps_prefix=self.prefix, output=output, config='Release', source_cache=cache, recipe_source=recipe, packaging_source=tools, replace=False)
         package.package(args)
         archive = output / 'Rigs-of-Rods-macOS-arm64.zip'
         result = verify.verify_archive(archive)

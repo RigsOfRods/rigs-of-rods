@@ -233,8 +233,8 @@ def protect_output(output, roots, replace):
 def package(args):
     build, prefix = args.build_dir.resolve(strict=True), args.deps_prefix.resolve(strict=True)
     handoff, version, source, executable, manifest, selected, rtss = validate_inputs(build, prefix, args.config)
-    inputs = source_inputs(args.source_cache, args.recipe_source, source, version, handoff, manifest)
-    protected = [build, prefix, source, *[Path(p).resolve() for p in (args.source_cache, args.recipe_source) if p]]
+    inputs = source_inputs(args.source_cache, args.recipe_source, source, version, handoff, manifest, args.packaging_source)
+    protected = [build, prefix, source, inputs[5], *[Path(p).resolve() for p in (args.source_cache, args.recipe_source) if p]]
     for left, right in ((build, prefix), (build, source), (prefix, source)):
         if within(left, right) or within(right, left):
             raise ValueError('source, build, and dependency prefix must be disjoint')
@@ -329,6 +329,7 @@ def package(args):
         inventory = dict(schema=1, profile=handoff['profile'], configuration='Release', architecture='arm64',
                          signing='ad-hoc', runtime_tested=False, version=version, content_revision=handoff['content_revision'],
                          recipe_revision=manifest['recipe_revision'], toolchain=dict(sdk_version=handoff['sdk_version'], deployment_target=handoff['deployment_target']),
+                         packaging_revision=source_inventory['packaging_revision'],
                          dependency_manifest_sha256=handoff['dependency_manifest_sha256'],
                          source_inventory_sha256=manifest['source_inventory_sha256'], configuration_sha256=manifest['configuration_sha256'],
                          effective_features=handoff['effective_features'], required_features=handoff['required_features'],
@@ -370,6 +371,7 @@ def main():
     parser.add_argument('--config', default='Release')
     parser.add_argument('--source-cache', type=Path)
     parser.add_argument('--recipe-source', type=Path)
+    parser.add_argument('--packaging-source', type=Path, help='clean committed matching tool checkout; defaults to this tool source only when clean')
     parser.add_argument('--replace', action='store_true')
     package(parser.parse_args())
 

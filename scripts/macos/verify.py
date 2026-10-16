@@ -246,7 +246,10 @@ def verify_source(path, inventory, dependency):
             raise ValueError('source companion does not match binary source identities')
         if set(source['components']) != set(dependency['components']) or source['source_inventory_sha256'] != inventory['source_inventory_sha256'] or source['configuration_sha256'] != inventory['configuration_sha256']:
             raise ValueError('source companion inventory identity differs from binary')
-        expected_trees = {'rigs-of-rods': source['source_revision'], 'base-content': source['content_revision'], 'dependency-recipe': source['recipe_revision']}
+        if source['packaging_revision'] != inventory['packaging_revision']:
+            raise ValueError('source companion packaging tool identity differs from binary')
+        expected_trees = {'rigs-of-rods': source['source_revision'], 'base-content': source['content_revision'],
+                          'dependency-recipe': source['recipe_revision'], 'packaging-tools': source['packaging_revision']}
         if {name: tree['revision'] for name, tree in source['trees'].items()} != expected_trees:
             raise ValueError('source companion lacks exact committed tree identities')
         import hashlib
@@ -268,6 +271,18 @@ def verify_source(path, inventory, dependency):
                     h.update(block)
             if h.hexdigest() != tree['sha256']:
                 raise ValueError('committed source tree archive changed: ' + name)
+        from source_companion import TOOL_FILES
+        if set(source['packaging_files']) != set(TOOL_FILES):
+            raise ValueError('source companion lacks selected packaging tool files')
+        with archive.extractfile(names['corresponding-source/packaging-tools.tar']) as stream:
+            with tarfile.open(fileobj=stream, mode='r:') as tools:
+                selected = {member.name: member for member in tools.getmembers() if member.isfile()}
+                if set(selected) != {'packaging-tools/' + name for name in TOOL_FILES}:
+                    raise ValueError('packaging tools archive differs from selected committed files')
+                for name in TOOL_FILES:
+                    h = hashlib.sha256(tools.extractfile(selected['packaging-tools/' + name]).read()).hexdigest()
+                    if h != source['packaging_files'][name]:
+                        raise ValueError('packaging tool file identity changed: ' + name)
 
 
 def verify_archive(archive):

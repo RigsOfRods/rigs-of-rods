@@ -16,7 +16,8 @@ python3 scripts/macos/package.py \
   --deps-prefix /absolute/prefix-release \
   --output /absolute/new-release-directory --config Release \
   --source-cache /absolute/dependency-build/downloads \
-  --recipe-source /absolute/clean-matching-recipe-checkout
+  --recipe-source /absolute/clean-matching-recipe-checkout \
+  --packaging-source /absolute/clean-matching-packaging-checkout
 
 python3 scripts/macos/verify.py \
   /absolute/new-release-directory/Rigs-of-Rods-macOS-arm64.zip
@@ -24,7 +25,7 @@ python3 scripts/macos/verify.py \
 
 The output parent must exist and have at least 4 GiB free. Source, prefix and
 build directories must be disjoint; output must overlap none of them, the
-source cache or the recipe checkout. Existing output is rejected by default.
+source cache, recipe checkout or packaging tool checkout. Existing output is rejected by default.
 `--replace` accepts only an output carrying this tool's ownership marker for
 that exact canonical path. Staging is private under the selected output parent;
 publication renames the verified directory into place. A failed replacement
@@ -81,12 +82,21 @@ paths and symlinks before extracting with ditto, then checks all code, closure,
 RPATHs, strict signatures, complete payload inventory, resources, notices,
 versions and matching source companion from that fresh extraction.
 
-The companion contains exact `git archive` source/content/recipe tree TARs, all
+The companion contains four exact `git archive` TARs: game source, base content,
+dependency recipe, and the selected committed packaging scripts/docs/tests. It also includes all
 16 SHA256-verified original dependency archives from the selected existing EP
 cache, notices, source inventory and rebuild instructions. It validates the
 recipe inventory and every patch against the completed prefix, includes the
 whole recipe with build scripts and patches, and excludes Git internals and
-untracked/ignored fixtures. The cache must be the recipe's bounded `downloads/`
+untracked/ignored fixtures. `--packaging-source` defaults to this tool's source
+repository only when it is clean and committed. An explicitly selected tool
+checkout must be clean and its selected committed files must exactly match the
+running tools; archives are never made from untracked code. Its independent
+revision, archive hash and individual file hashes are recorded, so the compiled
+game source need not include the new packager contribution. Extract its fourth
+archive and use `packaging-tools/scripts/macos/` and
+`packaging-tools/doc/macOS-packaging.md` for release assembly and verification.
+The cache must be the recipe's bounded `downloads/`
 directory so its relative component layout can be restored. No source URL is
 treated as a substitute for source bytes. Missing matching inputs fail before
 publication. Recreating a Git repository from a tree snapshot gives a new
