@@ -46,6 +46,15 @@ function(find_package package)
     endif()
 endfunction()
 
+# Model a parent/project supplying a normal variable on the first configure.
+if(DEFINED TEST_NORMAL_REQUIRED_FEATURES)
+    get_property(requirements_cached CACHE ROR_REQUIRED_FEATURES PROPERTY TYPE SET)
+    if(requirements_cached)
+        message(FATAL_ERROR "Normal-variable fixture requires no existing requirements cache entry")
+    endif()
+    set(ROR_REQUIRED_FEATURES "${TEST_NORMAL_REQUIRED_FEATURES}")
+endif()
+
 include(DependenciesConfig)
 # Expose normal values independently of the production receipt for assertions.
 file(WRITE "${CMAKE_BINARY_DIR}/effective-openal.txt" "${ROR_USE_OPENAL}")

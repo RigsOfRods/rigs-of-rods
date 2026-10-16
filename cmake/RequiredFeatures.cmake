@@ -1,7 +1,10 @@
 # Called in the dependency discovery scope, where normal variables contain the
 # effective cmake_dependent_option values (the cache may still contain ON).
 function(ror_check_required_features)
-    set(ROR_REQUIRED_FEATURES "" CACHE STRING
+    # Snapshot the effective input before CACHE initialization: under CMP0126
+    # OLD, creating the cache entry can remove an inherited normal binding.
+    set(required_features "${ROR_REQUIRED_FEATURES}")
+    set(ROR_REQUIRED_FEATURES "${required_features}" CACHE STRING
         "Semicolon-separated ROR_USE_* options that must be effectively enabled")
     set(known_features
         ROR_USE_OPENAL
@@ -16,7 +19,7 @@ function(ror_check_required_features)
     # A rejected requirement must not leave an earlier successful gate receipt.
     file(REMOVE "${receipt}")
 
-    foreach(feature IN LISTS ROR_REQUIRED_FEATURES)
+    foreach(feature IN LISTS required_features)
         if(NOT feature IN_LIST known_features)
             message(FATAL_ERROR
                 "Unknown required feature '${feature}' in ROR_REQUIRED_FEATURES. "
@@ -44,7 +47,7 @@ function(ror_check_required_features)
         string(REPLACE "|" ";" feature_target "${feature_target}")
         list(GET feature_target 0 feature)
         list(GET feature_target 1 dependency_target)
-        if(feature IN_LIST ROR_REQUIRED_FEATURES AND NOT TARGET ${dependency_target})
+        if(feature IN_LIST required_features AND NOT TARGET ${dependency_target})
             message(FATAL_ERROR
                 "Required feature ${feature} is ON, but dependency target "
                 "${dependency_target} is missing. Check the package discovery output.")
@@ -53,7 +56,6 @@ function(ror_check_required_features)
 
     # Canonical requirements and explicit booleans make this path-free receipt
     # suitable for build tooling. It describes discovery, not runtime capability.
-    set(required_features ${ROR_REQUIRED_FEATURES})
     list(REMOVE_DUPLICATES required_features)
     list(SORT required_features)
     set(contents "# Effective optional features after dependency discovery.\n")
