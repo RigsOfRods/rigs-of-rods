@@ -1025,7 +1025,7 @@ std::string InputEngine::composeEventCommandString(event_trigger_t const& trig)
         return fmt::format("Y {}", trig.joystickSliderNumber); // Must show axis separately. Configline contains just the options.
 
     default: // Joystick axes
-        return fmt::format("{}", trig.joystickAxisNumber); // Configline contains just the options.
+        return fmt::format("{} {}", trig.joystickAxisNumber, trig.configline); // Configline contains just the options (important for UPPER/LOWER).
     }
 }
 
