@@ -2,50 +2,51 @@
 # Build a library which provides the versioning info defined for the current CMake project
 ###################################################################################################
 
-# Temporary generated files
-set(VERSION_INFO_CPP ${CMAKE_CURRENT_BINARY_DIR}/version_info.cpp)
-set(VERSION_DEF_H ${CMAKE_CURRENT_BINARY_DIR}/version_def.h)
+# All three generated outputs share one evaluation of the version, clock and Git state.
+set(VERSION_INFO_CPP "${CMAKE_CURRENT_BINARY_DIR}/version_info.cpp")
+set(VERSION_DEF_H "${CMAKE_CURRENT_BINARY_DIR}/version_def.h")
+set(PACKAGE_VERSION_JSON "${CMAKE_CURRENT_BINARY_DIR}/package-version.json")
 
-# Search for Git executable
 find_package(Git)
 
+set(VERSION_BUILD_DEV "${ROR_BUILD_DEV_VERSION}")
+set(VERSION_BUILD_CUSTOM FALSE)
+set(VERSION_CUSTOM "")
 if(ROR_BUILD_INSTALLER STREQUAL "Off")
-    set(VERSION_FLAGS -DBUILD_DEV_VERSION=${ROR_BUILD_DEV_VERSION})
-    if (DEFINED ROR_CUSTOM_VERSION)
-        list(
-            APPEND VERSION_FLAGS
-            -DBUILD_CUSTOM_VERSION=TRUE
-            -DCUSTOM_VERSION=${ROR_CUSTOM_VERSION}
-        )
-    endif ()
+    if(DEFINED ROR_CUSTOM_VERSION)
+        set(VERSION_BUILD_CUSTOM TRUE)
+        set(VERSION_CUSTOM "${ROR_CUSTOM_VERSION}")
+    endif()
 else()
-    # When packaging the installer use the version from the project 
-    set(VERSION_FLAGS 
-        -DBUILD_DEV_VERSION=OFF 
-        -DBUILD_CUSTOM_VERSION=TRUE 
-        -DCUSTOM_VERSION=${PROJECT_VERSION}
-    )
+    # Installer version selection takes precedence over both custom and dev versions.
+    set(VERSION_BUILD_DEV OFF)
+    set(VERSION_BUILD_CUSTOM TRUE)
+    set(VERSION_CUSTOM "${PROJECT_VERSION}")
 endif()
 
-# CMake custom targets are always out of date. Therefore the following target will update the
-# versioning information on each build. It executes the GenerateVersionInfo.cmake script which
-# generates the version_info.cpp and version_def.h files.
+# Pass arbitrary custom text as data, avoiding CMake list/command and generator-expression
+# interpretation. The file is consumed only when VERSION_BUILD_CUSTOM is true.
+set(VERSION_CUSTOM_FILE "${CMAKE_CURRENT_BINARY_DIR}/custom-version.txt")
+file(WRITE "${VERSION_CUSTOM_FILE}" "${VERSION_CUSTOM}")
 
+# Custom targets always run. configure_file keeps unchanged output timestamps, avoiding
+# unnecessary recompilation. Declaring every byproduct also supports clean/rebuild with Ninja.
 add_custom_target(
-        generate_version
-        COMMAND ${CMAKE_COMMAND} ${VERSION_FLAGS}
-        -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
-        -DVERSION_FILE_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/RoRVersion.cpp.in
-        -DVERSION_FILE_OUTPUT=${VERSION_INFO_CPP}
+    generate_version
+    COMMAND "${CMAKE_COMMAND}"
+        "-DBUILD_DEV_VERSION=${VERSION_BUILD_DEV}"
+        "-DBUILD_CUSTOM_VERSION=${VERSION_BUILD_CUSTOM}"
+        "-DCUSTOM_VERSION_FILE=${VERSION_CUSTOM_FILE}"
+        "-DPROJECT_VERSION=${PROJECT_VERSION}"
+        "-DVERSION_SOURCE_DIR=${CMAKE_SOURCE_DIR}"
+        "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+        "-DVERSION_INFO_INPUT_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+        "-DVERSION_INFO_OUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}"
         -P "${CMAKE_SOURCE_DIR}/cmake/GenerateVersionInfo.cmake"
-        COMMAND ${CMAKE_COMMAND} ${VERSION_FLAGS}
-        -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
-        -DVERSION_FILE_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/RoRVersionDef.h.in
-        -DVERSION_FILE_OUTPUT=${VERSION_DEF_H}
-        -P "${CMAKE_SOURCE_DIR}/cmake/GenerateVersionInfo.cmake"
-        BYPRODUCTS ${VERSION_INFO_CPP} ${VERSION_DEF_H}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMENT "Generate files containing version information"
+    BYPRODUCTS "${VERSION_INFO_CPP}" "${VERSION_DEF_H}" "${PACKAGE_VERSION_JSON}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    COMMENT "Generate files containing version information"
+    VERBATIM
 )
 
 # The version_info library target
