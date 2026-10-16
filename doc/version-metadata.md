@@ -21,9 +21,15 @@ Custom versions must start with two decimal components separated by a dot, such 
 preserved, including spaces, quotes, backslashes, semicolons and control characters.
 CMake cannot represent NUL. The target writes custom text as raw data at configure
 time and reads it during generation; it is never inserted into executable CMake code
-or interpreted as a generator expression. The generated C++ and JSON escape strings
-independently. The Windows resource integers are decimal without leading zeros;
-display strings retain their original formatting.
+or interpreted as a generator expression. The generated C++, Windows RC and JSON
+escape strings independently. C++ question marks use fixed-width octal escapes to prevent C++11 trigraph conversion. The resource
+header selects RC literals when `RC_INVOKED` is defined, otherwise C++ literals.
+RC embedded quotes are doubled, with escaped backslashes and fixed-width octal
+controls for the narrow resource string. These rules follow
+[Microsoft's resource string syntax](https://learn.microsoft.com/en-us/windows/win32/menurc/stringtable-resource)
+and [LLVM's resource string processing](https://github.com/llvm/llvm-project/blob/main/llvm/tools/llvm-rc/ResourceFileWriter.cpp).
+The Windows resource integers are decimal without leading zeros; display strings
+retain their original formatting.
 
 ## JSON schema 1
 
@@ -79,6 +85,9 @@ Ninja is selected when available; otherwise CMake's default generator is used.
 `--work-dir /absolute/fixture-directory` retains the fixture sources and build outputs.
 The tests run the production script and unmodified production target/templates with a
 tiny fixture root project. They compile only the version library and check generated
-string syntax, covering release/dev/custom/installer precedence, fixed epoch, Git and
-no-Git cases, normalization, escaping, snapshot command counts and unchanged output
-modification times. They do not configure or launch the game.
+string syntax under C++11, covering release/dev/custom/installer precedence, fixed
+epoch, Git and no-Git cases, normalization, escaping, all trigraph spellings, snapshot
+command counts and unchanged output modification times. Resource assertions use the
+RC grammar documented above, independently of the C++ literal decoder; they check
+doubled quotes, backslashes and controls against exact expected text. They do not
+establish compilation by a native RC tool. They do not configure or launch the game.

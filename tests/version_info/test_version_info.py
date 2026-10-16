@@ -35,6 +35,30 @@ def run(args, cwd=None, success=True):
     return result
 
 
+def decode_rc_literal(literal):
+    """Validate/decode the narrow RC subset emitted here, not C/C++ string grammar.
+
+    Microsoft STRINGTABLE documents doubled quotes and octal escapes. LLVM's
+    ResourceFileWriter::processString implements doubled quotes, escaped backslashes,
+    and up to three octal digits for narrow strings. This is a grammar assertion,
+    not evidence of compilation by rc.exe/llvm-rc.
+    https://learn.microsoft.com/en-us/windows/win32/menurc/stringtable-resource
+    https://github.com/llvm/llvm-project/blob/main/llvm/tools/llvm-rc/ResourceFileWriter.cpp
+    """
+    if not re.fullmatch(r'"(?:""|\\[0-7]{3}|\\\\|[^"\\\x00-\x1f])*"', literal):
+        raise ValueError("Invalid literal in the emitted narrow RC grammar")
+
+    def decoded(match):
+        token = match[0]
+        if token == '""':
+            return '"'
+        if token == '\\\\':
+            return '\\'
+        return chr(int(token[1:], 8))
+
+    return re.sub(r'""|\\[0-7]{3}|\\\\', decoded, literal[1:-1])
+
+
 class VersionInfoTests(unittest.TestCase):
     def setUp(self):
         self.directory = Path(tempfile.mkdtemp(prefix=self._testMethodName + " ", dir=WORK))
@@ -78,8 +102,10 @@ class VersionInfoTests(unittest.TestCase):
             self.assertIsNotNone(match, name)
             self.assertEqual(ast.literal_eval(match[1]), expected)
         header = (self.output / "version_def.h").read_text()
-        literal = re.search(r'#define ROR_RESOURCE_VERSION_STRING ("(?:\\.|[^"\\])*")', header)
-        self.assertEqual(ast.literal_eval(literal[1]), display)
+        literals = re.findall(r'^#define ROR_RESOURCE_VERSION_STRING (.*)$', header, re.MULTILINE)
+        self.assertEqual(len(literals), 2)
+        self.assertEqual(decode_rc_literal(literals[0]), display)
+        self.assertEqual(ast.literal_eval(literals[1]), display)
         return data
 
     def test_release_project_version_and_full_revision(self):
@@ -108,8 +134,30 @@ class VersionInfoTests(unittest.TestCase):
         self.metadata(custom, "2040.08", custom=custom)
         check = self.output / "check.cpp"
         check.write_text('#include "version_def.h"\nconst char* resource = ROR_RESOURCE_VERSION_STRING;\n')
-        run([CXX, "-fsyntax-only", "-I", ROOT / "source/version_info",
+        run([CXX, "-std=c++11", "-fsyntax-only", "-I", ROOT / "source/version_info",
              self.output / "version_info.cpp", check])
+
+    def test_cpp11_trigraph_custom_version(self):
+        # Every C++11 trigraph, ending in the quote-escaping regression from review.
+        custom = "2040.08-??=??'??(??)??!??<??>??--??/"
+        self.generate(custom=custom)
+        self.metadata(custom, "2040.08", custom=custom)
+        cpp = self.output / "version_info.cpp"
+        self.assertNotIn("??", cpp.read_text())
+        run([CXX, "-std=c++11", "-fsyntax-only", "-I", ROOT / "source/version_info", cpp])
+
+    def test_rc_literal_grammar_and_quote_regression(self):
+        # Fixed primary-source examples validate the grammar checker independently.
+        self.assertEqual(decode_rc_literal('"a""b"'), 'a"b')
+        self.assertEqual(decode_rc_literal(r'"Line one\012Line two"'), "Line one\nLine two")
+        with self.assertRaises(ValueError):
+            decode_rc_literal(r'"a\"b"')  # C++ escaping is not RC doubled quoting.
+        custom = '2040.08-quote"-slash\\-line\n-tab\t-control\x019'
+        self.generate(custom=custom)
+        self.metadata(custom, "2040.08", custom=custom)
+        header = (self.output / "version_def.h").read_text()
+        self.assertIn('#ifdef RC_INVOKED\n#define ROR_RESOURCE_VERSION_STRING '
+                      r'"2040.08-quote""-slash\\-line\012-tab\011-control\0019"', header)
 
     def test_invalid_custom_diagnostic(self):
         for custom in ["", "not a version", "2040"]:
@@ -131,6 +179,8 @@ class VersionInfoTests(unittest.TestCase):
         shutil.copyfile(ROOT / "cmake/GenerateVersionInfo.cmake", self.source / "cmake/GenerateVersionInfo.cmake")
         (self.source / "CMakeLists.txt").write_text('''cmake_minimum_required(VERSION 3.16)
 project(VersionFixture VERSION 2026.01 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(DEFINED FIXTURE_CUSTOM_FILE)
     file(READ "${FIXTURE_CUSTOM_FILE}" ROR_CUSTOM_VERSION)
 endif()
@@ -154,7 +204,7 @@ add_subdirectory(source/version_info)
 
     def test_actual_target_custom_arguments_and_installer_precedence(self):
         self.prepare_target()
-        custom = '2040.08-quote"-slash\\-space ;semicolon;$<CONFIG>'
+        custom = '2040.08-quote"-slash\\-space ;semicolon;$<CONFIG>-??/'
         self.configure_target([f"-DROR_CUSTOM_VERSION={custom}"])
         self.build_target("version_info")
         self.metadata(custom, "2040.08", custom=custom)

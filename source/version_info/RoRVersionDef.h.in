@@ -21,5 +21,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 /* The following definitions are automatically set by the CMake build system */
+#ifdef RC_INVOKED
+#define ROR_RESOURCE_VERSION_STRING "@DISPLAY_VERSION_RC@"
+#else
 #define ROR_RESOURCE_VERSION_STRING "@DISPLAY_VERSION_CXX@"
+#endif
 #define ROR_RESOURCE_VERSION @VERSION_RESOURCE_YEAR@,@VERSION_RESOURCE_MONTH@

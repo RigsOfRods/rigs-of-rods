@@ -48,10 +48,19 @@ function(version_str_to_ints version year month suffix)
 endfunction()
 
 # CMake 3.16 has no string(JSON). Escape every representable JSON control character, and use
-# fixed-width octal in C++ so an adjacent digit cannot extend an escape. CMake cannot hold NUL.
+# fixed-width octal in C++/narrow RC so an adjacent digit cannot extend an escape.
+# RC embedded quotes are doubled; C++ question marks are octal to prevent C++11 trigraphs.
+# CMake cannot hold NUL.
 function(escape_version_string value format output)
     string(REPLACE "\\" "\\\\" value "${value}")
-    string(REPLACE "\"" "\\\"" value "${value}")
+    if(format STREQUAL "RC")
+        string(REPLACE "\"" "\"\"" value "${value}")
+    else()
+        string(REPLACE "\"" "\\\"" value "${value}")
+    endif()
+    if(format STREQUAL "CXX")
+        string(REPLACE "?" "\\077" value "${value}")
+    endif()
     set(hex_digits "0123456789abcdef")
     foreach(code RANGE 1 31)
         string(ASCII ${code} character)
@@ -153,6 +162,7 @@ endforeach()
 foreach(field SHORT_VERSION DISPLAY_VERSION)
     escape_version_string("${${field}}" CXX ${field}_CXX)
 endforeach()
+escape_version_string("${DISPLAY_VERSION}" RC DISPLAY_VERSION_RC)
 
 if(DEFINED VERSION_INFO_INPUT_DIR)
     if(NOT "${PROJECT_VERSION}" MATCHES "^[0-9]+(\\.[0-9]+)*$")
