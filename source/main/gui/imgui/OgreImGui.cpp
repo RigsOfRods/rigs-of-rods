@@ -34,6 +34,18 @@
 
 using namespace RoR;
 
+#ifdef ROR_NATIVE_COCOA
+namespace {
+bool IsModifier(OIS::KeyCode key)
+{
+    return key == OIS::KC_LCONTROL || key == OIS::KC_RCONTROL ||
+        key == OIS::KC_LSHIFT || key == OIS::KC_RSHIFT ||
+        key == OIS::KC_LMENU || key == OIS::KC_RMENU ||
+        key == OIS::KC_LWIN || key == OIS::KC_RWIN;
+}
+}
+#endif
+
 void OgreImGui::Init()
 {
     m_imgui_overlay = std::unique_ptr<Ogre::ImGuiOverlay>(new Ogre::ImGuiOverlay());
@@ -122,7 +134,7 @@ void OgreImGui::ResetAllMouseButtons()
 void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
 {
 #ifdef ROR_NATIVE_COCOA
-    CheckInputQueue(m_input_queue.Key(arg.key, true, arg.text));
+    CheckInputQueue(m_input_queue.Key(arg.key, true, arg.text, IsModifier(arg.key)));
 #else
     ImGuiIO& io = ImGui::GetIO();
     io.KeysDown[arg.key] = true;
@@ -137,7 +149,7 @@ void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
 void OgreImGui::InjectKeyReleased( const OIS::KeyEvent &arg )
 {
 #ifdef ROR_NATIVE_COCOA
-    CheckInputQueue(m_input_queue.Key(arg.key, false));
+    CheckInputQueue(m_input_queue.Key(arg.key, false, 0, IsModifier(arg.key)));
 #else
     ImGuiIO& io = ImGui::GetIO();
     io.KeysDown[arg.key] = false;

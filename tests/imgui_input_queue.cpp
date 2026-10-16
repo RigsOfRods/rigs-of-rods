@@ -40,9 +40,34 @@ int main()
     {
         ImGuiInputQueue q; Sink s;
         // Independent controls and modifier chord share a frame. Release remains queued.
-        q.Key(29, true); q.Key(30, true, 'a'); q.Button(1, true, 10, 20); q.Key(29, false); q.Key(30, false);
+        q.Key(29, true, 0, true); q.Key(30, true, 'a'); q.Button(1, true, 10, 20); q.Key(29, false, 0, true); q.Key(30, false);
         q.Deliver(s); assert(q.IsKeyDown(29) && s.keys[30] && s.buttons[1]);
         q.Deliver(s); assert(!q.IsKeyDown(29) && !s.keys[30]);
+    }
+    {
+        ImGuiInputQueue q; Sink s;
+        // A modifier held in a previous frame still belongs to the shortcut edge.
+        q.Key(29, true, 0, true); q.Deliver(s);
+        q.Key(30, true, 'a'); q.Key(29, false, 0, true); q.Key(30, false);
+        q.Deliver(s); assert(q.IsKeyDown(29) && s.keys[30] && q.Pending() == 2);
+        q.Deliver(s); assert(!q.IsKeyDown(29) && !s.keys[30] && q.Pending() == 0);
+    }
+    {
+        ImGuiInputQueue q; Sink s;
+        // A later modifier press must not retroactively modify an earlier action.
+        q.Key(30, true, 'a'); q.Key(48, true, 'b'); q.Key(29, true, 0, true); q.Key(30, false);
+        q.Deliver(s); assert(s.keys[30] && s.keys[48] && !q.IsKeyDown(29) && q.Pending() == 2);
+        q.Deliver(s); assert(q.IsKeyDown(29) && !s.keys[30] && q.Pending() == 0);
+    }
+    {
+        ImGuiInputQueue q; Sink s;
+        q.Key(29, true, 0, true); q.Deliver(s);
+        q.Button(0, true, 10, 20); q.Key(29, false, 0, true);
+        q.Deliver(s); assert(s.buttons[0] && q.IsKeyDown(29) && q.Pending() == 1);
+        q.Deliver(s); assert(!q.IsKeyDown(29));
+        q.Motion(10, 20, .25f); q.Key(29, true, 0, true);
+        q.Deliver(s); assert(s.wheel == .25f && !q.IsKeyDown(29) && q.Pending() == 1);
+        q.Deliver(s); assert(q.IsKeyDown(29));
     }
     {
         ImGuiInputQueue q; Sink s;
@@ -60,6 +85,19 @@ int main()
         ImGuiInputQueue q; Sink s;
         q.Motion(1, 2, .25f); q.Motion(1, 2, .5f); q.Deliver(s);
         assert(s.wheel == .75f && q.Pending() == 0);
+    }
+    {
+        ImGuiInputQueue q; Sink s;
+        // Wheel delivery pins its position until the UI has sampled that increment.
+        q.Motion(10, 20, .25f); q.Motion(900, 800, 0);
+        q.Deliver(s); assert(s.x == 10 && s.y == 20 && s.wheel == .25f && q.Pending() == 1);
+        s.wheel = 0; q.Deliver(s); assert(s.x == 900 && s.y == 800 && s.wheel == 0 && q.Pending() == 0);
+    }
+    {
+        ImGuiInputQueue q; Sink s;
+        q.Motion(10, 20, .25f); q.Motion(10, 20, .5f); q.Motion(900, 800, 1);
+        q.Deliver(s); assert(s.x == 10 && s.y == 20 && s.wheel == .75f && q.Pending() == 1);
+        s.wheel = 0; q.Deliver(s); assert(s.x == 900 && s.y == 800 && s.wheel == 1 && q.Pending() == 0);
     }
     {
         ImGuiInputQueue q; Sink s;

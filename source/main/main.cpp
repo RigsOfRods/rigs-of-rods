@@ -83,6 +83,15 @@ int main(int argc, char *argv[])
     // Declare that owner before this one; neither owns the global Ogre Root.
     MacApplication mac_application;
     bool native_quit_queued = false;
+    // Before startup completes, optional subsystems used by the shutdown message
+    // may not exist. Reset only live input/UI and unwind the scoped native owner.
+    const auto cancel_native_startup = [&]() {
+        if (!mac_application.QuitRequested()) return false;
+        App::GetAppContext()->ResetInput();
+        mac_application.DetachWindow();
+        App::app_state->setVal((int)AppState::SHUTDOWN);
+        return true;
+    };
 #endif
 
 #ifdef USE_CURL
@@ -148,6 +157,7 @@ int main(int argc, char *argv[])
 
 #ifdef ROR_NATIVE_COCOA
         mac_application.Activate();
+        if (cancel_native_startup()) return 0;
 #endif
         // Load and start OGRE renderer, uses config directory
         if (!App::GetAppContext()->SetUpRendering())
@@ -156,9 +166,11 @@ int main(int argc, char *argv[])
         }
 
 #ifdef ROR_NATIVE_COCOA
+        if (cancel_native_startup()) return 0;
         void* native_window = nullptr;
         App::GetAppContext()->GetRenderWindow()->getCustomAttribute("WINDOW", &native_window);
         mac_application.AttachWindow(native_window);
+        if (cancel_native_startup()) return 0;
 #endif
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
@@ -213,6 +225,9 @@ int main(int argc, char *argv[])
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
 
+#ifdef ROR_NATIVE_COCOA
+        if (cancel_native_startup()) return 0;
+#endif
         App::CreateGuiManager(); // Needs scene manager
 
         App::GetDiscordRpc()->Init();
@@ -336,6 +351,9 @@ int main(int argc, char *argv[])
         }
 #endif // USE_OPENAL
 
+#ifdef ROR_NATIVE_COCOA
+        if (cancel_native_startup()) return 0;
+#endif
         // Hack to properly init DearIMGUI integration - force rendering image
         //  Will be properly fixed under OGRE 2x
         App::GetGuiManager()->LoadingWindow.SetProgress(100, "Hack", /*renderFrame=*/true);
@@ -376,7 +394,8 @@ int main(int argc, char *argv[])
 #endif
             // Game events
             OgreProfileBegin("RoR message queue");
-            while (App::GetGameContext()->HasMessages())
+            while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN &&
+                App::GetGameContext()->HasMessages())
             {
                 Message m = App::GetGameContext()->PopMessage();
                 bool failed_m = false;
@@ -2050,6 +2069,9 @@ int main(int argc, char *argv[])
 
                 default:;
                 }
+
+                // Terminal shutdown must not execute or append any further work.
+                if (App::app_state->getEnum<AppState>() == AppState::SHUTDOWN) break;
 
                 // Process chained messages
                 if (!failed_m)

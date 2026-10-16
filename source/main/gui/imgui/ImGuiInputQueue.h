@@ -15,15 +15,16 @@ public:
     static constexpr std::size_t Capacity = 1024;
 
     // False means bounded overflow recovery discarded this event and all prior input.
-    bool Key(unsigned key, bool down, unsigned text = 0)
+    // The OIS adapter marks modifier controls on both press and release.
+    bool Key(unsigned key, bool down, unsigned text = 0, bool modifier = false)
     {
         if (key >= KeyCount) return true;
-        return Push({Kind::Key, key, down, text, 0, 0, 0});
+        return Push({Kind::Key, key, down, text, 0, 0, 0, modifier});
     }
     bool Button(unsigned button, bool down, float x, float y)
     {
         if (button >= ButtonCount) return true;
-        return Push({Kind::Button, button, down, 0, x, y, 0});
+        return Push({Kind::Button, button, down, 0, x, y, 0, false});
     }
     bool Motion(float x, float y, float wheel)
     {
@@ -34,7 +35,7 @@ public:
             m_events.back().y = y;
             return true;
         }
-        return Push({Kind::Motion, 0, false, 0, x, y, wheel});
+        return Push({Kind::Motion, 0, false, 0, x, y, wheel, false});
     }
     void Reset()
     {
@@ -52,29 +53,38 @@ public:
     {
         std::array<bool, KeyCount> changed_keys{};
         std::array<bool, ButtonCount> changed_buttons{};
-        bool button_edge = false;
+        bool pointer_action = false;
+        bool action = false;
         while (!m_events.empty())
         {
             const Event& e = m_events.front();
             if (e.kind == Kind::Key)
             {
-                if (changed_keys[e.index] && m_keys[e.index] != e.down) break;
+                const bool edge = m_keys[e.index] != e.down;
+                // ImGui samples one modifier state: a later change must not rewrite
+                // the meaning of a key/button/wheel action already delivered.
+                if (e.modifier && edge && action) break;
+                if (changed_keys[e.index] && edge) break;
+                if (!e.modifier && (edge || e.text)) action = true;
                 changed_keys[e.index] = changed_keys[e.index] || m_keys[e.index] != e.down;
                 m_keys[e.index] = e.down;
                 sink.Key(e.index, e.down, e.text);
             }
             else
             {
-                // ImGui samples one position per frame: don't move a newly delivered click.
-                if (button_edge && (e.x != m_x || e.y != m_y)) break;
+                // ImGui samples one position per frame for both clicks and scrolling.
+                if (pointer_action && (e.x != m_x || e.y != m_y)) break;
                 if (e.kind == Kind::Button)
                 {
                     if (changed_buttons[e.index] && m_buttons[e.index] != e.down) break;
                     changed_buttons[e.index] = changed_buttons[e.index] || m_buttons[e.index] != e.down;
-                    button_edge = button_edge || m_buttons[e.index] != e.down;
+                    pointer_action = pointer_action || m_buttons[e.index] != e.down;
+                    action = action || m_buttons[e.index] != e.down;
                     m_buttons[e.index] = e.down;
                     sink.Button(e.index, e.down);
                 }
+                pointer_action = pointer_action || e.wheel != 0;
+                action = action || e.wheel != 0;
                 m_x = e.x;
                 m_y = e.y;
                 sink.Motion(e.x, e.y, e.wheel);
@@ -84,7 +94,7 @@ public:
     }
 private:
     enum class Kind { Key, Button, Motion };
-    struct Event { Kind kind; unsigned index; bool down; unsigned text; float x, y, wheel; };
+    struct Event { Kind kind; unsigned index; bool down; unsigned text; float x, y, wheel; bool modifier; };
     bool Push(Event event)
     {
         if (m_events.size() >= Capacity) { Reset(); return false; }
