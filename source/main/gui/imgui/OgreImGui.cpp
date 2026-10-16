@@ -25,7 +25,6 @@
 
 #include "OgreImGui.h"
 
-#include "Actor.h"
 #include "AppContext.h"
 #include "ContentManager.h"
 #include "OgreImGuiOverlay.h"
@@ -34,6 +33,18 @@
 #include <Ogre.h>
 
 using namespace RoR;
+
+#ifdef ROR_NATIVE_COCOA
+namespace {
+bool IsModifier(OIS::KeyCode key)
+{
+    return key == OIS::KC_LCONTROL || key == OIS::KC_RCONTROL ||
+        key == OIS::KC_LSHIFT || key == OIS::KC_RSHIFT ||
+        key == OIS::KC_LMENU || key == OIS::KC_RMENU ||
+        key == OIS::KC_LWIN || key == OIS::KC_RWIN;
+}
+}
+#endif
 
 void OgreImGui::Init()
 {
@@ -89,11 +100,16 @@ void OgreImGui::Init()
 void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )
 {
 
+#ifdef ROR_NATIVE_COCOA
+    CheckInputQueue(m_input_queue.Motion(arg.state.X.abs, arg.state.Y.abs,
+        Ogre::Math::Clamp((float)arg.state.Z.rel, -1/3.f, 1/3.f)));
+#else
     ImGuiIO& io = ImGui::GetIO();
 
     io.MousePos.x = arg.state.X.abs;
     io.MousePos.y = arg.state.Y.abs;
     io.MouseWheel = Ogre::Math::Clamp((float)arg.state.Z.rel, -1/3.f, 1/3.f);
+#endif
 }
 
 void OgreImGui::SetMouseButtonState( OIS::MouseButtonID id, bool down )
@@ -117,6 +133,9 @@ void OgreImGui::ResetAllMouseButtons()
 
 void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
 {
+#ifdef ROR_NATIVE_COCOA
+    CheckInputQueue(m_input_queue.Key(arg.key, true, arg.text, IsModifier(arg.key)));
+#else
     ImGuiIO& io = ImGui::GetIO();
     io.KeysDown[arg.key] = true;
 
@@ -124,12 +143,85 @@ void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
     {
         io.AddInputCharacter((unsigned short)arg.text);
     }
+#endif
 }
 
 void OgreImGui::InjectKeyReleased( const OIS::KeyEvent &arg )
 {
+#ifdef ROR_NATIVE_COCOA
+    CheckInputQueue(m_input_queue.Key(arg.key, false, 0, IsModifier(arg.key)));
+#else
     ImGuiIO& io = ImGui::GetIO();
     io.KeysDown[arg.key] = false;
+#endif
+}
+
+// Retain the existing portable immediate injection API.
+void OgreImGui::InjectMouseButton(const OIS::MouseEvent& arg, OIS::MouseButtonID id, bool down)
+{
+#ifdef ROR_NATIVE_COCOA
+    CheckInputQueue(m_input_queue.Button(id, down, arg.state.X.abs, arg.state.Y.abs));
+#else
+    SetMouseButtonState(id, down);
+#endif
+}
+
+OgreImGui::~OgreImGui()
+{
+#ifdef ROR_NATIVE_COCOA
+    ResetInput();
+#endif
+}
+
+void OgreImGui::ResetInput()
+{
+#ifdef ROR_NATIVE_COCOA
+    m_input_queue.Reset();
+    if (!ImGui::GetCurrentContext()) return;
+    ImGuiIO& io = ImGui::GetIO();
+    for (bool& key : io.KeysDown) key = false;
+    for (bool& button : io.MouseDown) button = false;
+    io.KeyCtrl = io.KeyShift = io.KeyAlt = io.KeySuper = false;
+    io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+    io.MouseWheel = io.MouseWheelH = 0;
+    io.InputQueueCharacters.resize(0);
+#else
+    ResetAllMouseButtons();
+#endif
+}
+
+#ifdef ROR_NATIVE_COCOA
+void OgreImGui::CheckInputQueue(bool accepted)
+{
+    if (!accepted)
+    {
+        ResetInput();
+        LOG("[RoR|ImGui] Input queue overflow (1024 events); discarded input and reset UI state");
+    }
+}
+#endif
+
+void OgreImGui::DeliverInput()
+{
+#ifdef ROR_NATIVE_COCOA
+    struct Sink
+    {
+        ImGuiIO& io;
+        void Key(unsigned key, bool down, unsigned text)
+        {
+            io.KeysDown[key] = down;
+            if (text) io.AddInputCharacter((unsigned short)text);
+        }
+        void Button(unsigned button, bool down) { io.MouseDown[button] = down; }
+        void Motion(float x, float y, float wheel) { io.MousePos = ImVec2(x, y); io.MouseWheel += wheel; }
+    } sink{ImGui::GetIO()};
+    m_input_queue.Deliver(sink);
+    ImGuiIO& io = sink.io;
+    io.KeyCtrl = m_input_queue.IsKeyDown(OIS::KC_LCONTROL) || m_input_queue.IsKeyDown(OIS::KC_RCONTROL);
+    io.KeyShift = m_input_queue.IsKeyDown(OIS::KC_LSHIFT) || m_input_queue.IsKeyDown(OIS::KC_RSHIFT);
+    io.KeyAlt = m_input_queue.IsKeyDown(OIS::KC_LMENU) || m_input_queue.IsKeyDown(OIS::KC_RMENU);
+    io.KeySuper = m_input_queue.IsKeyDown(OIS::KC_LWIN) || m_input_queue.IsKeyDown(OIS::KC_RWIN);
+#endif
 }
 
 void OgreImGui::renderQueueStarted(Ogre::uint8 queueGroupId,

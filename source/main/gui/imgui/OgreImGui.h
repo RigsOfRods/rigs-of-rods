@@ -32,6 +32,9 @@
 #include <OISMouse.h>
 #include <OISKeyboard.h>
 #include <memory>
+#ifdef ROR_NATIVE_COCOA
+#include "ImGuiInputQueue.h"
+#endif
 
 // DearIMGUI math functions, copypasted from <imgui_internal.h>
 static inline ImVec2 operator*(const ImVec2& lhs, const float rhs)              { return ImVec2(lhs.x*rhs, lhs.y*rhs); }
@@ -60,6 +63,10 @@ public:
     void InjectMouseMoved( const OIS::MouseEvent &arg );
     void SetMouseButtonState(OIS::MouseButtonID id, bool down);
     void ResetAllMouseButtons();
+    void InjectMouseButton(const OIS::MouseEvent& arg, OIS::MouseButtonID id, bool down);
+    void ResetInput();
+    void DeliverInput();
+    ~OgreImGui();
     void InjectKeyPressed( const OIS::KeyEvent &arg );
     void InjectKeyReleased( const OIS::KeyEvent &arg );
 
@@ -68,5 +75,9 @@ public:
         const Ogre::String& invocation, bool& skipThisInvocation) override;
 
 private:
+#ifdef ROR_NATIVE_COCOA
+    RoR::ImGuiInputQueue m_input_queue;
+    void CheckInputQueue(bool accepted);
+#endif
     std::unique_ptr<Ogre::ImGuiOverlay> m_imgui_overlay;
 };
