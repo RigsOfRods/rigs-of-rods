@@ -222,6 +222,14 @@ public:
     float getSimAttribute(ActorSimAttr attr);
 
     /**
+     * Allows advanced users to set physics settings directly, including some not accessible from rig-def file format.
+     * HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
+     */
+    void setIndexedSimAttribute(ActorSimAttr attr, float val, int index);
+
+    float getIndexedSimAttribute(ActorSimAttr attr, int index);
+
+    /**
      * @brief Recalculates the masses of all the nodes.
      * @warning Do not call this function repeatedly! Otherwise, performance might be degraded.
      */
