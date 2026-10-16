@@ -1,6 +1,10 @@
 """Exercise resource ZIP generation through the production CMake/Ninja build graph.
 
 Run with: python3 tests/cmake/test_resource_archives.py
+
+Inventory changes are discovered by explicit reconfiguration. Addition/removal
+use normal file dates, with a separate backdated addition to check that inventory
+changes invalidate the archive independently of source-file modification times.
 """
 import io
 import os
@@ -71,6 +75,8 @@ class ResourceArchiveTests(unittest.TestCase):
         self.build()
         self.assertIn("shaders/native/base.glsl", self.names())
         added = self.write_resource("shaders/native/added.glsl", b"added shader\n")
+        # Model an added file carrying an older timestamp (e.g. from an archive).
+        # Its mtime alone must not be needed to invalidate the existing ZIP.
         old_time = self.archive.stat().st_mtime - 60
         os.utime(added, (old_time, old_time))
         self.configure()
@@ -80,11 +86,22 @@ class ResourceArchiveTests(unittest.TestCase):
         with zipfile.ZipFile(self.archive) as archive:
             self.assertEqual(archive.read("shaders/native/added.glsl"), b"added shader\n")
 
-    def test_removed_nested_file_is_excluded_after_reconfigure(self):
+    def test_normaldated_nested_addition_is_archived_after_reconfigure(self):
+        self.write_resource("shaders/native/base.glsl")
+        self.configure()
+        self.build()
+        self.assertIn("shaders/native/base.glsl", self.names())
+        self.write_resource("shaders/native/added.glsl", b"added shader\n")
+        self.configure()
+        self.build()
+        self.assertIn("shaders/native/added.glsl", self.names())
+        self.assertIn("shaders/native/base.glsl", self.names())
+        with zipfile.ZipFile(self.archive) as archive:
+            self.assertEqual(archive.read("shaders/native/added.glsl"), b"added shader\n")
+
+    def test_normaldated_removed_nested_file_is_excluded_after_reconfigure(self):
         self.write_resource("shaders/native/base.glsl")
         removed = self.write_resource("shaders/native/removed.glsl")
-        old_time = removed.stat().st_mtime - 60
-        os.utime(removed, (old_time, old_time))
         self.configure()
         self.build()
         self.assertIn("shaders/native/removed.glsl", self.names())
