@@ -54,6 +54,7 @@ public:
     bool                 SetUpRendering();
     bool                 SetUpConfigSkeleton();
     bool                 SetUpInput();
+    void                 ResetInput(); // Safe with absent GUI/input during setup and cleanup.
     void                 SetUpObsoleteConfMarker();
 
     // Rendering

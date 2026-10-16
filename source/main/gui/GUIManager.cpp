@@ -325,6 +325,7 @@ void GUIManager::UpdateMouseCursorVisibility()
 void GUIManager::NewImGuiFrame(float dt)
 {
     ImGuiIO& io = ImGui::GetIO();
+#ifndef ROR_NATIVE_COCOA
     OIS::Keyboard* kb = App::GetInputEngine()->GetOisKeyboard();
 
      // Read keyboard modifiers inputs
@@ -332,6 +333,7 @@ void GUIManager::NewImGuiFrame(float dt)
     io.KeyShift = kb->isKeyDown(OIS::KC_LSHIFT);
     io.KeyAlt = kb->isKeyDown(OIS::KC_LMENU);
     io.KeySuper = false;
+#endif
 
     // Call IMGUI
     Ogre::FrameEvent ev;

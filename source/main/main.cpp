@@ -67,6 +67,10 @@
 #   include <curl/curl.h>
 #endif //USE_CURL
 
+#ifdef ROR_NATIVE_COCOA
+#include "MacApplication.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -74,6 +78,12 @@ extern "C" {
 int main(int argc, char *argv[])
 {
     using namespace RoR;
+#ifdef ROR_NATIVE_COCOA
+    // Native callbacks must stop before a future RTSS owner is destroyed.
+    // Declare that owner before this one; neither owns the global Ogre Root.
+    MacApplication mac_application;
+    bool native_quit_queued = false;
+#endif
 
 #ifdef USE_CURL
     curl_global_init(CURL_GLOBAL_ALL); // MUST init before any threads are started
@@ -136,12 +146,20 @@ int main(int argc, char *argv[])
         // Make sure config directory exists - to save 'ogre.cfg'
         CreateFolder(App::sys_config_dir->getStr());
 
+#ifdef ROR_NATIVE_COCOA
+        mac_application.Activate();
+#endif
         // Load and start OGRE renderer, uses config directory
         if (!App::GetAppContext()->SetUpRendering())
         {
             return -1; // Error already displayed
         }
 
+#ifdef ROR_NATIVE_COCOA
+        void* native_window = nullptr;
+        App::GetAppContext()->GetRenderWindow()->getCustomAttribute("WINDOW", &native_window);
+        mac_application.AttachWindow(native_window);
+#endif
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Deploy base config files from 'skeleton.zip'
@@ -331,8 +349,13 @@ int main(int argc, char *argv[])
 
         while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN)
         {
+#ifdef ROR_NATIVE_COCOA
+            MacAutoreleasePool frame_pool;
+#endif
             App::GetAppContext()->PrepareProfiler();
+#ifndef ROR_NATIVE_COCOA
             OgreBites::WindowEventUtilities::messagePump();
+#endif
 
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
@@ -340,6 +363,17 @@ int main(int argc, char *argv[])
                 App::GetGameContext()->GetActorManager()->SyncWithSimThread();
             }
 
+#ifdef ROR_NATIVE_COCOA
+            // Mouse callbacks run inside dispatch: halt physics before native input too.
+            mac_application.Pump();
+            if (mac_application.ConsumeInputReset()) App::GetAppContext()->ResetInput();
+            if (mac_application.QuitRequested() && !native_quit_queued)
+            {
+                App::GetAppContext()->ResetInput();
+                App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
+                native_quit_queued = true;
+            }
+#endif
             // Game events
             OgreProfileBegin("RoR message queue");
             while (App::GetGameContext()->HasMessages())
@@ -2028,6 +2062,18 @@ int main(int argc, char *argv[])
 
             } // Game events block
             OgreProfileEnd("RoR message queue");
+            if (App::app_state->getEnum<AppState>() == AppState::SHUTDOWN)
+            {
+#ifdef ROR_NATIVE_COCOA
+                App::GetAppContext()->ResetInput();
+                mac_application.DetachWindow();
+#endif
+                break; // No input, UI or render work after committed shutdown.
+            }
+#ifdef ROR_NATIVE_COCOA
+            // One capture per UI iteration, including zero simulation dt.
+            if (App::GetInputEngine()) App::GetInputEngine()->Capture();
+#endif
 
             // Check FPS limit
             if (App::gfx_fps_limit->getInt() > 0)
@@ -2081,7 +2127,9 @@ int main(int argc, char *argv[])
             OgreProfileBegin("Input processing");
             if (dt != 0.f)
             {
+#ifndef ROR_NATIVE_COCOA
                 App::GetInputEngine()->Capture();
+#endif
                 App::GetInputEngine()->updateKeyBounces(dt);
 
                 if (!App::GetGuiManager()->GameControls.IsInteractiveKeyBindingActive())
