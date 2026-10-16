@@ -27,6 +27,19 @@ elseif(CASE STREQUAL "unsupported-expression")
 elseif(CASE STREQUAL "valid")
     set_target_properties(physical PROPERTIES MAP_IMPORTED_CONFIG_RELEASE Release
         INTERFACE_LINK_LIBRARIES "$<LINK_ONLY:interface>")
+elseif(CASE MATCHES "^(unmapped-conditional|mapped-conditional-physical|mapped-conditional-interface)$")
+    set(conditional "$<$<CONFIG:Debug>:${CMAKE_CURRENT_BINARY_DIR}/outside.dylib>$<$<NOT:$<CONFIG:Debug>>:${ROR_DEPENDENCY_DIR}/inside.dylib>")
+    if(CASE STREQUAL "mapped-conditional-physical")
+        # Keep both physical locations inside: only the mapped interface escapes.
+        set_target_properties(physical PROPERTIES MAP_IMPORTED_CONFIG_RELEASE DEBUG
+            IMPORTED_LOCATION_DEBUG "${ROR_DEPENDENCY_DIR}/inside.dylib"
+            INTERFACE_LINK_LIBRARIES "${conditional}")
+    elseif(CASE STREQUAL "mapped-conditional-interface")
+        set_target_properties(interface PROPERTIES MAP_IMPORTED_CONFIG_RELEASE DEBUG
+            INTERFACE_LINK_LIBRARIES "${conditional}")
+    else()
+        set_target_properties(interface PROPERTIES INTERFACE_LINK_LIBRARIES "${conditional}")
+    endif()
 endif()
 ror_macos_target(physical)
 ror_macos_target(interface)

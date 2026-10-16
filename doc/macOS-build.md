@@ -83,7 +83,10 @@ version metadata contribution [#3473](https://github.com/RigsOfRods/rigs-of-rods
 built before packaging; an absent version file does not imply package readiness.
 Selected imported Release paths use CMake’s configuration mapping; all selected
 absolute interface paths and target references are checked. The existing MyGUI
-Debug/Release expressions and LINK_ONLY target references are supported. Unknown
+Debug/Release expressions on unmapped targets and LINK_ONLY target references are
+supported. Configuration mappings on conditional imported inputs are rejected; these
+expressions require the qualified unmapped Release targets, keeping the MyGUI
+framework source hint identical to the selected link input. Unknown
 expressions, bare library names and alternate link mechanisms fail explicitly.
 The profile handoff is invalidated on every reconfigure, including profile OFF;
 serializer/template/dependency metadata changes trigger reconfiguration.

@@ -23,16 +23,20 @@ spec.loader.exec_module(profile)
 class Controls(unittest.TestCase):
     def test_selected_imported_artifacts(self):
         with tempfile.TemporaryDirectory(prefix='ror target controls ') as temporary:
-            for case in ('valid', 'mapped-outside', 'later-interface', 'physical-interface', 'nested-target', 'unsupported-expression'):
+            for case in ('valid', 'mapped-outside', 'later-interface', 'physical-interface', 'nested-target', 'unsupported-expression',
+                         'unmapped-conditional', 'mapped-conditional-physical', 'mapped-conditional-interface'):
                 build = Path(temporary) / case
                 result = subprocess.run(['cmake', '-S', str(SOURCE / 'tests/macos/artifacts'),
                                          '-B', str(build), '-DCASE=' + case], capture_output=True, text=True)
-                self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
-                if case == 'valid':
+                success = case in ('valid', 'unmapped-conditional')
+                self.assertEqual(result.returncode == 0, success, result.stdout + result.stderr)
+                if success:
                     self.assertEqual(Path((build / 'selected.txt').read_text()), (build / 'prefix/inside.dylib').resolve())
                 else:
-                    self.assertIn('unsupported selected' if case == 'unsupported-expression'
-                                  else 'escapes selected dependency prefix', ' '.join((result.stdout + result.stderr).split()))
+                    expected = ('unsupported MAP_IMPORTED_CONFIG_RELEASE on conditional input' if case.startswith('mapped-conditional-')
+                                else 'unsupported selected' if case == 'unsupported-expression'
+                                else 'escapes selected dependency prefix')
+                    self.assertIn(expected, ' '.join((result.stdout + result.stderr).split()))
 
     def test_wrapper_arguments(self):
         for args in ([], ['--jobs'], ['--unknown'],

@@ -71,6 +71,8 @@ function(ror_macos_build_handoff target)
     endforeach()
     set(handoff "${CMAKE_BINARY_DIR}/macos/Release")
     file(MAKE_DIRECTORY "${handoff}")
+    # The validated MyGUI conditional interface must be unmapped Release, so
+    # its selected library and the framework source below are the same input.
     execute_process(COMMAND "${Python3_EXECUTABLE}" "${ROR_MACOS_HELPER}" handoff
         --prefix "${ROR_DEPENDENCY_DIR}" --source "${CMAKE_SOURCE_DIR}" --build "${CMAKE_BINARY_DIR}"
         --sdk "${CMAKE_OSX_SYSROOT}" --deployment-target "${CMAKE_OSX_DEPLOYMENT_TARGET}"
