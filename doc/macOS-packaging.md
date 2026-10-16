@@ -59,17 +59,53 @@ when configuring the clean game checkout, in addition to the normal build flags:
 cmake -S "$game" -B "$source_build" \
   -DCPACK_SOURCE_GENERATOR=TGZ \
   -DCPACK_SOURCE_PACKAGE_FILE_NAME=rigs-of-rods-corresponding-source \
+  '-DCPACK_SOURCE_IGNORE_FILES=/[.]git(/|$)' \
   -DCPACK_SOURCE_INSTALLED_DIRECTORIES="$game;rigs-of-rods;$recipe;ror-dependencies;$archives;dependency-archives"
 cpack --config "$source_build/CPackSourceConfig.cmake" -B "$packages"
 ```
 
 Keep build outputs outside those input roots and initialize the content submodule
-inside the clean game tree. CPack snapshots files; it does not verify clean Git
+inside the clean game tree. The ignore expression excludes both `.git` directories
+and regular `.git` files used by worktrees/submodules, whose contents can expose
+paths outside the exported tree. CPack snapshots files; it does not verify clean Git
 identity, retrieve missing dependency sources, or establish source completeness.
 Record the exact revisions, options, toolchain and archive inputs in human-readable
 rebuild instructions next to the artifacts. A game-only CPack source archive is
 insufficient for a binary containing separately built dependencies. Do not publish
 a binary until its corresponding source inputs have been assembled and reviewed.
+
+The exported source has no Git metadata. Rebuild the game with the ordinary CMake
+configure command in [macOS-build.md](macOS-build.md), setting its source to the
+extracted `rigs-of-rods` directory and using a new build directory and rebuilt
+dependency prefix. Its extracted `content` directory is already populated. Do
+not use `scripts/macos/build.sh` for this export: that checkout wrapper requires
+Git's `HEAD:content` and submodule checks. Extract outside any parent Git repository
+so the version generator cannot detect an unrelated revision. Supply the recorded
+toolchain, deployment target, feature settings and caller compiler flags, including
+any CXX/OBJCXX SDK libc++ include flags and `ROR_RTSHADER_GLSL_DIR`, as recorded in
+the accompanying source archive's rebuild notes.
+
+The dependency recipe used for the qualified prefix records `git rev-parse HEAD`
+when publishing its build receipt. Before rebuilding an exported recipe, initialize
+and commit that extracted tree as a new local repository, using your own configured
+Git author identity:
+
+```sh
+git -C "$recipe" init
+git -C "$recipe" add .
+git -C "$recipe" commit -m "Import exported dependency sources for local rebuild"
+```
+
+Keep dependency build outputs outside the recipe tree. Follow the accompanying
+rebuild notes to preseed the new build's `downloads` directory from the exported
+original archives, preserving their component directories and filenames. The new
+receipt must identify this new local commit; do not substitute the original recipe
+revision.
+Record the original source revisions separately in the accompanying rebuild notes.
+The game's existing version generator falls back to `dev-without-git` for a
+source export; version/build timestamps and the new dependency receipt identity
+can differ from the original build. These instructions do not promise a bit-for-bit
+identical rebuild or preserve the original development Git display version.
 
 ## Qualification
 
