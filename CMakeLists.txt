@@ -24,6 +24,7 @@ project(${PROJECT_NAME_UNDERSCORE} VERSION 2026.01)
 ################################################################################
 # Available build options
 ################################################################################
+option(ROR_MACOS_GL3_PROFILE "Build the native macOS arm64 Release GL3 compile profile" OFF)
 option(ROR_BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(ROR_BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(ROR_USE_PCH "Use a Precompiled header for speeding up the build" ON)
@@ -66,6 +67,10 @@ if (NOT ROR_USE_PCH)
         message("Using ${SCCACHE_PROGRAM} for speeding up build")
     endif ()
 endif ()
+
+if(ROR_MACOS_GL3_PROFILE)
+    include(MacOSBuildProfile)
+endif()
 
 # Check deps version
 if (EXISTS "${ROR_DEPENDENCY_DIR}/version.cmake")

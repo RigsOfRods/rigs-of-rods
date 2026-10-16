@@ -1,0 +1,3 @@
+# Local build paths. The bundle packager must render bundle-relative handoff entries.
+PluginFolder=@PLUGINS_FOLDER@
+@PLUGIN_LINES@
