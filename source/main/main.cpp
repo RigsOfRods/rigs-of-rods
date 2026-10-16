@@ -29,6 +29,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "DiscordRpc.h"
+#include "DesktopGlShaderBootstrap.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "GfxScene.h"
@@ -74,6 +75,8 @@ extern "C" {
 int main(int argc, char *argv[])
 {
     using namespace RoR;
+
+    DesktopGlShaderBootstrap desktop_gl_bootstrap; // Before native callback owners and the release-only try.
 
 #ifdef USE_CURL
     curl_global_init(CURL_GLOBAL_ALL); // MUST init before any threads are started
@@ -175,6 +178,9 @@ int main(int argc, char *argv[])
             Ogre::TextureManager::getSingleton()._getWarningTexture()->getBuffer()->blitFromMemory(pixels);
         }
 
+        desktop_gl_bootstrap.initialize(App::GetAppContext()->GetOgreRoot()->getRenderSystem(),
+            PathCombine(App::sys_resources_dir->getStr(), "rtshader-core"));
+
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FONTS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
@@ -191,6 +197,8 @@ int main(int argc, char *argv[])
 
         // Set up rendering
         App::CreateGfxScene(); // Creates OGRE SceneManager, needs content manager
+        desktop_gl_bootstrap.attachScene(App::GetGfxScene()->GetSceneManager(),
+            App::GetAppContext()->GetViewport());
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
