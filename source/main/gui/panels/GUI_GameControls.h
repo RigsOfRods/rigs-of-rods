@@ -80,10 +80,12 @@ private:
     Str<1000>        m_active_buffer;
     bool             m_interactive_keybinding_active = false;
     bool             m_interactive_keybinding_expl = true;
-    bool             m_interactive_keybinding_analog = false;
     bool             m_interactive_keybinding_delete_on_cancel = false;
     int              m_interactive_pov_number = -1;         //!< POV hat being pressed during interactive binding, -1 if none.
     std::map<int, float> m_interactive_pov_hold_times;      //!< OIS::Pov direction -> seconds held; longest one wins on release.
+    int              m_interactive_joyaxis_number = -1;      //!< Joystick axis that moved from <40% to >60% during interactive binding, -1 if none.
+    struct JoyAxisState { float val = 0.f; bool qualified = false; int which_half = 0; };
+    std::map<int, JoyAxisState> m_interactive_joyaxis_states; //!< OIS::JoyStickAxis index -> value (normalized to 0.0-1.0); used to detect actively moved one
 };
 
 } // namespace GUI

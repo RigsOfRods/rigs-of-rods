@@ -34,6 +34,12 @@
 using namespace RoR;
 using namespace GUI;
 
+// Converts OIS axis/slider value to -1..1 range
+static float NormalizeOisAxisValue(int ois_value)
+{
+    return (float)ois_value / (float)OIS::JoyStick::MAX_AXIS;
+}
+
 void GameControls::UpdateInteractiveKeybinding()
 {
     if (!m_interactive_keybinding_active)
@@ -60,41 +66,14 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(ev_description.c_str()).x) / 2);
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", ev_description.c_str());
 
+    ImGui::Separator();
     if (m_active_mapping_deviceid == InputEngine::DEFAULT_MAPFILE_DEVICEID)
     {
-        // Keyboard bindings; no analog devices applicable.
-        m_interactive_keybinding_analog = false;
-        ImGui::Separator();
         this->DrawInteractiveKeybindDigital();
     }
     else
     {
-        // Tabs (digital vs. analog)
-        // Visual choice: calculate+set paddings so that each tab takes exactly half of the window area!
-        // Since we have to choose in advance, accomodate the wider text width (imgui will compensate).
-        const float TAB_YPADDING = ImGui::GetStyle().FramePadding.y;
-        std::string tab_digital_label = _LC("GameControls", "Digital");
-        std::string tab_analog_label = _LC("GameControls", "Analog");
-        float tab_xlabel = std::min(ImGui::CalcTextSize(tab_digital_label.c_str()).x, ImGui::CalcTextSize(tab_analog_label.c_str()).x);
-        float tab_xpadding = (ImGui::GetContentRegionAvail().x/2 - (ImGui::GetStyle().ItemSpacing.x*2 + tab_xlabel))/2;
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(tab_xpadding, TAB_YPADDING));
-        ImGui::BeginTabBar("InputBindingType");
-
-        if (ImGui::BeginTabItem(tab_digital_label.c_str()))
-        {
-            m_interactive_keybinding_analog = false;
-            this->DrawInteractiveButtonBinding();
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem(tab_analog_label.c_str()))
-        {
-            m_interactive_keybinding_analog = true;
-            ImGui::EndTabItem();
-        }
-
-        ImGui::EndTabBar();
-        ImGui::PopStyleVar(); // FramePadding
+        this->DrawInteractiveButtonBinding();
     }
 
     ImGui::Separator();
@@ -201,8 +180,17 @@ static const char* PovDirectionToName(int pov_direction)
     }
 }
 
+static const char* JoyRegionToString(int region)
+{
+    if (region == 1) return "UPPER";
+    else if (region == -1) return "LOWER";
+    else return "";
+}
+
 void GameControls::DrawInteractiveButtonBinding()
 {
+    std::string keys_pressed = _LC("GameControls", "Press a button/hat or move axis ");
+
     // Check for pressed joystick buttons
     OIS::JoyStickState* joy_state = App::GetInputEngine()->getCurrentJoyState(m_active_mapping_deviceid);
     for (size_t i = 0; i < joy_state->mButtons.size(); ++i)
@@ -248,12 +236,37 @@ void GameControls::DrawInteractiveButtonBinding()
             this->ApplyChanges();
             return;
         }
+        keys_pressed = fmt::format(_LC("GameControls", "POV {} {} - release to confirm"), m_interactive_pov_number, PovDirectionToName(pov_direction));
+    }
+
+    // check for moved axes - bind to the first one that moves from <40% to >60% and back again.
+    if (m_interactive_joyaxis_number == -1)
+    {
+        int num_axes = (int)joy_state->mAxes.size();
+        for (int i=0; i<num_axes; i++)
+        {
+            const float cur_val = NormalizeOisAxisValue(joy_state->mAxes[i].abs);
+            const float cur_absval =  std::abs(cur_val);
+            JoyAxisState& state = m_interactive_joyaxis_states[i];
+            if (!state.qualified && cur_absval < 0.4f) {state.qualified=true; state.which_half = (cur_val > 0.f) ? 1 : -1; }
+            else if (state.qualified && cur_absval > 0.4f) { m_interactive_joyaxis_number=i; break; }
+        }
+    }
+    else
+    {
+        JoyAxisState& state = m_interactive_joyaxis_states[m_interactive_joyaxis_number];
+        keys_pressed = fmt::format(_LC("GameControls", "Axis {} {} - slide back to confirm."), m_interactive_joyaxis_number, JoyRegionToString(state.which_half));
+        const float cur_absval =  std::abs(NormalizeOisAxisValue(joy_state->mAxes[m_interactive_joyaxis_number].abs));
+        if (cur_absval < 0.4f)
+        {
+            m_selected_evtype = eventtypes::ET_JoystickAxisAbs;
+            m_active_buffer = fmt::format("{} {}", m_interactive_joyaxis_number, JoyRegionToString(state.which_half));
+            this->ApplyChanges();
+            return;
+        }
     }
 
     // Keys preview (aligned to center)
-    std::string keys_pressed = (m_interactive_pov_number != -1)
-        ? fmt::format(_LC("GameControls", "POV {} {} - release to confirm"), m_interactive_pov_number, PovDirectionToName(pov_direction))
-        : _LC("GameControls", "Press a button or POV hat");
     const float PREVIEW_YSPACING = 10.f;
     ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(keys_pressed.c_str()).x) / 2, PREVIEW_YSPACING));
     ImColor flashing_imcolor(m_flashing_color.r, m_flashing_color.g, m_flashing_color.b, m_flashing_color.a);
@@ -482,12 +495,6 @@ static ImVec2 DrawPreviewFrame(ImVec2 size, int index)
     drawlist->AddRect(top_left, bottom_right, PREVIEW_COLOR_BORDER);
     drawlist->AddText(top_left + ImVec2(2.f, 0.f), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), std::to_string(index).c_str());
     return top_left;
-}
-
-// Converts OIS axis/slider value to -1..1 range
-static float NormalizeOisAxisValue(int ois_value)
-{
-    return (float)ois_value / (float)OIS::JoyStick::MAX_AXIS;
 }
 
 // Draws a horizontal bar filled from the center towards the value (-1..1, clamped), with a center tick.
@@ -830,6 +837,8 @@ void GameControls::ApplyChanges()
     m_active_buffer.Clear();
     m_interactive_keybinding_active = false;
     m_interactive_pov_number = -1;
+    m_interactive_joyaxis_number = -1;
+    m_interactive_joyaxis_states.clear();
     m_unsaved_changes = true;
 }
 
