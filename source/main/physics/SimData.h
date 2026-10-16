@@ -926,9 +926,9 @@ enum ActorSimAttr
     ACTORSIMATTR_NONE,
 
     // TractionControl
-    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>
-    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.00005 - 1>
-    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT, //!< Minimum wheel slip threshold, safe value = 0.25
+    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>; Param #1 of 'tractioncontrol'
+    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT, //!< Minimum wheel slip threshold, safe value = 0.25; Param #2 of 'tractioncontrol'
+    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.00005 - 1>; Param #4 of 'tractioncontrol'
 
     // Engine
     ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM, //!< Automatic transmission - Param #1 of 'engine'
