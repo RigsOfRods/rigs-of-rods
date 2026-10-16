@@ -35,6 +35,9 @@
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <unistd.h> // readlink()
+    #ifdef __APPLE__
+        #include <mach-o/dyld.h> // _NSGetExecutablePath()
+    #endif
 #endif
 
 #include <OgrePlatform.h>
@@ -184,6 +187,25 @@ std::string GetUserHomeDirectory()
 
 std::string GetExecutablePath()
 {
+#ifdef __APPLE__
+    uint32_t size = 1;
+    char first_byte = 0;
+    if (_NSGetExecutablePath(&first_byte, &size) == 0)
+    {
+        return std::string(&first_byte);
+    }
+
+    std::string path(size, 0);
+    if (_NSGetExecutablePath(&path[0], &size) != 0)
+    {
+        RoR::LogFormat("[RoR] Internal error: GetExecutablePath() failed; _NSGetExecutablePath() requires %u bytes", size);
+        return std::string();
+    }
+
+    // dyld may return a symlink; keep its path without the terminating NUL.
+    path.resize(path.find('\0'));
+    return path;
+#else
     const int BUF_SIZE = 500;
     std::string buf_str(BUF_SIZE, 0);
     // Linux or POSIX assumed; http://stackoverflow.com/a/625523
@@ -194,6 +216,7 @@ std::string GetExecutablePath()
     }
 
     return std::move(buf_str);
+#endif
 }
 
 void OpenUrlInDefaultBrowser(std::string const& url)
