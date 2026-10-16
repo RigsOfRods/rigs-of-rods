@@ -68,6 +68,10 @@ if (NOT ROR_USE_PCH)
     endif ()
 endif ()
 
+# Invalidate prior profile handoff on every reconfigure, including profile OFF.
+file(REMOVE "${CMAKE_BINARY_DIR}/macos/Release/build.json"
+    "${CMAKE_BINARY_DIR}/macos/Release/inputs.json"
+    "${CMAKE_BINARY_DIR}/macos/Release/target-path.txt")
 if(ROR_MACOS_GL3_PROFILE)
     include(MacOSBuildProfile)
 endif()

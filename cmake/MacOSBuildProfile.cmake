@@ -1,5 +1,4 @@
 # Opt-in compile foundation. Dependency recipes and source pins live in ror-dependencies.
-file(REMOVE "${CMAKE_BINARY_DIR}/macos/Release/build.json" "${CMAKE_BINARY_DIR}/macos/Release/inputs.json")
 if(NOT APPLE OR NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_CROSSCOMPILING)
     message(FATAL_ERROR "ROR_MACOS_GL3_PROFILE requires a native macOS Apple Silicon host.")
 endif()
@@ -13,8 +12,14 @@ endif()
 if(NOT ROR_CREATE_CONTENT_FOLDER)
     message(FATAL_ERROR "ROR_MACOS_GL3_PROFILE requires -DROR_CREATE_CONTENT_FOLDER=ON for its pinned base content output.")
 endif()
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
+find_package(Python3 3.7 REQUIRED COMPONENTS Interpreter)
 set(ROR_MACOS_HELPER "${CMAKE_SOURCE_DIR}/scripts/macos/profile.py")
+get_filename_component(ROR_DEPENDENCY_DIR "${ROR_DEPENDENCY_DIR}" REALPATH)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${ROR_MACOS_HELPER}" "${CMAKE_SOURCE_DIR}/source/main/plugins-macos.cfg.in"
+    "${ROR_DEPENDENCY_DIR}/share/ror-dependencies/manifest.json"
+    "${ROR_DEPENDENCY_DIR}/share/ror-dependencies/build-receipt.json"
+    "${ROR_DEPENDENCY_DIR}/share/ror-dependencies/build-receipt.txt")
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${ROR_MACOS_HELPER}" preflight
     --prefix "${ROR_DEPENDENCY_DIR}" --sdk "${CMAKE_OSX_SYSROOT}"
     --deployment-target "${CMAKE_OSX_DEPLOYMENT_TARGET}"
@@ -22,7 +27,6 @@ execute_process(COMMAND "${Python3_EXECUTABLE}" "${ROR_MACOS_HELPER}" preflight
 if(NOT _ror_result EQUAL 0)
     message(FATAL_ERROR "macOS dependency contract: ${_ror_error}")
 endif()
-get_filename_component(ROR_DEPENDENCY_DIR "${ROR_DEPENDENCY_DIR}" REALPATH)
 set(CMAKE_PREFIX_PATH "${ROR_DEPENDENCY_DIR}")
 set(CMAKE_FIND_USE_PACKAGE_REGISTRY OFF)
 set(CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY OFF)
@@ -35,49 +39,7 @@ set(_ror_profile_features ROR_USE_OPENAL ROR_USE_ANGELSCRIPT ROR_USE_CURL
 list(APPEND ROR_REQUIRED_FEATURES ${_ror_profile_features})
 list(REMOVE_DUPLICATES ROR_REQUIRED_FEATURES)
 
-function(ror_macos_prefix_path path label)
-    if(NOT IS_ABSOLUTE "${path}" OR NOT EXISTS "${path}")
-        message(FATAL_ERROR "macOS profile: ${label} is missing or not absolute: '${path}'")
-    endif()
-    get_filename_component(real "${path}" REALPATH)
-    file(RELATIVE_PATH relative "${ROR_DEPENDENCY_DIR}" "${real}")
-    if(relative MATCHES "^\\.\\.(/|$)" OR IS_ABSOLUTE "${relative}")
-        message(FATAL_ERROR "macOS profile: ${label} escapes selected dependency prefix: '${real}'")
-    endif()
-    if(IS_DIRECTORY "${path}" AND path MATCHES "\\.framework$")
-        get_filename_component(framework_name "${path}" NAME_WE)
-        # FindMyGUI returns the framework directory. Check the selected image's
-        # own version symlinks as well as its enclosing directory.
-        ror_macos_prefix_path("${path}/${framework_name}" "${label}/framework image")
-    endif()
-endfunction()
-
-function(ror_macos_target target)
-    if(NOT TARGET ${target})
-        message(FATAL_ERROR "macOS profile requires dependency target ${target}")
-    endif()
-    get_target_property(includes ${target} INTERFACE_INCLUDE_DIRECTORIES)
-    foreach(path IN LISTS includes)
-        if(IS_ABSOLUTE "${path}")
-            ror_macos_prefix_path("${path}" "${target}/include")
-        endif()
-    endforeach()
-    foreach(property IMPORTED_LOCATION_RELEASE IMPORTED_LOCATION_NOCONFIG IMPORTED_LOCATION)
-        get_target_property(path ${target} ${property})
-        if(path)
-            ror_macos_prefix_path("${path}" "${target}/${property}")
-            return()
-        endif()
-    endforeach()
-    get_target_property(links ${target} INTERFACE_LINK_LIBRARIES)
-    foreach(path IN LISTS links)
-        if(IS_ABSOLUTE "${path}")
-            ror_macos_prefix_path("${path}" "${target}/library")
-            return()
-        endif()
-    endforeach()
-    message(FATAL_ERROR "macOS profile requires a concrete installed artifact for ${target}")
-endfunction()
+include(MacOSProfileArtifacts)
 
 function(ror_macos_build_handoff target)
     foreach(variable OPENAL_LIBRARY OPENAL_INCLUDE_DIR Caelum_LIBRARY Caelum_INCLUDE_DIR
@@ -90,13 +52,9 @@ function(ror_macos_build_handoff target)
             message(FATAL_ERROR "macOS profile requires selected ${variable} inside the prefix")
         endif()
     endforeach()
-    foreach(dependency MyGUI::MyGUI MyGUI::OgrePlatform ois::ois Caelum::Caelum PagedGeometry::PagedGeometry)
-        if(NOT TARGET ${dependency})
-            message(FATAL_ERROR "macOS profile requires dependency target ${dependency}")
-        endif()
-    endforeach()
     foreach(dependency OgreMain OgreBites OgreOverlay OgrePaging OgreRTShaderSystem OgreMeshLodGenerator OgreTerrain
-        fmt::fmt Angelscript::angelscript CURL::libcurl discord-rpc::discord-rpc SocketW::SocketW OpenSSL::SSL OpenSSL::Crypto)
+        fmt::fmt Angelscript::angelscript CURL::libcurl discord-rpc::discord-rpc SocketW::SocketW OpenSSL::SSL OpenSSL::Crypto
+        MyGUI::MyGUI MyGUI::OgrePlatform ois::ois Caelum::Caelum PagedGeometry::PagedGeometry)
         ror_macos_target(${dependency})
     endforeach()
     get_target_property(ogre_type OgreMain TYPE)

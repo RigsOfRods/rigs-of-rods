@@ -2,7 +2,7 @@
 
 This opt-in profile configures and compiles RoR using a prebuilt, clean
 `ror-dependencies` native-macos-gl3 prefix (dependency version 30). It supports
-native Apple Silicon, a single-configuration Ninja generator, and Release only.
+native Apple Silicon, a single-configuration generator, and Release only. Ninja is the qualified wrapper workflow.
 Debug, RelWithDebInfo, MinSizeRel, cross compilation and multi-configuration
 generators are rejected until their own dependencies and application are built
 and qualified.
@@ -11,12 +11,12 @@ The source stack requires the platform/OpenAL foundation (#3469), resource ZIP
 fixes (#3468), executable-relative plugin paths (#3470), and effective required
 feature gate (#3472). These are separate contributions; this profile does not
 assert that they have merged into upstream master. The reviewed dependency
-recipe is `3a4065cfa85981cad7dce382d915a9c5c6d5fe8c`; its source inventory,
+recipe is `d738cd79009362e70b654e14cc7bd1d9f8c311dc`; its source inventory,
 patches and build instructions belong to ror-dependencies. RoR does not duplicate
 dependency downloads or per-library pins. Revalidate the combined stack after
 rebasing or changing the recipe.
 
-Install CMake (3.16 or later), Ninja, Python 3, Git and an Apple command line
+Install CMake (3.16 or later), Ninja, Python 3.7 or later, Git and an Apple command line
 toolchain. Build the dependency recipe first and retain its installed
 `version.cmake`, `share/ror-dependencies/manifest.json` and
 `share/ror-dependencies/build-receipt.txt` and successful schema 1
@@ -74,8 +74,14 @@ their build/bundle cfg entries. OGRE plugin versions come from canonical install
 files; Caelum has linked and plugin roles with one Frameworks destination.
 
 `build.json` references `source/version_info/package-version.json` from the
-separate version metadata contribution. That contribution must be integrated and
+version metadata contribution [#3473](https://github.com/RigsOfRods/rigs-of-rods/pull/3473). That contribution must be integrated and
 built before packaging; an absent version file does not imply package readiness.
+Selected imported Release paths use CMake’s configuration mapping; all selected
+absolute interface paths and target references are checked. The existing MyGUI
+Debug/Release expressions and LINK_ONLY target references are supported. Unknown
+expressions, bare library names and alternate link mechanisms fail explicitly.
+The profile handoff is invalidated on every reconfigure, including profile OFF;
+serializer/template/dependency metadata changes trigger reconfiguration.
 Local manifest paths are build inputs and must not be redistributed unchanged.
 Future packaging must follow linked Mach-O dependencies and render the recorded
 bundle-relative plugin cfg. It must also include font notices (#3471), dependency

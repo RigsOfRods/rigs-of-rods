@@ -9,6 +9,9 @@ import re
 import subprocess
 import sys
 
+if sys.version_info < (3, 7):
+    sys.exit("The native macOS build profile requires Python 3.7 or later")
+
 
 def run(*args):
     return subprocess.check_output(args, text=True).strip()
@@ -30,8 +33,10 @@ def contract(prefix, sdk, deployment):
     if not (prefix / 'version.cmake').is_file():
         raise ValueError('missing version.cmake; build the native ror-dependencies profile first')
     metadata = prefix / 'share/ror-dependencies'
-    manifest = json.loads(inside(metadata / 'manifest.json', prefix).read_text())
     completed = json.loads(inside(metadata / 'build-receipt.json', prefix).read_text())
+    if completed.get('schema_version') != 1 or completed.get('state') != 'complete':
+        raise ValueError('prefix requires a schema 1 successful build receipt; wait for dependency installation to complete')
+    manifest = json.loads(inside(metadata / 'manifest.json', prefix).read_text())
     receipt = dict(line.split(': ', 1) for line in
                    inside(metadata / 'build-receipt.txt', prefix).read_text().splitlines())
     if (manifest.get('profile') != 'native-macos-gl3' or

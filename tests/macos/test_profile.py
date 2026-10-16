@@ -21,6 +21,19 @@ spec.loader.exec_module(profile)
 
 
 class Controls(unittest.TestCase):
+    def test_selected_imported_artifacts(self):
+        with tempfile.TemporaryDirectory(prefix='ror target controls ') as temporary:
+            for case in ('valid', 'mapped-outside', 'later-interface', 'physical-interface', 'nested-target', 'unsupported-expression'):
+                build = Path(temporary) / case
+                result = subprocess.run(['cmake', '-S', str(SOURCE / 'tests/macos/artifacts'),
+                                         '-B', str(build), '-DCASE=' + case], capture_output=True, text=True)
+                self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+                if case == 'valid':
+                    self.assertEqual(Path((build / 'selected.txt').read_text()), (build / 'prefix/inside.dylib').resolve())
+                else:
+                    self.assertIn('unsupported selected' if case == 'unsupported-expression'
+                                  else 'escapes selected dependency prefix', ' '.join((result.stdout + result.stderr).split()))
+
     def test_wrapper_arguments(self):
         for args in ([], ['--jobs'], ['--unknown'],
                      ['--deps-prefix', '/missing', '--build-dir', '/unused', '--config', 'Debug', '--jobs', '3'],
@@ -94,11 +107,17 @@ class PrefixControls(unittest.TestCase):
                 result = subprocess.run(args, capture_output=True, text=True)
                 self.assertEqual(result.returncode == 0, success, result.stdout + result.stderr)
                 if diagnostic:
-                    self.assertIn(diagnostic, result.stdout + result.stderr)
+                    self.assertIn(diagnostic, ' '.join((result.stdout + result.stderr).split()))
                 if not success:
                     self.assertFalse((build / 'macos/Release/build.json').exists())
                 return build
             build = configure('valid build with spaces', success=True)
+            dependencies = subprocess.check_output(['ninja', '-C', str(build), '-t', 'query', 'build.ninja'], text=True)
+            for dependency in (SOURCE / 'scripts/macos/profile.py', SOURCE / 'source/main/plugins-macos.cfg.in',
+                               copied / 'share/ror-dependencies/manifest.json',
+                               copied / 'share/ror-dependencies/build-receipt.json',
+                               copied / 'share/ror-dependencies/build-receipt.txt'):
+                self.assertIn(str(dependency.resolve()), dependencies)
             profile.finalize(build)
             data = json.loads((build / 'macos/Release/build.json').read_text())
             self.assertEqual(len(data['plugins']), 5)
@@ -110,6 +129,13 @@ class PrefixControls(unittest.TestCase):
                             plugin['bundle_cfg_entry'][len('Plugin='):]).resolve()
                 self.assertEqual(resolved, (root / 'App.app' / plugin['destination']).resolve())
                 self.assertEqual(str(Path(plugin['source']).resolve()), plugin['source'])
+            configure('valid build with spaces', '-DROR_MACOS_GL3_PROFILE=OFF', success=True)
+            for name in ('build.json', 'inputs.json', 'target-path.txt'):
+                self.assertFalse((build / 'macos/Release' / name).exists(), name)
+            # Re-enable once to establish a fresh handoff before the failed-config control.
+            configure('valid build with spaces', success=True)
+            self.assertFalse((build / 'bin/plugins_d.cfg').exists())
+            profile.finalize(build)
             # Rejected reconfiguration must invalidate an earlier good handoff.
             configure('valid build with spaces', '-DCMAKE_BUILD_TYPE=Debug', diagnostic='Release only')
             configure('debug', '-DCMAKE_BUILD_TYPE=Debug', diagnostic='Release only')
