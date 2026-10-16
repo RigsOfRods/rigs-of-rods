@@ -28,7 +28,7 @@ class RoR(ConanFile):
         self.requires("rapidjson/cci.20211112", force=True)
         self.requires("socketw/3.11.0@anotherfoxguy/stable")
 
-        self.requires("jasper/4.2.4", override=True)
+        self.requires("jasper/4.2.9", override=True)
         self.requires("libpng/1.6.58", override=True)
         self.requires("libwebp/1.6.0", override=True)
         self.requires("zlib/1.3.2", override=True)
