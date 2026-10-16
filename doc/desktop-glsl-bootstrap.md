@@ -32,6 +32,16 @@ ImGui uploads its projection and binds both program parameter sets before its
 manual draws; wallpaper uses OGRE's automatic WORLDVIEWPROJ during overlay draws.
 Neither changes the existing vertex layout or coordinate and input behavior.
 
+RTSS ownership begins only after `ShaderGenerator::initialize()` returns
+successfully. The pinned OGRE 1.11 implementation has unsafe teardown for some
+partially initialized states. If initialization throws, its original exception
+ends startup and the partial singleton is abandoned for the process lifetime;
+it is never captured or destroyed by this owner. There is no fallback or
+in-process retry. A false initialization result also aborts startup. Release
+main reports Ogre/runtime exceptions and returns failure; other uncaught
+exceptions terminate the process. Cleanup of all exception categories is not
+guaranteed. A future in-process recovery path requires a dependency repair.
+
 The scoped RTSS owner must outlive any native callback owner, and must be
 cleaned up while Root, MaterialManager, its scene manager and viewport are still
 alive. Future global application teardown must preserve that order. Shader

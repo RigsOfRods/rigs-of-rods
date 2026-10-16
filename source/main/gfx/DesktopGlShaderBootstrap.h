@@ -24,7 +24,7 @@ public:
 
     ~DesktopGlShaderBootstrap() noexcept
     {
-        // Each step is independent so unwinding can never throw past main.
+        // Cleanup of successfully acquired objects must not throw during unwinding.
         if (m_viewport)
         {
             try { m_viewport->setMaterialScheme(m_previous_scheme); } catch (...) {}
@@ -84,20 +84,14 @@ public:
                     + "; install the matching OGRE RTShaderLib/GLSL files at " + resource_path);
         }
 
-        // OGRE 1.11 can leave its newly allocated singleton if initialize throws.
-        // The preexisting-singleton check above makes even that partial state ours.
-        try
-        {
-            const bool initialized = Ogre::RTShader::ShaderGenerator::initialize();
-            m_generator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-            if (!initialized)
-                throw std::runtime_error("Desktop GLSL RTShaderSystem initialization failed.");
-        }
-        catch (...)
-        {
-            m_generator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-            throw;
-        }
+        // Acquire ownership only after successful initialization. Pinned OGRE
+        // 1.11 leaves mResourceGroupListener indeterminate on some failure paths;
+        // destroy() is unsafe for a singleton left behind by a thrown initialize().
+        // Let the original exception abort startup. That partial state is abandoned
+        // for the process lifetime: no fallback, in-process retry or teardown of it.
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+            throw std::runtime_error("Desktop GLSL RTShaderSystem initialization failed; startup cannot continue.");
+        m_generator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
         m_generator->setTargetLanguage("glsl");
         m_listener.reset(new OgreBites::SGTechniqueResolverListener(m_generator));
         Ogre::MaterialManager::getSingleton().addListener(m_listener.get());

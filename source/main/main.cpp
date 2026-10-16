@@ -2287,11 +2287,13 @@ int main(int argc, char *argv[])
     {
         LOG(e.getFullDescription());
         ErrorUtils::ShowError(_L("An exception has occured!"), e.getFullDescription());
+        return 1; // Fatal startup/rendering error; do not resume the application.
     }
     catch (std::runtime_error& e)
     {
         LOG(e.what());
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
+        return 1; // Fatal startup/rendering error; do not resume the application.
     }
 #endif
 
