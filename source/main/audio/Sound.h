@@ -25,11 +25,7 @@
 #include "Application.h"
 #include "RefCountingObject.h"
 
-#ifdef __APPLE__
-#   include <OpenAL/al.h>
-#else
-#   include <AL/al.h>
-#endif // __APPLE__
+#include <AL/al.h>
 
 namespace RoR {
 

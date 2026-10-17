@@ -242,6 +242,13 @@ bool AppContext::SetUpRendering()
         Ogre::ConfigFile cfg;
         cfg.load(plugins_path);
         std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->getStr());
+#ifdef __APPLE__
+        // Bundle plugin paths are relative to the executable, not the working directory.
+        if (!plugin_dir.empty() && plugin_dir.front() != '/')
+        {
+            plugin_dir = PathCombine(App::sys_process_dir->getStr(), plugin_dir);
+        }
+#endif
         Ogre::StringVector plugins = cfg.getMultiSetting("Plugin");
         for (Ogre::String plugin_filename: plugins)
         {
@@ -321,6 +328,12 @@ bool AppContext::SetUpRendering()
     miscParams["FSAA"] = ropts["FSAA"].currentValue;
     miscParams["vsync"] = ropts["VSync"].currentValue;
     miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
+    // Manual window creation bypasses OGRE's automatic option forwarding.
+    const auto scaling_option = ropts.find("Content Scaling Factor");
+    if (scaling_option != ropts.end())
+    {
+        miscParams["contentScalingFactor"] = scaling_option->second.currentValue;
+    }
     if (!App::diag_allow_window_resize->getBool())
     {
     miscParams["border"] = "fixed";

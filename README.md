@@ -36,6 +36,7 @@ Ready to drive? Grab the latest version from the **[Rigs of Rods website](https:
 Read the official guide for compilation instructions on every supported platform.
 
 For detailed instructions on compiling from source, see the **[Guide to building Rigs of Rods](https://github.com/RigsOfRods/rigs-of-rods/wiki)** for Windows and Linux.
+For the native Apple Silicon Release profile, see [macOS build instructions](doc/macOS-build.md).
 
 ## Join the community
 

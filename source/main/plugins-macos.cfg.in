@@ -1,0 +1,7 @@
+# Developer build paths. Bundle installation supplies its own relative config.
+PluginFolder=@PLUGINS_FOLDER@
+Plugin=RenderSystem_GL3Plus
+Plugin=Codec_STBI
+Plugin=Plugin_ParticleFX
+Plugin=Plugin_OctreeSceneManager
+Plugin=@PLUGIN_CAELUM@
