@@ -33,17 +33,10 @@
 #include <OgreVector3.h>
 #include <OgreString.h>
 
-#ifdef __APPLE__
-  #include <OpenAL/al.h>
-  #include <OpenAL/alc.h>
-  #include <OpenAL/alext.h>
-  #include <OpenAL/efx-presets.h>
-#else
-  #include <AL/al.h>
-  #include <AL/alc.h>
-  #include <AL/alext.h>
-  #include <AL/efx-presets.h>
-#endif // __APPLE__
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+#include <AL/efx-presets.h>
 
 namespace RoR {
 
