@@ -175,6 +175,19 @@ void ShadowManager::updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM
     }
 }
 
+void ShadowManager::updateTerrainMaterial(Ogre::TerrainMaterialGeneratorA::SM2Profile* matProfile)
+{
+    if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
+    {
+        Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
+        matProfile->setReceiveDynamicShadowsDepth(true);
+        matProfile->setReceiveDynamicShadowsLowLod(false);
+        matProfile->setReceiveDynamicShadowsEnabled(true);
+        matProfile->setReceiveDynamicShadowsPSSM(pssmSetup);
+        matProfile->setLightmapEnabled(false);
+    }
+}
+
 void ShadowManager::setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList)
 {
     Ogre::Vector4 splitPoints;

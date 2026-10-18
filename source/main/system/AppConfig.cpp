@@ -96,8 +96,16 @@ IoInputGrabMode ParseIoInputGrabMode(std::string const & s)
 
 GfxShadowType ParseGfxShadowType(std::string const & s)
 {
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    (void)s;
+    // PSSM is not usable on macOS: OGRE's PSSM terrain generator has no
+    // GLSL shader implementation. Ignore stale config values and force the
+    // safe renderer path.
+    return GfxShadowType::NONE;
+#else
     if (s == CONF_GFX_SHADOW_PSSM)    { return GfxShadowType::PSSM    ; }
     else                              { return GfxShadowType::NONE    ; }
+#endif
 }
 
 GfxExtCamMode ParseGfxExtCamMode(std::string const & s)
@@ -158,10 +166,17 @@ GfxWaterMode ParseGfxWaterMode(std::string const & s)
 
 GfxSkyMode ParseGfxSkyMode(std::string const & s)
 {
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    (void)s;
+    // Caelum is not shipped on Apple Silicon (its recipe pulls in NVIDIA's
+    // x86-only Cg libraries). SkyX is the only supported sky backend here.
+    return GfxSkyMode::SKYX;
+#else
     if (s == CONF_SKY_SANDSTORM)      { return GfxSkyMode::SANDSTORM ; }
     if (s == CONF_SKY_CAELUM   )      { return GfxSkyMode::CAELUM    ; }
     if (s == CONF_SKY_SKYX     )      { return GfxSkyMode::SKYX      ; }
     else                              { return GfxSkyMode::SANDSTORM ; }
+#endif
 }
 
 EfxReverbEngine ParseEfxReverbEngine(std::string const & s)
