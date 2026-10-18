@@ -1,0 +1,11 @@
+--- Samples/CMakeLists.txt
++++ Samples/CMakeLists.txt
+@@ -108,7 +108,7 @@
+ install(FILES ${SAMPLE_COMMON_HEADERS}
+ 		DESTINATION include/OGRE)
+ 		
+-if (MSVC)
++if (_NOT_USED)
+   find_package(Wix)
+   if (Wix_FOUND)
+     # Create WiX setup for demo build

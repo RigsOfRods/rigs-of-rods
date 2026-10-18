@@ -26,11 +26,12 @@ dependencies-*.zip
 _build
 0_build
 build/
+build-local/
+.deps/
 libangelscript_addons*.a
 .idea
 cmake-build-*/
 /.vs
-build/
 tools/l10n/tx/
 tools/l10n/languages/
 tools/l10n/ror\.pot
@@ -41,3 +42,4 @@ tmp
 Stamp
 *.tar.gz
 *.zip
+.DS_Store

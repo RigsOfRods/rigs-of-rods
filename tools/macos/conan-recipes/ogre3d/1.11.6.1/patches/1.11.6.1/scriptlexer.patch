@@ -1,0 +1,11 @@
+--- OgreMain/src/OgreScriptLexer.cpp
++++ OgreMain/src/OgreScriptLexer.cpp
+@@ -79,7 +79,7 @@ namespace Ogre {
+                         error = StringUtil::format(
+                             "no matching open bracket '{' found for close bracket '}' at %s:%d", source,
+                             line);
+-                        return tokens;
++                        braceLayer = 1;
+                     }
+ 
+                     braceLayer --;

@@ -1,0 +1,10 @@
+sources:
+  "1.11.6.1":
+    url: "https://github.com/AnotherFoxGuy/ogre/archive/refs/tags/1.11.6.1.tar.gz"
+    sha256: "31c84051ffe9a3710c553cfa27ebda7b176c9dfe3b4d2a113d4f02caf48ecd5b"
+patches:
+  "1.11.6.1":
+    - patch_file: "patches/1.11.6.1/FixFreeImage.patch"
+    - patch_file: "patches/1.11.6.1/FixSamples.patch"
+    - patch_file: "patches/1.11.6.1/FixOverlay.patch"
+    - patch_file: "patches/1.11.6.1/scriptlexer.patch"

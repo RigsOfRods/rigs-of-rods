@@ -1,0 +1,21 @@
+sources:
+  "3.18.0":
+    url: "https://codeload.github.com/MonoGame/MonoGame.Mirror.FreeImage/zip/refs/tags/3.18.0"
+    sha256: "2ea4d07c0c88896d2f208a5e3648c026517894820465402698fea40bd7802b51"
+patches:
+  "3.18.0":
+    - patch_file: "patches/001_disable-plugins-depending-on-internal-third-party-libraries.patch"
+    - patch_file: "patches/002_fix-function-overload.patch"
+    - patch_file: "patches/003_use-external-jpeg.patch"
+    - patch_file: "patches/004_use-external-jxrlib.patch"
+    - patch_file: "patches/005_use-external-libtiff.patch"
+    - patch_file: "patches/006_use-external-openexr.patch"
+    - patch_file: "patches/007_use-external-openjpeg.patch"
+    - patch_file: "patches/008_use-external-png-zlib.patch"
+    - patch_file: "patches/009_use-external-rawlib.patch"
+    - patch_file: "patches/010_use-external-webp.patch"
+    - patch_file: "patches/011_update-libraw-support.patch"
+    - patch_file: "patches/012_use-functions-to-override-libtiff-warning-error-handlers.patch"
+    - patch_file: "patches/013_use-typedef-as-already-declared.patch"
+    - patch_file: "patches/014_no_auto_ptr.patch"
+    - patch_file: "patches/015_fix_msvc_cpp_20.patch"

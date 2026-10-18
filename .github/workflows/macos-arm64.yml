@@ -1,0 +1,73 @@
+name: macOS arm64 Build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Package (arm64)
+    runs-on: macos-14
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system build tools
+        run: |
+          brew install cmake ninja dylibbundler
+
+      - name: Install Conan 2
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "conan>=2.0,<3"
+          conan --version
+
+      # tools/macos/build.sh owns the whole build:
+      #   1. builds + installs AngelScript from the pinned commit
+      #   2. seeds the Conan cache with the bundled, patched dependency
+      #      recipes (tools/macos/conan-recipes/*)
+      #   3. ensures the Conan profile carries the SDK path, legacy libc++
+      #      compatibility flags and Ogre CMake options this port needs
+      #   4. configures + builds Rigs of Rods
+      #   5. packages + ad-hoc signs RigsOfRods.app via tools/macos/bundle.sh
+      - name: Build & Bundle (reproducible macOS port)
+        shell: bash
+        run: |
+          tools/macos/build.sh build-local
+
+      # upload-artifact does not preserve symlinks: dylib/framework version
+      # links come out as full copies (~2x size) and the extracted bundle
+      # has ambiguous framework layouts. Zip the bundle ourselves with
+      # ditto, which preserves symlinks, resource forks and xattrs.
+      - name: Package App Bundle (symlink-preserving zip)
+        shell: bash
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            build-local/RigsOfRods.app RigsOfRods-macOS-arm64.zip
+          ls -lh RigsOfRods-macOS-arm64.zip
+
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: RigsOfRods-macOS-arm64
+          path: RigsOfRods-macOS-arm64.zip
+          compression-level: 0
+          if-no-files-found: error
