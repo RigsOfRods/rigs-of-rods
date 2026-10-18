@@ -58,6 +58,9 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "Utils.h"
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#include "MacOS.h"
+#endif
 #include <Overlay/OgreOverlaySystem.h>
 #include <ctime>
 #include <iomanip>
@@ -333,7 +336,15 @@ int main(int argc, char *argv[])
         while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN)
         {
             App::GetAppContext()->PrepareProfiler();
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+            RoR::MacOS::PumpEvents();
+            if (RoR::MacOS::ConsumeQuitRequest())
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
+            }
+#else
             OgreBites::WindowEventUtilities::messagePump();
+#endif
 
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)

@@ -35,6 +35,9 @@
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <unistd.h> // readlink()
+    #ifdef __APPLE__
+        #include <mach-o/dyld.h>
+    #endif
 #endif
 
 #include <OgrePlatform.h>
@@ -186,19 +189,33 @@ std::string GetExecutablePath()
 {
     const int BUF_SIZE = 500;
     std::string buf_str(BUF_SIZE, 0);
+#ifdef __APPLE__
+    uint32_t size = BUF_SIZE;
+    if (_NSGetExecutablePath(&buf_str[0], &size) != 0)
+    {
+        RoR::Log("[RoR] Internal error: GetExecutablePath() failed; _NSGetExecutablePath buffer too small");
+        return std::string();
+    }
+    buf_str.resize(strlen(buf_str.c_str()));
+    return buf_str;
+#else
     // Linux or POSIX assumed; http://stackoverflow.com/a/625523
     if (readlink("/proc/self/exe", &buf_str[0], BUF_SIZE-1) == -1)
     {
         RoR::LogFormat("[RoR] Internal error: GetExecutablePath() failed; readlink() sets errno to %d", static_cast<int>(errno));
         return std::string();
     }
-
-    return std::move(buf_str);
+    return buf_str;
+#endif
 }
 
 void OpenUrlInDefaultBrowser(std::string const& url)
 {
+#ifdef __APPLE__
+    std::string buf = "open " + url;
+#else
     std::string buf = "xdg-open " + url;
+#endif
     ::system(buf.c_str());
 }
 

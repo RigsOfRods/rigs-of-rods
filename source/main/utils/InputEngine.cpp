@@ -396,10 +396,6 @@ InputEvent eventInfo[] = {
     {"", -1, "", ""},
 };
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-#define strnlen(str,len) strlen(str)
-#endif
-
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
@@ -489,6 +485,8 @@ void InputEngine::setup()
         pl.insert(OIS::ParamList::value_type("XAutoRepeatOn", "false"));
         pl.insert(OIS::ParamList::value_type("x11_mouse_grab", "false"));
         pl.insert(OIS::ParamList::value_type("x11_keyboard_grab", "false"));
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        pl.insert(OIS::ParamList::value_type("MacAutoRepeatOn", "false"));
 #else
         pl.insert(OIS::ParamList::value_type("w32_mouse", "DISCL_FOREGROUND"));
         pl.insert(OIS::ParamList::value_type("w32_mouse", "DISCL_NONEXCLUSIVE"));
