@@ -331,6 +331,14 @@ include(SourceFileUtils)
 # Expand file extensions (i.e. path/to/file.{h,cpp} becomes path/to/file.h;path/to/file.cpp)
 expand_file_extensions(SOURCE_FILES ${SOURCE_FILES})
 
+if (APPLE)
+    list(APPEND SOURCE_FILES MacOS.h MacOS.mm)
+    set_source_files_properties(MacOS.mm PROPERTIES
+        COMPILE_FLAGS "-fno-objc-arc"
+        SKIP_PRECOMPILE_HEADERS ON
+    )
+endif ()
+
 # Generate source groups for use in IDEs
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 
@@ -468,6 +476,8 @@ target_include_directories(${BINNAME} PRIVATE
 
 if (WIN32)
     set(OS_LIBS "Ws2_32")
+elseif (APPLE)
+    set(OS_LIBS "-framework Cocoa -framework IOKit -framework AppKit")
 else ()
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
@@ -543,11 +553,22 @@ if (NOT WIN32)
     set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
 endif ()
 
+# NVIDIA's Cg program manager is not built for Apple Silicon; OpenGL uses
+# GLSL shaders there, so don't ask OGRE to load the optional Cg plugin.
+if (APPLE)
+    set(CFG_COMMENT_PLUGIN_CG "# ")
+endif ()
+
 if (WIN32)
     set(CFG_COMMENT_RENDERSYSTEM_GL "# ")
 endif ()
 
 set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
+# macOS uses the legacy OpenGL renderer because the shipped SkyX/material
+# shaders are GLSL 1.20. TerrainGeometryManager selects OGRE's GLSL-capable
+# TerrainMaterialGeneratorA on this renderer instead of the Cg-only PSSM
+# generator. GL3+ is also handled defensively in that selector, but it is not
+# the default plugin here.
 set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
 if (DEFINED OGRE_PLUGIN_DIR AND NOT WIN32)
