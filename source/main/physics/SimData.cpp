@@ -134,6 +134,7 @@ const char* RoR::ActorSimAttrToString(ActorSimAttr attr)
     case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE:        return "ENGOPTION_MAX_IDLE_MIXTURE";    
     case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE:        return "ENGOPTION_MIN_IDLE_MIXTURE";    
     case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:          return "ENGOPTION_BRAKING_TORQUE";      
+    case ACTORSIMATTR_ENGOPTION_AIR_INTAKE_NODE:         return "ENGOPTION_AIR_INTAKE_NODE";
 
     // Engturbo2 (actually 'engturbo' with type=2) 
     case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:          return "ENGTURBO2_INERTIA_FACTOR";      
@@ -160,6 +161,7 @@ const char* RoR::ActorSimAttrToString(ActorSimAttr attr)
 
     // Screwprops
     case ACTORSIMATTR_SCREWPROP_MAX_POWER:               return "SCREWPROP_MAX_POWER";
+    case ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE:         return "SCREWPROP_AIR_INTAKE_NODE";
 
     default: return "";
     }

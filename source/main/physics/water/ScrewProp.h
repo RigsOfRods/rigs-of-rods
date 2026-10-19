@@ -54,6 +54,8 @@ public:
     NodeNum_t   GetRefNode()   const { return noderef; };
     NodeNum_t   GetBackNode()  const { return nodeback; };
     NodeNum_t   GetUpNode()    const { return nodeup; };
+    NodeNum_t   GetAirIntakeNode() const { return m_air_intake_node; }
+    void        SetAirIntakeNode(NodeNum_t n) { m_air_intake_node = n; }
 
 private:
 
@@ -68,6 +70,7 @@ private:
     NodeNum_t nodeback;
     NodeNum_t noderef;
     NodeNum_t nodeup;
+    NodeNum_t m_air_intake_node = NODENUM_INVALID; //!< Node number of the engine air intake (if any) - disabled by default (classic behavior) but can be set by ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE
 };
 
 /// @} // addtogroup Marine
