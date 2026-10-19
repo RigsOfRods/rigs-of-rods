@@ -33,6 +33,7 @@
 
 #include <MyGUI.h>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -263,6 +264,7 @@ public:
     void setVisible3d(bool visibility);
     bool getVisible() { return visible; };
     void windowResized();
+    void applyUiScale(); //!< Reads cvar 'ui_scale_factor'; only affects screen dashboards (not RTT)
     size_t getInputCount() { return data.size(); }
     int getNumLoadedRTTDashboards() const { return loadedRTTDashboards; }
 protected:
@@ -296,10 +298,24 @@ public:
     void updateFeatures();
 
     void windowResized();
+    void applyUiScale(); //!< Reads cvar 'ui_scale_factor'; only affects screen dashboards (not RTT)
 
     float getSmoothNumeric(int linkID, float& lastVal);
 
 protected:
+    struct WidgetOrigin
+    {
+        MyGUI::IntCoord coord;
+        int font_height = 0; //!< Only for TextBox widgets
+    };
+
+    void snapshotWidgetOriginsRecursive(MyGUI::Widget* parent);
+    void applyUiScaleRecursive(MyGUI::Widget* parent, MyGUI::IntSize parent_orig_size, MyGUI::IntSize parent_new_size);
+
+    std::map<MyGUI::Widget*, WidgetOrigin> m_widget_origins; //!< Unscaled coords as loaded from layout; empty for RTT dashboards.
+    MyGUI::IntSize m_main_origin_size; //!< Size of `mainWidget` when `m_widget_origins` were recorded.
+    float m_ui_scale = 1.f; //!< Also applies to pixel values of 'scale' and 'translate' animations.
+
     DashBoardManager* manager{nullptr};
     Ogre::String filename;
     MyGUI::VectorWidgetPtr widgets;

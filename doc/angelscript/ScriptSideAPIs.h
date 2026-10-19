@@ -40,6 +40,9 @@ namespace Script2Script {}
 
 /// @defgroup Server2Script Server-to-script
 /// ^AngelScript^ Documents script functions (callbacks) invoked by the server.
+/// You can register them either by using a global function of the same name or by manually invoking [`server.setCallback()`](@ref Script2Server::ServerScriptClass::setCallback).
+/// Note that some callbacks allow multiple handler functions ([`server.setCallback()`](@ref Script2Server::ServerScriptClass::setCallback) adds another) 
+/// while other can only have a single handler function ([`server.setCallback()`](@ref Script2Server::ServerScriptClass::setCallback) replaces the previous). 
 /// @{
 
 /// @brief Pseudo-namespace; it doesn't exist in code or script runtime, only in this documentation.

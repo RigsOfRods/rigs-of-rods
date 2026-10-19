@@ -37,7 +37,7 @@ using namespace GUI;
 void GameSettings::Draw()
 {
     const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-    ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(ImGui::GetFontSize() * 41.875f, ImGui::GetFontSize() * 25.f), ImGuiCond_FirstUseEver);
     if (m_bump_height != 0)
     {
         ImGui::SetNextWindowSize(m_window_size + ImVec2(0, m_bump_height));
@@ -371,6 +371,8 @@ void GameSettings::DrawUiSettings()
     this->DrawUiDefaultDashboard(m_ui_known_dash_truck, App::ui_default_truck_dash, CID_DashboardsTruck, _LC("GameSettings", "Default truck dashboard"));
     this->DrawUiDefaultDashboard(m_ui_known_dash_boat, App::ui_default_boat_dash, CID_DashboardsBoat, _LC("GameSettings", "Default boat dashboard"));
 
+    this->DrawUiScaleSlider();
+
     DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
 
     DrawGCheckbox(App::ui_dashboard_cinecam, _LC("GameSettings", "Hide dashboard in cinecam view"));
@@ -380,7 +382,6 @@ void GameSettings::DrawUiSettings()
     DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
 
     DrawGCheckbox(App::ui_always_show_fullsize, _LC("GameSettings", "Always show full size help image"));
-
 
     DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
     if (App::gfx_surveymap_icons->getBool())
@@ -446,7 +447,7 @@ void GameSettings::DrawGraphicsSettings()
     DrawGCheckbox(App::gfx_envmap_enabled,   _LC("GameSettings", "Realtime reflections"));
     if (App::gfx_envmap_enabled->getBool())
     {
-        ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 7.8125f); // Width includes [+/-] buttons
         DrawGIntSlider(App::gfx_envmap_rate, _LC("GameSettings", "Realtime refl. update rate"), 0, 2);
         ImGui::PopItemWidth();
     }
@@ -523,7 +524,7 @@ void GameSettings::DrawControlSettings()
     DrawGCheckbox(App::io_ffb_enabled, _LC("GameSettings", "Enable ForceFeedback"));
     if (App::io_ffb_enabled->getBool())
     {
-        ImGui::PushItemWidth(125.f);
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 7.8125f);
         DrawGFloatBox(App::io_ffb_camera_gain, _LC("GameSettings", "FFB camera gain"));
         DrawGFloatBox(App::io_ffb_center_gain, _LC("GameSettings", "FFB center gain"));
         DrawGFloatBox(App::io_ffb_master_gain, _LC("GameSettings", "FFB master gain"));
@@ -535,7 +536,7 @@ void GameSettings::DrawControlSettings()
     if (App::io_outgauge_mode->getBool())
     {
         DrawGTextEdit(App::io_outgauge_ip, _LC("GameSettings", "OutGauge IP"), m_buf_io_outgauge_ip);
-        ImGui::PushItemWidth(125.f);
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 7.8125f);
         DrawGIntBox(App::io_outgauge_port,    _LC("GameSettings", "OutGauge port"));
         DrawGIntBox(App::io_outgauge_id,      _LC("GameSettings", "OutGauge ID"));
         DrawGFloatBox(App::io_outgauge_delay, _LC("GameSettings", "OutGauge delay"));
@@ -550,6 +551,9 @@ void GameSettings::SetVisible(bool v)
     {
         App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
+
+    // Initialize temp values
+    m_ui_scale_slider_temp = App::ui_scale_factor->getFloat();
 
     // Pre-format combobox strings.
     if (m_combo_items_gearbox_mode == "")
@@ -654,7 +658,7 @@ void GameSettings::DrawUiPresetCombo()
 {
     ImGui::PushID("uiPreset");
 
-    ImGui::SetNextItemWidth(UI_SELECTOR_WIDTH);
+    ImGui::SetNextItemWidth(UI_SELECTOR_WIDTH * ImGui::GetFontSize());
     if (DrawGCombo(App::ui_preset, _LC("TopMenubar", "UI Preset"), m_cached_uipreset_combo_string.c_str()))
     {
         App::GetGuiManager()->ApplyUiPreset();
@@ -663,8 +667,8 @@ void GameSettings::DrawUiPresetCombo()
     if (ImGui::IsItemHovered())
     {
         ImGui::BeginTooltip();
-        const float COLLUMNWIDTH_NAME = 175.f;
-        const float COLLUMNWIDTH_VALUE = 60.f;
+        const float COLLUMNWIDTH_NAME = ImGui::GetFontSize() * 10.9375f;
+        const float COLLUMNWIDTH_VALUE = ImGui::GetFontSize() * 3.75f;
         // Hack to make space for the table (doesn't autoresize)
         ImGui::Dummy(ImVec2(COLLUMNWIDTH_NAME + COLLUMNWIDTH_VALUE*((int)UiPreset::Count), 1.f));
 
@@ -719,7 +723,7 @@ void GameSettings::DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, Cach
 
     ImGui::AlignTextToFramePadding();
     std::string caption = fmt::format("{}##truck_dash", entry ? entry->dname : cvar->getStr());
-    if (ImGui::Button(caption.c_str(), ImVec2(UI_SELECTOR_WIDTH, 0.f)))
+    if (ImGui::Button(caption.c_str(), ImVec2(UI_SELECTOR_WIDTH * ImGui::GetFontSize(), 0.f)))
     {
         default_dash_being_selected = category_id;
         LoaderType* payload = new LoaderType(LoaderType::LT_DashBoard);
@@ -727,4 +731,17 @@ void GameSettings::DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, Cach
     }
     ImGui::SameLine();
     ImGui::Text("%s", label.c_str());
+}
+
+void GameSettings::DrawUiScaleSlider()
+{
+    ImGui::SetNextItemWidth(UI_SELECTOR_WIDTH * ImGui::GetFontSize());
+    ImGui::SliderFloat(_LC("GameSettings", "UI scale factor"), 
+        &m_ui_scale_slider_temp, UI_SCALE_FACTOR_MIN, UI_SCALE_FACTOR_MAX, "%.2f");
+    // Reinit UI on slider release
+    if (!ImGui::IsItemActive() && m_ui_scale_slider_temp != App::ui_scale_factor->getFloat())
+    {
+        App::ui_scale_factor->setVal(m_ui_scale_slider_temp);
+        App::GetGameContext()->PushMessage(Message(MSG_APP_REINIT_UI_REQUESTED));
+    }
 }

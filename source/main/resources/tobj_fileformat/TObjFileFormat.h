@@ -25,6 +25,7 @@
 
 #include "Collisions.h"
 #include "ForwardDeclarations.h"
+#include "PagedGeometryConfig.h" // enums GrassTechnique, FadeTechnique
 
 #include <Ogre.h>
 
@@ -67,42 +68,30 @@ struct TObjTree
     char     color_map[TObj::STR_LEN];
     char     density_map[TObj::STR_LEN];
     char     collision_mesh[TObj::STR_LEN];
+
+    int      origin_tobj_line_number{};
 };
 
 // -----------------------------------------------------------------------------
 /// Unified 'grass' and 'grass2'
 struct TObjGrass
 {
-    TObjGrass():
-        range(80),
-        technique(1), // GRASSTECH_CROSSQUADS
-        grow_techniq(0),
-        sway_speed(0.5f),
-        sway_length(0.05f),
-        sway_distrib(10.f),
+    int      range{80};
+    Forests::GrassTechnique technique{Forests::GRASSTECH_CROSSQUADS};
+    Forests::FadeTechnique fadetech{Forests::FADETECH_GROW};
+    float    sway_speed{0.5f};
+    float    sway_length{0.05f};
+    float    sway_distrib{10.f};
+    float    density{1.f};
 
-        min_x(0.2f),   min_y(0.2f),   min_h(-9999.f),
-        max_x(1.0f),   max_y(0.6f),   max_h(+9999.f)
-    {
-        material_name        [0] = '\0';
-        color_map_filename   [0] = '\0';
-        density_map_filename [0] = '\0';
-    }
+    float min_x{0.2f},   min_y{0.2f},   min_h{-9999.f};
+    float max_x{1.0f},   max_y{0.6f},   max_h{+9999.f};
 
-    int      range;
-    int      technique;
-    int      grow_techniq;
-    float    sway_speed;
-    float    sway_length;
-    float    sway_distrib;
-    float    density;
+    char     material_name[TObj::STR_LEN]{};
+    char     color_map_filename[TObj::STR_LEN]{};
+    char     density_map_filename[TObj::STR_LEN]{};
 
-    float    min_x,   min_y,   min_h;
-    float    max_x,   max_y,   max_h;
-
-    char     material_name[TObj::STR_LEN];
-    char     color_map_filename[TObj::STR_LEN];
-    char     density_map_filename[TObj::STR_LEN];
+    int      origin_tobj_line_number{};
 };
 
 // -----------------------------------------------------------------------------

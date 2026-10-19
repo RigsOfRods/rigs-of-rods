@@ -54,11 +54,11 @@ void ConsoleWindow::Draw()
         }
         if (ImGui::BeginMenu(_LC("Console", "Commands")))
         {
-            ImGui::Dummy(ImVec2(700.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            ImGui::Dummy(ImVec2(ImGui::GetFontSize() * 43.75f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
             ImGui::Columns(3);
-            ImGui::SetColumnWidth(0, 100); // TODO: Calculate dynamically
-            ImGui::SetColumnWidth(1, 170); // TODO: Calculate dynamically
-            ImGui::SetColumnWidth(2, 500); // TODO: Calculate dynamically
+            ImGui::SetColumnWidth(0, ImGui::GetFontSize() * 6.25f); // TODO: Calculate dynamically
+            ImGui::SetColumnWidth(1, ImGui::GetFontSize() * 10.625f); // TODO: Calculate dynamically
+            ImGui::SetColumnWidth(2, ImGui::GetFontSize() * 31.25f); // TODO: Calculate dynamically
 
             for (auto& cmd_pair: App::GetConsole()->getCommands())
             {
@@ -77,25 +77,23 @@ void ConsoleWindow::Draw()
             ImGui::EndMenu();
         }
 #ifdef USE_ANGELSCRIPT
-        ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 2), (ImGui::GetIO().DisplaySize.y / 1.5)));
         if (ImGui::BeginMenu(_LC("Console", "AngelScript")))
         {
-            ImGui::Dummy(ImVec2(720.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            ImGui::Dummy(ImVec2(ImGui::GetFontSize() * 49.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
             ImGui::Columns(3);
-            ImGui::SetColumnWidth(0, 230);
-            ImGui::SetColumnWidth(1, 160);
-            ImGui::SetColumnWidth(2, 400);
+            ImGui::SetColumnWidth(0, ImGui::GetFontSize() * 14.375f);
+            ImGui::SetColumnWidth(1, ImGui::GetFontSize() * 10.f);
+            ImGui::SetColumnWidth(2, ImGui::GetFontSize() * 25.f);
 
             m_angelscript_examples.Draw();
  
             ImGui::Columns(1); // reset
             ImGui::EndMenu();
         }
-        ImGui::SetNextWindowSize(ImVec2(0.f, 0.f)); // reset to auto-fit
 
         if (ImGui::BeginMenu(_LC("Console", "Script Monitor")))
         {
-            ImGui::Dummy(ImVec2(440.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            ImGui::Dummy(ImVec2(ImGui::GetFontSize() * 27.5f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
             m_script_monitor.Draw();
             ImGui::EndMenu();
         }

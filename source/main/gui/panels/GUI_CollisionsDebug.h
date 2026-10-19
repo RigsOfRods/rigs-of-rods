@@ -40,7 +40,7 @@ class CollisionsDebug
 public:
     const ImVec4 COLOR_EVENTBOX = ImVec4(181/255.f, 51/255.f, 64/255.f, 1.f);
     const ImVec4 COLOR_COLLMESH = ImVec4(209/255.f, 109/255.f, 44/255.f, 1.f);
-    const float  WIDTH_DRAWDIST = 75.f;
+    const float  WIDTH_DRAWDIST = 4.6875f; //!< Relative to font size
     const float  DEFAULT_DRAWDIST = 200.f;
 
     void SetVisible(bool v);

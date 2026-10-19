@@ -515,7 +515,7 @@ void FlexbodyDebug::DrawLocatorsTable(FlexBody* flexbody, bool& locators_visible
         (2.f * ImGui::GetStyle().WindowPadding.y)
         + (5.f * ImGui::GetItemsLineHeightWithSpacing())
         + ImGui::GetStyle().ItemSpacing.y * 5;
-    const float child_height = ImGui::GetWindowHeight() - (content_height + 100);
+    const float child_height = ImGui::GetWindowHeight() - (content_height + ImGui::GetFontSize() * 6.25f);
 
 
     ImGui::BeginChild("FlexbodyDebug-scroll", ImVec2(0.f, child_height), false);
@@ -574,7 +574,7 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
     }
 
     // Tools!
-    const float SLIDER_WIDTH = 150;
+    const float SLIDER_WIDTH = ImGui::GetFontSize() * 9.375f;
     DrawGCheckbox(App::flexbody_defrag_enabled, "Enable defrag");
     ImGui::SameLine();
     if (ImGui::Button("Reload vehicle"))
@@ -622,7 +622,7 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
     ImGui::Separator();
 
     // The graph
-    ImVec2 size(ImGui::GetWindowWidth() - 2 * ImGui::GetStyle().WindowPadding.x, 200);
+    ImVec2 size(ImGui::GetWindowWidth() - 2 * ImGui::GetStyle().WindowPadding.x, ImGui::GetFontSize() * 12.5f);
     ImVec2 top_left_pos = ImGui::GetCursorScreenPos();
     ImGui::Dummy(size);
 

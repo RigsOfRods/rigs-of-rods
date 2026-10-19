@@ -86,17 +86,17 @@ void MpClientList::Draw()
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    const float content_width = 225.f;
+    const float content_width = ImGui::GetFontSize() * 14.0625f;
     ImGui::SetNextWindowContentWidth(content_width);
     ImGui::SetNextWindowPos(ImVec2(
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
         theme.screen_edge_padding.y));
 
-    int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * m_users.size());
+    float y = ImGui::GetFontSize() * 1.25f + (ImGui::GetTextLineHeightWithSpacing() * m_users.size());
 
     if (App::GetNetwork()->GetNetQuality() != 0)
     {
-        y += 20;
+        y += ImGui::GetFontSize() * 1.25f;
     }
 
     ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
@@ -124,7 +124,7 @@ void MpClientList::Draw()
             else
             {
                 m_peeropts_menu_active_user_vectorpos = vectorpos; // show menu
-                m_peeropts_menu_corner_tl = hover_tl - ImVec2(PEEROPTS_MENU_CONTENT_WIDTH + ImGui::GetStyle().WindowPadding.x*3 + PEEROPTS_MENU_MARGIN, 0);
+                m_peeropts_menu_corner_tl = hover_tl - ImVec2(PEEROPTS_MENU_CONTENT_WIDTH * ImGui::GetFontSize() + ImGui::GetStyle().WindowPadding.x*3 + PEEROPTS_MENU_MARGIN * ImGui::GetFontSize(), 0);
             }
         }
         ImGui::SameLine();
@@ -157,15 +157,15 @@ void MpClientList::Draw()
             }
         }
         // Always invoke to keep usernames aligned
-        this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
-        this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
+        this->DrawIcon(down_tex, ImVec2(ImGui::GetFontSize() * 0.5f, ImGui::GetTextLineHeight()));
+        this->DrawIcon(up_tex, ImVec2(ImGui::GetFontSize() * 0.5f, ImGui::GetTextLineHeight()));
 
         // Auth icon
              if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = m_icon_flag_red;   }
         else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = m_icon_flag_blue;  }
         else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = m_icon_flag_green; }
 
-        this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
+        this->DrawIcon(auth_tex, ImVec2(ImGui::GetFontSize() * 0.875f, ImGui::GetTextLineHeight()));
 
         // Country flag
         StringVector parts = StringUtil::split(user.language, "_");
@@ -173,7 +173,7 @@ void MpClientList::Draw()
         {
             StringUtil::toLowerCase(parts[1]);
             flag_tex = FetchIcon((parts[1] + ".png").c_str());
-            this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
+            this->DrawIcon(flag_tex, ImVec2(ImGui::GetFontSize(), ImGui::GetTextLineHeight()));
         }
 
         // Player name
@@ -181,7 +181,7 @@ void MpClientList::Draw()
         ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
         ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
         const ImVec2 hover_br = hover_tl + ImVec2(content_width, ImGui::GetTextLineHeight());
-        const float HOVER_TL_SHIFTX = 20.f; // leave the [<] button (PeerOptions submenu) out of the hover check.
+        const float HOVER_TL_SHIFTX = ImGui::GetFontSize() * 1.25f; // leave the [<] button (PeerOptions submenu) out of the hover check.
         const bool hovered
              = hover_br.x > ImGui::GetIO().MousePos.x
             && hover_br.y > ImGui::GetIO().MousePos.y
@@ -323,7 +323,7 @@ void MpClientList::DrawPeerOptionsMenu()
 
     // Draw UI
     ImGui::SetNextWindowPos(m_peeropts_menu_corner_tl);
-    ImGui::SetNextWindowContentWidth(PEEROPTS_MENU_CONTENT_WIDTH);
+    ImGui::SetNextWindowContentWidth(PEEROPTS_MENU_CONTENT_WIDTH * ImGui::GetFontSize());
     const int flags = ImGuiWindowFlags_NoDecoration;
     if (ImGui::Begin("PeerOptions", nullptr, flags))
     {
@@ -346,8 +346,8 @@ void MpClientList::DrawPeerOptionsMenu()
     }
 
     // Check hover and hide
-    const ImVec2 hoverbox_tl = m_peeropts_menu_corner_tl - ImVec2(PEEROPTS_HOVER_MARGIN, PEEROPTS_HOVER_MARGIN);
-    const ImVec2 hoverbox_br = m_peeropts_menu_corner_br + ImVec2(PEEROPTS_HOVER_MARGIN, PEEROPTS_HOVER_MARGIN);
+    const ImVec2 hoverbox_tl = m_peeropts_menu_corner_tl - ImVec2(PEEROPTS_HOVER_MARGIN, PEEROPTS_HOVER_MARGIN) * ImGui::GetFontSize();
+    const ImVec2 hoverbox_br = m_peeropts_menu_corner_br + ImVec2(PEEROPTS_HOVER_MARGIN, PEEROPTS_HOVER_MARGIN) * ImGui::GetFontSize();
     const ImVec2 mousepos = ImGui::GetIO().MousePos;
     if (mousepos.x < hoverbox_tl.x || mousepos.x > hoverbox_br.x
         || mousepos.y < hoverbox_tl.y || mousepos.y > hoverbox_br.y)
@@ -364,7 +364,7 @@ void MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
    // TODO: moving the cursor somehow deforms the image
    //     ImGui::SetCursorPosX(orig_pos.x + (reference_box.x - tex->getWidth()) / 2.f);
    //     ImGui::SetCursorPosY(orig_pos.y + (reference_box.y - tex->getHeight()) / 2.f);
-        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(ImGui::GetFontSize(), ImGui::GetFontSize()));
     }
     ImGui::SetCursorPosX(orig_pos.x + reference_box.x + ImGui::GetStyle().ItemSpacing.x);
     ImGui::SetCursorPosY(orig_pos.y);

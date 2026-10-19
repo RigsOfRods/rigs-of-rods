@@ -103,7 +103,7 @@ void GameControls::Draw()
         // regular window display
 
         ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(800.f, 600.f), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(ImGui::GetFontSize() * 50.f, ImGui::GetFontSize() * 37.5f), ImGuiCond_FirstUseEver);
         bool keep_open = true;
         ImGui::Begin(_LC("GameControls", "Game Controls"), &keep_open);
 

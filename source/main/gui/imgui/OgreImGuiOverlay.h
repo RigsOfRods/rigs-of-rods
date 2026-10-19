@@ -17,8 +17,11 @@ public:
     ~ImGuiOverlay();
 
     /// add font from ogre .fontdef file
-    /// must be called before first show()
-    ImFont* addFont(const String& name, const String& group OGRE_RESOURCE_GROUP_INIT);
+    /// must be called before first show() or followed by rebuildFontTexture()
+    ImFont* addFont(const String& name, const String& group OGRE_RESOURCE_GROUP_INIT, float size_scale = 1.f);
+
+    /// RIGSOFRODS: re-create the font texture after fonts were changed (i.e. `io.Fonts->Clear()` + `addFont()`)
+    void rebuildFontTexture();
 
     static void NewFrame(const FrameEvent& evt);
 

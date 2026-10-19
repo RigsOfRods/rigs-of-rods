@@ -918,17 +918,19 @@ struct ActorLinkingRequest
     int alr_rope_group = -1;
 };
 
-///  Parameter to `Actor::setSimAttribute()` and `Actor::getSimAttribute()`; allows advanced users to tweak physics internals via script.
+///  Parameter to `Actor::setSimAttribute()` and `Actor::setIndexedSimAttribute()` (and their `get` counterparts); allows advanced users to tweak physics internals via script.
 ///  Each value represents a variable, either directly in `Actor` or a subsystem, i.e. `Engine`.
 ///  PAY ATTENTION to the 'safe value' limits below - those may not be checked when setting attribute values!
 enum ActorSimAttr
 {
+    // PLEASE maintain the same order as in 'doc/angelscript/Script2Game/enums/ActorSimAttr' and 'source/main/scripting/bindings/common/ActorAngelscriptCommon.cpp'.
+
     ACTORSIMATTR_NONE,
 
     // TractionControl
-    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>
-    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.00005 - 1>
-    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT, //!< Minimum wheel slip threshold, safe value = 0.25
+    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>; Param #1 of 'tractioncontrol'
+    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT, //!< Minimum wheel slip threshold, safe value = 0.25; Param #2 of 'tractioncontrol'
+    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.00005 - 1>; Param #4 of 'tractioncontrol'
 
     // Engine
     ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM, //!< Automatic transmission - Param #1 of 'engine'
@@ -938,11 +940,11 @@ enum ActorSimAttr
     ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY, //!< Gearbox - Format: "<reverse_gear> <neutral_gear> <forward_gear 1> [<forward gear 2>]..."; Param #5 and onwards of 'engine'.
 
     // Engoption
-    ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA, //!< - Param #1 of 'engoption'
-    ACTORSIMATTR_ENGOPTION_ENGINE_TYPE, //!< - Param #2 of 'engoption'
-    ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE, //!< - Param #3 of 'engoption'
-    ACTORSIMATTR_ENGOPTION_SHIFT_TIME, //!< - Param #4 of 'engoption'
-    ACTORSIMATTR_ENGOPTION_CLUTCH_TIME, //!< - Param #5 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA, //!< Param #1 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_ENGINE_TYPE, //!< Param #2 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE, //!< Param #3 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_SHIFT_TIME, //!< Param #4 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_CLUTCH_TIME, //!< Param #5 of 'engoption'
     ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME, //!< Time (in seconds) until full torque is transferred - Param #6 of 'engoption'
     ACTORSIMATTR_ENGOPTION_STALL_RPM, //!< RPM where engine stalls - Param #7 of 'engoption'
     ACTORSIMATTR_ENGOPTION_IDLE_RPM, //!< Target idle RPM - Param #8 of 'engoption'
@@ -958,24 +960,24 @@ enum ActorSimAttr
     ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP, //!< Engine RPM threshold for turbo to operate - Param #5 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_BOV_ENABLED, //!< Blow-off valve - Param #6 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI, //!< Blow-off valve PSI threshold - Param #7 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED, //!<  - Param #8 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI, //!<  - Param #9 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED, //!< Param #8 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI, //!< Param #9 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N, //!< 1 - WgThreshold ~ calculated from  Param #10 of 'engturbo2'
     ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P, //!< 1 + WgThreshold ~ calculated from  Param #10 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED, //!<  - Param #11 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE, //!<  - Param #12 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!<  - Param #13 of 'engturbo2'
-    ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  - Param #14 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED, //!< Param #11 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE, //!< Param #12 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!< Param #13 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!< Param #14 of 'engturbo2'
 
     // Turbojets
-    ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST, //!< - Param #5 of 'turbojets': Maximum thrust without afterburner, in kilonewtons (indexed)
-    ACTORSIMATTR_TURBOJET_MAX_WET_THRUST, //!< - Param #6 of 'turbojets': Maximum thrust with afterburner, in kilonewtons (indexed)
+    ACTORSIMATTR_TURBOJET_MAX_DRY_THRUST, //!< Param #5 of 'turbojets': Maximum thrust without afterburner, in kilonewtons (indexed)
+    ACTORSIMATTR_TURBOJET_MAX_WET_THRUST, //!< Param #6 of 'turbojets': Maximum thrust with afterburner, in kilonewtons (indexed)
 
     // Propeller engine (turboprops/pistonprops)
-    ACTORSIMATTR_PROPENGINE_MAX_POWER, //!< - Param #7 of 'turboprops'/Param #8 of 'pistonprops', in kilowatts (indexed)
+    ACTORSIMATTR_PROPENGINE_MAX_POWER, //!< Param #7 of 'turboprops'/Param #8 of 'pistonprops', in kilowatts (indexed)
 
     // Screwprops
-    ACTORSIMATTR_SCREWPROP_MAX_POWER, //!< - Param #4 of 'screwprops' (indexed)
+    ACTORSIMATTR_SCREWPROP_MAX_POWER, //!< Param #4 of 'screwprops' (indexed)
 };
 const char* ActorSimAttrToString(ActorSimAttr attr);
 

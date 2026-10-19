@@ -51,7 +51,7 @@ void FrictionSettings::Draw()
     ImGui::Text("%s", (m_nearest_gm != nullptr) ? m_nearest_gm->name : "~");
 
     ImGui::Separator();
-    ImGui::PushItemWidth(200.f);
+    ImGui::PushItemWidth(ImGui::GetFontSize() * 12.5f);
 
     ImGui::Combo(_LC("FrictionSettings", "selected Ground Type:"), &m_selected_gm,
                  &FrictionSettings::GmComboItemGetter, &m_gm_entries,
@@ -153,7 +153,7 @@ void FrictionSettings::DrawTooltip(const char* title, const char* text)
     ImGui::TextDisabled("[?]");
     if (ImGui::IsItemHovered())
     {
-        ImGui::SetNextWindowSizeConstraints(/*size_min=*/ImVec2(250.f, 50.f), /*size_max=*/ImVec2(1000.f, 1000.f));
+        ImGui::SetNextWindowSizeConstraints(/*size_min=*/ImVec2(ImGui::GetFontSize() * 15.625f, ImGui::GetFontSize() * 3.125f), /*size_max=*/ImVec2(ImGui::GetFontSize() * 62.5f, ImGui::GetFontSize() * 62.5f));
         ImGui::BeginTooltip();
         ImGui::Text("%s", title);
         ImGui::Separator();

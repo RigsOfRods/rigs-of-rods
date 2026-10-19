@@ -84,8 +84,8 @@ void RoR::RegisterActorCommon(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_NONE", (int)ACTORSIMATTR_NONE); ROR_ASSERT(result >= 0);
     // ... TractionControl
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_RATIO", (int)ACTORSIMATTR_TC_RATIO); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_PULSE_TIME", (int)ACTORSIMATTR_TC_PULSE_TIME); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_WHEELSLIP_CONSTANT", (int)ACTORSIMATTR_TC_WHEELSLIP_CONSTANT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_PULSE_TIME", (int)ACTORSIMATTR_TC_PULSE_TIME); ROR_ASSERT(result >= 0);
     // ... Engine
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM", (int)ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_SHIFTUP_RPM", (int)ACTORSIMATTR_ENGINE_SHIFTUP_RPM); ROR_ASSERT(result >= 0);

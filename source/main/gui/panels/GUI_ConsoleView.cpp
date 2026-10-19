@@ -293,11 +293,11 @@ ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TexturePtr i
     float text_h = ImGui::CalcTextSize("").y;
     if (cvw_enable_icons && icon)
     {
-        ImVec2 icon_size(icon->getWidth(), icon->getHeight());
+        ImVec2 icon_size = ImVec2(icon->getWidth(), icon->getHeight()) * (ImGui::GetFontSize() / icon->getHeight()); // Scale to font size
         ImVec2 tl = ImVec2(text_cursor.x, text_cursor.y + (text_h / 2) - (icon_size.y / 2));
         ImVec2 br = tl + icon_size;
         drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), tl, br, ImVec2(0,0), ImVec2(1,1), ImColor(ImVec4(1,1,1,alpha)));
-        const float ICON_GAP = 8;
+        const float ICON_GAP = ImGui::GetFontSize() * 0.5f;
         indent_size = ImVec2(icon_size.x + ICON_GAP, text_h);
         text_cursor.x += indent_size.x;
     }

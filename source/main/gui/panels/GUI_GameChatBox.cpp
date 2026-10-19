@@ -44,7 +44,7 @@ GameChatBox::GameChatBox()
     m_console_view.cvw_filter_type_error = true; // Enable errors
     m_console_view.cvw_filter_type_cmd = false; // Disable commands
     m_console_view.cvw_enable_icons = true;
-    m_console_view.cvw_background_padding = ImVec2(2,1);
+    // Note: `cvw_background_padding` is set by `GUIManager::ApplyImGuiStyle()` relative to font size.
 }
 
 void GameChatBox::Draw()
@@ -58,12 +58,12 @@ void GameChatBox::Draw()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     const float width = ImGui::GetIO().DisplaySize.x - (2 * theme.screen_edge_padding.x);
     ImVec2 msg_size(width, (ImGui::GetIO().DisplaySize.y / 3.f) + (2*ImGui::GetStyle().WindowPadding.y));
-    ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing() + 20);
+    ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing() + ImGui::GetFontSize() * 1.25f);
     ImVec2 msg_pos(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (msg_size.y + theme.screen_edge_padding.y));
     if (m_is_visible)
     {
         msg_pos.y -= chat_size.y;
-        msg_size.y -= 6.f; // prevents partially bottom chat messages
+        msg_size.y -= ImGui::GetFontSize() * 0.375f; // prevents partially bottom chat messages
     }
     else
     {
