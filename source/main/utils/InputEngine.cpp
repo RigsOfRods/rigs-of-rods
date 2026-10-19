@@ -1576,7 +1576,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
                 LOG("Error while processing input config: Unknown Event: "+String(eventName));
                 return false;
             }
-            event_trigger_t t_key = newEvent();
+            event_trigger_t t_key;
             t_key.configDeviceID = deviceID;
             t_key.eventtype = ET_Keyboard;
             t_key.shift = shift;
@@ -1599,7 +1599,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
             int buttonNo = 0;
             char tmp2[256] = {};
             sscanf(line, "%s %s %d %d %s", eventName, evtype, &joyNo, &buttonNo, tmp2);
-            event_trigger_t t_joy = newEvent();
+            event_trigger_t t_joy;
             t_joy.configDeviceID = deviceID;
             int eventID = resolveEventName(String(eventName));
             if (eventID == -1)
@@ -1684,7 +1684,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
             if (relative)
                 eventtype = ET_JoystickAxisRel;
 
-            event_trigger_t t_joy = newEvent();
+            event_trigger_t t_joy;
             t_joy.configDeviceID = deviceID;
             t_joy.eventtype = eventtype;
             t_joy.joystickAxisRegion = jAxisRegion;
@@ -1746,7 +1746,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
             if (!strcmp(dir, "SouthWest"))
                 direction = OIS::Pov::SouthWest;
 
-            event_trigger_t t_pov = newEvent();
+            event_trigger_t t_pov;
             t_pov.configDeviceID = deviceID;
             t_pov.eventtype = eventtype;
             t_pov.joystickNumber = (deviceID == -1 ? joyNo : deviceID);
@@ -1786,7 +1786,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
                 token = strtok(NULL, delimiters);
             }
 
-            event_trigger_t t_slider = newEvent();
+            event_trigger_t t_slider;
             t_slider.configDeviceID = deviceID;
 
             if (type == 'Y' || type == 'y')
@@ -1855,13 +1855,6 @@ Ogre::Vector2 InputEngine::getMouseNormalizedScreenPos()
     Ogre::Vector2 res;
     res.x = static_cast<float>(mstate.X.abs) / static_cast<float>(mstate.width);
     res.y = static_cast<float>(mstate.Y.abs) / static_cast<float>(mstate.height);
-    return res;
-}
-
-event_trigger_t InputEngine::newEvent()
-{
-    event_trigger_t res;
-    memset(&res, 0, sizeof(event_trigger_t));
     return res;
 }
 
