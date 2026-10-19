@@ -74,9 +74,8 @@ extern "C" {
 
 int main(int argc, char *argv[])
 {
+    RoR::DesktopGlShaderBootstrap desktop_gl_bootstrap; // Before native callback owners and the release-only try.
     using namespace RoR;
-
-    DesktopGlShaderBootstrap desktop_gl_bootstrap; // Before native callback owners and the release-only try.
 
 #ifdef USE_CURL
     curl_global_init(CURL_GLOBAL_ALL); // MUST init before any threads are started

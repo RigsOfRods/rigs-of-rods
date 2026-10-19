@@ -2,9 +2,12 @@
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution and at https://www.ogre3d.org/licensing.
 
+#include "DesktopGlShaders.h"
+
 #include <imgui.h>
 
 #include <OgreImGuiOverlay.h>
+#include <OgreGpuProgramParams.h>
 #include <OgreHardwareBufferManager.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreRenderSystem.h>
@@ -18,9 +21,6 @@
 #include <OgreRenderQueue.h>
 #include <OgreFrameListener.h>
 #include <OgreRoot.h>
-#include <OgreGpuProgramParams.h>
-
-#include "DesktopGlShaders.h"
 
 namespace Ogre
 {
