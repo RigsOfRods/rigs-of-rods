@@ -244,8 +244,14 @@ void GameControls::DrawInteractiveButtonBinding()
             const float cur_val = NormalizeOisAxisValue(joy_state->mAxes[i].abs);
             const float cur_absval =  std::abs(cur_val);
             JoyAxisState& state = m_interactive_joyaxis_states[i];
-            if (!state.qualified && cur_absval < 0.4f) {state.qualified=true; state.which_half = (cur_val > 0.f) ? 1 : -1; }
-            else if (state.qualified && cur_absval > 0.4f) { m_interactive_joyaxis_number=i; break; }
+            if (!state.qualified && cur_absval < 0.4f) { state.qualified=true; }
+            else if (state.qualified && cur_absval > 0.4f)
+            {
+                // Determine the half now, from the direction the user moved - the sign at rest (near center) is just noise.
+                state.which_half = (cur_val > 0.f) ? 1 : -1;
+                m_interactive_joyaxis_number=i;
+                break;
+            }
         }
     }
     else
