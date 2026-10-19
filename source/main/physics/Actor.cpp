@@ -5199,6 +5199,7 @@ void Actor::setIndexedSimAttribute(ActorSimAttr attr, float val, int index)
         
         // Screwprops
         case ACTORSIMATTR_SCREWPROP_MAX_POWER:        if (index < getScrewpropCount()) { ar_screwprops[index]->setMaxPower(val); } return;
+        case ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE:  if (index < getScrewpropCount()) { ar_screwprops[index]->SetAirIntakeNode((int)val); } return; // -1 = no air intake node (casted to `NodeNum_t` produces 65535 which is NODENUM_INVALID)
 
         default: return;
         }
@@ -5272,6 +5273,7 @@ float Actor::getIndexedSimAttribute(ActorSimAttr attr, int index)
 
             // Screwprops
         case ACTORSIMATTR_SCREWPROP_MAX_POWER:        if (index < getScrewpropCount()) { return ar_screwprops[index]->getMaxPower(); }
+        case ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE:  if (index < getScrewpropCount()) { return (ar_screwprops[index]->GetAirIntakeNode() == NODENUM_INVALID) ? -1.f : (float)ar_screwprops[index]->GetAirIntakeNode(); } // -1 = no air intake node
 
         }
     }

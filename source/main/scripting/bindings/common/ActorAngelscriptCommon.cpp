@@ -127,5 +127,6 @@ void RoR::RegisterActorCommon(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_PROPENGINE_MAX_POWER", (int)ACTORSIMATTR_PROPENGINE_MAX_POWER); ROR_ASSERT(result >= 0);
     // ... Screwprops
     result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_SCREWPROP_MAX_POWER", (int)ACTORSIMATTR_SCREWPROP_MAX_POWER); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE", (int)ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE); ROR_ASSERT(result >= 0);
 
 }
