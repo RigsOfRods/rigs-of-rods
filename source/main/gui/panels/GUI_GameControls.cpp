@@ -54,7 +54,7 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::SetNextWindowPosCenter();
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
     ImGui::SetNextWindowContentWidth(300.f);
-    std::string window_title = m_interactive_keybinding_delete_on_cancel ? _LC("GameControls", "Add new input binding") : _LC("GameControls", "Edit existing input binding");
+    std::string window_title = m_interactive_keybinding_new_trigger ? _LC("GameControls", "Add new input binding") : _LC("GameControls", "Edit existing input binding");
     ImGui::Begin(window_title.c_str(), nullptr, flags);
 
     // Title and description (centered)
@@ -84,11 +84,7 @@ void GameControls::UpdateInteractiveKeybinding()
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(BTN_BIGXPADDING, ImGui::GetStyle().FramePadding.y));
     if (ImGui::Button(_LC("GameSettings", "Cancel")))
     {
-        if (m_interactive_keybinding_delete_on_cancel)
-        {
-            App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
-        }
-        this->CancelChanges();
+        this->CancelChanges(); // Nothing to erase: new trigger wasn't inserted yet, existing one stays.
     }
     // ... align 'accept' button to the right
     std::string accept_button_label = _LC("GameSettings", "Accept");
@@ -98,7 +94,7 @@ void GameControls::UpdateInteractiveKeybinding()
         this->ApplyChanges();
     }
     ImGui::PopStyleVar();
-    if (!m_interactive_keybinding_delete_on_cancel)
+    if (!m_interactive_keybinding_new_trigger)
     {
         // ... put 'delete' button in the middle
         std::string delete_button_label = _LC("GameSettings", "Delete");
@@ -623,17 +619,16 @@ void GameControls::DrawEvent(RoR::events ev_code)
     ImGui::SetCursorPosX((cursor_x + m_colum_widths[0]) - 27); // estimate
     if (ImGui::SmallButton("+"))
     {
-        App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_deviceid);
-
         // Begin interactive binding
         m_active_event = ev_code;
-        event_trigger_t& trig = triggers.back();
+        m_interactive_keybinding_temp_trigger = event_trigger_t();
+        event_trigger_t& trig = m_interactive_keybinding_temp_trigger;
         m_active_trigger = &trig;
         m_selected_evtype = m_active_mapping_deviceid == InputEngine::DEFAULT_MAPFILE_DEVICEID ? eventtypes::ET_Keyboard : trig.eventtype;
-        m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
+        m_active_buffer.Clear(); // 'Accept' with empty buffer just cancels.
         m_interactive_keybinding_active = true;
-        m_interactive_keybinding_expl = trig.explicite;
-        m_interactive_keybinding_delete_on_cancel = true; // <-- new trigger, so canceling should delete it.
+        m_interactive_keybinding_expl = true; // Safer default - avoids partial-match surprises.
+        m_interactive_keybinding_new_trigger = true; // <-- new trigger, no need to delete the old one.
     }
     
 
@@ -668,7 +663,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
             m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
             m_interactive_keybinding_active = true;
             m_interactive_keybinding_expl = trig.explicite;
-            m_interactive_keybinding_delete_on_cancel = false; // <-- existing trigger, so canceling should not delete it.
+            m_interactive_keybinding_new_trigger = false; // <-- existing trigger, must delete before inserting the new one.
         }
 
         // If there's more than 1 commands, add numbering at the left side of the buttons
@@ -811,7 +806,10 @@ void GameControls::ApplyChanges()
     }
 
     // Erase the old trigger.
-    App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
+    if (!m_interactive_keybinding_new_trigger)
+    {
+        App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
+    }
 
     // Format a '.map' format line with new config
     std::string format_string;

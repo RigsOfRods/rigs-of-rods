@@ -80,7 +80,8 @@ private:
     Str<1000>        m_active_buffer;
     bool             m_interactive_keybinding_active = false;
     bool             m_interactive_keybinding_expl = true;
-    bool             m_interactive_keybinding_delete_on_cancel = false;
+    bool             m_interactive_keybinding_new_trigger = false; //!< When editing existing trigger, old one must be deleted before new is inserted.
+    event_trigger_t  m_interactive_keybinding_temp_trigger; //!< Used when adding a new trigger, to store the new trigger until it's confirmed.
     int              m_interactive_pov_number = -1;         //!< POV hat being pressed during interactive binding, -1 if none.
     std::map<int, float> m_interactive_pov_hold_times;      //!< OIS::Pov direction -> seconds held; longest one wins on release.
     int              m_interactive_joyaxis_number = -1;      //!< Joystick axis that moved from <40% to >60% during interactive binding, -1 if none.

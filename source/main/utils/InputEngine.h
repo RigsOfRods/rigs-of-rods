@@ -525,7 +525,6 @@ public:
     /// @{
     void                addEvent(int eventID, event_trigger_t& t);          //!< Registers new trigger for this event.
     void                addEvent(int eventID);                              //!< Registers new event without trigger.
-    void                addEventDefault(int eventID, int deviceID = DEFAULT_MAPFILE_DEVICEID);    //!< Adds a new trigger with builtin value for this event.
     void                updateEvent(int eventID, const event_trigger_t& t);
     void                eraseEvent(int eventID, const event_trigger_t* t);
     void                clearEvents(int eventID);                           //!< Clears all bindings for given event.

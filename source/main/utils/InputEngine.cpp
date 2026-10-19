@@ -1403,16 +1403,6 @@ void InputEngine::addEvent(int eventID)
     }
 }
 
-void InputEngine::addEventDefault(int eventID, int deviceID /*= -1*/)
-{
-    if (eventID == -1)
-    //unknown event, discard
-        return;
-
-    std::string line = fmt::format("{} {}", this->eventIDToName(eventID), this->getEventDefaultConfig(eventID));
-    this->processLine(line.c_str(), deviceID);
-}
-
 void InputEngine::updateEvent(int eventID, const event_trigger_t& t)
 {
     if (eventID == -1)
