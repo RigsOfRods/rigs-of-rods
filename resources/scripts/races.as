@@ -139,7 +139,7 @@ shared class racesManager {
 		this.callbacks.set("RaceEvent", null); // When the user passes the start line of a locked race
 		this.callbacks.set("PenaltyEvent", null); // When the user gets in a race_penalty box, handled by the raceEvent method
 		this.callbacks.set("AbortEvent", null); // When the user gets in a race_abort box, handled by the raceEvent method
-
+		
 		// register the required callbacks
 		game.registerForEvent(SE_EVENTBOX_ENTER); // This replaces the `raceEvent()` and `raceCancelPointHandler()` callbacks and also provides `truckNum` ~ ohlidalp, 01/2026
 		game.registerForEvent(SE_TRUCK_ENTER);
@@ -152,24 +152,18 @@ shared class racesManager {
 		game.registerForEvent(SE_GENERIC_GAMESTATE_NOTIFICATION);
 
 		// add the eventcallback method if it doesn't exist
-		// ^ but only if loaded from terrain script, not i.e. terrain_project_importer
-		dictionary@ scriptDetails = game.getScriptDetails(thisScript);
-		if (@scriptDetails != null
-			&& ScriptCategory(scriptDetails['scriptCategory']) == SCRIPT_CATEGORY_TERRAIN)
+		if( game.scriptFunctionExists("void eventCallbackEx(scriptEvents ev,  int,int,int,int,	string,string,string,string)")<0)
 		{
-			if( game.scriptFunctionExists("void eventCallbackEx(scriptEvents ev,  int,int,int,int,  string,string,string,string)")<0)
-			{
-				int res = game.addScriptFunction(
-					"""
-					void eventCallbackEx(scriptEvents ev,  int arg1,int arg2,int arg3,int arg4,  string arg5,string arg6,string arg7,string arg8)
-					{
-						races.eventCallback(ev,  arg1,arg2,arg3,arg4,  arg5,arg6,arg7,arg8);
-					}
-					""");
-				if (res < 0)
+			int res = game.addScriptFunction(
+				"""
+				void eventCallbackEx(scriptEvents ev,  int arg1,int arg2,int arg3,int arg4,	 string arg5,string arg6,string arg7,string arg8)
 				{
-					game.log("Error in racesManager: could not set up `eventCallback(int, int)` (error code:"+res+"), races will not work.");
+					races.eventCallback(ev,	 arg1,arg2,arg3,arg4,  arg5,arg6,arg7,arg8);
 				}
+				""");
+			if (res < 0)
+			{
+				game.log("Error in racesManager: could not set up `eventCallback(int, int)` (error code:"+res+"), races will not work.");
 			}
 		}
 
