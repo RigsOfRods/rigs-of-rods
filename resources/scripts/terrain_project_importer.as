@@ -9,7 +9,7 @@
 
 // The race system
 #include "races.as"
-racesManager races;
+racesManager@ races;
 
 // document viewer+editor
 #include "genericdoc_utils.as"
@@ -288,7 +288,7 @@ void initializeRacesData()
     }
     
     // moment of truth - retrieve the races using new API `game.getScriptVariable()`
-    result = game.getScriptVariable('races', races, terrnScriptNid);
+    result = game.getScriptVariable('races', @races, terrnScriptNid);
     if (result < 0)
     {
         // there are no races (race system not even loaded by the terrain script).
