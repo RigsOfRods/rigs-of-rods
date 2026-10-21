@@ -74,16 +74,20 @@ static inline void FlexLoadSoA(const Ogre::Vector3& v0, const Ogre::Vector3& v1,
     out_z = c;
 }
 
-/// Transposes SoA back and writes exactly 4 consecutive Vector3s (never touches dst[4], which may belong to another thread).
+/// Converts SoA back to 4 consecutive Vector3s and writes exactly those 48 bytes (never touches dst[4], which may belong to another thread).
+/// Shuffles in registers, then 3 sequential non-overlapping 16-byte stores - destination may be write-combined
+/// memory (mapped vertex buffer, see `lockVertexBuffers()`) which is slow with overlapping or partial writes.
 static inline void FlexStoreSoA(Ogre::Vector3* dst, __m128 x, __m128 y, __m128 z)
 {
-    __m128 w = _mm_setzero_ps();
-    _MM_TRANSPOSE4_PS(x, y, z, w);
-    _mm_storeu_ps(&dst[0].x, x); // The 4th float spills into dst[1].x, overwritten right after.
-    _mm_storeu_ps(&dst[1].x, y);
-    _mm_storeu_ps(&dst[2].x, z);
-    _mm_storel_pi(reinterpret_cast<__m64*>(&dst[3].x), w);
-    _mm_store_ss(&dst[3].z, _mm_movehl_ps(w, w));
+    const __m128 xy01 = _mm_unpacklo_ps(x, y);                          // x0 y0 x1 y1
+    const __m128 xy23 = _mm_unpackhi_ps(x, y);                          // x2 y2 x3 y3
+    const __m128 z0x1 = _mm_shuffle_ps(z, x, _MM_SHUFFLE(1, 1, 0, 0));  // z0 z0 x1 x1
+    const __m128 y1z1 = _mm_shuffle_ps(y, z, _MM_SHUFFLE(1, 1, 1, 1));  // y1 y1 z1 z1
+    const __m128 z2z3 = _mm_shuffle_ps(z, xy23, _MM_SHUFFLE(3, 2, 3, 2)); // z2 z3 x3 y3
+    float* out = &dst[0].x;
+    _mm_storeu_ps(out + 0, _mm_shuffle_ps(xy01, z0x1, _MM_SHUFFLE(2, 0, 1, 0))); // x0 y0 z0 x1
+    _mm_storeu_ps(out + 4, _mm_shuffle_ps(y1z1, xy23, _MM_SHUFFLE(1, 0, 2, 0))); // y1 z1 x2 y2
+    _mm_storeu_ps(out + 8, _mm_shuffle_ps(z2z3, z2z3, _MM_SHUFFLE(1, 3, 2, 0))); // z2 x3 y3 z3
 }
 
 /// Loads 4 float[4] vectors (see `FlexNodeBasis`) and transposes to SoA; the 4th float is ignored.
