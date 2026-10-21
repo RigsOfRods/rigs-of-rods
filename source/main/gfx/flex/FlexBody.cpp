@@ -424,6 +424,10 @@ FlexBody::FlexBody(
         }
 
         m_locators = new Locator_t[m_vertex_count];
+        // Logged once after the loop - can be every vertex of the mesh.
+        int num_ref_not_found = 0;
+        int num_vx_not_found = 0;
+        int num_vy_not_found = 0;
         for (int i=0; i<(int)m_vertex_count; i++)
         {
             // Is this locator is manually specified via directive 'forvert'?
@@ -455,7 +459,7 @@ FlexBody::FlexBody(
                 }
                 if (closest_node_index == -1)
                 {
-                    LOG("FLEXBODY ERROR on mesh " + mesh_name + ": REF node not found");
+                    num_ref_not_found++;
                     closest_node_index = 0;
                 }
                 m_locators[i].ref = closest_node_index;
@@ -478,7 +482,7 @@ FlexBody::FlexBody(
                 }
                 if (closest_node_index == -1)
                 {
-                    LOG("FLEXBODY ERROR on mesh " + mesh_name + ": VX node not found");
+                    num_vx_not_found++;
                     closest_node_index = 0;
                 }
                 m_locators[i].nx = closest_node_index;
@@ -508,7 +512,7 @@ FlexBody::FlexBody(
                 }
                 if (closest_node_index == -1)
                 {
-                    LOG("FLEXBODY ERROR on mesh " + mesh_name + ": VY node not found");
+                    num_vy_not_found++;
                     closest_node_index = 0;
                 }
                 m_locators[i].ny = closest_node_index;
@@ -528,6 +532,22 @@ FlexBody::FlexBody(
             m_locators[i].coords = mat * (vertices[i] - nodes[m_locators[i].ref].AbsPosition);
 
             // that's it!
+        }
+
+        if (num_ref_not_found > 0)
+        {
+            LOG(fmt::format("FLEXBODY ERROR on mesh {}: REF node not found for {} of {} vertices",
+                mesh_name, num_ref_not_found, m_vertex_count));
+        }
+        if (num_vx_not_found > 0)
+        {
+            LOG(fmt::format("FLEXBODY ERROR on mesh {}: VX node not found for {} of {} vertices",
+                mesh_name, num_vx_not_found, m_vertex_count));
+        }
+        if (num_vy_not_found > 0)
+        {
+            LOG(fmt::format("FLEXBODY ERROR on mesh {}: VY node not found for {} of {} vertices",
+                mesh_name, num_vy_not_found, m_vertex_count));
         }
 
     } // if (preloaded_from_cache == nullptr)
