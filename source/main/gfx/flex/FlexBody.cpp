@@ -31,9 +31,61 @@
 #include "RigDef_File.h"
 
 #include <Ogre.h>
+#include <cstddef> // offsetof
+
+// SSE (1) is enough for the vertex kernel; it's always available on x86-64.
+#if (defined(__SSE__) || defined(_M_X64) || defined(_M_AMD64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)) && (OGRE_DOUBLE_PRECISION == 0)
+#   define ROR_FLEXBODY_SSE 1
+#   include <xmmintrin.h>
+#else
+#   define ROR_FLEXBODY_SSE 0
+#endif
 
 using namespace Ogre;
 using namespace RoR;
+
+#if ROR_FLEXBODY_SSE
+
+// The kernel loads each Vector3 with a single 16-byte read, so 1 float past it must be valid memory.
+static_assert(sizeof(Ogre::Vector3) == 3 * sizeof(float), "Vector3 must be 3 tightly packed floats");
+static_assert(offsetof(NodeSB, AbsPosition) + sizeof(Ogre::Vector3) + sizeof(float) <= sizeof(NodeSB), "reading past `NodeSB::AbsPosition` must stay within the struct");
+static_assert(offsetof(Locator_t, coords) + sizeof(Ogre::Vector3) + sizeof(float) <= sizeof(Locator_t), "reading past `Locator_t::coords` must stay within the struct");
+
+/// 1/sqrt(v) with one Newton-Raphson step (~22 bits, more precise than `fast_invSqrt()`); 0 where v <= 0, so zero-length vectors stay zero.
+static inline __m128 FlexInvSqrt(__m128 v)
+{
+    const __m128 y = _mm_rsqrt_ps(v);
+    const __m128 y_nr = _mm_mul_ps(y, _mm_sub_ps(_mm_set1_ps(1.5f), _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), v), _mm_mul_ps(y, y))));
+    return _mm_and_ps(y_nr, _mm_cmpgt_ps(v, _mm_setzero_ps()));
+}
+
+/// Loads 4 Vector3s and transposes to SoA: out_x = {v0.x, v1.x, v2.x, v3.x} etc. BEWARE: reads 1 float past each vector.
+static inline void FlexLoadSoA(const Ogre::Vector3& v0, const Ogre::Vector3& v1, const Ogre::Vector3& v2, const Ogre::Vector3& v3,
+                               __m128& out_x, __m128& out_y, __m128& out_z)
+{
+    __m128 a = _mm_loadu_ps(&v0.x);
+    __m128 b = _mm_loadu_ps(&v1.x);
+    __m128 c = _mm_loadu_ps(&v2.x);
+    __m128 d = _mm_loadu_ps(&v3.x);
+    _MM_TRANSPOSE4_PS(a, b, c, d);
+    out_x = a;
+    out_y = b;
+    out_z = c;
+}
+
+/// Transposes SoA back and writes exactly 4 consecutive Vector3s (never touches dst[4], which may belong to another thread).
+static inline void FlexStoreSoA(Ogre::Vector3* dst, __m128 x, __m128 y, __m128 z)
+{
+    __m128 w = _mm_setzero_ps();
+    _MM_TRANSPOSE4_PS(x, y, z, w);
+    _mm_storeu_ps(&dst[0].x, x); // The 4th float spills into dst[1].x, overwritten right after.
+    _mm_storeu_ps(&dst[1].x, y);
+    _mm_storeu_ps(&dst[2].x, z);
+    _mm_storel_pi(reinterpret_cast<__m64*>(&dst[3].x), w);
+    _mm_store_ss(&dst[3].z, _mm_movehl_ps(w, w));
+}
+
+#endif // ROR_FLEXBODY_SSE
 
 FlexBody::FlexBody(
     RoR::FlexBodyCacheData* preloaded_from_cache,
@@ -649,8 +701,54 @@ void FlexBody::computeFlexbodyVertices(int begin, int end)
     ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
 
     RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    int i = begin;
 
-    for (int i=begin; i<end; i++)
+#if ROR_FLEXBODY_SSE
+    // 4 vertices at a time, same math as the scalar loop below.
+    const __m128 center_x = _mm_set1_ps(m_flexit_center.x);
+    const __m128 center_y = _mm_set1_ps(m_flexit_center.y);
+    const __m128 center_z = _mm_set1_ps(m_flexit_center.z);
+    const int sse_end = std::min(end, (int)m_vertex_count - 1); // Loading `m_src_normals[i+3]` reads 1 float past it.
+    for (; i + 4 <= sse_end; i += 4)
+    {
+        const Locator_t* loc = &m_locators[i];
+        __m128 rx, ry, rz, xx, xy, xz, yx, yy, yz, cx, cy, cz, sx, sy, sz;
+        FlexLoadSoA(nodes[loc[0].ref].AbsPosition, nodes[loc[1].ref].AbsPosition, nodes[loc[2].ref].AbsPosition, nodes[loc[3].ref].AbsPosition, rx, ry, rz);
+        FlexLoadSoA(nodes[loc[0].nx].AbsPosition,  nodes[loc[1].nx].AbsPosition,  nodes[loc[2].nx].AbsPosition,  nodes[loc[3].nx].AbsPosition,  xx, xy, xz);
+        FlexLoadSoA(nodes[loc[0].ny].AbsPosition,  nodes[loc[1].ny].AbsPosition,  nodes[loc[2].ny].AbsPosition,  nodes[loc[3].ny].AbsPosition,  yx, yy, yz);
+        FlexLoadSoA(loc[0].coords, loc[1].coords, loc[2].coords, loc[3].coords, cx, cy, cz);
+        FlexLoadSoA(m_src_normals[i], m_src_normals[i+1], m_src_normals[i+2], m_src_normals[i+3], sx, sy, sz);
+
+        // diffX, diffY
+        const __m128 dxx = _mm_sub_ps(xx, rx), dxy = _mm_sub_ps(xy, ry), dxz = _mm_sub_ps(xz, rz);
+        const __m128 dyx = _mm_sub_ps(yx, rx), dyy = _mm_sub_ps(yy, ry), dyz = _mm_sub_ps(yz, rz);
+
+        // nCross = normalise(diffX x diffY)
+        __m128 nx = _mm_sub_ps(_mm_mul_ps(dxy, dyz), _mm_mul_ps(dxz, dyy));
+        __m128 ny = _mm_sub_ps(_mm_mul_ps(dxz, dyx), _mm_mul_ps(dxx, dyz));
+        __m128 nz = _mm_sub_ps(_mm_mul_ps(dxx, dyy), _mm_mul_ps(dxy, dyx));
+        const __m128 n_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(nx, nx), _mm_mul_ps(ny, ny)), _mm_mul_ps(nz, nz)));
+        nx = _mm_mul_ps(nx, n_inv);
+        ny = _mm_mul_ps(ny, n_inv);
+        nz = _mm_mul_ps(nz, n_inv);
+
+        // position = diffX * coords.x + diffY * coords.y + nCross * coords.z + ref - center
+        const __m128 px = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, cx), _mm_mul_ps(dyx, cy)), _mm_add_ps(_mm_mul_ps(nx, cz), _mm_sub_ps(rx, center_x)));
+        const __m128 py = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxy, cx), _mm_mul_ps(dyy, cy)), _mm_add_ps(_mm_mul_ps(ny, cz), _mm_sub_ps(ry, center_y)));
+        const __m128 pz = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxz, cx), _mm_mul_ps(dyz, cy)), _mm_add_ps(_mm_mul_ps(nz, cz), _mm_sub_ps(rz, center_z)));
+        FlexStoreSoA(&m_dst_pos[i], px, py, pz);
+
+        // normal = normalise(diffX * src.x + diffY * src.y + nCross * src.z)
+        __m128 ox = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, sx), _mm_mul_ps(dyx, sy)), _mm_mul_ps(nx, sz));
+        __m128 oy = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxy, sx), _mm_mul_ps(dyy, sy)), _mm_mul_ps(ny, sz));
+        __m128 oz = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxz, sx), _mm_mul_ps(dyz, sy)), _mm_mul_ps(nz, sz));
+        const __m128 o_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(ox, ox), _mm_mul_ps(oy, oy)), _mm_mul_ps(oz, oz)));
+        FlexStoreSoA(&m_dst_normals[i], _mm_mul_ps(ox, o_inv), _mm_mul_ps(oy, o_inv), _mm_mul_ps(oz, o_inv));
+    }
+#endif // ROR_FLEXBODY_SSE
+
+    // Remainder (or everything, if SSE isn't available)
+    for (; i<end; i++)
     {
         Vector3 diffX = nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
         Vector3 diffY = nodes[m_locators[i].ny].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
