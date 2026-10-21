@@ -3253,6 +3253,14 @@ void RoR::GfxActor::UpdateFlexbodies()
         return;
     }
 
+    // Map the back vertex buffers so tasks can write directly to them (must be done on main thread).
+    const Prof::Timeval_t prof_lock_start = Prof::ProfNow();
+    for (FlexBody* fb: visible_flexbodies)
+    {
+        fb->lockVertexBuffers();
+    }
+    m_actor->ar_prof.ProfAdd(PROF_FLEXBODY_LOCK, Prof::ProfNow() - prof_lock_start);
+
     const size_t MIN_VERTS_PER_TASK = 2000; // Below this, the threadpool overhead outweighs the work.
     const size_t max_tasks = static_cast<size_t>(std::max(1, App::app_num_workers->getInt()));
     const size_t num_tasks = Ogre::Math::Clamp<size_t>((total_verts + MIN_VERTS_PER_TASK - 1) / MIN_VERTS_PER_TASK, 1, max_tasks);
@@ -3355,7 +3363,8 @@ void RoR::GfxActor::FinishFlexbodyTasks()
 
     for (FlexBody* fb: m_flexbodies)
     {
-        if (fb->isVisible())
+        // Also locked ones - visibility may have been toggled (GUI, script) since `UpdateFlexbodies()`.
+        if (fb->isVisible() || fb->hasLockedVertexBuffers())
         {
             fb->updateFlexbodyVertexBuffers();
         }

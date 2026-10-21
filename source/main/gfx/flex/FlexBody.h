@@ -87,7 +87,9 @@ public:
     void computeFlexbodyCenter(); //!< Must be done before `computeFlexbodyVertices()`; cheap.
     void computeFlexbodyVertices(int begin, int end); //!< Thread-safe for disjoint vertex ranges; see `GfxActor::UpdateFlexbodies()`.
     bool hasTextureBlend() const { return m_has_texture_blend; }
-    void updateFlexbodyVertexBuffers();
+    void lockVertexBuffers(); //!< Main thread, before `computeFlexbodyVertices()` tasks are started: maps the back buffers so tasks can write directly to them.
+    bool hasLockedVertexBuffers() const { return m_vbufs_locked; }
+    void updateFlexbodyVertexBuffers(); //!< Main thread, after tasks are done: unlocks + swaps the back buffers (or uploads the CPU copy if double-buffering isn't available).
 
     bool isVisible() const;
     void setVisible(bool visible);
@@ -96,7 +98,7 @@ public:
 
     int getVertexCount() { return static_cast<int>(m_vertex_count); };
     Locator_t& getVertexLocator(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_locators[vert]; }
-    Ogre::Vector3 getVertexPos(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_dst_pos[vert] + m_flexit_center; }
+    Ogre::Vector3 getVertexPos(int vert); //!< Calculated on demand from locator - for diagnostics only.
     Ogre::Entity* getEntity() { return m_scene_entity; }
     const std::string& getOrigMeshName() const { return m_orig_mesh_name; }
     std::vector<NodeNum_t>& getForsetNodes() { return m_forset_nodes; };
@@ -114,6 +116,27 @@ public:
 private:
 
     void defragmentFlexbodyMesh();
+    void setupDoubleBuffers(); //!< Creates the back buffers; if anything doesn't fit, flexbody stays on the CPU-copy path.
+    void uploadCpuCopyLegacy(); //!< Writes `m_dst_pos/m_dst_normals` to the original buffers; only without double-buffering.
+    void computeVerticesInternal(int begin, int end, Ogre::Vector3* out_pos, Ogre::Vector3* out_normals); //!< `out_*[0]` is vertex `begin`.
+
+    /// Positions+normals of one vertex data block (shared or 1 submesh), double-buffered:
+    /// tasks write the back buffer (mapped) while the front one may still be rendered (mirrors, envmap).
+    struct VertexBufferSegment
+    {
+        Ogre::VertexBufferBinding*          vbs_binding = nullptr;
+        unsigned short                      vbs_pos_source = 0;
+        unsigned short                      vbs_norm_source = 0;
+        Ogre::HardwareVertexBufferSharedPtr vbs_pos[2];
+        Ogre::HardwareVertexBufferSharedPtr vbs_norm[2];
+        int                                 vbs_first_vert = 0;
+        int                                 vbs_num_verts = 0;
+        Ogre::Vector3*                      vbs_locked_pos = nullptr;   //!< Back buffer, valid between `lockVertexBuffers()` and `updateFlexbodyVertexBuffers()`
+        Ogre::Vector3*                      vbs_locked_norm = nullptr;
+    };
+    std::vector<VertexBufferSegment> m_vbuf_segments; //!< Empty if double-buffering isn't available
+    int                               m_vbuf_back = 1;  //!< Index (0/1) of the buffers not bound for rendering
+    bool                              m_vbufs_locked = false;
 
     RoR::GfxActor*    m_gfx_actor = nullptr;
     size_t            m_vertex_count = 0;

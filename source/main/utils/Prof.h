@@ -26,7 +26,8 @@ namespace RoR
         PROF_FLEXBODY_VERTS,   //!< Threadpool: `FlexBody::computeFlexbodyVertices()`
         PROF_FLEXBODY_TASK_MAX,//!< Threadpool: longest task (blend+verts) - the best case for JOIN; compare with VERTS/num_tasks for balance
         PROF_FLEXBODY_JOIN,    //!< Main thread: blocked waiting for flexbody tasks (>0 means flexbodies are on the critical path)
-        PROF_FLEXBODY_UPLOAD,  //!< Main thread: `FlexBody::updateFlexbodyVertexBuffers()` (writing to GPU buffers)
+        PROF_FLEXBODY_LOCK,    //!< Main thread: `FlexBody::lockVertexBuffers()` (mapping back buffers for direct write by tasks)
+        PROF_FLEXBODY_UPLOAD,  //!< Main thread: `FlexBody::updateFlexbodyVertexBuffers()` (unlock + swap back buffers, or CPU copy upload)
 
         PROF_Count_
     };
@@ -98,6 +99,7 @@ namespace RoR
             case PROF_FLEXBODY_VERTS: return "PROF_FLEXBODY_VERTS";
             case PROF_FLEXBODY_TASK_MAX: return "PROF_FLEXBODY_TASK_MAX";
             case PROF_FLEXBODY_JOIN: return "PROF_FLEXBODY_JOIN";
+            case PROF_FLEXBODY_LOCK: return "PROF_FLEXBODY_LOCK";
             case PROF_FLEXBODY_UPLOAD: return "PROF_FLEXBODY_UPLOAD";
             default: return "Unknown stat";
             }

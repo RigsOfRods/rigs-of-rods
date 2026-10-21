@@ -586,6 +586,76 @@ FlexBody::FlexBody(
     {
         this->defragmentFlexbodyMesh();
     }
+
+    this->setupDoubleBuffers();
+}
+
+void FlexBody::setupDoubleBuffers()
+{
+    // OpenGL (Ogre 1.11) maps big buffers via glBufferData(NULL) + glMapBuffer(), which stalls the driver
+    // on every lock (measured ~11ms/frame for 1 vehicle) - there the CPU copy + `writeData()` is much faster.
+    static const bool s_direct_upload_supported =
+        Ogre::Root::getSingleton().getRenderSystem()->getName().find("OpenGL") == std::string::npos;
+    if (!s_direct_upload_supported)
+    {
+        return;
+    }
+
+    Ogre::MeshPtr mesh = m_scene_entity->getMesh();
+    std::vector<VertexBufferSegment> segments;
+    int first_vert = 0;
+
+    auto add_segment = [&segments, &first_vert](Ogre::VertexData* vdata) -> bool
+    {
+        const Ogre::VertexElement* pos_elem = vdata->vertexDeclaration->findElementBySemantic(VES_POSITION);
+        const Ogre::VertexElement* norm_elem = vdata->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+        if (!pos_elem || !norm_elem || pos_elem->getSource() == norm_elem->getSource() || vdata->vertexCount == 0)
+        {
+            return false; // Positions and normals must be in separate buffers.
+        }
+        VertexBufferSegment seg;
+        seg.vbs_binding = vdata->vertexBufferBinding;
+        seg.vbs_pos_source = pos_elem->getSource();
+        seg.vbs_norm_source = norm_elem->getSource();
+        seg.vbs_pos[0] = seg.vbs_binding->getBuffer(seg.vbs_pos_source);
+        seg.vbs_norm[0] = seg.vbs_binding->getBuffer(seg.vbs_norm_source);
+        if (seg.vbs_pos[0]->getVertexSize() != sizeof(Ogre::Vector3) || seg.vbs_norm[0]->getVertexSize() != sizeof(Ogre::Vector3))
+        {
+            return false; // Must be tightly packed float3, the kernel writes Vector3s directly.
+        }
+        seg.vbs_num_verts = static_cast<int>(vdata->vertexCount);
+        seg.vbs_first_vert = first_vert;
+        seg.vbs_pos[1] = HardwareBufferManager::getSingleton().createVertexBuffer(
+            sizeof(Ogre::Vector3), vdata->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+        seg.vbs_norm[1] = HardwareBufferManager::getSingleton().createVertexBuffer(
+            sizeof(Ogre::Vector3), vdata->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+        first_vert += seg.vbs_num_verts;
+        segments.push_back(seg);
+        return true;
+    };
+
+    // Same order as `m_dst_pos` - shared vertices first, then submeshes with own vertices.
+    bool ok = true;
+    if (mesh->sharedVertexData)
+    {
+        ok = ok && add_segment(mesh->sharedVertexData);
+    }
+    for (unsigned short i = 0; ok && i < mesh->getNumSubMeshes(); i++)
+    {
+        if (!mesh->getSubMesh(i)->useSharedVertices)
+        {
+            ok = ok && add_segment(mesh->getSubMesh(i)->vertexData);
+        }
+    }
+
+    if (ok && first_vert == (int)m_vertex_count)
+    {
+        m_vbuf_segments = segments;
+    }
+    else
+    {
+        LOG(fmt::format("FLEXBODY '{}': vertex layout not suitable for direct upload, using slower CPU copy", mesh->getName()));
+    }
 }
 
 FlexBody::FlexBody(PlaceholderType p_type, FlexbodyID_t id, const std::string& orig_meshname)
@@ -625,6 +695,18 @@ void FlexBody::destroyOgreObjects()
 {
     // Separated out from destructor so that exceptions can be handled separately (C++ destructor cannot propagate exceptions)
     // -----------------------------------------------------------------------------------------------------------------------
+
+    // OGRE resource - double-buffered vertex buffers (may be still mapped if destroyed mid-frame)
+    if (m_vbufs_locked)
+    {
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_pos[m_vbuf_back]->unlock();
+            seg.vbs_norm[m_vbuf_back]->unlock();
+        }
+        m_vbufs_locked = false;
+    }
+    m_vbuf_segments.clear();
 
     // OGRE resource - scene node
     if (m_scene_node != nullptr)
@@ -700,6 +782,28 @@ void FlexBody::computeFlexbodyVertices(int begin, int end)
 {
     ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
 
+    if (!m_vbufs_locked)
+    {
+        // CPU copy, uploaded later by `updateFlexbodyVertexBuffers()`
+        this->computeVerticesInternal(begin, end, &m_dst_pos[begin], &m_dst_normals[begin]);
+        return;
+    }
+
+    // Write directly to the mapped back buffers; the range may span multiple segments.
+    for (VertexBufferSegment& seg: m_vbuf_segments)
+    {
+        const int seg_begin = std::max(begin, seg.vbs_first_vert);
+        const int seg_end = std::min(end, seg.vbs_first_vert + seg.vbs_num_verts);
+        if (seg_begin < seg_end)
+        {
+            const int offset = seg_begin - seg.vbs_first_vert;
+            this->computeVerticesInternal(seg_begin, seg_end, &seg.vbs_locked_pos[offset], &seg.vbs_locked_norm[offset]);
+        }
+    }
+}
+
+void FlexBody::computeVerticesInternal(int begin, int end, Ogre::Vector3* out_pos, Ogre::Vector3* out_normals)
+{
     RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
     int i = begin;
 
@@ -736,14 +840,14 @@ void FlexBody::computeFlexbodyVertices(int begin, int end)
         const __m128 px = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, cx), _mm_mul_ps(dyx, cy)), _mm_add_ps(_mm_mul_ps(nx, cz), _mm_sub_ps(rx, center_x)));
         const __m128 py = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxy, cx), _mm_mul_ps(dyy, cy)), _mm_add_ps(_mm_mul_ps(ny, cz), _mm_sub_ps(ry, center_y)));
         const __m128 pz = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxz, cx), _mm_mul_ps(dyz, cy)), _mm_add_ps(_mm_mul_ps(nz, cz), _mm_sub_ps(rz, center_z)));
-        FlexStoreSoA(&m_dst_pos[i], px, py, pz);
+        FlexStoreSoA(&out_pos[i - begin], px, py, pz);
 
         // normal = normalise(diffX * src.x + diffY * src.y + nCross * src.z)
         __m128 ox = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, sx), _mm_mul_ps(dyx, sy)), _mm_mul_ps(nx, sz));
         __m128 oy = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxy, sx), _mm_mul_ps(dyy, sy)), _mm_mul_ps(ny, sz));
         __m128 oz = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxz, sx), _mm_mul_ps(dyz, sy)), _mm_mul_ps(nz, sz));
         const __m128 o_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(ox, ox), _mm_mul_ps(oy, oy)), _mm_mul_ps(oz, oz)));
-        FlexStoreSoA(&m_dst_normals[i], _mm_mul_ps(ox, o_inv), _mm_mul_ps(oy, o_inv), _mm_mul_ps(oz, o_inv));
+        FlexStoreSoA(&out_normals[i - begin], _mm_mul_ps(ox, o_inv), _mm_mul_ps(oy, o_inv), _mm_mul_ps(oz, o_inv));
     }
 #endif // ROR_FLEXBODY_SSE
 
@@ -754,18 +858,60 @@ void FlexBody::computeFlexbodyVertices(int begin, int end)
         Vector3 diffY = nodes[m_locators[i].ny].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
         Vector3 nCross = fast_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
 
-        m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
-        m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
-        m_dst_pos[i].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
+        out_pos[i - begin].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
+        out_pos[i - begin].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
+        out_pos[i - begin].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
 
-        m_dst_pos[i] += nodes[m_locators[i].ref].AbsPosition - m_flexit_center;
+        out_pos[i - begin] += nodes[m_locators[i].ref].AbsPosition - m_flexit_center;
 
-        m_dst_normals[i].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
-        m_dst_normals[i].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
-        m_dst_normals[i].z = diffX.z * m_src_normals[i].x + diffY.z * m_src_normals[i].y + nCross.z * m_src_normals[i].z;
+        out_normals[i - begin].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
+        out_normals[i - begin].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
+        out_normals[i - begin].z = diffX.z * m_src_normals[i].x + diffY.z * m_src_normals[i].y + nCross.z * m_src_normals[i].z;
 
-        m_dst_normals[i] = fast_normalise(m_dst_normals[i]);
+        out_normals[i - begin] = fast_normalise(out_normals[i - begin]);
     }
+}
+
+void FlexBody::lockVertexBuffers()
+{
+    if (m_vbuf_segments.empty() || m_vbufs_locked || !m_scene_node)
+        return;
+
+    size_t num_locked = 0; // Buffers, for cleanup
+    try
+    {
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_locked_pos = static_cast<Ogre::Vector3*>(seg.vbs_pos[m_vbuf_back]->lock(HardwareBuffer::HBL_DISCARD));
+            num_locked++;
+            seg.vbs_locked_norm = static_cast<Ogre::Vector3*>(seg.vbs_norm[m_vbuf_back]->lock(HardwareBuffer::HBL_DISCARD));
+            num_locked++;
+        }
+        m_vbufs_locked = true;
+    }
+    catch (Ogre::Exception& e)
+    {
+        // Give up on direct upload for this flexbody; the CPU copy path keeps working.
+        LOG(fmt::format("FLEXBODY '{}': failed to lock vertex buffers ({}), using slower CPU copy", m_orig_mesh_name, e.getDescription()));
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            if (num_locked > 0) { seg.vbs_pos[m_vbuf_back]->unlock(); num_locked--; }
+            if (num_locked > 0) { seg.vbs_norm[m_vbuf_back]->unlock(); num_locked--; }
+        }
+        m_vbuf_segments.clear();
+    }
+}
+
+Ogre::Vector3 FlexBody::getVertexPos(int vert)
+{
+    ROR_ASSERT((size_t)vert < m_vertex_count);
+    // Vertex data may live only in GPU buffers (see `lockVertexBuffers()`), so calculate it from the locator.
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    const Locator_t& loc = m_locators[vert];
+    const Vector3 diffX = nodes[loc.nx].AbsPosition - nodes[loc.ref].AbsPosition;
+    const Vector3 diffY = nodes[loc.ny].AbsPosition - nodes[loc.ref].AbsPosition;
+    const Vector3 nCross = fast_normalise(diffX.crossProduct(diffY));
+    return nodes[loc.ref].AbsPosition + diffX * loc.coords.x + diffY * loc.coords.y + nCross * loc.coords.z;
 }
 
 void FlexBody::updateFlexbodyVertexBuffers()
@@ -773,6 +919,47 @@ void FlexBody::updateFlexbodyVertexBuffers()
     if (!m_scene_node) // Disabled via addonpart/tuneup
         return;
 
+    if (m_vbufs_locked)
+    {
+        // Tasks wrote directly to the back buffers - unlock and swap them with the front ones.
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_pos[m_vbuf_back]->unlock();
+            seg.vbs_norm[m_vbuf_back]->unlock();
+            seg.vbs_locked_pos = nullptr;
+            seg.vbs_locked_norm = nullptr;
+            seg.vbs_binding->setBinding(seg.vbs_pos_source, seg.vbs_pos[m_vbuf_back]);
+            seg.vbs_binding->setBinding(seg.vbs_norm_source, seg.vbs_norm[m_vbuf_back]);
+        }
+        m_vbuf_back = 1 - m_vbuf_back;
+        m_vbufs_locked = false;
+    }
+    else if (!m_vbuf_segments.empty())
+    {
+        // Computed without locking (i.e. `computeFlexbody()`) - upload the CPU copy to the front (bound) buffers.
+        const int front = 1 - m_vbuf_back;
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_pos[front]->writeData(0, seg.vbs_num_verts*sizeof(Vector3), &m_dst_pos[seg.vbs_first_vert], true);
+            seg.vbs_norm[front]->writeData(0, seg.vbs_num_verts*sizeof(Vector3), &m_dst_normals[seg.vbs_first_vert], true);
+        }
+    }
+    else
+    {
+        this->uploadCpuCopyLegacy();
+    }
+
+    if (m_blend_changed)
+    {
+        writeBlend();
+        m_blend_changed = false;
+    }
+
+    m_scene_node->setPosition(m_flexit_center);
+}
+
+void FlexBody::uploadCpuCopyLegacy()
+{
     Vector3 *ppt = m_dst_pos;
     Vector3 *npt = m_dst_normals;
     if (m_uses_shared_vertex_data)
@@ -789,14 +976,6 @@ void FlexBody::updateFlexbodyVertexBuffers()
         m_submesh_vbufs_norm[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(Vector3), npt, true);
         npt += m_submesh_vbufs_vertex_counts[i];
     }
-
-    if (m_blend_changed)
-    {
-        writeBlend();
-        m_blend_changed = false;
-    }
-
-    m_scene_node->setPosition(m_flexit_center);
 }
 
 void FlexBody::reset()
