@@ -3227,11 +3227,18 @@ void RoR::GfxActor::UpdateFlexbodies()
         const bool visible = (fb->fb_camera_mode_active == CAMERA_MODE_ALWAYS_VISIBLE || fb->fb_camera_mode_active == m_simbuf.simbuf_cur_cinecam);
         fb->setVisible(visible);
 
+        // Reset Prof (hidden flexbodies must report 0)
+        fb->fb_prof_queued_us = 0;
+        fb->fb_prof_blend_us = 0;
+        fb->fb_prof_verts_us = 0;
+
         // Update visible on background thread
         if (fb->isVisible())
         {
-            auto func = std::function<void()>([fb]()
+            const Prof::Timeval_t prof_submit = Prof::ProfNow();
+            auto func = std::function<void()>([fb, prof_submit]()
                 {
+                    fb->fb_prof_queued_us = Prof::ProfNow() - prof_submit;
                     fb->computeFlexbody();
                 });
             auto task_handle = App::GetThreadPool()->RunTask(func);
@@ -3258,10 +3265,23 @@ void RoR::GfxActor::SetFlexbodyVisible(bool visible)
 
 void RoR::GfxActor::FinishFlexbodyTasks()
 {
+    Prof& prof = m_actor->ar_prof;
+
+    const Prof::Timeval_t prof_join_start = Prof::ProfNow();
     for (auto& task: m_flexbody_tasks)
     {
         task->join();
     }
+    const Prof::Timeval_t prof_join_done = Prof::ProfNow();
+    prof.ProfAdd(PROF_FLEXBODY_JOIN, prof_join_done - prof_join_start);
+
+    for (FlexBody* fb: m_flexbodies)
+    {
+        prof.ProfAdd(PROF_FLEXBODY_QUEUED, fb->fb_prof_queued_us);
+        prof.ProfAdd(PROF_FLEXBODY_BLEND, fb->fb_prof_blend_us);
+        prof.ProfAdd(PROF_FLEXBODY_VERTS, fb->fb_prof_verts_us);
+    }
+
     for (FlexBody* fb: m_flexbodies)
     {
         if (fb->isVisible())
@@ -3269,6 +3289,7 @@ void RoR::GfxActor::FinishFlexbodyTasks()
             fb->updateFlexbodyVertexBuffers();
         }
     }
+    prof.ProfAdd(PROF_FLEXBODY_UPLOAD, Prof::ProfNow() - prof_join_done);
 }
 
 // internal helper

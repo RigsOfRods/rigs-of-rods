@@ -19,7 +19,13 @@ namespace RoR
         PROF_INTRACOL_RESOLVE,
         PROF_INTERCOL_UPDATE,
         PROF_INTERCOL_RESOLVE,
-        
+
+        // Flexbodies (per frame, not per physics tick); summed over all flexbodies of the actor.
+        PROF_FLEXBODY_QUEUED,  //!< Threadpool: time from task submit to task start (contention indicator)
+        PROF_FLEXBODY_BLEND,   //!< Threadpool: `FlexBody::updateBlend()` (contact/wet vertex colors)
+        PROF_FLEXBODY_VERTS,   //!< Threadpool: `FlexBody::computeFlexbody()` vertex loop
+        PROF_FLEXBODY_JOIN,    //!< Main thread: blocked waiting for flexbody tasks (>0 means flexbodies are on the critical path)
+        PROF_FLEXBODY_UPLOAD,  //!< Main thread: `FlexBody::updateFlexbodyVertexBuffers()` (writing to GPU buffers)
 
         PROF_Count_
     };
@@ -53,7 +59,13 @@ namespace RoR
             prof_actor = actor;
         }
 
-        Timeval_t ProfNow();
+        static Timeval_t ProfNow();
+
+        /// For measurements done elsewhere, i.e. on threadpool where `ProfBegin()/ProfEnd()` would race.
+        void ProfAdd(ProfStat stat, Timeval_t duration_us)
+        {
+            prof_totals_us[stat] += duration_us;
+        }
 
         void ProfBegin(ProfStat stat)
         {
@@ -80,6 +92,11 @@ namespace RoR
             case PROF_INTRACOL_RESOLVE: return "PROF_INTRACOL_RESOLVE";
             case PROF_INTERCOL_UPDATE: return "PROF_INTERCOL_UPDATE";
             case PROF_INTERCOL_RESOLVE: return "PROF_INTERCOL_RESOLVE";
+            case PROF_FLEXBODY_QUEUED: return "PROF_FLEXBODY_QUEUED";
+            case PROF_FLEXBODY_BLEND: return "PROF_FLEXBODY_BLEND";
+            case PROF_FLEXBODY_VERTS: return "PROF_FLEXBODY_VERTS";
+            case PROF_FLEXBODY_JOIN: return "PROF_FLEXBODY_JOIN";
+            case PROF_FLEXBODY_UPLOAD: return "PROF_FLEXBODY_UPLOAD";
             default: return "Unknown stat";
             }
         }

@@ -24,6 +24,7 @@
 #include "RigDef_Prerequisites.h"
 #include "Application.h"
 #include "Locator_t.h"
+#include "Prof.h"
 #include "SimData.h"
 #include "GfxData.h"
 #include "RigDef_File.h"
@@ -73,6 +74,13 @@ public:
     /// @{
     CameraMode_t          fb_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE; //!< Dynamic visibility mode {0 and higher = cinecam index}
     CameraMode_t          fb_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
+    /// @}
+
+    /// @name Prof - written by the flexbody's own task, collected on main thread after join (see `GfxActor::FinishFlexbodyTasks()`)
+    /// @{
+    Prof::Timeval_t       fb_prof_queued_us = 0;
+    Prof::Timeval_t       fb_prof_blend_us = 0;
+    Prof::Timeval_t       fb_prof_verts_us = 0;
     /// @}
 
     FlexBody(PlaceholderType, FlexbodyID_t id, const std::string& orig_meshname);

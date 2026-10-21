@@ -229,7 +229,7 @@ static usTimer gTimer;
     Prof::prof_globaltimer_initialized = true;
 }
 
-RoR::Prof::Timeval_t RoR::Prof::ProfNow()
+/*static*/ RoR::Prof::Timeval_t RoR::Prof::ProfNow()
 {
     return usTimer_Get(&gTimer);
 }

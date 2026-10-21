@@ -619,7 +619,10 @@ void FlexBody::setFlexbodyCastShadow(bool val)
 
 void FlexBody::computeFlexbody()
 {
+    const Prof::Timeval_t prof_start = Prof::ProfNow();
     if (m_has_texture_blend) updateBlend();
+    const Prof::Timeval_t prof_blend_done = Prof::ProfNow();
+    fb_prof_blend_us = prof_blend_done - prof_start;
 
     RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
 
@@ -656,6 +659,8 @@ void FlexBody::computeFlexbody()
 
         m_dst_normals[i] = fast_normalise(m_dst_normals[i]);
     }
+
+    fb_prof_verts_us = Prof::ProfNow() - prof_blend_done;
 }
 
 void FlexBody::updateFlexbodyVertexBuffers()
