@@ -34,6 +34,8 @@
 
 namespace RoR {
 
+struct NodeSB; // SimBuffers.h
+
 /// @addtogroup Gfx
 /// @{
 
@@ -83,9 +85,11 @@ public:
     void updateBlend(int begin, int end); //!< Thread-safe for disjoint vertex ranges.
     void writeBlend();
 
-    void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data. Single-threaded shortcut for the 3 functions below.
+    void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data. Single-threaded shortcut for the 3 functions below; bases must be current, see `calcNodeBases()`.
     void computeFlexbodyCenter(); //!< Must be done before `computeFlexbodyVertices()`; cheap.
-    void computeFlexbodyVertices(int begin, int end); //!< Thread-safe for disjoint vertex ranges; see `GfxActor::UpdateFlexbodies()`.
+    void computeFlexbodyVertices(int begin, int end); //!< Thread-safe for disjoint vertex ranges; see `GfxActor::UpdateFlexbodies()`. Needs current bases, see `calcNodeBases()`.
+    void setupNodeBases(); //!< Spawn only: registers REF/X/Y triplets of all locators with `GfxActor::RegisterFlexbodyBasis()`.
+    static void calcNodeBases(const NodeSB* nodes, const FlexNodeTriplet* triplets, FlexNodeBasis* out, size_t count); //!< `count` must be a multiple of 4.
     bool hasTextureBlend() const { return m_has_texture_blend; }
     void lockVertexBuffers(); //!< Main thread, before `computeFlexbodyVertices()` tasks are started: maps the back buffers so tasks can write directly to them.
     bool hasLockedVertexBuffers() const { return m_vbufs_locked; }
@@ -149,6 +153,7 @@ private:
     Ogre::Vector3*    m_dst_normals = nullptr;
     Ogre::ARGB*       m_src_colors = nullptr;
     Locator_t*        m_locators = nullptr; //!< 1 loc per vertex
+    std::vector<uint32_t> m_locator_bases;  //!< 1 per vertex, index to `GfxActor::GetFlexbodyBases()`; separate from `Locator_t` which is saved to cache as-is.
 
     NodeNum_t         m_node_center = NODENUM_INVALID;
     NodeNum_t         m_node_x = NODENUM_INVALID;

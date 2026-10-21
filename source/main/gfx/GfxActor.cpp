@@ -3217,6 +3217,41 @@ void RoR::GfxActor::SortFlexbodies()
     std::sort(m_flexbodies.begin(), m_flexbodies.end(), [](FlexBody* a, FlexBody* b) { return a->getVertexCount() > b->getVertexCount(); });
 }
 
+uint32_t RoR::GfxActor::RegisterFlexbodyBasis(NodeNum_t ref, NodeNum_t x, NodeNum_t y)
+{
+    const uint64_t key = (uint64_t(ref) << 32) | (uint64_t(x) << 16) | uint64_t(y);
+    auto itor = m_flexbody_basis_lookup.find(key);
+    if (itor != m_flexbody_basis_lookup.end())
+    {
+        return itor->second;
+    }
+
+    const uint32_t index = static_cast<uint32_t>(m_flexbody_basis_nodes.size());
+    FlexNodeTriplet triplet;
+    triplet.fnt_ref = ref;
+    triplet.fnt_x = x;
+    triplet.fnt_y = y;
+    m_flexbody_basis_nodes.push_back(triplet);
+    m_flexbody_basis_lookup[key] = index;
+    return index;
+}
+
+void RoR::GfxActor::SetupFlexbodyBases()
+{
+    for (FlexBody* fb: m_flexbodies)
+    {
+        fb->setupNodeBases();
+    }
+    m_flexbody_basis_lookup.clear(); // Only needed during spawn
+
+    // Pad to a multiple of 4 (duplicates of the last triplet) so `FlexBody::calcNodeBases()` doesn't need a scalar remainder.
+    while (!m_flexbody_basis_nodes.empty() && m_flexbody_basis_nodes.size() % 4 != 0)
+    {
+        m_flexbody_basis_nodes.push_back(m_flexbody_basis_nodes.back());
+    }
+    m_flexbody_bases.resize(m_flexbody_basis_nodes.size());
+}
+
 struct FlexbodyVertexRange // Helper for `GfxActor::UpdateFlexbodies()`
 {
     FlexBody* fvr_flexbody;
@@ -3252,6 +3287,11 @@ void RoR::GfxActor::UpdateFlexbodies()
     {
         return;
     }
+
+    // REF/X/Y bases shared by vertices - few enough to be done here, before tasks read them (~1500 for a typical car).
+    const Prof::Timeval_t prof_bases_start = Prof::ProfNow();
+    FlexBody::calcNodeBases(this->GetSimNodeBuffer(), m_flexbody_basis_nodes.data(), m_flexbody_bases.data(), m_flexbody_bases.size());
+    m_actor->ar_prof.ProfAdd(PROF_FLEXBODY_BASES, Prof::ProfNow() - prof_bases_start);
 
     // Map the back vertex buffers so tasks can write directly to them (must be done on main thread).
     const Prof::Timeval_t prof_lock_start = Prof::ProfNow();

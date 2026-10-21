@@ -30,6 +30,7 @@
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
 #include "GfxData.h"
+#include "Locator_t.h"
 #include "RigDef_Prerequisites.h"
 #include "SimBuffers.h"
 #include "Prof.h"
@@ -43,6 +44,7 @@
 #include <OgreTexture.h>
 #include <OgreVector3.h>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace RoR {
@@ -65,10 +67,13 @@ public:
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
     void                 SortFlexbodies();
+    uint32_t             RegisterFlexbodyBasis(NodeNum_t ref, NodeNum_t x, NodeNum_t y); //!< Spawn only; returns existing index if the triplet is already registered.
+    void                 SetupFlexbodyBases(); //!< To be called by `ActorSpawner` once all flexbodies exist.
 
     // Retrieving elements
 
     std::vector<FlexBody*>& GetFlexbodies() { return m_flexbodies; };
+    const FlexNodeBasis*    GetFlexbodyBases() const { return m_flexbody_bases.data(); } //!< Updated per frame by `UpdateFlexbodies()`; read-only for flexbody tasks.
     std::vector<Prop>&      getProps() { return m_props; }
     std::vector<CParticle>& getCParticles() { return m_cparticles; }
     std::vector<Exhaust>&   getExhausts() { return m_exhausts; }
@@ -184,6 +189,11 @@ private:
         Prof::Timeval_t ftp_verts_us = 0;
     };
     std::vector<FlexbodyTaskProf> m_flexbody_task_prof; //!< 1 per task in `m_flexbody_tasks`, see `UpdateFlexbodies()`
+
+    // Flexbody REF/X/Y bases shared by all vertices with the same locator nodes (k = ~50 verts per basis on a typical car).
+    std::vector<FlexNodeTriplet> m_flexbody_basis_nodes; //!< Unique triplets, padded to a multiple of 4 for the SSE kernel.
+    std::vector<FlexNodeBasis>   m_flexbody_bases;       //!< 1 per triplet, see `FlexBody::calcNodeBases()`
+    std::unordered_map<uint64_t, uint32_t> m_flexbody_basis_lookup; //!< Spawn only, see `RegisterFlexbodyBasis()`
 
     // Elements
     std::vector<NodeGfx>        m_gfx_nodes;

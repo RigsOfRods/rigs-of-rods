@@ -21,6 +21,7 @@ namespace RoR
         PROF_INTERCOL_RESOLVE,
 
         // Flexbodies (per frame, not per physics tick); summed over all vertex-range tasks of the actor.
+        PROF_FLEXBODY_BASES,   //!< Main thread: `FlexBody::calcNodeBases()` (shared REF/X/Y bases, before tasks start)
         PROF_FLEXBODY_QUEUED,  //!< Threadpool: time from task submit to task start (contention indicator)
         PROF_FLEXBODY_BLEND,   //!< Threadpool: `FlexBody::updateBlend()` (contact/wet vertex colors)
         PROF_FLEXBODY_VERTS,   //!< Threadpool: `FlexBody::computeFlexbodyVertices()`
@@ -94,6 +95,7 @@ namespace RoR
             case PROF_INTRACOL_RESOLVE: return "PROF_INTRACOL_RESOLVE";
             case PROF_INTERCOL_UPDATE: return "PROF_INTERCOL_UPDATE";
             case PROF_INTERCOL_RESOLVE: return "PROF_INTERCOL_RESOLVE";
+            case PROF_FLEXBODY_BASES: return "PROF_FLEXBODY_BASES";
             case PROF_FLEXBODY_QUEUED: return "PROF_FLEXBODY_QUEUED";
             case PROF_FLEXBODY_BLEND: return "PROF_FLEXBODY_BLEND";
             case PROF_FLEXBODY_VERTS: return "PROF_FLEXBODY_VERTS";

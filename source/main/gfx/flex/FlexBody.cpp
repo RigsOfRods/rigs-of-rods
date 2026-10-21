@@ -86,6 +86,20 @@ static inline void FlexStoreSoA(Ogre::Vector3* dst, __m128 x, __m128 y, __m128 z
     _mm_store_ss(&dst[3].z, _mm_movehl_ps(w, w));
 }
 
+/// Loads 4 float[4] vectors (see `FlexNodeBasis`) and transposes to SoA; the 4th float is ignored.
+static inline void FlexLoadSoA4(const float* v0, const float* v1, const float* v2, const float* v3,
+                                __m128& out_x, __m128& out_y, __m128& out_z)
+{
+    __m128 a = _mm_loadu_ps(v0);
+    __m128 b = _mm_loadu_ps(v1);
+    __m128 c = _mm_loadu_ps(v2);
+    __m128 d = _mm_loadu_ps(v3);
+    _MM_TRANSPOSE4_PS(a, b, c, d);
+    out_x = a;
+    out_y = b;
+    out_z = c;
+}
+
 #endif // ROR_FLEXBODY_SSE
 
 FlexBody::FlexBody(
@@ -809,8 +823,80 @@ void FlexBody::computeFlexbodyCenter()
     }
 }
 
+void FlexBody::setupNodeBases()
+{
+    if (m_placeholder_type != PlaceholderType::NOT_A_PLACEHOLDER)
+    {
+        return;
+    }
+
+    m_locator_bases.resize(m_vertex_count);
+    for (size_t i = 0; i < m_vertex_count; i++)
+    {
+        m_locator_bases[i] = m_gfx_actor->RegisterFlexbodyBasis(m_locators[i].ref, m_locators[i].nx, m_locators[i].ny);
+    }
+}
+
+/*static*/ void FlexBody::calcNodeBases(const NodeSB* nodes, const FlexNodeTriplet* triplets, FlexNodeBasis* out, size_t count)
+{
+    ROR_ASSERT(count % 4 == 0);
+
+#if ROR_FLEXBODY_SSE
+    for (size_t t = 0; t + 4 <= count; t += 4)
+    {
+        const FlexNodeTriplet* tri = &triplets[t];
+        __m128 rx, ry, rz, xx, xy, xz, yx, yy, yz;
+        FlexLoadSoA(nodes[tri[0].fnt_ref].AbsPosition, nodes[tri[1].fnt_ref].AbsPosition, nodes[tri[2].fnt_ref].AbsPosition, nodes[tri[3].fnt_ref].AbsPosition, rx, ry, rz);
+        FlexLoadSoA(nodes[tri[0].fnt_x].AbsPosition,   nodes[tri[1].fnt_x].AbsPosition,   nodes[tri[2].fnt_x].AbsPosition,   nodes[tri[3].fnt_x].AbsPosition,   xx, xy, xz);
+        FlexLoadSoA(nodes[tri[0].fnt_y].AbsPosition,   nodes[tri[1].fnt_y].AbsPosition,   nodes[tri[2].fnt_y].AbsPosition,   nodes[tri[3].fnt_y].AbsPosition,   yx, yy, yz);
+
+        // diffX, diffY
+        __m128 dxx = _mm_sub_ps(xx, rx), dxy = _mm_sub_ps(xy, ry), dxz = _mm_sub_ps(xz, rz);
+        __m128 dyx = _mm_sub_ps(yx, rx), dyy = _mm_sub_ps(yy, ry), dyz = _mm_sub_ps(yz, rz);
+
+        // normal = normalise(diffX x diffY)
+        __m128 nx = _mm_sub_ps(_mm_mul_ps(dxy, dyz), _mm_mul_ps(dxz, dyy));
+        __m128 ny = _mm_sub_ps(_mm_mul_ps(dxz, dyx), _mm_mul_ps(dxx, dyz));
+        __m128 nz = _mm_sub_ps(_mm_mul_ps(dxx, dyy), _mm_mul_ps(dxy, dyx));
+        const __m128 n_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(nx, nx), _mm_mul_ps(ny, ny)), _mm_mul_ps(nz, nz)));
+        nx = _mm_mul_ps(nx, n_inv);
+        ny = _mm_mul_ps(ny, n_inv);
+        nz = _mm_mul_ps(nz, n_inv);
+
+        // SoA -> 1 float[4] per basis vector
+        __m128 rw = _mm_setzero_ps(), dxw = _mm_setzero_ps(), dyw = _mm_setzero_ps(), nw = _mm_setzero_ps();
+        _MM_TRANSPOSE4_PS(rx, ry, rz, rw);
+        _MM_TRANSPOSE4_PS(dxx, dxy, dxz, dxw);
+        _MM_TRANSPOSE4_PS(dyx, dyy, dyz, dyw);
+        _MM_TRANSPOSE4_PS(nx, ny, nz, nw);
+        _mm_storeu_ps(out[t+0].fnb_ref, rx);  _mm_storeu_ps(out[t+0].fnb_diff_x, dxx); _mm_storeu_ps(out[t+0].fnb_diff_y, dyx); _mm_storeu_ps(out[t+0].fnb_normal, nx);
+        _mm_storeu_ps(out[t+1].fnb_ref, ry);  _mm_storeu_ps(out[t+1].fnb_diff_x, dxy); _mm_storeu_ps(out[t+1].fnb_diff_y, dyy); _mm_storeu_ps(out[t+1].fnb_normal, ny);
+        _mm_storeu_ps(out[t+2].fnb_ref, rz);  _mm_storeu_ps(out[t+2].fnb_diff_x, dxz); _mm_storeu_ps(out[t+2].fnb_diff_y, dyz); _mm_storeu_ps(out[t+2].fnb_normal, nz);
+        _mm_storeu_ps(out[t+3].fnb_ref, rw);  _mm_storeu_ps(out[t+3].fnb_diff_x, dxw); _mm_storeu_ps(out[t+3].fnb_diff_y, dyw); _mm_storeu_ps(out[t+3].fnb_normal, nw);
+    }
+#else
+    for (size_t t = 0; t < count; t++)
+    {
+        const Vector3& ref = nodes[triplets[t].fnt_ref].AbsPosition;
+        const Vector3 diffX = nodes[triplets[t].fnt_x].AbsPosition - ref;
+        const Vector3 diffY = nodes[triplets[t].fnt_y].AbsPosition - ref;
+        Vector3 normal = diffX.crossProduct(diffY);
+        const float len2 = normal.squaredLength();
+        normal *= (len2 > 0.f) ? (1.f / std::sqrt(len2)) : 0.f; // Zero-length stays zero, like the SSE path
+        const Vector3* src[4] = {&ref, &diffX, &diffY, &normal};
+        float* dst[4] = {out[t].fnb_ref, out[t].fnb_diff_x, out[t].fnb_diff_y, out[t].fnb_normal};
+        for (int v = 0; v < 4; v++)
+        {
+            dst[v][0] = src[v]->x; dst[v][1] = src[v]->y; dst[v][2] = src[v]->z; dst[v][3] = 0.f;
+        }
+    }
+#endif // ROR_FLEXBODY_SSE
+}
+
 void FlexBody::computeFlexbodyVertices(int begin, int end)
 {
+    ROR_ASSERT(m_locator_bases.size() == m_vertex_count); // See `setupNodeBases()`
+
     ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
 
     if (!m_vbufs_locked)
@@ -835,7 +921,8 @@ void FlexBody::computeFlexbodyVertices(int begin, int end)
 
 void FlexBody::computeVerticesInternal(int begin, int end, Ogre::Vector3* out_pos, Ogre::Vector3* out_normals)
 {
-    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    const FlexNodeBasis* bases = m_gfx_actor->GetFlexbodyBases();
+    const uint32_t* basis_ids = m_locator_bases.data();
     int i = begin;
 
 #if ROR_FLEXBODY_SSE
@@ -846,26 +933,19 @@ void FlexBody::computeVerticesInternal(int begin, int end, Ogre::Vector3* out_po
     const int sse_end = std::min(end, (int)m_vertex_count - 1); // Loading `m_src_normals[i+3]` reads 1 float past it.
     for (; i + 4 <= sse_end; i += 4)
     {
+        // Shared REF/X/Y bases (see `calcNodeBases()`) - instead of 3 node positions, cross product and normalisation per vertex.
+        const FlexNodeBasis& b0 = bases[basis_ids[i]];
+        const FlexNodeBasis& b1 = bases[basis_ids[i+1]];
+        const FlexNodeBasis& b2 = bases[basis_ids[i+2]];
+        const FlexNodeBasis& b3 = bases[basis_ids[i+3]];
         const Locator_t* loc = &m_locators[i];
-        __m128 rx, ry, rz, xx, xy, xz, yx, yy, yz, cx, cy, cz, sx, sy, sz;
-        FlexLoadSoA(nodes[loc[0].ref].AbsPosition, nodes[loc[1].ref].AbsPosition, nodes[loc[2].ref].AbsPosition, nodes[loc[3].ref].AbsPosition, rx, ry, rz);
-        FlexLoadSoA(nodes[loc[0].nx].AbsPosition,  nodes[loc[1].nx].AbsPosition,  nodes[loc[2].nx].AbsPosition,  nodes[loc[3].nx].AbsPosition,  xx, xy, xz);
-        FlexLoadSoA(nodes[loc[0].ny].AbsPosition,  nodes[loc[1].ny].AbsPosition,  nodes[loc[2].ny].AbsPosition,  nodes[loc[3].ny].AbsPosition,  yx, yy, yz);
+        __m128 rx, ry, rz, dxx, dxy, dxz, dyx, dyy, dyz, nx, ny, nz, cx, cy, cz, sx, sy, sz;
+        FlexLoadSoA4(b0.fnb_ref,    b1.fnb_ref,    b2.fnb_ref,    b3.fnb_ref,    rx,  ry,  rz);
+        FlexLoadSoA4(b0.fnb_diff_x, b1.fnb_diff_x, b2.fnb_diff_x, b3.fnb_diff_x, dxx, dxy, dxz);
+        FlexLoadSoA4(b0.fnb_diff_y, b1.fnb_diff_y, b2.fnb_diff_y, b3.fnb_diff_y, dyx, dyy, dyz);
+        FlexLoadSoA4(b0.fnb_normal, b1.fnb_normal, b2.fnb_normal, b3.fnb_normal, nx,  ny,  nz);
         FlexLoadSoA(loc[0].coords, loc[1].coords, loc[2].coords, loc[3].coords, cx, cy, cz);
         FlexLoadSoA(m_src_normals[i], m_src_normals[i+1], m_src_normals[i+2], m_src_normals[i+3], sx, sy, sz);
-
-        // diffX, diffY
-        const __m128 dxx = _mm_sub_ps(xx, rx), dxy = _mm_sub_ps(xy, ry), dxz = _mm_sub_ps(xz, rz);
-        const __m128 dyx = _mm_sub_ps(yx, rx), dyy = _mm_sub_ps(yy, ry), dyz = _mm_sub_ps(yz, rz);
-
-        // nCross = normalise(diffX x diffY)
-        __m128 nx = _mm_sub_ps(_mm_mul_ps(dxy, dyz), _mm_mul_ps(dxz, dyy));
-        __m128 ny = _mm_sub_ps(_mm_mul_ps(dxz, dyx), _mm_mul_ps(dxx, dyz));
-        __m128 nz = _mm_sub_ps(_mm_mul_ps(dxx, dyy), _mm_mul_ps(dxy, dyx));
-        const __m128 n_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(nx, nx), _mm_mul_ps(ny, ny)), _mm_mul_ps(nz, nz)));
-        nx = _mm_mul_ps(nx, n_inv);
-        ny = _mm_mul_ps(ny, n_inv);
-        nz = _mm_mul_ps(nz, n_inv);
 
         // position = diffX * coords.x + diffY * coords.y + nCross * coords.z + ref - center
         const __m128 px = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, cx), _mm_mul_ps(dyx, cy)), _mm_add_ps(_mm_mul_ps(nx, cz), _mm_sub_ps(rx, center_x)));
@@ -885,15 +965,17 @@ void FlexBody::computeVerticesInternal(int begin, int end, Ogre::Vector3* out_po
     // Remainder (or everything, if SSE isn't available)
     for (; i<end; i++)
     {
-        Vector3 diffX = nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
-        Vector3 diffY = nodes[m_locators[i].ny].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
-        Vector3 nCross = fast_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
+        const FlexNodeBasis& basis = bases[basis_ids[i]];
+        const Vector3 ref(basis.fnb_ref);
+        const Vector3 diffX(basis.fnb_diff_x);
+        const Vector3 diffY(basis.fnb_diff_y);
+        const Vector3 nCross(basis.fnb_normal);
 
         out_pos[i - begin].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
         out_pos[i - begin].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
         out_pos[i - begin].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
 
-        out_pos[i - begin] += nodes[m_locators[i].ref].AbsPosition - m_flexit_center;
+        out_pos[i - begin] += ref - m_flexit_center;
 
         out_normals[i - begin].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
         out_normals[i - begin].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;

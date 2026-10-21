@@ -629,6 +629,8 @@ void ActorSpawner::FinalizeRig()
 
     m_flex_factory.SaveFlexbodiesToCache();
 
+    m_actor->GetGfxActor()->SetupFlexbodyBases(); // All flexbodies (incl. flexbodywheels) exist by now.
+
     // Diagnostic: REF/X/Y triplets shared across all flexbodies of the actor (per-flexbody numbers are logged by FlexBody).
     {
         std::unordered_set<uint64_t> unique_triplets;
