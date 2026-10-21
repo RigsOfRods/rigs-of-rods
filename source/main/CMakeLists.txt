@@ -229,6 +229,7 @@ set(SOURCE_FILES
         utils/Language.{h,cpp}
         utils/MeshObject.{h,cpp}
         utils/PlatformUtils.{h,cpp}
+        utils/Prof.{h,cpp}
         utils/SHA1.{h,cpp}
         utils/Utils.{h,cpp}
         utils/Vec3.h
