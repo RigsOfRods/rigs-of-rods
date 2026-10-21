@@ -82,6 +82,7 @@
 #include <OgreEntity.h>
 #include <climits>
 #include <fmt/format.h>
+#include <unordered_set>
 
 using namespace RoR;
 
@@ -627,6 +628,27 @@ void ActorSpawner::FinalizeRig()
     }
 
     m_flex_factory.SaveFlexbodiesToCache();
+
+    // Diagnostic: REF/X/Y triplets shared across all flexbodies of the actor (per-flexbody numbers are logged by FlexBody).
+    {
+        std::unordered_set<uint64_t> unique_triplets;
+        size_t total_verts = 0;
+        for (FlexBody* fb: m_actor->GetGfxActor()->GetFlexbodies())
+        {
+            for (int i = 0; i < fb->getVertexCount(); i++)
+            {
+                const Locator_t& loc = fb->getVertexLocator(i);
+                unique_triplets.insert((uint64_t(loc.ref) << 32) | (uint64_t(loc.nx) << 16) | uint64_t(loc.ny));
+            }
+            total_verts += static_cast<size_t>(fb->getVertexCount());
+        }
+        if (total_verts > 0)
+        {
+            LOG(fmt::format("FLEXBODY totals for actor '{}': {} flexbodies, {} vertices, {} unique REF/X/Y triplets (k = {:.1f} verts per triplet)",
+                m_actor->ar_filename, m_actor->GetGfxActor()->GetFlexbodies().size(), total_verts, unique_triplets.size(),
+                (double)total_verts / unique_triplets.size()));
+        }
+    }
 
     m_actor->GetGfxActor()->SortFlexbodies();
 }

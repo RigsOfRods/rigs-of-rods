@@ -32,6 +32,7 @@
 
 #include <Ogre.h>
 #include <cstddef> // offsetof
+#include <unordered_set>
 
 // SSE (1) is enough for the vertex kernel; it's always available on x86-64.
 #if (defined(__SSE__) || defined(_M_X64) || defined(_M_AMD64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)) && (OGRE_DOUBLE_PRECISION == 0)
@@ -586,6 +587,16 @@ FlexBody::FlexBody(
     {
         this->defragmentFlexbodyMesh();
     }
+
+    // Diagnostic: how many vertices share each REF/X/Y triplet (k) - decides whether caching shared bases would pay off.
+    std::unordered_set<uint64_t> unique_triplets;
+    for (size_t i = 0; i < m_vertex_count; i++)
+    {
+        unique_triplets.insert((uint64_t(m_locators[i].ref) << 32) | (uint64_t(m_locators[i].nx) << 16) | uint64_t(m_locators[i].ny));
+    }
+    LOG(fmt::format("FLEXBODY '{}': {} vertices, {} forset nodes, {} unique REF/X/Y triplets (k = {:.1f} verts per triplet)",
+        mesh_name, m_vertex_count, node_indices.size(), unique_triplets.size(),
+        unique_triplets.empty() ? 0.0 : (double)m_vertex_count / unique_triplets.size()));
 
     this->setupDoubleBuffers();
 }
