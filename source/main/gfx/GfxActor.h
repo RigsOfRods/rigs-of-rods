@@ -32,6 +32,7 @@
 #include "GfxData.h"
 #include "RigDef_Prerequisites.h"
 #include "SimBuffers.h"
+#include "Prof.h"
 #include "SurveyMapEntity.h"
 #include "ThreadPool.h" // class Task
 
@@ -176,6 +177,13 @@ private:
     // Threaded tasks
     std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
+    struct FlexbodyTaskProf //!< Written only by its own task, collected after join.
+    {
+        Prof::Timeval_t ftp_queued_us = 0;
+        Prof::Timeval_t ftp_blend_us = 0;
+        Prof::Timeval_t ftp_verts_us = 0;
+    };
+    std::vector<FlexbodyTaskProf> m_flexbody_task_prof; //!< 1 per task in `m_flexbody_tasks`, see `UpdateFlexbodies()`
 
     // Elements
     std::vector<NodeGfx>        m_gfx_nodes;

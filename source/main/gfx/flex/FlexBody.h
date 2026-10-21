@@ -24,13 +24,13 @@
 #include "RigDef_Prerequisites.h"
 #include "Application.h"
 #include "Locator_t.h"
-#include "Prof.h"
 #include "SimData.h"
 #include "GfxData.h"
 #include "RigDef_File.h"
 #include "Utils.h"
 
 #include <Ogre.h>
+#include <atomic>
 
 namespace RoR {
 
@@ -76,21 +76,17 @@ public:
     CameraMode_t          fb_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
     /// @}
 
-    /// @name Prof - written by the flexbody's own task, collected on main thread after join (see `GfxActor::FinishFlexbodyTasks()`)
-    /// @{
-    Prof::Timeval_t       fb_prof_queued_us = 0;
-    Prof::Timeval_t       fb_prof_blend_us = 0;
-    Prof::Timeval_t       fb_prof_verts_us = 0;
-    /// @}
-
     FlexBody(PlaceholderType, FlexbodyID_t id, const std::string& orig_meshname);
     ~FlexBody();
 
     void reset();
-    void updateBlend();
+    void updateBlend(int begin, int end); //!< Thread-safe for disjoint vertex ranges.
     void writeBlend();
 
-    void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
+    void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data. Single-threaded shortcut for the 3 functions below.
+    void computeFlexbodyCenter(); //!< Must be done before `computeFlexbodyVertices()`; cheap.
+    void computeFlexbodyVertices(int begin, int end); //!< Thread-safe for disjoint vertex ranges; see `GfxActor::UpdateFlexbodies()`.
+    bool hasTextureBlend() const { return m_has_texture_blend; }
     void updateFlexbodyVertexBuffers();
 
     bool isVisible() const;
@@ -153,7 +149,7 @@ private:
     bool m_uses_shared_vertex_data = false;
     bool m_has_texture = true;
     bool m_has_texture_blend = true;
-    bool m_blend_changed = false;
+    std::atomic<bool> m_blend_changed{false}; //!< Set by `updateBlend()` from multiple threads
 
     // Diagnostic data, not used for calculations
     std::vector<NodeNum_t> m_forset_nodes;

@@ -3217,33 +3217,100 @@ void RoR::GfxActor::SortFlexbodies()
     std::sort(m_flexbodies.begin(), m_flexbodies.end(), [](FlexBody* a, FlexBody* b) { return a->getVertexCount() > b->getVertexCount(); });
 }
 
+struct FlexbodyVertexRange // Helper for `GfxActor::UpdateFlexbodies()`
+{
+    FlexBody* fvr_flexbody;
+    int fvr_begin;
+    int fvr_end;
+};
+
 void RoR::GfxActor::UpdateFlexbodies()
 {
-    m_flexbody_tasks.clear();
+    // Split vertices of all visible flexbodies evenly among threadpool tasks, regardless of mesh sizes,
+    // so that a single huge flexbody doesn't decide how long the main thread waits in `FinishFlexbodyTasks()`.
+    // --------------------------------------------------------------------------------------------------------
 
+    m_flexbody_tasks.clear();
+    m_flexbody_task_prof.clear();
+
+    std::vector<FlexBody*> visible_flexbodies;
+    size_t total_verts = 0;
     for (FlexBody* fb: m_flexbodies)
     {
         // Update visibility (same logic as props)
         const bool visible = (fb->fb_camera_mode_active == CAMERA_MODE_ALWAYS_VISIBLE || fb->fb_camera_mode_active == m_simbuf.simbuf_cur_cinecam);
         fb->setVisible(visible);
 
-        // Reset Prof (hidden flexbodies must report 0)
-        fb->fb_prof_queued_us = 0;
-        fb->fb_prof_blend_us = 0;
-        fb->fb_prof_verts_us = 0;
-
-        // Update visible on background thread
         if (fb->isVisible())
         {
-            const Prof::Timeval_t prof_submit = Prof::ProfNow();
-            auto func = std::function<void()>([fb, prof_submit]()
-                {
-                    fb->fb_prof_queued_us = Prof::ProfNow() - prof_submit;
-                    fb->computeFlexbody();
-                });
-            auto task_handle = App::GetThreadPool()->RunTask(func);
-            m_flexbody_tasks.push_back(task_handle);
+            fb->computeFlexbodyCenter(); // Cheap; must be done before any vertex range.
+            visible_flexbodies.push_back(fb);
+            total_verts += static_cast<size_t>(fb->getVertexCount());
         }
+    }
+    if (total_verts == 0)
+    {
+        return;
+    }
+
+    const size_t MIN_VERTS_PER_TASK = 2000; // Below this, the threadpool overhead outweighs the work.
+    const size_t max_tasks = static_cast<size_t>(std::max(1, App::app_num_workers->getInt()));
+    const size_t num_tasks = Ogre::Math::Clamp<size_t>((total_verts + MIN_VERTS_PER_TASK - 1) / MIN_VERTS_PER_TASK, 1, max_tasks);
+    const size_t verts_per_task = (total_verts + num_tasks - 1) / num_tasks;
+
+    // Cut the flexbodies into vertex ranges; one task may span multiple flexbodies and one flexbody may span multiple tasks.
+    std::vector<std::vector<FlexbodyVertexRange>> task_ranges(num_tasks);
+    size_t task = 0;
+    size_t task_fill = 0;
+    for (FlexBody* fb: visible_flexbodies)
+    {
+        const size_t num_verts = static_cast<size_t>(fb->getVertexCount());
+        size_t begin = 0;
+        while (begin < num_verts)
+        {
+            const size_t end = std::min(num_verts, begin + (verts_per_task - task_fill));
+            task_ranges[task].push_back({fb, static_cast<int>(begin), static_cast<int>(end)});
+            task_fill += end - begin;
+            begin = end;
+            if (task_fill == verts_per_task && task + 1 < num_tasks)
+            {
+                task++;
+                task_fill = 0;
+            }
+        }
+    }
+
+    // Each task writes only its own Prof slot - don't resize after tasks are started!
+    m_flexbody_task_prof.resize(num_tasks);
+    const Prof::Timeval_t prof_submit = Prof::ProfNow();
+    for (size_t t = 0; t < num_tasks; t++)
+    {
+        if (task_ranges[t].empty())
+        {
+            continue;
+        }
+        FlexbodyTaskProf* task_prof = &m_flexbody_task_prof[t];
+        std::vector<FlexbodyVertexRange> ranges = task_ranges[t];
+        auto func = std::function<void()>([ranges, task_prof, prof_submit]()
+            {
+                Prof::Timeval_t prof_now = Prof::ProfNow();
+                task_prof->ftp_queued_us = prof_now - prof_submit;
+                for (const FlexbodyVertexRange& range: ranges)
+                {
+                    if (range.fvr_flexbody->hasTextureBlend())
+                    {
+                        range.fvr_flexbody->updateBlend(range.fvr_begin, range.fvr_end);
+                    }
+                    const Prof::Timeval_t prof_blend_done = Prof::ProfNow();
+                    range.fvr_flexbody->computeFlexbodyVertices(range.fvr_begin, range.fvr_end);
+                    const Prof::Timeval_t prof_verts_done = Prof::ProfNow();
+
+                    task_prof->ftp_blend_us += prof_blend_done - prof_now;
+                    task_prof->ftp_verts_us += prof_verts_done - prof_blend_done;
+                    prof_now = prof_verts_done;
+                }
+            });
+        m_flexbody_tasks.push_back(App::GetThreadPool()->RunTask(func));
     }
 }
 
@@ -3275,12 +3342,16 @@ void RoR::GfxActor::FinishFlexbodyTasks()
     const Prof::Timeval_t prof_join_done = Prof::ProfNow();
     prof.ProfAdd(PROF_FLEXBODY_JOIN, prof_join_done - prof_join_start);
 
-    for (FlexBody* fb: m_flexbodies)
+    Prof::Timeval_t prof_task_max_us = 0;
+    for (const FlexbodyTaskProf& task_prof: m_flexbody_task_prof)
     {
-        prof.ProfAdd(PROF_FLEXBODY_QUEUED, fb->fb_prof_queued_us);
-        prof.ProfAdd(PROF_FLEXBODY_BLEND, fb->fb_prof_blend_us);
-        prof.ProfAdd(PROF_FLEXBODY_VERTS, fb->fb_prof_verts_us);
+        prof.ProfAdd(PROF_FLEXBODY_QUEUED, task_prof.ftp_queued_us);
+        prof.ProfAdd(PROF_FLEXBODY_BLEND, task_prof.ftp_blend_us);
+        prof.ProfAdd(PROF_FLEXBODY_VERTS, task_prof.ftp_verts_us);
+        prof_task_max_us = std::max(prof_task_max_us, task_prof.ftp_blend_us + task_prof.ftp_verts_us);
     }
+    prof.ProfAdd(PROF_FLEXBODY_TASK_MAX, prof_task_max_us);
+    m_flexbody_task_prof.clear();
 
     for (FlexBody* fb: m_flexbodies)
     {

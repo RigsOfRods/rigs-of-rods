@@ -619,11 +619,13 @@ void FlexBody::setFlexbodyCastShadow(bool val)
 
 void FlexBody::computeFlexbody()
 {
-    const Prof::Timeval_t prof_start = Prof::ProfNow();
-    if (m_has_texture_blend) updateBlend();
-    const Prof::Timeval_t prof_blend_done = Prof::ProfNow();
-    fb_prof_blend_us = prof_blend_done - prof_start;
+    if (m_has_texture_blend) updateBlend(0, (int)m_vertex_count);
+    this->computeFlexbodyCenter();
+    this->computeFlexbodyVertices(0, (int)m_vertex_count);
+}
 
+void FlexBody::computeFlexbodyCenter()
+{
     RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
 
     // compute the local center
@@ -640,8 +642,15 @@ void FlexBody::computeFlexbody()
     {
         m_flexit_center = nodes[0].AbsPosition;
     }
+}
 
-    for (int i=0; i<(int)m_vertex_count; i++)
+void FlexBody::computeFlexbodyVertices(int begin, int end)
+{
+    ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
+
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+
+    for (int i=begin; i<end; i++)
     {
         Vector3 diffX = nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
         Vector3 diffY = nodes[m_locators[i].ny].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
@@ -659,8 +668,6 @@ void FlexBody::computeFlexbody()
 
         m_dst_normals[i] = fast_normalise(m_dst_normals[i]);
     }
-
-    fb_prof_verts_us = Prof::ProfNow() - prof_blend_done;
 }
 
 void FlexBody::updateFlexbodyVertexBuffers()
@@ -719,23 +726,30 @@ void FlexBody::writeBlend()
     }
 }
 
-void FlexBody::updateBlend() //so easy!
+void FlexBody::updateBlend(int begin, int end) //so easy!
 {
+    ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
+
     RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
-    for (int i=0; i<(int)m_vertex_count; i++)
+    bool changed = false;
+    for (int i=begin; i<end; i++)
     {
         RoR::NodeSB *nd = &nodes[m_locators[i].ref];
         ARGB col = m_src_colors[i];
         if (nd->nd_has_contact && !(col&0xFF000000))
         {
             m_src_colors[i]=col|0xFF000000;
-            m_blend_changed = true;
+            changed = true;
         }
         if (nd->nd_is_wet ^ ((col&0x000000FF)>0))
         {
             m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*nd->nd_is_wet;
-            m_blend_changed = true;
+            changed = true;
         }
+    }
+    if (changed)
+    {
+        m_blend_changed = true; // Atomic - multiple vertex ranges may be processed in parallel
     }
 }
 
