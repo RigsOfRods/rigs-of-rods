@@ -47,6 +47,7 @@
 #include "Differentials.h"
 #include "Engine.h"
 #include "FlexAirfoil.h"
+#include "FlexAirfoilMesh.h"
 #include "FlexBody.h"
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
@@ -81,6 +82,7 @@
 #include <OgreEntity.h>
 #include <climits>
 #include <fmt/format.h>
+#include <unordered_set>
 
 using namespace RoR;
 
@@ -627,6 +629,29 @@ void ActorSpawner::FinalizeRig()
 
     m_flex_factory.SaveFlexbodiesToCache();
 
+    m_actor->GetGfxActor()->SetupFlexbodyBases(); // All flexbodies (incl. flexbodywheels) exist by now.
+
+    // Diagnostic: REF/X/Y triplets shared across all flexbodies of the actor (per-flexbody numbers are logged by FlexBody).
+    {
+        std::unordered_set<uint64_t> unique_triplets;
+        size_t total_verts = 0;
+        for (FlexBody* fb: m_actor->GetGfxActor()->GetFlexbodies())
+        {
+            for (int i = 0; i < fb->getVertexCount(); i++)
+            {
+                const Locator_t& loc = fb->getVertexLocator(i);
+                unique_triplets.insert((uint64_t(loc.ref) << 32) | (uint64_t(loc.nx) << 16) | uint64_t(loc.ny));
+            }
+            total_verts += static_cast<size_t>(fb->getVertexCount());
+        }
+        if (total_verts > 0)
+        {
+            LOG(fmt::format("FLEXBODY totals for actor '{}': {} flexbodies, {} vertices, {} unique REF/X/Y triplets (k = {:.1f} verts per triplet)",
+                m_actor->ar_filename, m_actor->GetGfxActor()->GetFlexbodies().size(), total_verts, unique_triplets.size(),
+                (double)total_verts / unique_triplets.size()));
+        }
+    }
+
     m_actor->GetGfxActor()->SortFlexbodies();
 }
 
@@ -971,7 +996,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     NodeNum_t node1 = this->GetNodeIndexOrThrow(def.nodes[1]);
 
     const std::string wing_name = this->ComposeName("wing", m_actor->ar_num_wings);
-    auto flex_airfoil = new FlexAirfoil(
+    FlexAirfoil* flex_airfoil = new FlexAirfoil(
         wing_name,
         m_actor,
         this->GetNodeIndexOrThrow(def.nodes[0]),
@@ -982,11 +1007,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         this->GetNodeIndexOrThrow(def.nodes[5]),
         this->GetNodeIndexOrThrow(def.nodes[6]),
         this->GetNodeIndexOrThrow(def.nodes[7]),
-        m_cab_material_name,
-        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
-        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
-        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
-        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7]),
         (char)def.control_surface,
         def.chord_point,
         def.min_deflection,
@@ -1183,8 +1203,23 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
     // Add new wing to rig
     m_actor->ar_wings[m_actor->ar_num_wings].fa = flex_airfoil;
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode->attachObject(entity);
+
+    // Add the visual wing
+    FlexAirfoilMesh* flex_af_mesh = new FlexAirfoilMesh(
+        m_actor,
+        m_actor->ar_num_wings,
+        m_cab_material_name,
+        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
+        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
+        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
+        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7])
+    );
+    WingGfx wing_gfx;
+    wing_gfx.wing_id = m_actor->ar_num_wings;
+    wing_gfx.cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
+    wing_gfx.cnode->attachObject(entity);
+    wing_gfx.flex_airfoil_mesh = flex_af_mesh;
+    m_actor->GetGfxActor()->m_gfx_wings.push_back(wing_gfx);
 
     ++m_actor->ar_num_wings;
 }
