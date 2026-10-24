@@ -23,22 +23,33 @@ function(recursive_zip_folder in_dir out_dir)
         file(GLOB_RECURSE ZIP_FILES LIST_DIRECTORIES TRUE "${in_dir}/${ZIP_DIR}/*")
 
         set(ZIP_FILES_TXT "")
+        set(ZIP_INVENTORY_TXT "")
         set(ZIP_FILES_DEP "")
         foreach (ZIP_FILE ${ZIP_FILES})
             file(RELATIVE_PATH REL_PATH "${in_dir}/${ZIP_DIR}" "${ZIP_FILE}")
-            set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${REL_PATH}\n")
+            set(ZIP_INVENTORY_TXT "${ZIP_INVENTORY_TXT}${REL_PATH}\n")
+            # tar recurses into directories; list only immediate children once.
+            if (NOT REL_PATH MATCHES "/")
+                set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${REL_PATH}\n")
+            endif ()
             if (NOT IS_DIRECTORY ${ZIP_FILE})
                 list(APPEND ZIP_FILES_DEP ${ZIP_FILE})
             endif ()
         endforeach ()
-        file(WRITE "${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt" ${ZIP_FILES_TXT})
+        set(ZIP_FILELIST "${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt")
+        set(ZIP_INVENTORY "${TMP_FILE_DIR}/${ZIP_DIR}-inventory.txt")
+        # Stable timestamps avoid rebuilding unchanged archives on reconfigure.
+        # The full inventory also invalidates nested additions and removals.
+        file(GENERATE OUTPUT "${ZIP_FILELIST}" CONTENT "${ZIP_FILES_TXT}")
+        file(GENERATE OUTPUT "${ZIP_INVENTORY}" CONTENT "${ZIP_INVENTORY_TXT}")
 
         set(ZIP_NAME "${out_dir}/${ZIP_DIR}.zip")
         add_custom_command(
                 OUTPUT ${ZIP_NAME}
-                DEPENDS ${ZIP_FILES_DEP}
-                COMMAND ${CMAKE_COMMAND} -E tar c ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt"
+                DEPENDS ${ZIP_FILES_DEP} "${ZIP_FILELIST}" "${ZIP_INVENTORY}"
+                COMMAND ${CMAKE_COMMAND} -E tar c "${ZIP_NAME}" --format=zip "--files-from=${ZIP_FILELIST}"
                 WORKING_DIRECTORY "${in_dir}/${ZIP_DIR}"
+                VERBATIM
         )
         list(APPEND ALL_ZIPS ${ZIP_NAME})
     endforeach ()
