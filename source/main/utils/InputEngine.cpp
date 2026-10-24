@@ -634,6 +634,11 @@ String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
 
 void InputEngine::Capture()
 {
+    // Reset buffered mouse motion data.
+    mouseState.X = OIS::Axis();
+    mouseState.Y = OIS::Axis();
+    mouseState.Z = OIS::Axis();
+
     mKeyboard->capture();
     mMouse->capture();
 

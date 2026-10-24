@@ -63,12 +63,8 @@ public:
     Ogre::SceneNode*  GetCameraNode()             { return m_camera_node; }
     Ogre::Camera*     GetCamera()                 { return m_camera; }
 
-    void NotifyContextChange();
+    void ResetLookatPos();
     void NotifyVehicleChanged(ActorPtr new_vehicle);
-
-    void CameraBehaviorOrbitReset();
-    bool CameraBehaviorOrbitMouseMoved();
-    void CameraBehaviorOrbitUpdate();
 
     bool handleMouseMoved();
     bool handleMousePressed();
@@ -81,72 +77,103 @@ public:
 
 protected:
 
+    // Camera behavior management
     void switchBehavior(CameraBehaviors new_behavior);
     void SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, ActorPtr new_vehicle);
     void ToggleCameraBehavior(CameraBehaviors new_behavior); //!< Only accepts FREE and FREEFIX modes
     void ActivateNewBehavior(CameraBehaviors new_behavior, bool reset);
-    void UpdateCurrentBehavior();
+    void UpdateCurrentBehavior(float dt);
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
-    void UpdateCameraBehaviorStatic();
+
+    // Orbit cam (helper)
+    void CameraBehaviorOrbitReset();
+    bool CameraBehaviorOrbitMouseMoved();
+    void CameraBehaviorOrbitUpdate(float dt);
+
+    // Character cam
+    bool CameraBehaviorCharacterMouseMoved(float dt);
+
+    // Static cam
+    void UpdateCameraBehaviorStatic(float dt);
     bool CameraBehaviorStaticMouseMoved();
-    void UpdateCameraBehaviorFree();
-    void UpdateCameraBehaviorFixed();
-    void UpdateCameraBehaviorVehicle();
+
+    // Free cam
+    void UpdateCameraBehaviorFree(float dt);
+    bool CameraBehaviorFreeMouseMoved(float dt);
+
+    // Free-fix cam
+    void UpdateCameraBehaviorFixed(float dt);
+
+    // Vehicle cam
+    void UpdateCameraBehaviorVehicle(float dt);
     void CameraBehaviorVehicleReset();
     bool CameraBehaviorVehicleMousePressed();
-    void CameraBehaviorVehicleSplineUpdate();
+
+    // Vehicle-spline cam
+    void CameraBehaviorVehicleSplineUpdate(float dt);
     bool CameraBehaviorVehicleSplineMouseMoved();
     void CameraBehaviorVehicleSplineReset();
     void CameraBehaviorVehicleSplineCreateSpline();
     void CameraBehaviorVehicleSplineUpdateSpline();
     void CameraBehaviorVehicleSplineUpdateSplineDisplay();
+
+    // Internal helpers
     void CreateCameraNode();
+    void UpdateMouseLook(float dt);
 
-    Ogre::Camera*        m_camera;
-    Ogre::SceneNode*     m_camera_node;
+    Ogre::Camera*        m_camera {nullptr};
+    Ogre::SceneNode*     m_camera_node {nullptr};
 
-    CameraBehaviors      m_current_behavior;
-    CameraBehaviors      m_cam_before_toggled;  //!< Toggled modes (FREE, FREEFIX) remember original state.
-    CameraBehaviors      m_prev_toggled_cam;    //!< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
-    // Old `CameraContext`
-    ActorPtr             m_cct_player_actor; // TODO: duplicates `GameContext::m_player_actor`
-    Ogre::Degree         m_cct_rot_scale;
-    Ogre::Real           m_cct_dt;
-    Ogre::Real           m_cct_trans_scale;
-    float                m_cct_sim_speed; // TODO: duplicates `ActorManager::m_simulation_speed`
-    // Old `CameraBehaviorOrbit` attributes
-    Ogre::Radian         m_cam_rot_x;
-    Ogre::Radian         m_cam_rot_y;
-    Ogre::Radian         m_cam_target_direction;
-    Ogre::Radian         m_cam_target_pitch;
-    float                m_cam_dist;
-    float                m_cam_dist_min;
-    float                m_cam_dist_max;
-    float                m_cam_ratio;
-    Ogre::Vector3        m_cam_look_at;
-    bool                 m_cam_limit_movement;
-    Ogre::Vector3        m_cam_look_at_last;
-    Ogre::Vector3        m_cam_look_at_smooth;
-    Ogre::Vector3        m_cam_look_at_smooth_last;
+    CameraBehaviors      m_current_behavior {CAMERA_BEHAVIOR_INVALID};
+    ActorPtr             m_current_actor; //!< Kept around for the camera-switching process (deactivate old/activate new).
+
+    CameraBehaviors      m_cam_before_toggled {CAMERA_BEHAVIOR_INVALID};  //!< Toggled modes (FREE, FREEFIX) remember original state.
+    CameraBehaviors      m_prev_toggled_cam {CAMERA_BEHAVIOR_INVALID};    //!< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
+
+    // We defer processing mouse input (received via listener) until we have 'dt' (received via `UpdateInputEvents()`).
+    // Note the actual mouse data are buffered by `InputEngine`.
+    bool                 m_mouse_moved = false;
+    bool                 m_mouse_pressed = false;
+    // Common mouse smoothing for freecam + 1st person charactercam.
+    Ogre::Vector2        m_mouselook_smooth_vec {Ogre::Vector2::ZERO};
+
+    // `CameraBehaviorOrbit` attributes
+    Ogre::Radian         m_cam_rot_x {0.f};
+    Ogre::Radian         m_cam_rot_y {0.3f};
+    Ogre::Radian         m_cam_target_direction {0.f};
+    Ogre::Radian         m_cam_target_pitch {0.f};
+    float                m_cam_dist {5.f};
+    float                m_cam_dist_min {0.f};
+    float                m_cam_dist_max {0.f};
+    float                m_cam_ratio {11.f};
+    Ogre::Vector3        m_cam_look_at {Ogre::Vector3::ZERO};
+    bool                 m_cam_limit_movement {true};
+    Ogre::Vector3        m_cam_look_at_last {Ogre::Vector3::ZERO};
+    Ogre::Vector3        m_cam_look_at_smooth {Ogre::Vector3::ZERO};
+    Ogre::Vector3        m_cam_look_at_smooth_last {Ogre::Vector3::ZERO};
+
     // Static cam attributes
-    bool                 m_staticcam_force_update;
-    float                m_staticcam_fov_exponent;
-    Ogre::Radian         m_staticcam_previous_fov;
-    Ogre::Vector3        m_staticcam_look_at;
-    Ogre::Vector3        m_staticcam_position;
+    bool                 m_staticcam_force_update {false};
+    float                m_staticcam_fov_exponent {1.f};
+    Ogre::Radian         m_staticcam_previous_fov {Ogre::Radian(0)};
+    Ogre::Vector3        m_staticcam_look_at {Ogre::Vector3::ZERO};
+    Ogre::Vector3        m_staticcam_position {Ogre::Vector3::ZERO};
     Ogre::Timer          m_staticcam_update_timer;
+
     // Character cam attributes
-    bool                 m_charactercam_is_3rdperson;
+    bool                 m_charactercam_is_3rdperson {true};
+
     // Spline cam attributes
-    Ogre::ManualObject*  m_splinecam_mo;
-    Ogre::SimpleSpline*  m_splinecam_spline;
-    Ogre::Real           m_splinecam_spline_len;
-    Ogre::Real           m_splinecam_spline_pos;
-    bool                 m_splinecam_spline_closed;
-    bool                 m_splinecam_auto_tracking;
+    Ogre::ManualObject*  m_splinecam_mo {nullptr};
+    Ogre::SimpleSpline*  m_splinecam_spline {new Ogre::SimpleSpline()};
+    Ogre::Real           m_splinecam_spline_len {1.f};
+    Ogre::Real           m_splinecam_spline_pos {0.5f};
+    bool                 m_splinecam_spline_closed {false};
+    bool                 m_splinecam_auto_tracking {false};
     std::deque<node_t*>  m_splinecam_spline_nodes;
-    unsigned int         m_splinecam_num_linked_beams;
+    unsigned int         m_splinecam_num_linked_beams {0};
+
 };
 
 /// @} // addtogroup Camera
