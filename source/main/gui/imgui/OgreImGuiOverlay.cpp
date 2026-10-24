@@ -2,9 +2,12 @@
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution and at https://www.ogre3d.org/licensing.
 
+#include "DesktopGlShaders.h"
+
 #include <imgui.h>
 
 #include <OgreImGuiOverlay.h>
+#include <OgreGpuProgramParams.h>
 #include <OgreHardwareBufferManager.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreRenderSystem.h>
@@ -69,9 +72,43 @@ void ImGuiOverlay::ImGUIRenderable::createMaterial()
     mTexUnit->setTexture(mFontTex);
     mTexUnit->setTextureFiltering(TFO_NONE);
 
-    mMaterial->load();
     mMaterial->setLightingEnabled(false);
     mMaterial->setDepthCheckEnabled(false);
+    if (RoR::UsesDesktopGlShaders(Root::getSingleton().getRenderSystem()))
+    {
+        auto vertex = RoR::LoadDesktopGlProgram("ImGui/VertexGLSL", RGN_INTERNAL, GPT_VERTEX_PROGRAM,
+            R"glsl(#version 150
+in vec2 position;
+in vec2 uv0;
+in vec4 colour;
+uniform mat4 worldViewProj;
+out vec2 uiUV;
+out vec4 uiColour;
+void main()
+{
+    gl_Position = worldViewProj * vec4(position, 0.0, 1.0);
+    uiUV = uv0;
+    uiColour = colour;
+}
+)glsl");
+        auto fragment = RoR::LoadDesktopGlProgram("ImGui/FragmentGLSL", RGN_INTERNAL, GPT_FRAGMENT_PROGRAM,
+            R"glsl(#version 150
+uniform sampler2D fontTexture;
+in vec2 uiUV;
+in vec4 uiColour;
+out vec4 fragColor;
+void main()
+{
+    fragColor = uiColour * texture(fontTexture, uiUV);
+}
+)glsl");
+        // Keep a fully programmable Default technique. OGRE's stock RTSS
+        // resolver declines it, then getBestTechnique falls back to Default.
+        mPass->setVertexProgram(vertex->getName());
+        mPass->setFragmentProgram(fragment->getName());
+        mPass->getFragmentProgramParameters()->setNamedConstant("fontTexture", 0);
+    }
+    mMaterial->load();
 }
 
 ImFont* ImGuiOverlay::addFont(const String& name, const String& group, float size_scale)
@@ -193,7 +230,22 @@ bool ImGuiOverlay::ImGUIRenderable::preRender(SceneManager* sm, RenderSystem* rs
     int vpWidth = vp->getActualWidth();
     int vpHeight = vp->getActualHeight();
 
-    TextureUnitState* tu = mMaterial->getBestTechnique()->getPass(0)->getTextureUnitState(0);
+    Technique* technique = mMaterial->getBestTechnique();
+    if (!technique || technique->getNumPasses() == 0)
+        throw std::runtime_error("ImGui/material has no supported rendering pass.");
+    Pass* pass = technique->getPass(0);
+    TextureUnitState* tu = pass->getTextureUnitState(0);
+    if (RoR::UsesDesktopGlShaders(rsys))
+    {
+        // preRender precedes OGRE's auto-parameter update. We draw manually and
+        // return false, so both parameter sets must be uploaded here.
+        auto vertex_params = pass->getVertexProgramParameters();
+        vertex_params->setNamedConstant("worldViewProj", mXform);
+        rsys->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, vertex_params, GPV_ALL);
+        auto fragment_params = pass->getFragmentProgramParameters();
+        fragment_params->setNamedConstant("fontTexture", 0);
+        rsys->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, fragment_params, GPV_ALL);
+    }
 
     for (int i = 0; i < draw_data->CmdListsCount; ++i)
     {

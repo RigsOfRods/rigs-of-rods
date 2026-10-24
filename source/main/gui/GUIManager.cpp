@@ -29,6 +29,7 @@
 #include "ActorManager.h"
 #include "CameraManager.h"
 #include "ContentManager.h"
+#include "DesktopGlShaders.h"
 #include "GameContext.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
@@ -44,6 +45,9 @@
 #include <OgreOverlayElement.h>
 #include <OgreOverlayContainer.h>
 #include <OgreOverlayManager.h>
+#include <OgreGpuProgramParams.h>
+#include <OgrePass.h>
+#include <OgreTechnique.h>
 
 #include <imgui_internal.h>
 
@@ -266,6 +270,37 @@ void GUIManager::SetUpMenuWallpaper()
     Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", Ogre::RGN_DEFAULT);
     Ogre::TextureUnitState* wp_tus = wp_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
     wp_tus->setTexture(wp_tex);
+    if (UsesDesktopGlShaders(App::GetAppContext()->GetOgreRoot()->getRenderSystem()))
+    {
+        auto vertex = LoadDesktopGlProgram("rigsofrods/WallpaperVertexGLSL", Ogre::RGN_DEFAULT,
+            Ogre::GPT_VERTEX_PROGRAM, R"glsl(#version 150
+in vec4 position;
+in vec2 uv0;
+uniform mat4 worldViewProj;
+out vec2 wallpaperUV;
+void main()
+{
+    gl_Position = worldViewProj * position;
+    wallpaperUV = uv0;
+}
+)glsl");
+        auto fragment = LoadDesktopGlProgram("rigsofrods/WallpaperFragmentGLSL", Ogre::RGN_DEFAULT,
+            Ogre::GPT_FRAGMENT_PROGRAM, R"glsl(#version 150
+uniform sampler2D wallpaperTexture;
+in vec2 wallpaperUV;
+out vec4 fragColor;
+void main()
+{
+    fragColor = texture(wallpaperTexture, wallpaperUV);
+}
+)glsl");
+        // Panel geometry has position and UV only; ImGui's colour ABI is separate.
+        Ogre::Pass* pass = wp_mat->getTechnique(0)->getPass(0);
+        pass->setVertexProgram(vertex->getName());
+        pass->setFragmentProgram(fragment->getName());
+        pass->getVertexProgramParameters()->setNamedAutoConstant("worldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+        pass->getFragmentProgramParameters()->setNamedConstant("wallpaperTexture", 0);
+    }
     wp_mat->compile();
     // ...panel...
     Ogre::OverlayElement* wp_panel = Ogre::OverlayManager::getSingleton()
