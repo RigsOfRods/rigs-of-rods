@@ -1,0 +1,37 @@
+overlay tracks/PressureOverlay
+{
+	zorder 20
+	overlay_element tracks/pressureo Panel
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align top
+//			horz_align center
+//			vert_align center
+			width 0.14
+			left -0.28
+//this part is recalculated for screen ratio
+			top 0.0
+			height 0.14
+			material tracks/pressuremat
+		}
+}
+
+overlay tracks/PressureNeedleOverlay
+{
+	zorder 30
+	overlay_element tracks/pressureneedle Panel
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align top
+//			horz_align center
+//			vert_align center
+			width 0.14
+			left -0.28
+//this part is recalculated for screen ratio
+			top 0.0
+			height 0.14
+			material tracks/pressureneedle_mat
+		}
+}
