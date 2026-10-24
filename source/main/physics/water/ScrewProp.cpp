@@ -53,8 +53,16 @@ Screwprop::~Screwprop()
 
 void Screwprop::updateForces(int update)
 {
-    if (!App::GetGameContext()->GetTerrain()->getWater())
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    if (!water)
         return;
+
+    // if engine air intake is defined and under water, cut the throttle
+    if (m_air_intake_node != NODENUM_INVALID && water->IsUnderWater(m_actor->ar_nodes[m_air_intake_node].AbsPosition))
+    {
+        this->setThrottle(0);
+        return; // drowned!
+    }
 
     float depth = App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(m_actor->ar_nodes[noderef].AbsPosition) - m_actor->ar_nodes[noderef].AbsPosition.y;
     if (depth < 0)
