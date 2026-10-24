@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
                             // Also clean up any actors spawned by the bot
                             for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                             {
-                                if (actor->ar_driveable == AI && actor->ar_net_source_id == netuid)
+                                if (actor->ar_vehicle_ai && actor->ar_net_source_id == netuid)
                                 {
                                     App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                                 }
@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
                         App::GetOutGauge()->Close();
                         App::GetSoundScriptManager()->SetListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
                         App::GetSoundScriptManager()->getSoundManager()->CleanUp();
-                        App::GetGameContext()->GetRaceSystem().ResetRaceUI();
+                        App::GetGameContext()->ResetRaceSystem();
                     }
                     catch (...)
                     {
@@ -1353,7 +1353,7 @@ int main(int argc, char *argv[])
                         ROR_ASSERT(actor_ptr);
                         ActorPtr actor = *actor_ptr;
                         const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
-                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_vehicle_ai;
                         if (valid_remote_actor || valid_ai_actor)
                         {
                             actor->ar_muted_by_peeropt = true;
@@ -1376,7 +1376,7 @@ int main(int argc, char *argv[])
                         ROR_ASSERT(actor_ptr);
                         ActorPtr actor = *actor_ptr;
                         const bool valid_remote_actor = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && actor->ar_state == ActorState::NETWORKED_OK;
-                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_driveable == ActorType::AI;
+                        const bool valid_ai_actor = (App::mp_state->getEnum<MpState>() == MpState::LOCAL_SCRIPT) && actor->ar_state == ActorState::LOCAL_SIMULATED && actor->ar_vehicle_ai;
                         if (valid_remote_actor || valid_ai_actor)
                         {
                             actor->ar_muted_by_peeropt = false;
@@ -2076,6 +2076,12 @@ int main(int argc, char *argv[])
             const float dt = std::chrono::duration<float>(now - start_time).count();
             start_time = now;
 
+            // Safety net against division by zero (doesn't normally happen)
+            if (dt == 0.f)
+            {
+                continue;
+            }
+
 #ifdef USE_SOCKETW
             // Process incoming network traffic
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -2108,77 +2114,76 @@ int main(int argc, char *argv[])
 
             // Process input events
             OgreProfileBegin("Input processing");
-            if (dt != 0.f)
+
+            App::GetInputEngine()->Capture();
+            App::GetInputEngine()->updateKeyBounces(dt);
+
+            if (!App::GetGuiManager()->GameControls.IsInteractiveKeyBindingActive())
             {
-                App::GetInputEngine()->Capture();
-                App::GetInputEngine()->updateKeyBounces(dt);
-
-                if (!App::GetGuiManager()->GameControls.IsInteractiveKeyBindingActive())
+                if (!App::GetGuiManager()->MainSelector.IsVisible() && !App::GetGuiManager()->MultiplayerSelector.IsVisible() &&
+                    !App::GetGuiManager()->GameSettings.IsVisible() && !App::GetGuiManager()->GameControls.IsVisible() &&
+                    !App::GetGuiManager()->GameAbout.IsVisible() && !App::GetGuiManager()->RepositorySelector.IsVisible())
                 {
-                    if (!App::GetGuiManager()->MainSelector.IsVisible() && !App::GetGuiManager()->MultiplayerSelector.IsVisible() &&
-                        !App::GetGuiManager()->GameSettings.IsVisible() && !App::GetGuiManager()->GameControls.IsVisible() &&
-                        !App::GetGuiManager()->GameAbout.IsVisible() && !App::GetGuiManager()->RepositorySelector.IsVisible())
+                    App::GetGameContext()->HandleSavegameHotkeys();
+                }
+                App::GetGameContext()->UpdateGlobalInputEvents();
+                App::GetGuiManager()->UpdateInputEvents(dt);
+
+                if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                {
+                    if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                     {
-                        App::GetGameContext()->HandleSavegameHotkeys();
+                        App::GetGameContext()->UpdateSkyInputEvents(dt);
+                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
                     }
-                    App::GetGameContext()->UpdateGlobalInputEvents();
-                    App::GetGuiManager()->UpdateInputEvents(dt);
-
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    else
                     {
-                        if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+                        App::GetGameContext()->GetCharacterFactory()->Update(dt); // Character MUST be updated before CameraManager, otherwise camera position is always 1 frame behind the character position, causing stuttering.
+                    }
+                    App::GetCameraManager()->UpdateInputEvents(dt);
+                    App::GetOverlayWrapper()->update(dt);
+                    App::GetGameContext()->GetRepairMode().UpdateInputEvents(dt);
+                    App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
+                    if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
+                    {
+                        if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                         {
-                            App::GetGameContext()->UpdateSkyInputEvents(dt);
-                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
+                            App::GetGameContext()->UpdateSimInputEvents(dt);
                         }
-                        else
-                        {
-                            App::GetGameContext()->GetCharacterFactory()->Update(dt); // Character MUST be updated before CameraManager, otherwise camera position is always 1 frame behind the character position, causing stuttering.
-                        }
-                        App::GetCameraManager()->UpdateInputEvents(dt);
-                        App::GetOverlayWrapper()->update(dt);
-                        App::GetGameContext()->GetRepairMode().UpdateInputEvents(dt);
-                        App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
-                        if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
-                        {
-                            if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
-                            {
-                                App::GetGameContext()->UpdateSimInputEvents(dt);
-                            }
 
-                            App::GetGameContext()->UpdateSkyInputEvents(dt);
-                            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                        App::GetGameContext()->UpdateSkyInputEvents(dt);
+                        for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                        {
+                            if (actor->ar_state != ActorState::NETWORKED_OK)
                             {
-                                if (actor->ar_state != ActorState::NETWORKED_OK)
+                                App::GetGameContext()->UpdateCommonInputEvents(dt, actor);
+                                if (actor->ar_state != ActorState::LOCAL_REPLAY)
                                 {
-                                    App::GetGameContext()->UpdateCommonInputEvents(dt, actor);
-                                    if (actor->ar_state != ActorState::LOCAL_REPLAY)
+                                    if (actor->ar_driveable == TRUCK)
                                     {
-                                        if (actor->ar_driveable == TRUCK)
-                                        {
-                                            App::GetGameContext()->UpdateTruckInputEvents(dt, actor);
-                                        }
-                                        if (actor->ar_driveable == AIRPLANE)
-                                        {
-                                            App::GetGameContext()->UpdateAirplaneInputEvents(dt, actor);
-                                        }
-                                        if (actor->ar_driveable == BOAT)
-                                        {
-                                            App::GetGameContext()->UpdateBoatInputEvents(dt, actor);
-                                        }
+                                        App::GetGameContext()->UpdateTruckInputEvents(dt, actor);
                                     }
+                                    if (actor->ar_driveable == AIRPLANE)
+                                    {
+                                        App::GetGameContext()->UpdateAirplaneInputEvents(dt, actor);
+                                    }
+                                    if (actor->ar_driveable == BOAT)
+                                    {
+                                        App::GetGameContext()->UpdateBoatInputEvents(dt, actor);
+                                    }
+                                }
 
-                                    actor->UpdatePropAnimInputEvents();
-                                    for (ActorPtr linked_actor : actor->ar_linked_actors)
-                                    {
-                                        linked_actor->UpdatePropAnimInputEvents();
-                                    }
+                                actor->UpdatePropAnimInputEvents();
+                                for (ActorPtr linked_actor : actor->ar_linked_actors)
+                                {
+                                    linked_actor->UpdatePropAnimInputEvents();
                                 }
                             }
                         }
-                    } // app state SIMULATION
-                } // interactive key binding mode
-            } // dt != 0
+                    }
+                } // app state SIMULATION
+            } // interactive key binding mode
+
             OgreProfileEnd("Input processing");
 
             // Update OutGauge device

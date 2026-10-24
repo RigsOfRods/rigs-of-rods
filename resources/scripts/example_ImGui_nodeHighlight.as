@@ -12,6 +12,9 @@
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
+#include "math_utils.as" // getMouseShortestDistance
+using namespace math_utils;
+
 //#region GAME CALLBACKS:
 
 // `main()` runs once when script is loaded.
@@ -239,29 +242,3 @@ void drawNodeHighlights(BeamClass@ actor)
 
 // #endregion
 
-// #region HELPERS
-
-// shamelessly copypasted from 'road_editor.as', line 803
-int getMouseShortestDistance(vector2 mouse, vector2 target)
-{
-    int dx = iabs(int(mouse.x) - int(target.x));
-    int dy = iabs(int(mouse.y) - int(target.y));
-    return imax(dx, dy);
-}
-
-int imin(int a, int b)
-{
-    return (a < b) ? a : b;
-}
-
-int imax(int a, int b)
-{
-    return (a > b) ? a : b;
-}
-
-int iabs(int a)
-{
-    return (a < 0) ? -a : a;
-}
-
-// #endregion

@@ -157,9 +157,13 @@ void ScriptEngine::init()
     AngelScript::RegisterStdString(engine);
     AngelScript::RegisterStdStringUtils(engine);
     AngelScript::RegisterScriptMath(engine);
+    static float SCRIPT_FLT_MIN = FLT_MIN;
     static float SCRIPT_FLT_MAX = FLT_MAX;
+    static int SCRIPT_INT_MIN = INT_MIN;
     static int SCRIPT_INT_MAX = INT_MAX;
+    result = engine->RegisterGlobalProperty("const float FLT_MIN", &SCRIPT_FLT_MIN); ROR_ASSERT( result >= 0 );
     result = engine->RegisterGlobalProperty("const float FLT_MAX", &SCRIPT_FLT_MAX); ROR_ASSERT( result >= 0 );
+    result = engine->RegisterGlobalProperty("const int INT_MIN", &SCRIPT_INT_MIN); ROR_ASSERT(result >= 0);
     result = engine->RegisterGlobalProperty("const int INT_MAX", &SCRIPT_INT_MAX); ROR_ASSERT(result >= 0);
     AngelScript::RegisterScriptAny(engine);
     AngelScript::RegisterScriptDictionary(engine);
@@ -403,6 +407,11 @@ bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitID_t nid, int asFunct
 
 ScriptRetCode_t ScriptEngine::validateScriptModule(ScriptUnitID_t nid, asIScriptModule*& out_mod)
 {
+    if (nid == SCRIPTUNITID_DEFAULT)
+    {
+        nid = m_terrain_script_unit;
+    }
+
     if (!engine)
         return SCRIPTRETCODE_ENGINE_NOT_CREATED;
 
@@ -478,19 +487,21 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type)
+void ScriptEngine::envokeCallback(EvHandlerFuncID_t functionId, eventsource_t *source, NodeNum_t nodenum, int type)
 {
-    // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
-    // ################
+    // THIS IS DEPRECATED - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
+    // ##################
     // Legacy eventbox handler, specified by name in .TOBJ file or in call to `game.spawnObject()`
     // ===========================================================================================
     if (!engine || !context)
         return;
 
+    if (functionId == EVHANDLERFUNCID_SUPRESS)
+        return;
+
     for (auto& pair: m_script_units)
     {
         ScriptUnitID_t id = pair.first;
-        int functionId = _functionId;
         if (functionId <= 0 && (m_script_units[id].defaultEventCallbackFunctionPtr != nullptr))
         {
             // use the default event handler instead then
@@ -591,7 +602,7 @@ ScriptRetCode_t ScriptEngine::functionExists(const String& arg, const ScriptUnit
     result = this->validateScriptModule(nid, /*[out]*/ mod);
     if (result == 0)
     {
-        if (mod->GetFunctionByDecl(arg.c_str()) != nullptr)
+        if (mod->GetFunctionByDecl(arg.c_str()) == nullptr)
             result = SCRIPTRETCODE_FUNCTION_NOT_EXISTS;
     }
     return result;
@@ -959,7 +970,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
             fmt::format("Could not load script '{}' - failed to create module.", moduleName));
         return result;
     }
-    m_script_units[unit_id].scriptModule = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
+    m_script_units[unit_id].scriptModule = builder.GetModule();
 
     // For actor scripts, add global var `thisActor` to the module
     if (m_script_units[unit_id].scriptCategory == ScriptCategory::ACTOR)
