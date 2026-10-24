@@ -418,42 +418,42 @@ struct InputEvent
 struct event_trigger_t
 {
     // general
-    enum eventtypes eventtype;
-    int configDeviceID;            //!< For which device (which config file) was this binding defined?
+    enum eventtypes eventtype {ET_NONE};
+    int configDeviceID {0};            //!< For which device (which config file) was this binding defined?
     // keyboard
-    int keyCode;
-    bool explicite;
-    bool ctrl;
-    bool shift;
-    bool alt;
+    int keyCode {0};
+    bool explicite {false};
+    bool ctrl {false};
+    bool shift {false};
+    bool alt {false};
     //mouse
-    int mouseButtonNumber;
+    int mouseButtonNumber {0};
     //joystick buttons
-    int joystickNumber;
-    int joystickButtonNumber;
+    int joystickNumber {0};
+    int joystickButtonNumber {0};
     // joystick axis
-    int joystickAxisNumber;
-    float joystickAxisDeadzone;
-    float joystickAxisLinearity;
-    int joystickAxisRegion;
-    bool joystickAxisReverse;
-    bool joystickAxisHalf;
-    bool joystickAxisUseDigital;
+    int joystickAxisNumber {0};
+    float joystickAxisDeadzone {0.0f};
+    float joystickAxisLinearity {0.0f};
+    int joystickAxisRegion {0};
+    bool joystickAxisReverse {false};
+    bool joystickAxisHalf {false};
+    bool joystickAxisUseDigital {false};
 
     // POVs
-    int joystickPovNumber;
-    int joystickPovDirection;
+    int joystickPovNumber {0};
+    int joystickPovDirection {0};
 
     // Sliders
-    int joystickSliderNumber;
-    int joystickSliderReverse;
-    int joystickSliderRegion;
+    int joystickSliderNumber {0};
+    int joystickSliderReverse {0};
+    int joystickSliderRegion {0};
 
     //others
-    char configline[256]; //!< Mixed use: keyboard=key, joyButton=buttonNum, POV=direction, joyAxes=options.
-    char group[128];
-    char tmp_eventname[128];
-    char comments[1024];
+    char configline[256] {}; //!< Mixed use: keyboard=key, joyButton=buttonNum, POV=direction, joyAxes=options.
+    char group[128] {};
+    char tmp_eventname[128] {};
+    char comments[1024] {};
 };
 
 /// Manages controller configuration, evaluates input events
@@ -514,10 +514,10 @@ public:
 
     /// @name Event config files
     /// @{
-    bool                loadConfigFile(int deviceID = -1);                  //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
-    bool                saveConfigFile(int deviceID = -1);                  //!< Wites events with matching deviceID to loaded file with matching deviceID (or default file if deviceID is -1).
-    std::string const&  getLoadedConfigFile(int deviceID = -1);             //!< Returns filename from `loadConfigFile()` call.
-    bool                processLine(const char* line, int deviceID = -1);
+    bool                loadConfigFile(int deviceID = DEFAULT_MAPFILE_DEVICEID);                  //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
+    bool                saveConfigFile(int deviceID = DEFAULT_MAPFILE_DEVICEID);                  //!< Wites events with matching deviceID to loaded file with matching deviceID (or default file if deviceID is -1).
+    std::string         getLoadedConfigFile(int deviceID = DEFAULT_MAPFILE_DEVICEID);             //!< Returns filename from `loadConfigFile()` call.
+    bool                processLine(const char* line, int deviceID = DEFAULT_MAPFILE_DEVICEID);
     bool                updateConfigline(event_trigger_t* t);
     /// @}
 
@@ -525,7 +525,6 @@ public:
     /// @{
     void                addEvent(int eventID, event_trigger_t& t);          //!< Registers new trigger for this event.
     void                addEvent(int eventID);                              //!< Registers new event without trigger.
-    void                addEventDefault(int eventID, int deviceID = -1);    //!< Adds a new trigger with builtin value for this event.
     void                updateEvent(int eventID, const event_trigger_t& t);
     void                eraseEvent(int eventID, const event_trigger_t* t);
     void                clearEvents(int eventID);                           //!< Clears all bindings for given event.
@@ -609,8 +608,6 @@ protected:
     std::string getEventGroup(Ogre::String eventName);
     std::string composeEventConfigString(event_trigger_t const& trig);
     std::string composeEventCommandString(event_trigger_t const& trig);
-
-    event_trigger_t newEvent();
 
     // OIS WORKAROUND: After a window focus is restored for the 2nd+ time, OIS delivers a fabricated 'LMB pressed' event,
     //    without ever sending matching 'LMB released', see analysis: https://github.com/RigsOfRods/rigs-of-rods/pull/3184#issuecomment-2380397463

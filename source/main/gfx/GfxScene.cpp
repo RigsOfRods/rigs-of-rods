@@ -252,7 +252,7 @@ void GfxScene::UpdateScene(float dt)
         }
     }
 
-    App::GetGuiManager()->DrawSimGuiBuffered(player_gfx_actor);
+    App::GetGuiManager()->DrawSimGuiBuffered(dt, player_gfx_actor);
 
     App::GetGameContext()->GetSceneMouse().UpdateVisuals();
 
