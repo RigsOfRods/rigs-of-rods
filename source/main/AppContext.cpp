@@ -62,6 +62,9 @@ using namespace RoR;
 
 bool AppContext::SetUpInput()
 {
+#ifdef ROR_NATIVE_COCOA
+    ResetInput();
+#endif
     App::CreateInputEngine();
     App::GetInputEngine()->SetMouseListener(this);
     App::GetInputEngine()->SetKeyboardListener(this);
@@ -97,7 +100,7 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
 bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/true);
+    App::GetGuiManager()->GetImGui().InjectMouseButton(arg, _id, /*down:*/true);
     App::GetInputEngine()->processMousePressEvent(arg, _id);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
@@ -118,7 +121,7 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
 bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/false);
+    App::GetGuiManager()->GetImGui().InjectMouseButton(arg, _id, /*down:*/false);
     App::GetInputEngine()->processMouseReleaseEvent(arg, _id);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
@@ -188,14 +191,24 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
     }
 }
 
+void AppContext::ResetInput()
+{
+    if (App::GetGuiManager()) App::GetGuiManager()->GetImGui().ResetInput();
+    if (App::GetInputEngine()) App::GetInputEngine()->resetKeysAndMouseButtons();
+}
+
 void AppContext::windowFocusChange(Ogre::RenderWindow* rw)
 {
+#ifdef ROR_NATIVE_COCOA
+    ResetInput();
+#else
     // If you alt+TAB out of the window while any mouse button is down, OIS will not release it until you click in the window again.
     // See https://github.com/RigsOfRods/rigs-of-rods/issues/2468
     // To work around, we reset all internal mouse button states here and pay attention not to get them polluted by OIS again.
     App::GetGuiManager()->GetImGui().ResetAllMouseButtons();
     // Same applies to keyboard keys - reset them manually otherwise OIS will hold them 'down' the entire time.
     App::GetInputEngine()->resetKeysAndMouseButtons();
+#endif
 }
 
 // --------------------------

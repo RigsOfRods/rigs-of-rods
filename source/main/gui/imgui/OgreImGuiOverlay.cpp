@@ -18,6 +18,9 @@
 #include <OgreRenderQueue.h>
 #include <OgreFrameListener.h>
 #include <OgreRoot.h>
+#ifdef ROR_NATIVE_COCOA
+#include "GUIManager.h"
+#endif
 
 namespace Ogre
 {
@@ -143,8 +146,10 @@ void ImGuiOverlay::NewFrame(const FrameEvent& evt)
         1e-4f); // see https://github.com/ocornut/imgui/commit/3c07ec6a6126fb6b98523a9685d1f0f78ca3c40c
 
     // Read keyboard modifiers inputs
+#ifndef ROR_NATIVE_COCOA
     io.KeyAlt = false;
     io.KeySuper = false;
+#endif
 
     OverlayManager& oMgr = OverlayManager::getSingleton();
 
@@ -152,6 +157,9 @@ void ImGuiOverlay::NewFrame(const FrameEvent& evt)
     io.DisplaySize = ImVec2(oMgr.getViewportWidth(), oMgr.getViewportHeight());
 
     // Start the frame
+#ifdef ROR_NATIVE_COCOA
+    RoR::App::GetGuiManager()->GetImGui().DeliverInput();
+#endif
     ImGui::NewFrame();
 }
 

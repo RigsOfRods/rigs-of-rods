@@ -396,6 +396,9 @@ void DestroyOverlayWrapper()
 
 void DestroyInputEngine()
 {
+#ifdef ROR_NATIVE_COCOA
+    GetAppContext()->ResetInput();
+#endif
     delete g_input_engine;
     g_input_engine = nullptr;
 }

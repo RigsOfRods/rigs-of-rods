@@ -348,6 +348,19 @@ endif ()
 set(BINNAME "RoR")
 add_executable(${BINNAME} ${SOURCE_FILES})
 
+# This standalone lifecycle is for desktop macOS only (no iOS/tvOS/watchOS SDKs).
+if (APPLE AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    enable_language(OBJCXX)
+    target_sources(${BINNAME} PRIVATE utils/MacApplication.mm utils/MacApplication.h
+        gui/imgui/ImGuiInputQueue.h)
+    target_compile_definitions(${BINNAME} PRIVATE ROR_NATIVE_COCOA)
+    set_target_properties(${BINNAME} PROPERTIES OBJCXX_STANDARD 11 OBJCXX_STANDARD_REQUIRED YES)
+    set_source_files_properties(utils/MacApplication.mm PROPERTIES
+        SKIP_PRECOMPILE_HEADERS ON COMPILE_OPTIONS "-fno-objc-arc")
+    find_library(ROR_APPKIT_FRAMEWORK AppKit REQUIRED)
+    target_link_libraries(${BINNAME} PRIVATE ${ROR_APPKIT_FRAMEWORK})
+endif ()
+
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
     # disable some annoying VS warnings:
