@@ -468,6 +468,8 @@ target_include_directories(${BINNAME} PRIVATE
 
 if (WIN32)
     set(OS_LIBS "Ws2_32")
+elseif (APPLE)
+    set(OS_LIBS "")
 else ()
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
@@ -492,6 +494,24 @@ target_compile_definitions(${BINNAME} PRIVATE $<$<PLATFORM_ID:WINDOWS>:MYGUI_STA
 # -----------------------
 
 if (ROR_USE_OPENAL)
+    if (APPLE)
+        # macOS audio requires OpenAL Soft, including EFX, rather than Apple's framework.
+        if (OPENAL_LIBRARY MATCHES "\\.framework(/|$)")
+            message(FATAL_ERROR "macOS audio requires OpenAL Soft. Set OPENAL_LIBRARY and OPENAL_INCLUDE_DIR to its installation, or disable ROR_USE_OPENAL.")
+        endif ()
+        # FindOpenAL normally returns include/AL; also accept a prefix's include root.
+        if (EXISTS "${OPENAL_INCLUDE_DIR}/al.h")
+            get_filename_component(_ror_openal_include_root "${OPENAL_INCLUDE_DIR}/.." ABSOLUTE)
+        else ()
+            set(_ror_openal_include_root "${OPENAL_INCLUDE_DIR}")
+        endif ()
+        foreach (_ror_openal_header al.h alc.h alext.h efx.h efx-presets.h)
+            if (NOT EXISTS "${_ror_openal_include_root}/AL/${_ror_openal_header}")
+                message(FATAL_ERROR "macOS audio requires OpenAL Soft headers including EFX. Set OPENAL_INCLUDE_DIR to its include or include/AL directory, or disable ROR_USE_OPENAL.")
+            endif ()
+        endforeach ()
+        target_include_directories(${BINNAME} PRIVATE "${_ror_openal_include_root}")
+    endif ()
     target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
