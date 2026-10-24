@@ -1,0 +1,149 @@
+diff --git a/Source/FreeImage/PluginRAW.cpp b/Source/FreeImage/PluginRAW.cpp
+index e9bd5bf..c7f8758 100644
+--- a/Source/FreeImage/PluginRAW.cpp
++++ b/Source/FreeImage/PluginRAW.cpp
+@@ -59,21 +59,18 @@
+ 	}
+ 
+     int valid() { 
+-		return (_io && _handle);
++		return (_io && _handle) ? 1 : 0;
+ 	}
+ 
+     int read(void *buffer, size_t size, size_t count) { 
+-		if(substream) return substream->read(buffer, size, count);
+ 		return _io->read_proc(buffer, (unsigned)size, (unsigned)count, _handle);
+ 	}
+ 
+     int seek(INT64 offset, int origin) { 
+-        if(substream) return substream->seek(offset, origin);
+ 		return _io->seek_proc(_handle, (long)offset, origin);
+ 	}
+ 
+     INT64 tell() { 
+-		if(substream) return substream->tell();
+         return _io->tell_proc(_handle);
+     }
+ 	
+@@ -83,19 +80,21 @@
+ 
+     int get_char() { 
+ 		int c = 0;
+-		if(substream) return substream->get_char();
+-		if(!_io->read_proc(&c, 1, 1, _handle)) return -1;
++		if (!_io->read_proc(&c, 1, 1, _handle)) {
++			return -1;
++		}
+ 		return c;
+    }
+ 	
+ 	char* gets(char *buffer, int length) { 
+-		if (substream) return substream->gets(buffer, length);
+ 		memset(buffer, 0, length);
+ 		for(int i = 0; i < length; i++) {
+-			if(!_io->read_proc(&buffer[i], 1, 1, _handle))
++			if (!_io->read_proc(&buffer[i], 1, 1, _handle)) {
+ 				return NULL;
+-			if(buffer[i] == 0x0A)
++			}
++			if (buffer[i] == 0x0A) {
+ 				break;
++			}
+ 		}
+ 		return buffer;
+ 	}
+@@ -104,7 +103,6 @@
+ 		std::string buffer;
+ 		char element = 0;
+ 		bool bDone = false;
+-		if(substream) return substream->scanf_one(fmt,val);				
+ 		do {
+ 			if(_io->read_proc(&element, 1, 1, _handle) == 1) {
+ 				switch(element) {
+@@ -127,7 +125,6 @@
+ 	}
+ 
+ 	int eof() { 
+-		if(substream) return substream->eof();
+         return (_io->tell_proc(_handle) >= _eof);
+     }
+ 
+@@ -564,48 +561,58 @@
+ 	{ 0x4D, 0x4D, 0x00, 0x2A } Classic TIFF, big-endian
+ 	*/
+ 	// Canon (CR2), little-endian byte order
+-	const BYTE CR2_II[] = { 0x49, 0x49, 0x2A, 0x00, 0x10, 0x00, 0x00, 0x00, 0x43, 0x52, 0x02, 0x00 };
++	static const BYTE CR2_II[] = { 0x49, 0x49, 0x2A, 0x00, 0x10, 0x00, 0x00, 0x00, 0x43, 0x52, 0x02, 0x00 };
+ 	// Canon (CRW), little-endian byte order
+-	const BYTE CRW_II[] = { 0x49, 0x49, 0x1A, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x50, 0x43, 0x43, 0x44, 0x52, 0x02, 0x00 };
++	static const BYTE CRW_II[] = { 0x49, 0x49, 0x1A, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x50, 0x43, 0x43, 0x44, 0x52, 0x02, 0x00 };
+ 	// Minolta (MRW)
+-	const BYTE MRW[] = { 0x00, 0x4D, 0x52, 0x4D, 0x00 };
++	static const BYTE MRW[] = { 0x00, 0x4D, 0x52, 0x4D, 0x00 };
+ 	// Olympus (ORF), little-endian byte order
+-	const BYTE ORF_IIRS[] = { 0x49, 0x49, 0x52, 0x53, 0x08, 0x00, 0x00, 0x00 }; 
+-	const BYTE ORF_IIRO[] = { 0x49, 0x49, 0x52, 0x4F, 0x08, 0x00, 0x00, 0x00 }; 
++	static const BYTE ORF_IIRS[] = { 0x49, 0x49, 0x52, 0x53, 0x08, 0x00, 0x00, 0x00 };
++	static const BYTE ORF_IIRO[] = { 0x49, 0x49, 0x52, 0x4F, 0x08, 0x00, 0x00, 0x00 };
+ 	// Olympus (ORF), big-endian byte order
+-	const BYTE ORF_MMOR[] = { 0x4D, 0x4D, 0x4F, 0x52, 0x00, 0x00, 0x00, 0x08 }; 
++	static 	const BYTE ORF_MMOR[] = { 0x4D, 0x4D, 0x4F, 0x52, 0x00, 0x00, 0x00, 0x08 };
+ 	// Fujifilm (RAF)
+-	const BYTE RAF[] = { 0x46, 0x55, 0x4A, 0x49, 0x46, 0x49, 0x4C, 0x4D, 0x43, 0x43, 0x44, 0x2D, 0x52, 0x41, 0x57, 0x20 };
++	static const BYTE RAF[] = { 0x46, 0x55, 0x4A, 0x49, 0x46, 0x49, 0x4C, 0x4D, 0x43, 0x43, 0x44, 0x2D, 0x52, 0x41, 0x57, 0x20 };
+ 	// Panasonic (RW2) or Leica (RWL), little-endian byte order
+-	const BYTE RWx_II[] = { 0x49, 0x49, 0x55, 0x00, 0x18, 0x00, 0x00, 0x00, 0x88, 0xE7, 0x74, 0xD8, 0xF8, 0x25, 0x1D, 0x4D, 0x94, 0x7A, 0x6E, 0x77, 0x82, 0x2B, 0x5D, 0x6A };
++	static const BYTE RWx_II[] = { 0x49, 0x49, 0x55, 0x00, 0x18, 0x00, 0x00, 0x00, 0x88, 0xE7, 0x74, 0xD8, 0xF8, 0x25, 0x1D, 0x4D, 0x94, 0x7A, 0x6E, 0x77, 0x82, 0x2B, 0x5D, 0x6A };
+ 	// Panasonic (RAW) or Leica (RAW), little-endian byte order
+-	const BYTE RAW_II[] = { 0x49, 0x49, 0x55, 0x00, 0x08, 0x00, 0x00, 0x00, 0x22, 0x00, 0x01, 0x00, 0x07, 0x00, 0x04, 0x00, 0x00, 0x00 };
++	static const BYTE RAW_II[] = { 0x49, 0x49, 0x55, 0x00, 0x08, 0x00, 0x00, 0x00, 0x22, 0x00, 0x01, 0x00, 0x07, 0x00, 0x04, 0x00, 0x00, 0x00 };
+ 	// Foveon (X3F)
+-	const BYTE X3F[] = { 0x46, 0x4F, 0x56, 0x62 };
++	static const BYTE X3F[] = { 0x46, 0x4F, 0x56, 0x62 };
+ 
+ 	if(io->read_proc(signature, 1, signature_size, handle) != signature_size) {
+ 		return FALSE;
+ 	}
+-	if(memcmp(CR2_II, signature, 12) == 0)
++	if (memcmp(CR2_II, signature, 12) == 0) {
+ 		return TRUE;
+-	if(memcmp(CRW_II, signature, 16) == 0)
++	}
++	if (memcmp(CRW_II, signature, 16) == 0) {
+ 		return TRUE;
+-	if(memcmp(MRW, signature, 5) == 0)
++	}
++	if (memcmp(MRW, signature, 5) == 0) {
+ 		return TRUE;
+-	if(memcmp(ORF_IIRS, signature, 8) == 0)
++	}
++	if (memcmp(ORF_IIRS, signature, 8) == 0) {
+ 		return TRUE;
+-	if(memcmp(ORF_IIRO, signature, 8) == 0)
++	}
++	if (memcmp(ORF_IIRO, signature, 8) == 0) {
+ 		return TRUE;
+-	if(memcmp(ORF_MMOR, signature, 8) == 0)
++	}
++	if (memcmp(ORF_MMOR, signature, 8) == 0) {
+ 		return TRUE;
+-	if(memcmp(RAF, signature, 16) == 0)
++	}
++	if (memcmp(RAF, signature, 16) == 0) {
+ 		return TRUE;
+-	if(memcmp(RWx_II, signature, 24) == 0)
++	}
++	if (memcmp(RWx_II, signature, 24) == 0) {
+ 		return TRUE;
+-	if(memcmp(RAW_II, signature, 18) == 0)
++	}
++	if (memcmp(RAW_II, signature, 18) == 0) {
+ 		return TRUE;
+-	if(memcmp(X3F, signature, 4) == 0)
++	}
++	if (memcmp(X3F, signature, 4) == 0) {
+ 		return TRUE;
++	}
+ 
+ 	return FALSE;
+ }

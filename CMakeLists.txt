@@ -129,7 +129,9 @@ include(DependenciesConfig)
 ################################################################################
 # Recurse into subdirectories
 ################################################################################
-add_subdirectory(external/angelscript_addons)
+if (ROR_USE_ANGELSCRIPT)
+    add_subdirectory(external/angelscript_addons)
+endif ()
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
 add_subdirectory(doc)

@@ -1,0 +1,10 @@
+// Placeholder material used by SkyX's mesh; avoids a missing-material error.
+material _NULL_
+{
+    technique
+    {
+        pass
+        {
+        }
+    }
+}

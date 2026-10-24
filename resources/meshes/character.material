@@ -21,3 +21,16 @@ material 1-Default
 }
 
 
+
+// The mesh itself references material "character" before Character::SetupGfx()
+// assigns its per-instance clone.  Provide a valid placeholder so Ogre doesn't
+// emit a spurious "material does not exist" warning during entity creation.
+material character
+{
+    technique
+    {
+        pass
+        {
+        }
+    }
+}

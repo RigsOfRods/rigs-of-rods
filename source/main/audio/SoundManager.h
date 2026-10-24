@@ -34,10 +34,10 @@
 #include <OgreString.h>
 
 #ifdef __APPLE__
-  #include <OpenAL/al.h>
-  #include <OpenAL/alc.h>
-  #include <OpenAL/alext.h>
-  #include <OpenAL/efx-presets.h>
+  #include <AL/al.h>
+  #include <AL/alc.h>
+  #include <AL/alext.h>
+  #include <AL/efx-presets.h>
 #else
   #include <AL/al.h>
   #include <AL/alc.h>

@@ -27,7 +27,7 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/Wrapper Panel
 		{
-	        	container TextArea(tracks/3DGear)
+	        	overlay_element tracks/3DGear TextArea
 			{
 				metrics_mode relative
 				horz_align left
@@ -38,7 +38,7 @@ overlay tracks/3D_NeedlesOverlay
 				top 0.75
 				font_name CyberbitEnglish
 				char_height 0.08
-				caption N
+				caption "N"
 				colour_top 0.8 0.8 0.8
 				colour_bottom 0.6 0.6 0.6
 			}
@@ -46,7 +46,7 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/WrapperR Panel
 		{
-	                container TextArea(tracks/3DAGearR)
+	                overlay_element tracks/3DAGearR TextArea
 		        {
 				metrics_mode relative
 				horz_align left
@@ -57,7 +57,7 @@ overlay tracks/3D_NeedlesOverlay
 				top 0.55
 				font_name CyberbitEnglish
 				char_height 0.08
-				caption R
+				caption "R"
 				colour_top 0.8 0.8 0.8
 				colour_bottom 0.6 0.6 0.6
 			}
@@ -65,7 +65,7 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/WrapperN Panel
 		{
-	                container TextArea(tracks/3DAGearN)
+	                overlay_element tracks/3DAGearN TextArea
 			{
 				metrics_mode relative
 				horz_align left
@@ -76,7 +76,7 @@ overlay tracks/3D_NeedlesOverlay
 				top 0.61
 				font_name CyberbitEnglish
 				char_height 0.08
-				caption N
+				caption "N"
 				colour_top 0.8 0.2 0.2
 				colour_bottom 0.6 0.1 0.1
 			}
@@ -84,7 +84,7 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/WrapperD Panel
 		{
-	        	container TextArea(tracks/3DAGearD)
+	        	overlay_element tracks/3DAGearD TextArea
 			{
 				metrics_mode relative
 				horz_align left
@@ -95,7 +95,7 @@ overlay tracks/3D_NeedlesOverlay
 				top 0.67
 				font_name CyberbitEnglish
 				char_height 0.08
-				caption D
+				caption "D"
 				colour_top 0.8 0.8 0.8
 				colour_bottom 0.6 0.6 0.6
 			}
@@ -103,7 +103,7 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/Wrapper2 Panel
 		{
-	        	container TextArea(tracks/3DAGear2)
+	        	overlay_element tracks/3DAGear2 TextArea
 			{
 				metrics_mode relative
 				horz_align left
@@ -114,7 +114,7 @@ overlay tracks/3D_NeedlesOverlay
 				top 0.73
 				font_name CyberbitEnglish
 				char_height 0.08
-				caption 2
+				caption "2"
 				colour_top 0.8 0.8 0.8
 				colour_bottom 0.6 0.6 0.6
 			}
@@ -122,7 +122,7 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/Wrapper1 Panel
 		{
-	        	container TextArea(tracks/3DAGear1)
+	        	overlay_element tracks/3DAGear1 TextArea
 			{
 				metrics_mode relative
 				horz_align left
@@ -133,7 +133,7 @@ overlay tracks/3D_NeedlesOverlay
 				top 0.79
 				font_name CyberbitEnglish
 				char_height 0.08
-				caption 1
+				caption "1"
 				colour_top 0.8 0.8 0.8
 				colour_bottom 0.6 0.6 0.6
 			}

@@ -175,9 +175,15 @@ void Console::cVarSetupBuiltins()
 
     App::gfx_flares_mode         = this->cVarCreate("gfx_flares_mode",         "Lights",                     CVAR_ARCHIVE | CVAR_TYPE_INT,     "4"/*(int)GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS*/);
     App::gfx_polygon_mode        = this->cVarCreate("gfx_polygon_mode",        "Polygon mode",                              CVAR_TYPE_INT,     "1"/*(int)Ogre::PM_SOLID*/);
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    App::gfx_shadow_type         = this->cVarCreate("gfx_shadow_type",         "Shadow technique",           CVAR_ARCHIVE | CVAR_TYPE_INT,     "0"/*(int)GfxShadowType::NONE*/);
+    App::gfx_extcam_mode         = this->cVarCreate("gfx_extcam_mode",         "External Camera Mode",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "2"/*(int)GfxExtCamMode::PITCHING*/);
+    App::gfx_sky_mode            = this->cVarCreate("gfx_sky_mode",            "Sky effects",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "2"/*(int)GfxSkyMode::SKYX*/);
+#else
     App::gfx_shadow_type         = this->cVarCreate("gfx_shadow_type",         "Shadow technique",           CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)GfxShadowType::PSSM*/);
     App::gfx_extcam_mode         = this->cVarCreate("gfx_extcam_mode",         "External Camera Mode",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "2"/*(int)GfxExtCamMode::PITCHING*/);
     App::gfx_sky_mode            = this->cVarCreate("gfx_sky_mode",            "Sky effects",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)GfxSkyMode::CAELUM*/);
+#endif
     App::gfx_texture_filter      = this->cVarCreate("gfx_texture_filter",      "Texture Filtering",          CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxTexFilter::ANISOTROPIC*/);
     App::gfx_vegetation_mode     = this->cVarCreate("gfx_vegetation_mode",     "Vegetation",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxVegetation::FULL*/);
     App::gfx_sky_time_cycle      = this->cVarCreate("gfx_sky_time_cycle",      "",                                          CVAR_TYPE_BOOL,    "false");

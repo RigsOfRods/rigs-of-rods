@@ -152,7 +152,6 @@ fragment_program SkyX_VolClouds_FP_GLSL glsl
     {
 		param_named uDensity0 int 0
 		param_named uDensity1 int 1
-		param_named uNoise int 2
     }
 }
 	
@@ -267,7 +266,6 @@ fragment_program SkyX_VolClouds_Lightning_FP_GLSL glsl
     {
 		param_named uDensity0 int 0
 		param_named uDensity1 int 1
-		param_named uNoise int 2
     }
 }
 	

@@ -55,6 +55,10 @@
 #include <string>
 #include <ctime>
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#include "MacOS.h"
+#endif
+
 using namespace RoR;
 
 // --------------------------
@@ -242,14 +246,40 @@ bool AppContext::SetUpRendering()
         Ogre::ConfigFile cfg;
         cfg.load(plugins_path);
         std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->getStr());
-        Ogre::StringVector plugins = cfg.getMultiSetting("Plugin");
+        // ConfigFile::getMultiSetting() uses multimap::find(), which on libc++
+        // may return an arbitrary equivalent element and silently skip earlier
+        // duplicates (e.g. the first Plugin= line). Iterate the settings map
+        // instead so every plugin is loaded.
+        Ogre::StringVector plugins;
+        for (const auto& setting : cfg.getSettings())
+        {
+            if (setting.first == "Plugin")
+            {
+                plugins.push_back(setting.second);
+            }
+        }
+        {
+            std::string plugin_list;
+            for (const Ogre::String& name : plugins)
+            {
+                if (!plugin_list.empty()) plugin_list += ", ";
+                plugin_list += name;
+            }
+            LOG(fmt::format("[RoR|Startup|Rendering] Plugins ({}): {}", plugins.size(), plugin_list));
+        }
         for (Ogre::String plugin_filename: plugins)
         {
             try
             {
                 m_ogre_root->loadPlugin(PathCombine(plugin_dir, plugin_filename));
             }
-            catch (Ogre::Exception&) {} // Logged by OGRE
+            catch (Ogre::Exception& e)
+            {
+                // OGRE does not log plugin load failures when we catch them here;
+                // surface the reason instead of silently losing codecs/renderers.
+                LOG(fmt::format("[RoR|Startup|Rendering] Failed to load plugin '{}': {}",
+                    plugin_filename, e.getDescription()));
+            }
         }
     }
     catch (Ogre::Exception& e)
@@ -373,12 +403,38 @@ bool AppContext::SetUpRendering()
     }
     LOG(fmt::format("[RoR|Startup|Rendering] Creating render window with settings:\n{}", miscParams_log.str()));
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    RoR::MacOS::InitApplication();
+#endif
+
     // Create render window
     m_render_window = Ogre::Root::getSingleton().createRenderWindow (
         "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
         width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    {
+        size_t ns_window = 0;
+        try { m_render_window->getCustomAttribute("WINDOW", &ns_window); }
+        catch (...) { ns_window = 0; }
+        if (ns_window == 0)
+        {
+            try { m_render_window->getCustomAttribute("NSWINDOW", &ns_window); }
+            catch (...) { ns_window = 0; }
+        }
+        if (ns_window != 0)
+        {
+            RoR::MacOS::AttachToWindow(reinterpret_cast<void*>(ns_window));
+        }
+        else
+        {
+            LOG("[RoR|macOS] WARNING: Failed to retrieve NSWindow handle from OGRE (tried \"WINDOW\" and \"NSWINDOW\")");
+        }
+    }
+#else
     OgreBites::WindowEventUtilities::_addRenderWindow(m_render_window);
     OgreBites::WindowEventUtilities::addWindowEventListener(m_render_window, this);
+#endif
 
     this->SetRenderWindowIcon(m_render_window);
     m_render_window->setActive(true);
@@ -561,6 +617,17 @@ bool AppContext::SetUpResourcesDir()
     if (!FolderExists(process_dir))
     {
         process_dir = "/usr/share/rigsofrods/resources/";
+    }
+#endif
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    std::string bundle_res = RoR::MacOS::GetBundleResourcesDir();
+    if (!bundle_res.empty())
+    {
+        process_dir = bundle_res;
+        // The app bundle keeps game data and plugins in Contents/Resources.
+        // From this point onward, legacy paths based on sys_process_dir must
+        // resolve there instead of beside the Mach-O executable (Contents/MacOS).
+        App::sys_process_dir->setStr(bundle_res);
     }
 #endif
     if (!FolderExists(process_dir))

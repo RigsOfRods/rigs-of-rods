@@ -26,7 +26,7 @@
 #include "RefCountingObject.h"
 
 #ifdef __APPLE__
-#   include <OpenAL/al.h>
+#   include <AL/al.h>
 #else
 #   include <AL/al.h>
 #endif // __APPLE__

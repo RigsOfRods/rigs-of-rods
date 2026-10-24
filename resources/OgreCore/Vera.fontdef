@@ -1,4 +1,4 @@
-VeraMono
+font VeraMono
 {
 	type 		truetype
 	source 		VeraMoBd.ttf
@@ -7,7 +7,7 @@ VeraMono
 	code_points   33-289
 }
 
-VeraMonoBold
+font VeraMonoBold
 {
 	type 		truetype
 	source 		VeraMoBd.ttf

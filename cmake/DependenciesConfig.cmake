@@ -9,7 +9,13 @@ find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem M
 find_package(OIS REQUIRED)
 
 # --- MyGUI - graphical user inferface ---
-find_package(MyGUI REQUIRED)
+if (APPLE)
+    # MyGUI's generated Conan config omits MyGUIEngine on some packages; use our
+    # finder so both the engine and OGRE platform archives are resolved explicitly.
+    find_package(MyGUI REQUIRED MODULE)
+else ()
+    find_package(MyGUI REQUIRED)
+endif ()
 
 # --- fmt - A modern formatting library  ---
 find_package(fmt REQUIRED)

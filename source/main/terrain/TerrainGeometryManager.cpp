@@ -36,6 +36,7 @@
 
 #include <OgreLight.h>
 #include <Terrain/OgreTerrainGroup.h>
+#include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -427,11 +428,25 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
     std::string const & custom_mat = terrainManager->GetDef()->custom_material_name;
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    const std::string renderSystemName = Root::getSingleton().getRenderSystem()->getName();
+    const bool useOpenGL = renderSystemName == "OpenGL Rendering Subsystem" ||
+                           renderSystemName == "OpenGL 3+ Rendering Subsystem";
+#endif
     if (!custom_mat.empty())
     {
         terrainOptions->setDefaultMaterialGenerator(
             Ogre::TerrainMaterialGeneratorPtr(new Terrn2CustomMaterial(custom_mat, false, true)));
     }
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    else if (useOpenGL)
+    {
+        // The RoR PSSM generator has no GLSL shader implementation. Use OGRE's
+        // GLSL-capable terrain generator for OpenGL render systems.
+        terrainOptions->setDefaultMaterialGenerator(
+            Ogre::TerrainMaterialGeneratorPtr(new Ogre::TerrainMaterialGeneratorA()));
+    }
+#endif
     else
     {
         terrainOptions->setDefaultMaterialGenerator(
@@ -462,8 +477,30 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     // optimizations
     TerrainPSSMMaterialGenerator::SM2Profile* matProfile = nullptr;
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    TerrainMaterialGeneratorA::SM2Profile* glProfile = nullptr;
+#endif
     if (custom_mat.empty())
     {
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        if (useOpenGL)
+        {
+            glProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(
+                terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
+            if (glProfile)
+            {
+                glProfile->setLightmapEnabled(m_spec->lightmap_enabled);
+                glProfile->setLayerNormalMappingEnabled(true);
+                glProfile->setLayerSpecularMappingEnabled(true);
+                glProfile->setLayerParallaxMappingEnabled(m_spec->parallax_enabled);
+                glProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
+                glProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
+                terrainManager->getShadowManager()->updateTerrainMaterial(glProfile);
+            }
+        }
+        else
+#endif
+        {
         matProfile = static_cast<TerrainPSSMMaterialGenerator::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
         if (matProfile)
         {
@@ -485,6 +522,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
             terrainManager->getShadowManager()->updateTerrainMaterial(matProfile);
         }
+        }
     }
 
     terrainOptions->setLayerBlendMapSize   (m_spec->layer_blendmap_size);
@@ -495,7 +533,12 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     if (custom_mat.empty())
     {
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        if ((glProfile && glProfile->getReceiveDynamicShadowsPSSM()) ||
+            (matProfile && matProfile->getReceiveDynamicShadowsPSSM()))
+#else
         if (matProfile->getReceiveDynamicShadowsPSSM())
+#endif
         {
             terrainOptions->setCastsDynamicShadows(true);
         }

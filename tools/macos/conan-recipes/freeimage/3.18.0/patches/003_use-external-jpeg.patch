@@ -1,0 +1,23 @@
+diff --git a/Source/FreeImage/PluginJPEG.cpp b/Source/FreeImage/PluginJPEG.cpp
+index 573989c..aaeefa4 100644
+--- a/Source/FreeImage/PluginJPEG.cpp
++++ b/Source/FreeImage/PluginJPEG.cpp
+@@ -35,9 +35,15 @@ extern "C" {
+ #undef FAR
+ #include <setjmp.h>
+ 
+-#include "../LibJPEG/jinclude.h"
+-#include "../LibJPEG/jpeglib.h"
+-#include "../LibJPEG/jerror.h"
++#ifndef FALSE
++#define FALSE 0
++#endif
++#ifndef TRUE
++#define TRUE 1
++#endif
++#include <stdio.h>
++#include <jpeglib.h>
++#include <jerror.h>
+ }
+ 
+ #include "FreeImage.h"

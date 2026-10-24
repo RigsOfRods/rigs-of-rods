@@ -34,6 +34,7 @@
 #include <shellapi.h> // for ShellExecuteW
 #define _L
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#include "MacOS.h"
 #define _L
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include "Language.h"
@@ -69,9 +70,7 @@ int ErrorUtils::ShowMsgBox(const std::string& title, const std::string& err, int
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
-    //CFOptionFlags flgs;
-    //CFUserNotificationDisplayAlert(0, kCFUserNotificationStopAlertLevel, NULL, NULL, NULL, T("A network error occured"), T("Bad server port."), NULL, NULL, NULL, &flgs);
+    RoR::MacOS::ShowAlert(title, err, type == 1);
 #endif
     return 0;
 }
