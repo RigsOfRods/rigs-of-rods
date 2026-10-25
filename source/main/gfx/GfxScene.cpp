@@ -86,6 +86,7 @@ void GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
     m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager();
+    m_scene_manager->setCameraRelativeRendering(true);
     m_gfx_freebeams_grouping_node = m_scene_manager->getRootSceneNode()->createChildSceneNode("FreeBeam Visuals");
 
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
@@ -238,9 +239,6 @@ void GfxScene::UpdateScene(float dt)
     }
     if (player_gfx_actor != nullptr)
     {
-        float dt_actor = (!player_gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
-        player_gfx_actor->UpdateVideoCameras(dt_actor);
-
         // The old-style render-to-texture dashboard (based on OGRE overlays)
         if (m_simbuf.simbuf_player_actor->ar_driveable == TRUCK && m_simbuf.simbuf_player_actor->ar_engine != nullptr)
         {
@@ -263,6 +261,13 @@ void GfxScene::UpdateScene(float dt)
     {
         gfx_actor->FinishWheelUpdates();
         gfx_actor->FinishFlexbodyTasks();
+    }
+
+    // Videocameras/mirrors render the scene - only now flexbodies and wheels show the current frame.
+    if (player_gfx_actor != nullptr)
+    {
+        float dt_actor = (!player_gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+        player_gfx_actor->UpdateVideoCameras(dt_actor);
     }
 }
 
