@@ -73,6 +73,7 @@ void frameStep(float dt)
                     ImGui::BulletText("Reference node: " + formatInt(screwprop.getRefNode()));
                     ImGui::BulletText("Back node: " + formatInt(screwprop.getBackNode()));
                     ImGui::BulletText("Up node: " + formatInt(screwprop.getUpNode()));
+                    ImGui::BulletText("Air intake node: " + formatInt(int(truck.getIndexedSimAttribute(ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE, i))) + " (-1 = none)");
 
                     float throttle = screwprop.getThrottle() * 100;
                     float rudder = screwprop.getRudder() * 100;

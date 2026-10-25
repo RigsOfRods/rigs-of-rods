@@ -978,6 +978,7 @@ enum ActorSimAttr
 
     // Screwprops
     ACTORSIMATTR_SCREWPROP_MAX_POWER, //!< Param #4 of 'screwprops' (indexed)
+    ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE, //!< Node number representing engine air intake (indexed) - Prototype only; Not yet recognized by 'screwprops'
 };
 const char* ActorSimAttrToString(ActorSimAttr attr);
 

@@ -74,6 +74,7 @@ enum ActorSimAttr
 
     // Screwprops
     ACTORSIMATTR_SCREWPROP_MAX_POWER, //!< Max power in kilowatts; **Indexed** param #4 of ['screwprops'](https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#screwprops).
+    ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE, //!< Node number representing engine air intake - cuts throttle if submerged in water (pass '-1' to disable); **Indexed**; Disabled by default (classic behavior).
 };
 
 } // namespace Script2Game
