@@ -83,7 +83,7 @@ ServerScriptEngine::ServerScriptEngine(ServerScriptSequencer* sequencer) :
                                              engine(0),
                                              context(0)
 {
-    init();
+    // NOTE: we cannot call `init()` from here because `RegisterGenericDocument()` needs the ServerScriptEngine instance available already.
 }
 
 ServerScriptEngine::~ServerScriptEngine() {
@@ -572,6 +572,9 @@ void ServerScriptEngine::init() {
     result = engine->RegisterGlobalProperty("const int TO_ALL", (void *) &TO_ALL);
     assert_net(result >= 0);
 
+    Logger::Log(LOG_INFO, "ScriptEngine: Registering the generic document parser...");
+
+    RegisterGenericFileFormat(engine); // Defined in 'GenericFileFormatAngelscript.cpp'
 
     Logger::Log(LOG_INFO, "ScriptEngine: Registration done");
 }

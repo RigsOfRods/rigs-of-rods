@@ -51,6 +51,8 @@ namespace Script2Game {
     SE_GENERIC_MODCACHE_ACTIVITY,       //!< Triggered when status of modcache changes,<br> args:<br> #1 type,<br> #2 entry number,<br> for other args see `RoR::modCacheActivityType`  
 
     SE_GENERIC_TRUCK_LINKING_CHANGED,   //!< Triggered when 2 actors become linked or unlinked via ties/hooks/ropes/slidenodes;<br> args:<br> #1 state (1=linked, 0=unlinked),<br> #2 action `ActorLinkingRequestType`<br> #3 master ActorInstanceID_t,<br> #4 slave ActorInstanceID_t
+    SE_GENERIC_FREEFORCES_ACTIVITY,     //!< Triggered on freeforce add/update/delete or breaking; args: #1 `freeForcesActivityType`, #2 freeforce ID
+    SE_GENERIC_GAMESTATE_NOTIFICATION,  //!< Triggered by various game state changes; args: #1 `RoR::genericGamestateNotificationType`
 
  	SE_ALL_EVENTS                      = 0xffffffff,
     SE_NO_EVENTS                       = 0
