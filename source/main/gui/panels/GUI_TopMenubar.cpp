@@ -609,6 +609,7 @@ void TopMenubar::Draw(float dt)
             // CAMERA SETTINGS
             if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
+                // Static camera has it's own FOV
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
                 DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
@@ -637,6 +638,14 @@ void TopMenubar::Draw(float dt)
                 if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
                 {
                     DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
+                }
+                // Mouse-look settings (free camera and 1st person character camera)
+                // In both those modes, UI is unavailable, so we display them on the next best occasion.
+                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_CHARACTER
+                    || App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+                {
+                    DrawGFloatSlider(App::io_mouselook_speed, _LC("TopMenubar", "Mouse-look speed"), 1.f, 25.f);
+                    DrawGFloatSlider(App::io_mouselook_smoothing, _LC("TopMenubar", "Mouse-look smoothing"), 0.f, 0.99f);
                 }
             }
 
