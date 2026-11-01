@@ -21,7 +21,7 @@ class RoR(ConanFile):
         self.requires("fmt/12.2.0")
         self.requires("mygui/3.4.0@anotherfoxguy/stable")
         self.requires("ogre3d-caelum/0.6.3.1@anotherfoxguy/stable")
-        self.requires("ogre3d/1.11.6.1@anotherfoxguy/stable", force=True)
+        self.requires("ogre3d/1.11.6.2@anotherfoxguy/stable", force=True)
         self.requires("ois/1.4.1@rigsofrods/custom")
         self.requires("openal-soft/1.24.3")
         self.requires("openssl/3.6.3", force=True)
