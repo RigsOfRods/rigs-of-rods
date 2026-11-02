@@ -109,6 +109,7 @@ void Console::cVarSetupBuiltins()
     App::diag_profiler_enabled   = this->cVarCreate("diag_profiler_enabled",   "",                           CVAR_TYPE_BOOL,                   "false");
     App::diag_profiler_rate      = this->cVarCreate("diag_profiler_rate",      "",                           CVAR_ARCHIVE | CVAR_TYPE_INT,     "10");
     App::diag_angelscript_generic_bind_test = this->cVarCreate("diag_angelscript_generic_bind_test", "",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_phony_joystick     = this->cVarCreate("diag_phony_joystick",     "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::sys_process_dir         = this->cVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->cVarCreate("sys_user_dir",            "",                           0);
