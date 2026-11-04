@@ -347,6 +347,13 @@ struct CParticle
     Ogre::ParticleSystem* psys = nullptr;
 };
 
+struct WingGfx
+{
+    WingID_t wing_id = WINGID_INVALID;
+    FlexAirfoilMesh* flex_airfoil_mesh = nullptr;
+    Ogre::SceneNode *cnode = nullptr;
+};
+
 /// @} // addtogroup Gfx
 
 } // namespace RoR

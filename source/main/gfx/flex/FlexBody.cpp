@@ -1,0 +1,1309 @@
+/*
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2020 Petr Ohlidal
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "FlexBody.h"
+
+#include "Application.h"
+#include "ApproxMath.h"
+#include "Console.h"
+#include "SimData.h"
+#include "FlexFactory.h"
+#include "GfxActor.h"
+#include "GfxScene.h"
+#include "RigDef_File.h"
+
+#include <Ogre.h>
+#include <cstddef> // offsetof
+#include <unordered_set>
+
+// SSE (1) is enough for the vertex kernel; it's always available on x86-64.
+#if (defined(__SSE__) || defined(_M_X64) || defined(_M_AMD64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)) && (OGRE_DOUBLE_PRECISION == 0)
+#   define ROR_FLEXBODY_SSE 1
+#   include <xmmintrin.h>
+#else
+#   define ROR_FLEXBODY_SSE 0
+#endif
+
+using namespace Ogre;
+using namespace RoR;
+
+#if ROR_FLEXBODY_SSE
+
+// The kernel loads each Vector3 with a single 16-byte read, so 1 float past it must be valid memory.
+static_assert(sizeof(Ogre::Vector3) == 3 * sizeof(float), "Vector3 must be 3 tightly packed floats");
+static_assert(offsetof(NodeSB, AbsPosition) + sizeof(Ogre::Vector3) + sizeof(float) <= sizeof(NodeSB), "reading past `NodeSB::AbsPosition` must stay within the struct");
+static_assert(offsetof(Locator_t, coords) + sizeof(Ogre::Vector3) + sizeof(float) <= sizeof(Locator_t), "reading past `Locator_t::coords` must stay within the struct");
+
+/// 1/sqrt(v) with one Newton-Raphson step (~22 bits, more precise than `fast_invSqrt()`); 0 where v <= 0, so zero-length vectors stay zero.
+static inline __m128 FlexInvSqrt(__m128 v)
+{
+    const __m128 y = _mm_rsqrt_ps(v);
+    const __m128 y_nr = _mm_mul_ps(y, _mm_sub_ps(_mm_set1_ps(1.5f), _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), v), _mm_mul_ps(y, y))));
+    return _mm_and_ps(y_nr, _mm_cmpgt_ps(v, _mm_setzero_ps()));
+}
+
+/// Loads 4 Vector3s and transposes to SoA: out_x = {v0.x, v1.x, v2.x, v3.x} etc. BEWARE: reads 1 float past each vector.
+static inline void FlexLoadSoA(const Ogre::Vector3& v0, const Ogre::Vector3& v1, const Ogre::Vector3& v2, const Ogre::Vector3& v3,
+                               __m128& out_x, __m128& out_y, __m128& out_z)
+{
+    __m128 a = _mm_loadu_ps(&v0.x);
+    __m128 b = _mm_loadu_ps(&v1.x);
+    __m128 c = _mm_loadu_ps(&v2.x);
+    __m128 d = _mm_loadu_ps(&v3.x);
+    _MM_TRANSPOSE4_PS(a, b, c, d);
+    out_x = a;
+    out_y = b;
+    out_z = c;
+}
+
+/// Converts SoA back to 4 consecutive Vector3s and writes exactly those 48 bytes (never touches dst[4], which may belong to another thread).
+/// Shuffles in registers, then 3 sequential non-overlapping 16-byte stores - destination may be write-combined
+/// memory (mapped vertex buffer, see `lockVertexBuffers()`) which is slow with overlapping or partial writes.
+static inline void FlexStoreSoA(Ogre::Vector3* dst, __m128 x, __m128 y, __m128 z)
+{
+    const __m128 xy01 = _mm_unpacklo_ps(x, y);                          // x0 y0 x1 y1
+    const __m128 xy23 = _mm_unpackhi_ps(x, y);                          // x2 y2 x3 y3
+    const __m128 z0x1 = _mm_shuffle_ps(z, x, _MM_SHUFFLE(1, 1, 0, 0));  // z0 z0 x1 x1
+    const __m128 y1z1 = _mm_shuffle_ps(y, z, _MM_SHUFFLE(1, 1, 1, 1));  // y1 y1 z1 z1
+    const __m128 z2z3 = _mm_shuffle_ps(z, xy23, _MM_SHUFFLE(3, 2, 3, 2)); // z2 z3 x3 y3
+    float* out = &dst[0].x;
+    _mm_storeu_ps(out + 0, _mm_shuffle_ps(xy01, z0x1, _MM_SHUFFLE(2, 0, 1, 0))); // x0 y0 z0 x1
+    _mm_storeu_ps(out + 4, _mm_shuffle_ps(y1z1, xy23, _MM_SHUFFLE(1, 0, 2, 0))); // y1 z1 x2 y2
+    _mm_storeu_ps(out + 8, _mm_shuffle_ps(z2z3, z2z3, _MM_SHUFFLE(1, 3, 2, 0))); // z2 x3 y3 z3
+}
+
+/// Loads 4 float[4] vectors (see `FlexNodeBasis`) and transposes to SoA; the 4th float is ignored.
+static inline void FlexLoadSoA4(const float* v0, const float* v1, const float* v2, const float* v3,
+                                __m128& out_x, __m128& out_y, __m128& out_z)
+{
+    __m128 a = _mm_loadu_ps(v0);
+    __m128 b = _mm_loadu_ps(v1);
+    __m128 c = _mm_loadu_ps(v2);
+    __m128 d = _mm_loadu_ps(v3);
+    _MM_TRANSPOSE4_PS(a, b, c, d);
+    out_x = a;
+    out_y = b;
+    out_z = c;
+}
+
+#endif // ROR_FLEXBODY_SSE
+
+FlexBody::FlexBody(
+    RoR::FlexBodyCacheData* preloaded_from_cache,
+    RoR::GfxActor* gfx_actor,
+    Ogre::Entity* ent,
+    NodeNum_t ref,
+    NodeNum_t nx,
+    NodeNum_t ny,
+    Ogre::Vector3 offset,
+    Ogre::Quaternion const & rot,
+    std::vector<unsigned int> & node_indices,
+    std::vector<ForvertTempData>& forvert_data
+):
+      m_center_offset(offset)
+    , m_node_center(ref)
+    , m_node_x(nx)
+    , m_node_y(ny)
+    , m_scene_entity(ent)
+    , m_gfx_actor(gfx_actor)
+{
+    ROR_ASSERT(m_node_x != NODENUM_INVALID);
+    ROR_ASSERT(m_node_y != NODENUM_INVALID);
+
+    Ogre::Vector3* vertices = nullptr;
+    std::string mesh_name = ent->getMesh()->getName();
+
+    Vector3 normal = Vector3::UNIT_Y;
+    Vector3 position = Vector3::ZERO;
+    Quaternion orientation = Quaternion::ZERO;
+
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+
+    if (m_node_center != NODENUM_INVALID)
+    {
+        Vector3 diffX = nodes[nx].AbsPosition-nodes[ref].AbsPosition;
+        Vector3 diffY = nodes[ny].AbsPosition-nodes[ref].AbsPosition;
+
+        normal = (diffY.crossProduct(diffX)).normalisedCopy();
+
+        // position
+        position = nodes[ref].AbsPosition + offset.x * diffX + offset.y * diffY;
+        position = position + offset.z * normal;
+
+        // orientation
+        Vector3 refX = diffX.normalisedCopy();
+        Vector3 refY = refX.crossProduct(normal);
+        orientation  = Quaternion(refX, normal, refY) * rot;
+    }
+    else
+    {
+        // special case!
+        normal = Vector3::UNIT_Y;
+        position = nodes[0].AbsPosition + offset;
+        orientation = rot;
+    }
+
+    Ogre::MeshPtr mesh=ent->getMesh();
+    m_orig_mesh_info = RoR::PrintMeshInfo("Original", mesh); // For diagnostics only
+    int num_submeshes = static_cast<int>(mesh->getNumSubMeshes());
+    if (preloaded_from_cache == nullptr)
+    {
+        //determine if we have texture coordinates everywhere
+        if (mesh->sharedVertexData && mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES)==0)
+        {
+            m_has_texture=false;
+        }
+        for (int i=0; i<num_submeshes; i++)
+        {
+            if (!mesh->getSubMesh(i)->useSharedVertices && mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES)==0) 
+            {
+                m_has_texture=false;
+            }
+        }
+        if (!m_has_texture)
+        {
+            LOG("FLEXBODY Warning: at least one part of this mesh does not have texture coordinates, switching off texturing!");
+            m_has_texture_blend=false;
+        }
+
+        //detect the anomalous case where a mesh is exported without normal vectors
+        bool havenormal=true;
+        if (mesh->sharedVertexData && mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)==0)
+        {
+            havenormal=false;
+        }
+        for (int i=0; i<num_submeshes; i++)
+        {
+            if (!mesh->getSubMesh(i)->useSharedVertices && mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)==0) 
+            {
+                havenormal=false;
+            }
+        }
+        if (!havenormal)
+        {
+            LOG("FLEXBODY Error: at least one part of this mesh does not have normal vectors, export your mesh with normal vectors! Disabling flexbody");
+            // NOTE: Intentionally not disabling, for compatibility with v0.4.0.7
+        }
+    }
+    else
+    {
+        m_has_texture        = BITMASK_IS_1(preloaded_from_cache->header.flags, FlexBodyRecordHeader::HAS_TEXTURE);
+        m_has_texture_blend  = BITMASK_IS_1(preloaded_from_cache->header.flags, FlexBodyRecordHeader::HAS_TEXTURE_BLEND);
+    }
+
+    //create optimal VertexDeclaration
+    VertexDeclaration* optimalVD=HardwareBufferManager::getSingleton().createVertexDeclaration();
+    optimalVD->addElement(0, 0, VET_FLOAT3, VES_POSITION);
+    optimalVD->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
+    if (m_has_texture_blend) optimalVD->addElement(2, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+    if (m_has_texture) optimalVD->addElement(3, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+    optimalVD->sort();
+    optimalVD->closeGapsInSource();
+    BufferUsageList optimalBufferUsages;
+    for (size_t u = 0; u <= optimalVD->getMaxSource(); ++u)
+    {
+        optimalBufferUsages.push_back(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+    }
+
+    //adding color buffers, well get the reference later
+    if (m_has_texture_blend)
+    {
+        if (mesh->sharedVertexData)
+        {
+            if (mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)==0)
+            {
+                //add buffer
+                int index=mesh->sharedVertexData->vertexDeclaration->getMaxSource()+1;
+                mesh->sharedVertexData->vertexDeclaration->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+                mesh->sharedVertexData->vertexDeclaration->sort();
+                index=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+                HardwareVertexBufferSharedPtr vbuf=HardwareBufferManager::getSingleton().createVertexBuffer(VertexElement::getTypeSize(VET_COLOUR_ARGB), mesh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+                mesh->sharedVertexData->vertexBufferBinding->setBinding(index, vbuf);
+            }
+        }
+        for (int i=0; i<num_submeshes; i++)
+        {
+            if (!mesh->getSubMesh(i)->useSharedVertices)
+            {
+                Ogre::VertexData* vertex_data = mesh->getSubMesh(i)->vertexData;
+                Ogre::VertexDeclaration* vertex_decl = vertex_data->vertexDeclaration;
+                if (vertex_decl->findElementBySemantic(VES_DIFFUSE)==0)
+                {
+                    //add buffer
+                    int index = vertex_decl->getMaxSource()+1;
+                    vertex_decl->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+                    vertex_decl->sort();
+                    vertex_decl->findElementBySemantic(VES_DIFFUSE)->getSource();
+                    HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+                        VertexElement::getTypeSize(VET_COLOUR_ARGB), vertex_data->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+                    vertex_data->vertexBufferBinding->setBinding(index, vbuf);
+                }
+            }
+        }
+    }
+
+    //reorg
+    //LOG("FLEXBODY reorganizing buffers");
+    if (mesh->sharedVertexData)
+    {
+        mesh->sharedVertexData->reorganiseBuffers(optimalVD, optimalBufferUsages);
+        mesh->sharedVertexData->removeUnusedBuffers();
+        mesh->sharedVertexData->closeGapsInBindings();
+    }
+    Mesh::SubMeshIterator smIt = mesh->getSubMeshIterator();
+    while (smIt.hasMoreElements())
+    {
+        SubMesh* sm = smIt.getNext();
+        if (!sm->useSharedVertices)
+        {
+            sm->vertexData->reorganiseBuffers(optimalVD->clone(), optimalBufferUsages);
+            sm->vertexData->removeUnusedBuffers();
+            sm->vertexData->closeGapsInBindings();
+        }
+    }
+
+    //print mesh information
+    //LOG("FLEXBODY Printing modififed mesh informations:");
+    //printMeshInfo(ent->getMesh().get());
+
+    //get the buffers
+    //getMeshInformation(ent->getMesh().get(),m_vertex_count,vertices,index_count,indices, position, orientation, Vector3(1,1,1));
+
+    //getting vertex counts
+    if (preloaded_from_cache == nullptr)
+    {
+        m_vertex_count=0;
+        m_uses_shared_vertex_data=false;
+        m_num_submesh_vbufs=0;
+        if (mesh->sharedVertexData)
+        {
+            m_vertex_count+=mesh->sharedVertexData->vertexCount;
+            m_uses_shared_vertex_data=true;
+        }
+        for (int i=0; i<num_submeshes; i++)
+        {
+            if (!mesh->getSubMesh(i)->useSharedVertices)
+            {
+                m_vertex_count+=mesh->getSubMesh(i)->vertexData->vertexCount;
+                m_num_submesh_vbufs++;
+            }
+        }
+    } else
+    {
+        m_vertex_count            = preloaded_from_cache->header.vertex_count;
+        m_uses_shared_vertex_data = BITMASK_IS_1(preloaded_from_cache->header.flags, FlexBodyRecordHeader::USES_SHARED_VERTEX_DATA);
+        m_num_submesh_vbufs       = preloaded_from_cache->header.num_submesh_vbufs;
+    }
+    
+    // Profiler data
+    double stat_manual_buffers_created_time = -1;
+    double stat_transformed_time = -1;
+    double stat_located_time = -1;
+    if (preloaded_from_cache != nullptr)
+    {
+        m_dst_pos     = preloaded_from_cache->dst_pos;
+        m_src_normals = preloaded_from_cache->src_normals;
+        m_locators    = preloaded_from_cache->locators;
+        m_dst_normals = (Vector3*)malloc(sizeof(Vector3)*m_vertex_count); // Use malloc() for compatibility
+
+        if (m_has_texture_blend)
+        {
+            m_src_colors = preloaded_from_cache->src_colors;
+        }
+
+        if (mesh->sharedVertexData)
+        {
+            m_shared_buf_num_verts=(int)mesh->sharedVertexData->vertexCount;
+
+            //vertices
+            int source=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+            m_shared_vbuf_pos=mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+            //normals
+            source=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+            m_shared_vbuf_norm=mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+            //colors
+            if (m_has_texture_blend)
+            {
+                source=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+                m_shared_vbuf_color=mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+            }
+        }
+        unsigned int curr_submesh_idx = 0;
+        for (int i=0; i<num_submeshes; i++)
+        {
+            const Ogre::SubMesh* submesh = mesh->getSubMesh(i);
+            if (submesh->useSharedVertices)
+            {
+                continue;
+            }
+            const Ogre::VertexData* vertex_data = submesh->vertexData;
+            m_submesh_vbufs_vertex_counts[curr_submesh_idx] = (int)vertex_data->vertexCount;
+
+            int source_pos  = vertex_data->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+            int source_norm = vertex_data->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+            m_submesh_vbufs_pos [curr_submesh_idx] = vertex_data->vertexBufferBinding->getBuffer(source_pos);
+            m_submesh_vbufs_norm[curr_submesh_idx] = vertex_data->vertexBufferBinding->getBuffer(source_norm);
+
+            if (m_has_texture_blend)
+            {
+                int source_color = vertex_data->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+                m_submesh_vbufs_color[curr_submesh_idx] = vertex_data->vertexBufferBinding->getBuffer(source_color);
+            }
+            curr_submesh_idx++;
+        }
+    }
+    else
+    {
+        vertices=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+        m_dst_pos=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+        m_src_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+        m_dst_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+        if (m_has_texture_blend)
+        {
+            m_src_colors=(ARGB*)malloc(sizeof(ARGB)*m_vertex_count);
+            for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
+        }
+        Vector3* vpt=vertices;
+        Vector3* npt=m_src_normals;
+        if (mesh->sharedVertexData)
+        {
+            m_shared_buf_num_verts=(int)mesh->sharedVertexData->vertexCount;
+            //vertices
+            int source=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+            m_shared_vbuf_pos=mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+            m_shared_vbuf_pos->readData(0, mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)vpt);
+            vpt+=mesh->sharedVertexData->vertexCount;
+            //normals
+            source=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+            m_shared_vbuf_norm=mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+            m_shared_vbuf_norm->readData(0, mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)npt);
+            npt+=mesh->sharedVertexData->vertexCount;
+            //colors
+            if (m_has_texture_blend)
+            {
+                source=mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+                m_shared_vbuf_color=mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+                m_shared_vbuf_color->writeData(0, mesh->sharedVertexData->vertexCount*sizeof(ARGB), (void*)m_src_colors);
+            }
+        }
+        int cursubmesh=0;
+        for (int i=0; i<num_submeshes; i++)
+        {
+            const Ogre::SubMesh* submesh = mesh->getSubMesh(i);
+            if (submesh->useSharedVertices)
+            {
+                continue;
+            }
+            const Ogre::VertexData* vertex_data = submesh->vertexData;
+            int vertex_count = (int)vertex_data->vertexCount;
+            m_submesh_vbufs_vertex_counts[cursubmesh] = vertex_count;
+            //vertices
+            int source = vertex_data->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+            m_submesh_vbufs_pos[cursubmesh]=vertex_data->vertexBufferBinding->getBuffer(source);
+            m_submesh_vbufs_pos[cursubmesh]->readData(0, vertex_count*sizeof(Vector3), (void*)vpt);
+            vpt += vertex_count;
+            //normals
+            source = vertex_data->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+            m_submesh_vbufs_norm[cursubmesh]=vertex_data->vertexBufferBinding->getBuffer(source);
+            m_submesh_vbufs_norm[cursubmesh]->readData(0, vertex_count*sizeof(Vector3), (void*)npt);
+            npt += vertex_count;
+            //colors
+            if (m_has_texture_blend)
+            {
+                source = vertex_data->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+                m_submesh_vbufs_color[cursubmesh] = vertex_data->vertexBufferBinding->getBuffer(source);
+                m_submesh_vbufs_color[cursubmesh]->writeData(0, vertex_count*sizeof(ARGB), (void*)m_src_colors);
+            }
+            cursubmesh++;
+        }
+
+        //transform
+        for (int i=0; i<(int)m_vertex_count; i++)
+        {
+            vertices[i]=(orientation*vertices[i])+position;
+        }
+
+        m_locators = new Locator_t[m_vertex_count];
+        // Logged once after the loop - can be every vertex of the mesh.
+        int num_ref_not_found = 0;
+        int num_vx_not_found = 0;
+        int num_vy_not_found = 0;
+        for (int i=0; i<(int)m_vertex_count; i++)
+        {
+            // Is this locator is manually specified via directive 'forvert'?
+            auto forvert_itor = std::find_if(forvert_data.begin(), forvert_data.end(),
+                [i](const ForvertTempData& data) { return data.vert_index == i; });
+            if (forvert_itor != forvert_data.end())
+            {
+                m_locators[i].ref = forvert_itor->nref;
+                m_locators[i].nx = forvert_itor->nx;
+                m_locators[i].ny = forvert_itor->ny;
+                m_locators[i].is_forvert = true;
+                LOG(fmt::format("FLEXBODY vertex {} overriden for nodes REF:{}, VX:{}, VY:{}",
+                    i, m_locators[i].ref, m_locators[i].nx, m_locators[i].ny));
+            }
+            else
+            {
+
+                //search nearest node as the local origin
+                float closest_node_distance = std::numeric_limits<float>::max();
+                int closest_node_index = -1;
+                for (auto node_index : node_indices)
+                {
+                    float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
+                    if (node_distance < closest_node_distance)
+                    {
+                        closest_node_distance = node_distance;
+                        closest_node_index = node_index;
+                    }
+                }
+                if (closest_node_index == -1)
+                {
+                    num_ref_not_found++;
+                    closest_node_index = 0;
+                }
+                m_locators[i].ref = closest_node_index;
+
+                //search the second nearest node as the X vector
+                closest_node_distance = std::numeric_limits<float>::max();
+                closest_node_index = -1;
+                for (auto node_index : node_indices)
+                {
+                    if (node_index == m_locators[i].ref)
+                    {
+                        continue;
+                    }
+                    float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
+                    if (node_distance < closest_node_distance)
+                    {
+                        closest_node_distance = node_distance;
+                        closest_node_index = node_index;
+                    }
+                }
+                if (closest_node_index == -1)
+                {
+                    num_vx_not_found++;
+                    closest_node_index = 0;
+                }
+                m_locators[i].nx = closest_node_index;
+
+                //search another close, orthogonal node as the Y vector
+                closest_node_distance = std::numeric_limits<float>::max();
+                closest_node_index = -1;
+                Vector3 vx = (nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
+                for (auto node_index : node_indices)
+                {
+                    if (node_index == m_locators[i].ref || node_index == m_locators[i].nx)
+                    {
+                        continue;
+                    }
+                    float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
+                    if (node_distance < closest_node_distance)
+                    {
+                        Vector3 vt = (nodes[node_index].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
+                        float cost = vx.dotProduct(vt);
+                        if (std::abs(cost) > std::sqrt(2.0f) / 2.0f)
+                        {
+                            continue; //rejection, fails the orthogonality criterion (+-45 degree)
+                        }
+                        closest_node_distance = node_distance;
+                        closest_node_index = node_index;
+                    }
+                }
+                if (closest_node_index == -1)
+                {
+                    num_vy_not_found++;
+                    closest_node_index = 0;
+                }
+                m_locators[i].ny = closest_node_index;
+            }
+
+            Matrix3 mat;
+            Vector3 diffX = nodes[m_locators[i].nx].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
+            Vector3 diffY = nodes[m_locators[i].ny].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
+
+            mat.SetColumn(0, diffX);
+            mat.SetColumn(1, diffY);
+            mat.SetColumn(2, (diffX.crossProduct(diffY)).normalisedCopy()); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
+
+            mat = mat.Inverse();
+
+            //compute coordinates in the newly formed Euclidean basis
+            m_locators[i].coords = mat * (vertices[i] - nodes[m_locators[i].ref].AbsPosition);
+
+            // that's it!
+        }
+
+        if (num_ref_not_found > 0)
+        {
+            LOG(fmt::format("FLEXBODY ERROR on mesh {}: REF node not found for {} of {} vertices",
+                mesh_name, num_ref_not_found, m_vertex_count));
+        }
+        if (num_vx_not_found > 0)
+        {
+            LOG(fmt::format("FLEXBODY ERROR on mesh {}: VX node not found for {} of {} vertices",
+                mesh_name, num_vx_not_found, m_vertex_count));
+        }
+        if (num_vy_not_found > 0)
+        {
+            LOG(fmt::format("FLEXBODY ERROR on mesh {}: VY node not found for {} of {} vertices",
+                mesh_name, num_vy_not_found, m_vertex_count));
+        }
+
+    } // if (preloaded_from_cache == nullptr)
+
+    //adjusting bounds
+    AxisAlignedBox aab=mesh->getBounds();
+    Vector3 v=aab.getMinimum();
+    float mi=v.x;
+    if (v.y<mi) mi=v.y;
+    if (v.z<mi) mi=v.z;
+    mi=fabs(mi);
+    v=aab.getMaximum();
+    float ma=v.x;
+    if (ma<v.y) ma=v.y;
+    if (ma<v.z) ma=v.z;
+    ma=fabs(ma);
+    if (mi>ma) ma=mi;
+    aab.setMinimum(Vector3(-ma,-ma,-ma));
+    aab.setMaximum(Vector3(ma,ma,ma));
+    mesh->_setBounds(aab, true);
+
+    //okay, show the mesh now
+    m_scene_node=App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_scene_node->attachObject(ent);
+    m_scene_node->setPosition(position);
+
+    if (preloaded_from_cache == nullptr)
+    {
+        for (int i=0; i<(int)m_vertex_count; i++)
+        {
+            Matrix3 mat;
+            Vector3 diffX = nodes[m_locators[i].nx].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
+            Vector3 diffY = nodes[m_locators[i].ny].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
+
+            mat.SetColumn(0, diffX);
+            mat.SetColumn(1, diffY);
+            mat.SetColumn(2, diffX.crossProduct(diffY).normalisedCopy()); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
+
+            mat = mat.Inverse();
+
+            // compute coordinates in the Euclidean basis
+            m_src_normals[i] = mat*(orientation * m_src_normals[i]);
+        }
+    }
+
+    if (vertices != nullptr) { free(vertices); }
+
+    // Keep the forset nodes for diagnostics
+    for (unsigned int nodenum : node_indices)
+    {
+        m_forset_nodes.push_back((NodeNum_t)nodenum);
+    }
+
+    if (App::GetConsole()->cVarGet("flexbody_defrag_enabled", CVAR_TYPE_BOOL)->getBool()
+        // For simplicity, only take 1-submesh meshes (almost always the case anyway)
+        && m_scene_entity->getMesh()->getNumSubMeshes() == 1)
+    {
+        this->defragmentFlexbodyMesh();
+    }
+
+    // Diagnostic: how many vertices share each REF/X/Y triplet (k) - decides whether caching shared bases would pay off.
+    std::unordered_set<uint64_t> unique_triplets;
+    for (size_t i = 0; i < m_vertex_count; i++)
+    {
+        unique_triplets.insert((uint64_t(m_locators[i].ref) << 32) | (uint64_t(m_locators[i].nx) << 16) | uint64_t(m_locators[i].ny));
+    }
+    LOG(fmt::format("FLEXBODY '{}': {} vertices, {} forset nodes, {} unique REF/X/Y triplets (k = {:.1f} verts per triplet)",
+        mesh_name, m_vertex_count, node_indices.size(), unique_triplets.size(),
+        unique_triplets.empty() ? 0.0 : (double)m_vertex_count / unique_triplets.size()));
+
+    this->setupDoubleBuffers();
+}
+
+void FlexBody::setupDoubleBuffers()
+{
+    // OpenGL (Ogre 1.11) maps big buffers via glBufferData(NULL) + glMapBuffer(), which stalls the driver
+    // on every lock (measured ~11ms/frame for 1 vehicle) - there the CPU copy + `writeData()` is much faster.
+    static const bool s_direct_upload_supported =
+        Ogre::Root::getSingleton().getRenderSystem()->getName().find("OpenGL") == std::string::npos;
+    if (!s_direct_upload_supported)
+    {
+        return;
+    }
+
+    Ogre::MeshPtr mesh = m_scene_entity->getMesh();
+    std::vector<VertexBufferSegment> segments;
+    int first_vert = 0;
+
+    auto add_segment = [&segments, &first_vert](Ogre::VertexData* vdata) -> bool
+    {
+        const Ogre::VertexElement* pos_elem = vdata->vertexDeclaration->findElementBySemantic(VES_POSITION);
+        const Ogre::VertexElement* norm_elem = vdata->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+        if (!pos_elem || !norm_elem || pos_elem->getSource() == norm_elem->getSource() || vdata->vertexCount == 0)
+        {
+            return false; // Positions and normals must be in separate buffers.
+        }
+        VertexBufferSegment seg;
+        seg.vbs_binding = vdata->vertexBufferBinding;
+        seg.vbs_pos_source = pos_elem->getSource();
+        seg.vbs_norm_source = norm_elem->getSource();
+        seg.vbs_pos[0] = seg.vbs_binding->getBuffer(seg.vbs_pos_source);
+        seg.vbs_norm[0] = seg.vbs_binding->getBuffer(seg.vbs_norm_source);
+        if (seg.vbs_pos[0]->getVertexSize() != sizeof(Ogre::Vector3) || seg.vbs_norm[0]->getVertexSize() != sizeof(Ogre::Vector3))
+        {
+            return false; // Must be tightly packed float3, the kernel writes Vector3s directly.
+        }
+        seg.vbs_num_verts = static_cast<int>(vdata->vertexCount);
+        seg.vbs_first_vert = first_vert;
+        seg.vbs_pos[1] = HardwareBufferManager::getSingleton().createVertexBuffer(
+            sizeof(Ogre::Vector3), vdata->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+        seg.vbs_norm[1] = HardwareBufferManager::getSingleton().createVertexBuffer(
+            sizeof(Ogre::Vector3), vdata->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+        first_vert += seg.vbs_num_verts;
+        segments.push_back(seg);
+        return true;
+    };
+
+    // Same order as `m_dst_pos` - shared vertices first, then submeshes with own vertices.
+    bool ok = true;
+    if (mesh->sharedVertexData)
+    {
+        ok = ok && add_segment(mesh->sharedVertexData);
+    }
+    for (unsigned short i = 0; ok && i < mesh->getNumSubMeshes(); i++)
+    {
+        if (!mesh->getSubMesh(i)->useSharedVertices)
+        {
+            ok = ok && add_segment(mesh->getSubMesh(i)->vertexData);
+        }
+    }
+
+    if (ok && first_vert == (int)m_vertex_count)
+    {
+        m_vbuf_segments = segments;
+    }
+    else
+    {
+        LOG(fmt::format("FLEXBODY '{}': vertex layout not suitable for direct upload, using slower CPU copy", mesh->getName()));
+    }
+}
+
+FlexBody::FlexBody(PlaceholderType p_type, FlexbodyID_t id, const std::string& orig_meshname)
+{
+    m_camera_mode = CAMERA_MODE_ALWAYS_HIDDEN;
+    m_id = id;
+    m_orig_mesh_name = orig_meshname;
+    m_placeholder_type = p_type;
+}
+
+FlexBody::~FlexBody()
+{
+    // Stuff using <new>
+    if (m_locators != nullptr) { delete[] m_locators; }
+    // Stuff using malloc()
+    if (m_src_normals != nullptr) { free(m_src_normals); }
+    if (m_dst_normals != nullptr) { free(m_dst_normals); }
+    if (m_dst_pos     != nullptr) { free(m_dst_pos    ); }
+    if (m_src_colors  != nullptr) { free(m_src_colors ); }
+
+    this->destroyOgreObjects();
+}
+
+/*static*/ const char* FlexBody::PlaceholderTypeToString(PlaceholderType type)
+{
+    switch (type)
+    {
+    case PlaceholderType::NOT_A_PLACEHOLDER: return "NOT_A_PLACEHOLDER";
+    case PlaceholderType::TUNING_REMOVED_PLACEHOLDER: return "TUNING_REMOVED_PLACEHOLDER";
+    case PlaceholderType::FAULTY_FORSET_PLACEHOLDER: return "FAULTY_FORSET_PLACEHOLDER";
+    case PlaceholderType::FAULTY_MESH_PLACEHOLDER: return "FAULTY_MESH_PLACEHOLDER";
+    default: return "";
+    }
+}
+
+void FlexBody::destroyOgreObjects()
+{
+    // Separated out from destructor so that exceptions can be handled separately (C++ destructor cannot propagate exceptions)
+    // -----------------------------------------------------------------------------------------------------------------------
+
+    // OGRE resource - double-buffered vertex buffers (may be still mapped if destroyed mid-frame)
+    if (m_vbufs_locked)
+    {
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_pos[m_vbuf_back]->unlock();
+            seg.vbs_norm[m_vbuf_back]->unlock();
+        }
+        m_vbufs_locked = false;
+    }
+    m_vbuf_segments.clear();
+
+    // OGRE resource - scene node
+    if (m_scene_node != nullptr)
+    {
+        m_scene_node->getParentSceneNode()->removeChild(m_scene_node);
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_scene_node);
+    }
+    m_scene_node = nullptr;
+
+    // OGRE resource - scene entity
+    if (m_scene_entity != nullptr)
+    {
+        Ogre::MeshPtr mesh = m_scene_entity->getMesh();
+        App::GetGfxScene()->GetSceneManager()->destroyEntity(m_scene_entity);
+
+        // OGRE resource - mesh (unique copy - should be destroyed)
+        Ogre::MeshManager::getSingleton().remove(mesh->getHandle());
+    }
+    m_scene_entity = nullptr;
+}
+
+bool FlexBody::isVisible() const
+{
+    // Scene node is NULL if disabled via addonpart/tuneup.
+    return m_scene_node
+        && m_scene_node->isInSceneGraph()
+        && m_scene_node->getAttachedObject(0)->isVisible();
+        
+}
+
+void FlexBody::setVisible(bool visible)
+{
+    // Scene node is NULL if disabled via addonpart/tuneup.
+    if (m_scene_node)
+        m_scene_node->setVisible(visible);
+}
+
+void FlexBody::setFlexbodyCastShadow(bool val)
+{
+    // Scene entity is NULL if disabled via addonpart/tuneup.
+    if (m_scene_entity)
+        m_scene_entity->setCastShadows(val);
+}
+
+void FlexBody::computeFlexbody()
+{
+    if (m_has_texture_blend) updateBlend(0, (int)m_vertex_count);
+    this->computeFlexbodyCenter();
+    this->computeFlexbodyVertices(0, (int)m_vertex_count);
+}
+
+void FlexBody::computeFlexbodyCenter()
+{
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+
+    // compute the local center
+    if (m_node_center >= 0)
+    {
+        Vector3 diffX = nodes[m_node_x].AbsPosition - nodes[m_node_center].AbsPosition;
+        Vector3 diffY = nodes[m_node_y].AbsPosition - nodes[m_node_center].AbsPosition;
+        Ogre::Vector3 flexit_normal = fast_normalise(diffY.crossProduct(diffX));
+
+        m_flexit_center = nodes[m_node_center].AbsPosition + m_center_offset.x * diffX + m_center_offset.y * diffY;
+        m_flexit_center += m_center_offset.z * flexit_normal;
+    }
+    else
+    {
+        m_flexit_center = nodes[0].AbsPosition;
+    }
+}
+
+void FlexBody::setupNodeBases()
+{
+    if (m_placeholder_type != PlaceholderType::NOT_A_PLACEHOLDER)
+    {
+        return;
+    }
+
+    m_locator_bases.resize(m_vertex_count);
+    for (size_t i = 0; i < m_vertex_count; i++)
+    {
+        m_locator_bases[i] = m_gfx_actor->RegisterFlexbodyBasis(m_locators[i].ref, m_locators[i].nx, m_locators[i].ny);
+    }
+}
+
+/*static*/ void FlexBody::calcNodeBases(const NodeSB* nodes, const FlexNodeTriplet* triplets, FlexNodeBasis* out, size_t count)
+{
+    ROR_ASSERT(count % 4 == 0);
+
+#if ROR_FLEXBODY_SSE
+    for (size_t t = 0; t + 4 <= count; t += 4)
+    {
+        const FlexNodeTriplet* tri = &triplets[t];
+        __m128 rx, ry, rz, xx, xy, xz, yx, yy, yz;
+        FlexLoadSoA(nodes[tri[0].fnt_ref].AbsPosition, nodes[tri[1].fnt_ref].AbsPosition, nodes[tri[2].fnt_ref].AbsPosition, nodes[tri[3].fnt_ref].AbsPosition, rx, ry, rz);
+        FlexLoadSoA(nodes[tri[0].fnt_x].AbsPosition,   nodes[tri[1].fnt_x].AbsPosition,   nodes[tri[2].fnt_x].AbsPosition,   nodes[tri[3].fnt_x].AbsPosition,   xx, xy, xz);
+        FlexLoadSoA(nodes[tri[0].fnt_y].AbsPosition,   nodes[tri[1].fnt_y].AbsPosition,   nodes[tri[2].fnt_y].AbsPosition,   nodes[tri[3].fnt_y].AbsPosition,   yx, yy, yz);
+
+        // diffX, diffY
+        __m128 dxx = _mm_sub_ps(xx, rx), dxy = _mm_sub_ps(xy, ry), dxz = _mm_sub_ps(xz, rz);
+        __m128 dyx = _mm_sub_ps(yx, rx), dyy = _mm_sub_ps(yy, ry), dyz = _mm_sub_ps(yz, rz);
+
+        // normal = normalise(diffX x diffY)
+        __m128 nx = _mm_sub_ps(_mm_mul_ps(dxy, dyz), _mm_mul_ps(dxz, dyy));
+        __m128 ny = _mm_sub_ps(_mm_mul_ps(dxz, dyx), _mm_mul_ps(dxx, dyz));
+        __m128 nz = _mm_sub_ps(_mm_mul_ps(dxx, dyy), _mm_mul_ps(dxy, dyx));
+        const __m128 n_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(nx, nx), _mm_mul_ps(ny, ny)), _mm_mul_ps(nz, nz)));
+        nx = _mm_mul_ps(nx, n_inv);
+        ny = _mm_mul_ps(ny, n_inv);
+        nz = _mm_mul_ps(nz, n_inv);
+
+        // SoA -> 1 float[4] per basis vector
+        __m128 rw = _mm_setzero_ps(), dxw = _mm_setzero_ps(), dyw = _mm_setzero_ps(), nw = _mm_setzero_ps();
+        _MM_TRANSPOSE4_PS(rx, ry, rz, rw);
+        _MM_TRANSPOSE4_PS(dxx, dxy, dxz, dxw);
+        _MM_TRANSPOSE4_PS(dyx, dyy, dyz, dyw);
+        _MM_TRANSPOSE4_PS(nx, ny, nz, nw);
+        _mm_storeu_ps(out[t+0].fnb_ref, rx);  _mm_storeu_ps(out[t+0].fnb_diff_x, dxx); _mm_storeu_ps(out[t+0].fnb_diff_y, dyx); _mm_storeu_ps(out[t+0].fnb_normal, nx);
+        _mm_storeu_ps(out[t+1].fnb_ref, ry);  _mm_storeu_ps(out[t+1].fnb_diff_x, dxy); _mm_storeu_ps(out[t+1].fnb_diff_y, dyy); _mm_storeu_ps(out[t+1].fnb_normal, ny);
+        _mm_storeu_ps(out[t+2].fnb_ref, rz);  _mm_storeu_ps(out[t+2].fnb_diff_x, dxz); _mm_storeu_ps(out[t+2].fnb_diff_y, dyz); _mm_storeu_ps(out[t+2].fnb_normal, nz);
+        _mm_storeu_ps(out[t+3].fnb_ref, rw);  _mm_storeu_ps(out[t+3].fnb_diff_x, dxw); _mm_storeu_ps(out[t+3].fnb_diff_y, dyw); _mm_storeu_ps(out[t+3].fnb_normal, nw);
+    }
+#else
+    for (size_t t = 0; t < count; t++)
+    {
+        const Vector3& ref = nodes[triplets[t].fnt_ref].AbsPosition;
+        const Vector3 diffX = nodes[triplets[t].fnt_x].AbsPosition - ref;
+        const Vector3 diffY = nodes[triplets[t].fnt_y].AbsPosition - ref;
+        Vector3 normal = diffX.crossProduct(diffY);
+        const float len2 = normal.squaredLength();
+        normal *= (len2 > 0.f) ? (1.f / std::sqrt(len2)) : 0.f; // Zero-length stays zero, like the SSE path
+        const Vector3* src[4] = {&ref, &diffX, &diffY, &normal};
+        float* dst[4] = {out[t].fnb_ref, out[t].fnb_diff_x, out[t].fnb_diff_y, out[t].fnb_normal};
+        for (int v = 0; v < 4; v++)
+        {
+            dst[v][0] = src[v]->x; dst[v][1] = src[v]->y; dst[v][2] = src[v]->z; dst[v][3] = 0.f;
+        }
+    }
+#endif // ROR_FLEXBODY_SSE
+}
+
+void FlexBody::computeFlexbodyVertices(int begin, int end)
+{
+    ROR_ASSERT(m_locator_bases.size() == m_vertex_count); // See `setupNodeBases()`
+
+    ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
+
+    if (!m_vbufs_locked)
+    {
+        // CPU copy, uploaded later by `updateFlexbodyVertexBuffers()`
+        this->computeVerticesInternal(begin, end, &m_dst_pos[begin], &m_dst_normals[begin]);
+        return;
+    }
+
+    // Write directly to the mapped back buffers; the range may span multiple segments.
+    for (VertexBufferSegment& seg: m_vbuf_segments)
+    {
+        const int seg_begin = std::max(begin, seg.vbs_first_vert);
+        const int seg_end = std::min(end, seg.vbs_first_vert + seg.vbs_num_verts);
+        if (seg_begin < seg_end)
+        {
+            const int offset = seg_begin - seg.vbs_first_vert;
+            this->computeVerticesInternal(seg_begin, seg_end, &seg.vbs_locked_pos[offset], &seg.vbs_locked_norm[offset]);
+        }
+    }
+}
+
+void FlexBody::computeVerticesInternal(int begin, int end, Ogre::Vector3* out_pos, Ogre::Vector3* out_normals)
+{
+    const FlexNodeBasis* bases = m_gfx_actor->GetFlexbodyBases();
+    const uint32_t* basis_ids = m_locator_bases.data();
+    int i = begin;
+
+#if ROR_FLEXBODY_SSE
+    // 4 vertices at a time, same math as the scalar loop below.
+    const __m128 center_x = _mm_set1_ps(m_flexit_center.x);
+    const __m128 center_y = _mm_set1_ps(m_flexit_center.y);
+    const __m128 center_z = _mm_set1_ps(m_flexit_center.z);
+    const int sse_end = std::min(end, (int)m_vertex_count - 1); // Loading `m_src_normals[i+3]` reads 1 float past it.
+    for (; i + 4 <= sse_end; i += 4)
+    {
+        // Shared REF/X/Y bases (see `calcNodeBases()`) - instead of 3 node positions, cross product and normalisation per vertex.
+        const FlexNodeBasis& b0 = bases[basis_ids[i]];
+        const FlexNodeBasis& b1 = bases[basis_ids[i+1]];
+        const FlexNodeBasis& b2 = bases[basis_ids[i+2]];
+        const FlexNodeBasis& b3 = bases[basis_ids[i+3]];
+        const Locator_t* loc = &m_locators[i];
+        __m128 rx, ry, rz, dxx, dxy, dxz, dyx, dyy, dyz, nx, ny, nz, cx, cy, cz, sx, sy, sz;
+        FlexLoadSoA4(b0.fnb_ref,    b1.fnb_ref,    b2.fnb_ref,    b3.fnb_ref,    rx,  ry,  rz);
+        FlexLoadSoA4(b0.fnb_diff_x, b1.fnb_diff_x, b2.fnb_diff_x, b3.fnb_diff_x, dxx, dxy, dxz);
+        FlexLoadSoA4(b0.fnb_diff_y, b1.fnb_diff_y, b2.fnb_diff_y, b3.fnb_diff_y, dyx, dyy, dyz);
+        FlexLoadSoA4(b0.fnb_normal, b1.fnb_normal, b2.fnb_normal, b3.fnb_normal, nx,  ny,  nz);
+        FlexLoadSoA(loc[0].coords, loc[1].coords, loc[2].coords, loc[3].coords, cx, cy, cz);
+        FlexLoadSoA(m_src_normals[i], m_src_normals[i+1], m_src_normals[i+2], m_src_normals[i+3], sx, sy, sz);
+
+        // position = diffX * coords.x + diffY * coords.y + nCross * coords.z + ref - center
+        const __m128 px = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, cx), _mm_mul_ps(dyx, cy)), _mm_add_ps(_mm_mul_ps(nx, cz), _mm_sub_ps(rx, center_x)));
+        const __m128 py = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxy, cx), _mm_mul_ps(dyy, cy)), _mm_add_ps(_mm_mul_ps(ny, cz), _mm_sub_ps(ry, center_y)));
+        const __m128 pz = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxz, cx), _mm_mul_ps(dyz, cy)), _mm_add_ps(_mm_mul_ps(nz, cz), _mm_sub_ps(rz, center_z)));
+        FlexStoreSoA(&out_pos[i - begin], px, py, pz);
+
+        // normal = normalise(diffX * src.x + diffY * src.y + nCross * src.z)
+        __m128 ox = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxx, sx), _mm_mul_ps(dyx, sy)), _mm_mul_ps(nx, sz));
+        __m128 oy = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxy, sx), _mm_mul_ps(dyy, sy)), _mm_mul_ps(ny, sz));
+        __m128 oz = _mm_add_ps(_mm_add_ps(_mm_mul_ps(dxz, sx), _mm_mul_ps(dyz, sy)), _mm_mul_ps(nz, sz));
+        const __m128 o_inv = FlexInvSqrt(_mm_add_ps(_mm_add_ps(_mm_mul_ps(ox, ox), _mm_mul_ps(oy, oy)), _mm_mul_ps(oz, oz)));
+        FlexStoreSoA(&out_normals[i - begin], _mm_mul_ps(ox, o_inv), _mm_mul_ps(oy, o_inv), _mm_mul_ps(oz, o_inv));
+    }
+#endif // ROR_FLEXBODY_SSE
+
+    // Remainder (or everything, if SSE isn't available)
+    for (; i<end; i++)
+    {
+        const FlexNodeBasis& basis = bases[basis_ids[i]];
+        const Vector3 ref(basis.fnb_ref);
+        const Vector3 diffX(basis.fnb_diff_x);
+        const Vector3 diffY(basis.fnb_diff_y);
+        const Vector3 nCross(basis.fnb_normal);
+
+        out_pos[i - begin].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
+        out_pos[i - begin].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
+        out_pos[i - begin].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
+
+        out_pos[i - begin] += ref - m_flexit_center;
+
+        out_normals[i - begin].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
+        out_normals[i - begin].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
+        out_normals[i - begin].z = diffX.z * m_src_normals[i].x + diffY.z * m_src_normals[i].y + nCross.z * m_src_normals[i].z;
+
+        out_normals[i - begin] = fast_normalise(out_normals[i - begin]);
+    }
+}
+
+void FlexBody::lockVertexBuffers()
+{
+    if (m_vbuf_segments.empty() || m_vbufs_locked || !m_scene_node)
+        return;
+
+    size_t num_locked = 0; // Buffers, for cleanup
+    try
+    {
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_locked_pos = static_cast<Ogre::Vector3*>(seg.vbs_pos[m_vbuf_back]->lock(HardwareBuffer::HBL_DISCARD));
+            num_locked++;
+            seg.vbs_locked_norm = static_cast<Ogre::Vector3*>(seg.vbs_norm[m_vbuf_back]->lock(HardwareBuffer::HBL_DISCARD));
+            num_locked++;
+        }
+        m_vbufs_locked = true;
+    }
+    catch (Ogre::Exception& e)
+    {
+        // Give up on direct upload for this flexbody; the CPU copy path keeps working.
+        LOG(fmt::format("FLEXBODY '{}': failed to lock vertex buffers ({}), using slower CPU copy", m_orig_mesh_name, e.getDescription()));
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            if (num_locked > 0) { seg.vbs_pos[m_vbuf_back]->unlock(); num_locked--; }
+            if (num_locked > 0) { seg.vbs_norm[m_vbuf_back]->unlock(); num_locked--; }
+        }
+        m_vbuf_segments.clear();
+    }
+}
+
+Ogre::Vector3 FlexBody::getVertexPos(int vert)
+{
+    ROR_ASSERT((size_t)vert < m_vertex_count);
+    // Vertex data may live only in GPU buffers (see `lockVertexBuffers()`), so calculate it from the locator.
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    const Locator_t& loc = m_locators[vert];
+    const Vector3 diffX = nodes[loc.nx].AbsPosition - nodes[loc.ref].AbsPosition;
+    const Vector3 diffY = nodes[loc.ny].AbsPosition - nodes[loc.ref].AbsPosition;
+    const Vector3 nCross = fast_normalise(diffX.crossProduct(diffY));
+    return nodes[loc.ref].AbsPosition + diffX * loc.coords.x + diffY * loc.coords.y + nCross * loc.coords.z;
+}
+
+void FlexBody::updateFlexbodyVertexBuffers()
+{
+    if (!m_scene_node) // Disabled via addonpart/tuneup
+        return;
+
+    if (m_vbufs_locked)
+    {
+        // Tasks wrote directly to the back buffers - unlock and swap them with the front ones.
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_pos[m_vbuf_back]->unlock();
+            seg.vbs_norm[m_vbuf_back]->unlock();
+            seg.vbs_locked_pos = nullptr;
+            seg.vbs_locked_norm = nullptr;
+            seg.vbs_binding->setBinding(seg.vbs_pos_source, seg.vbs_pos[m_vbuf_back]);
+            seg.vbs_binding->setBinding(seg.vbs_norm_source, seg.vbs_norm[m_vbuf_back]);
+        }
+        m_vbuf_back = 1 - m_vbuf_back;
+        m_vbufs_locked = false;
+    }
+    else if (!m_vbuf_segments.empty())
+    {
+        // Computed without locking (i.e. `computeFlexbody()`) - upload the CPU copy to the front (bound) buffers.
+        const int front = 1 - m_vbuf_back;
+        for (VertexBufferSegment& seg: m_vbuf_segments)
+        {
+            seg.vbs_pos[front]->writeData(0, seg.vbs_num_verts*sizeof(Vector3), &m_dst_pos[seg.vbs_first_vert], true);
+            seg.vbs_norm[front]->writeData(0, seg.vbs_num_verts*sizeof(Vector3), &m_dst_normals[seg.vbs_first_vert], true);
+        }
+    }
+    else
+    {
+        this->uploadCpuCopyLegacy();
+    }
+
+    if (m_blend_changed)
+    {
+        writeBlend();
+        m_blend_changed = false;
+    }
+
+    m_scene_node->setPosition(m_flexit_center);
+}
+
+void FlexBody::uploadCpuCopyLegacy()
+{
+    Vector3 *ppt = m_dst_pos;
+    Vector3 *npt = m_dst_normals;
+    if (m_uses_shared_vertex_data)
+    {
+        m_shared_vbuf_pos->writeData(0, m_shared_buf_num_verts*sizeof(Vector3), ppt, true);
+        ppt += m_shared_buf_num_verts;
+        m_shared_vbuf_norm->writeData(0, m_shared_buf_num_verts*sizeof(Vector3), npt, true);
+        npt += m_shared_buf_num_verts;
+    }
+    for (int i=0; i<m_num_submesh_vbufs; i++)
+    {
+        m_submesh_vbufs_pos[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(Vector3), ppt, true);
+        ppt += m_submesh_vbufs_vertex_counts[i];
+        m_submesh_vbufs_norm[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(Vector3), npt, true);
+        npt += m_submesh_vbufs_vertex_counts[i];
+    }
+}
+
+void FlexBody::reset()
+{
+    if (m_has_texture_blend)
+    {
+        for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
+        writeBlend();
+    }
+}
+
+void FlexBody::writeBlend()
+{
+    if (!m_has_texture_blend) return;
+    ARGB *cpt = m_src_colors;
+    if (m_uses_shared_vertex_data)
+    {
+        m_shared_vbuf_color->writeData(0, m_shared_buf_num_verts*sizeof(ARGB), (void*)cpt, true);
+        cpt+=m_shared_buf_num_verts;
+    }
+    for (int i=0; i<m_num_submesh_vbufs; i++)
+    {
+        m_submesh_vbufs_color[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(ARGB), (void*)cpt, true);
+        cpt+=m_submesh_vbufs_vertex_counts[i];
+    }
+}
+
+void FlexBody::updateBlend(int begin, int end) //so easy!
+{
+    ROR_ASSERT(begin >= 0 && begin <= end && end <= (int)m_vertex_count);
+
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    bool changed = false;
+    for (int i=begin; i<end; i++)
+    {
+        RoR::NodeSB *nd = &nodes[m_locators[i].ref];
+        ARGB col = m_src_colors[i];
+        if (nd->nd_has_contact && !(col&0xFF000000))
+        {
+            m_src_colors[i]=col|0xFF000000;
+            changed = true;
+        }
+        if (nd->nd_is_wet ^ ((col&0x000000FF)>0))
+        {
+            m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*nd->nd_is_wet;
+            changed = true;
+        }
+    }
+    if (changed)
+    {
+        m_blend_changed = true; // Atomic - multiple vertex ranges may be processed in parallel
+    }
+}
+
+int evalNodeDistance(NodeNum_t a, NodeNum_t b)
+{
+    if (a > b)
+    {
+        return App::flexbody_defrag_const_penalty->getInt()
+            + App::flexbody_defrag_prog_down_penalty->getInt() * (a - b);
+    }
+    else if (a < b)
+    {
+        return App::flexbody_defrag_const_penalty->getInt()
+            + App::flexbody_defrag_prog_down_penalty->getInt() * (b - a);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int evalMemoryDistance(Locator_t& a, Locator_t& b)
+{
+    return 0
+        + evalNodeDistance(a.ref, b.ref) + evalNodeDistance(a.nx, b.ref) + evalNodeDistance(a.ny, b.ref)
+        + evalNodeDistance(a.ref, b.nx) + evalNodeDistance(a.nx, b.nx) + evalNodeDistance(a.ny, b.nx)
+        + evalNodeDistance(a.ref, b.ny) + evalNodeDistance(a.nx, b.ny) + evalNodeDistance(a.ny, b.ny)
+        + evalNodeDistance(a.getSmallestNode(), b.getSmallestNode())
+        + evalNodeDistance(a.getMean(), b.getMean());
+}
+
+template<typename uint_T> void reorderIndexBuffer(Ogre::IndexData* idx_data, std::vector<int> const& new_index_lookup)
+{
+    uint_T* workibuf = new uint_T[idx_data->indexCount];
+    idx_data->indexBuffer->readData(0, idx_data->indexBuffer->getSizeInBytes(), workibuf);
+    for (size_t i = 0; i < idx_data->indexCount; i++)
+    {
+        workibuf[i] = new_index_lookup[workibuf[i]];
+    }
+    idx_data->indexBuffer->writeData(0, idx_data->indexBuffer->getSizeInBytes(), workibuf);
+    delete[] workibuf;
+}
+
+void reorderVertexBuffer(Ogre::HardwareVertexBufferSharedPtr vert_buf, const Ogre::VertexElement* vert_elem, std::vector<int> const& new_index_lookup)
+{
+    char* workbuf_src = new char[vert_buf->getSizeInBytes()];
+    char* workbuf_dst = new char[vert_buf->getSizeInBytes()];
+    vert_buf->readData(0, vert_buf->getSizeInBytes(), workbuf_src);
+    for (size_t i = 0; i < vert_buf->getNumVertices(); i++)
+    {
+        void* src = workbuf_src + (i * vert_elem->getSize());
+        void* dst = workbuf_dst + (new_index_lookup[i] * vert_elem->getSize());
+        std::memcpy(dst, src, vert_elem->getSize());
+    }
+    vert_buf->writeData(0, vert_buf->getSizeInBytes(), workbuf_dst);
+    delete[] workbuf_src;
+    delete[] workbuf_dst;
+}
+
+void FlexBody::defragmentFlexbodyMesh()
+{
+    // Analysis
+    NodeNum_t forset_max = std::numeric_limits<NodeNum_t>::min();
+    NodeNum_t forset_min = std::numeric_limits<NodeNum_t>::max();
+    for (NodeNum_t n : this->getForsetNodes())
+    {
+        if (n > forset_max) { forset_max = n; }
+        if (n < forset_min) { forset_min = n; }
+    }
+
+    std::vector<int> new_index_lookup(m_vertex_count);
+    for (int i = 0; i < (int)m_vertex_count; i++)
+    {
+        new_index_lookup[i] = i;
+    }
+
+    Locator_t prev_loc;
+    // edge values to start with
+    prev_loc.ref =  forset_min;
+    prev_loc.nx =  forset_min;
+    prev_loc.ny =  forset_min;
+
+    // SELECTION SORT (https://www.geeksforgeeks.org/selection-sort/)
+    for (int i = 0; i < m_vertex_count; i++)
+    {
+        // Find the next locator closest in memory
+        int closest_loc = i;
+        int closest_loc_penalty = INT_MAX;
+        for (int j = i; j < m_vertex_count; j++)
+        {
+            int penalty = evalMemoryDistance(prev_loc, m_locators[j]);
+            if (penalty < closest_loc_penalty)
+            {
+                closest_loc_penalty = penalty;
+                closest_loc = j;
+            }
+        }
+
+        // Swap locators+normals in memory, update lookup
+        Locator_t loc_tmp = m_locators[closest_loc];
+        Ogre::Vector3 norm_tmp = m_src_normals[closest_loc];
+        int idx_tmp = new_index_lookup[closest_loc];
+
+        m_locators[closest_loc] = m_locators[i];
+        m_src_normals[closest_loc] = m_src_normals[i];
+        new_index_lookup[closest_loc] = new_index_lookup[i];
+
+        m_locators[i] = loc_tmp;
+        m_src_normals[i] = norm_tmp;
+        new_index_lookup[i] = idx_tmp;    
+
+        // Go next
+        prev_loc = m_locators[i];
+    }
+
+    if (App::flexbody_defrag_invert_lookup->getBool())
+    {
+        std::vector<int> inverted_lookup(m_vertex_count);
+        for (int i = 0; i < (int)m_vertex_count; i++)
+        {
+            inverted_lookup[new_index_lookup[i]] = i;
+        }
+        for (int i = 0; i < (int)m_vertex_count; i++)
+        {
+            new_index_lookup[i] = inverted_lookup[i];
+        }
+    }
+
+    // REORDERING VERTICES
+    // * positions/normals are calculated, no action needed.
+    // * texcoords (aka UV-coords) must be fixed.
+    if (App::flexbody_defrag_reorder_texcoords->getBool())
+    {
+        Ogre::VertexData* vert_data = nullptr;
+        if (m_scene_entity->getMesh()->sharedVertexData)
+        {
+            vert_data = m_scene_entity->getMesh()->sharedVertexData;
+        }
+        else
+        {
+            // for simplicity we only support single submesh
+            vert_data = m_scene_entity->getMesh()->getSubMesh(0)->vertexData;
+        }
+        const Ogre::VertexElement* uv_elem = vert_data->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES);
+        Ogre::HardwareVertexBufferSharedPtr uv_buf = vert_data->vertexBufferBinding->getBuffer(uv_elem->getSource());
+        reorderVertexBuffer(uv_buf, uv_elem, new_index_lookup);
+    }
+
+    // REORDERING INDICES
+    if (App::flexbody_defrag_reorder_indices->getBool())
+    {
+        Ogre::IndexData* idx_data = m_scene_entity->getMesh()->getSubMesh(0)->indexData;
+        // Index can be 16-bit or 32-bit!
+        if (idx_data->indexBuffer->getType() == Ogre::HardwareIndexBuffer::IT_16BIT)
+        {
+            reorderIndexBuffer<uint16_t>(idx_data, new_index_lookup);
+        }
+        else
+        {
+            reorderIndexBuffer<uint32_t>(idx_data, new_index_lookup);
+        }
+    }
+}

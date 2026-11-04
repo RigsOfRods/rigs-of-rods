@@ -58,6 +58,9 @@ namespace RoR
     typedef int WheelID_t; //!< Index to `Actor::ar_wheels`, `use RoR::WHEELID_INVALID` as empty value
     static const WheelID_t WHEELID_INVALID = -1;
 
+    typedef int WingID_t; //!< Index to `Actor::ar_wings`, `use RoR::WINGID_INVALID` as empty value
+    static const WingID_t WINGID_INVALID = -1;
+
     typedef int PropID_t; //!< Index to `GfxActor::m_props`, use `RoR::PROPID_INVALID` as empty value
     static const PropID_t PROPID_INVALID = -1;
 
@@ -125,6 +128,7 @@ namespace RoR
     class  Engine;
     class  Flexable;
     class  FlexAirfoil;
+    class  FlexAirfoilMesh;
     class  FlexBody;
     class  FlexBodyFileIO;
     struct FlexBodyCacheData;

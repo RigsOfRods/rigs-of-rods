@@ -1250,6 +1250,7 @@ void ActorManager::UpdatePhysicsSimulation()
     for (ActorPtr& actor: m_actors)
     {
         actor->UpdatePhysicsOrigin();
+        actor->ar_prof.prof_ticks = m_physics_steps;
     }
     for (int i = 0; i < m_physics_steps; i++)
     {
@@ -1284,7 +1285,11 @@ void ActorManager::UpdatePhysicsSimulation()
                 {
                     auto func = std::function<void()>([this, &actor]()
                         {
+                            actor->ar_prof.ProfBegin(PROF_INTERCOL_UPDATE);
                             actor->m_inter_point_col_detector->UpdateInterPoint();
+                            actor->ar_prof.ProfEnd(PROF_INTERCOL_UPDATE);
+
+                            actor->ar_prof.ProfBegin(PROF_INTERCOL_RESOLVE);
                             if (actor->ar_collision_relevant)
                             {
                                 ResolveInterActorCollisions(PHYSICS_DT,
@@ -1297,6 +1302,7 @@ void ActorManager::UpdatePhysicsSimulation()
                                     actor->ar_collision_range,
                                    *actor->ar_submesh_ground_model);
                             }
+                            actor->ar_prof.ProfEnd(PROF_INTERCOL_RESOLVE);
                         });
                     tasks.push_back(func);
                 }

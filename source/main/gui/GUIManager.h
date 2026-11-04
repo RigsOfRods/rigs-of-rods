@@ -52,6 +52,7 @@
 #include "GUI_TextureToolWindow.h"
 #include "GUI_GameControls.h"
 #include "GUI_TopMenubar.h"
+#include "Prof.h"
 
 // Deps
 #include <Bites/OgreWindowEventUtilities.h>
@@ -137,6 +138,7 @@ public:
     GUI::DirectionArrow         DirectionArrow;
     GUI::FlexbodyDebug          FlexbodyDebug;
     Ogre::Overlay*              MenuWallpaper = nullptr;
+    ProfUI                      ProfUI;
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);

@@ -45,7 +45,9 @@ using namespace RoR;
 
 void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
+    ar_prof.ProfBegin(PROF_CALCNODES_TOTAL);
     this->CalcNodes(); // must be done directly after the inter truck collisions are handled
+    ar_prof.ProfEnd(PROF_CALCNODES_TOTAL);
     this->UpdateBoundingBoxes();
     this->CalcEventBoxes();
     this->CalcReplay();
@@ -60,7 +62,9 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcTies();
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
     this->CalcMouse();
+    ar_prof.ProfBegin(PROF_CALCBEAMS_TOTAL);
     this->CalcBeams(doUpdate);
+    ar_prof.ProfEnd(PROF_CALCBEAMS_TOTAL);
     this->CalcCabCollisions();
     this->updateSlideNodeForces(PHYSICS_DT); // must be done after the contacters are updated
     this->CalcForceFeedback(doUpdate);
