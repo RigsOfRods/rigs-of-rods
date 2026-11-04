@@ -54,6 +54,7 @@ ServerScriptSequencer::~ServerScriptSequencer() {
 
 int ServerScriptSequencer::Initialize(const std::string& script_filename) {
     m_script_engine = std::unique_ptr<ServerScriptEngine>(new ServerScriptEngine(this));
+    m_script_engine->init();
     return m_script_engine->loadScript(script_filename);
 }
 

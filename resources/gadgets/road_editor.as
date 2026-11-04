@@ -21,6 +21,9 @@
 
 #include "imgui_utils.as"
 
+#include "math_utils.as" // getMouseShortestDistance
+using namespace math_utils;
+
 // Game state
 CVarClass@ cvar_app_state = console.cVarFind("app_state"); // 0=bootstrap, 1=main menu, 2=simulation, see AppState in Application.h
 CVarClass@ cvar_sistate = console.cVarFind("sim_state"); // 0=off, 1=running, 2=paused, 3=terrain editor, see SimState in Application.h
@@ -485,10 +488,10 @@ void setSelectedRoad(int road)
         selected_road = road;
         ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
         // AI export panel
-        ai_export_first = min(ai_export_first, obj.getNumPoints() - 1);
-        ai_export_last = min(ai_export_last, obj.getNumPoints() - 1);
+        ai_export_first = imin(ai_export_first, obj.getNumPoints() - 1);
+        ai_export_last = imin(ai_export_last, obj.getNumPoints() - 1);
         // Selected point
-        int new_selected_point = clamp(0, selected_point, obj.getNumPoints());
+        int new_selected_point = iclamp(0, selected_point, obj.getNumPoints());
         if (selected_point != new_selected_point)
         {
             setSelectedPoint(new_selected_point);
@@ -534,7 +537,7 @@ void drawRoadListPanel()
     if (@obj_to_delete != null)
     {
         roads.removeObject(obj_to_delete);
-        selected_road = min(selected_road, roads.getNumObjects() - 1);
+        selected_road = imin(selected_road, roads.getNumObjects() - 1);
     }
 }
 
@@ -611,8 +614,8 @@ void drawAiWaypointsImportPanel(ProceduralObjectClass@ obj)
     // Resize range sliders if needed
     if (ai_import_available != int(waypoints.length()))
     {
-        ai_import_first = min(ai_import_first, int(waypoints.length()) - 1);
-        ai_import_last = min(ai_import_last, int(waypoints.length()) - 1);
+        ai_import_first = imin(ai_import_first, int(waypoints.length()) - 1);
+        ai_import_last = imin(ai_import_last, int(waypoints.length()) - 1);
     }
     
     // Draw export UI
@@ -917,39 +920,3 @@ void drawEditorCamUI()
 }
 //#endregion
 
-//#region Helper functions
-
-
-int clamp(int minval, int val, int maxval)
-{
-    return max(minval, min(val, maxval));
-}
-
-int min(int a, int b)
-{
-    return (a < b) ? a : b;
-}
-
-int max(int a, int b)
-{
-    return (a > b) ? a : b;
-}
-
-float fmax(float a, float b)
-{
-    return (a > b) ? a : b;
-}
-
-int abs(int a)
-{
-    return (a < 0) ? -a : a;
-}
-
-int getMouseShortestDistance(vector2 mouse, vector2 target)
-{
-    int dx = abs(int(mouse.x) - int(target.x));
-    int dy = abs(int(mouse.y) - int(target.y));
-    return max(dx, dy);
-}
-
-//#endregion

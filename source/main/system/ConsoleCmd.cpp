@@ -461,6 +461,48 @@ public:
     }
 };
 
+class LoadRaceTrackCmd : public ConsoleCmd
+{
+public:
+    LoadRaceTrackCmd() : ConsoleCmd("loadracetrack", "[filename]", _L("Loads a *.racetrack file")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        if (!this->CheckAppState(AppState::SIMULATION))
+            return;
+
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+#ifdef USE_ANGELSCRIPT
+        if (args.size() == 1)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Missing parameter: ") << m_usage;
+        }
+        else
+        {
+            if (!App::GetGameContext()->LoadRaceTrack(args[1]))
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("The race could not be loaded");
+            }
+            else
+            {
+                reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                reply << _L("The race was loaded successfully");
+            }
+        }
+#else
+        reply_type = Console::CONSOLE_SYSTEM_ERROR;
+        reply << _L("Scripting disabled in this build");
+#endif
+
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
 class LoadServerScriptCmd : public ConsoleCmd
 {
 public:
@@ -797,6 +839,7 @@ void Console::regBuiltinCommands()
     // Additions
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new LoadRaceTrackCmd();         m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadServerScriptCmd();      m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new UnloadServerScriptCmd();    m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SpeedOfSoundCmd();          m_commands.insert(std::make_pair(cmd->getName(), cmd));

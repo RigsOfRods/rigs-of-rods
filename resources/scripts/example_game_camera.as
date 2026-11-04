@@ -5,6 +5,8 @@
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
+#include "math_utils.as" //formatVector
+
 //#region yaw,pitch,roll
 bool setRoll = false;
 float rollAngle = 0.f;
@@ -195,8 +197,8 @@ void frameStep(float dt)
         
         //#region UI-Getters
         ImGui::TextDisabled("Getters:");
-        ImGui::Text("game.getCameraPosition(): " + formatVector3(game.getCameraPosition(), 7, 2));
-        ImGui::Text("game.getCameraDirection(): " + formatVector3(game.getCameraDirection(), 5, 2));
+        ImGui::Text("game.getCameraPosition(): " + math_utils::formatVector3(game.getCameraPosition(), 7, 2));
+        ImGui::Text("game.getCameraDirection(): " + math_utils::formatVector3(game.getCameraDirection(), 5, 2));
         //#endregion
         ImGui::Separator();
         //#region UI-Setters
@@ -233,11 +235,3 @@ void frameStep(float dt)
     }
 }
 
-//#region Helpers
-string formatVector3(vector3 val, int total, int frac)
-{
-    return "X:" + formatFloat(val.x, "", total, frac)
-    + " Y:" + formatFloat(val.y, "", total, frac)
-    + " Z:" + formatFloat(val.z, "", total, frac);
-}
-//#endregion

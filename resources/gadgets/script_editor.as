@@ -120,12 +120,18 @@ string arg5ex, string arg6ex, string arg7ex, string arg8ex)
 {
     if (ev == SE_ANGELSCRIPT_MSGCALLBACK)
     {
-        for (uint i=0; i<editorWindow.tabs.length(); i++)
+        //Angelscript's "section name" gets set to filename (especially important for `#include`-s).
+        string sectionName = arg5ex;
+        int tabID = editorWindow.findTab(sectionName);
+        if (tabID == -1)
         {
-            editorWindow.tabs[editorWindow.currentTab].onEventAngelScriptMsg(
-            /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex, // ints
-            /*sectionName:*/arg5ex, /*msg:*/arg6ex); // strings
+            // Tab not found - load it!
+            editorWindow.addTab(sectionName, game.loadTextResourceAsString(sectionName, RGN_SCRIPTS));
+            tabID = int(editorWindow.tabs.length() - 1);
         }
+        editorWindow.tabs[tabID].onEventAngelScriptMsg(
+            /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex, // ints
+            sectionName, /*msg:*/arg6ex); // strings
     }
     else if (ev == SE_ANGELSCRIPT_MANIPULATIONS)
     {
@@ -232,6 +238,18 @@ class ScriptEditorWindow
             tabs.removeAt(i);
         }
     }
+    
+    int findTab(string tabName) // returns index or -1 if not found.
+    {
+        for (uint i = 0; i < this.tabs.length(); i++)
+        {
+            if (this.tabs[i].bufferName == tabName)
+            {
+                return int(i);
+            }
+        }
+        return -1;
+    }
 
     void draw(float dt)
     {
@@ -284,6 +302,17 @@ class ScriptEditorWindow
         ImGui::End();
 
     }
+    
+    // helper for `drawTabBar()` - Messages (err/warn/info) floating notifier box under the tab
+    private string getTabBarMessageStatsBox(int i)
+    {
+        if (0 == (this.tabs[i].messagesTotalErr + this.tabs[i].messagesTotalWarn + this.tabs[i].messagesTotalInfo))
+        {
+            return "";
+        }
+        
+        return " ("+this.tabs[i].messagesTotalErr+"E, " + this.tabs[i].messagesTotalWarn +"W, " + this.tabs[i].messagesTotalInfo+"i)";
+    }
 
     private void drawTabBar()
     {
@@ -298,15 +327,20 @@ class ScriptEditorWindow
                 {
                     tabFlags = ImGuiTabItemFlags_SetSelected;
                 }
-                bool tabDrawn = ImGui::BeginTabItem(this.tabs[i].bufferName, /*inout:*/tabOpen, tabFlags);
+                string tabTitle = this.tabs[i].bufferName + this.getTabBarMessageStatsBox(i);
+                bool tabDrawn = ImGui::BeginTabItem(tabTitle, /* [inout] */tabOpen, tabFlags);
                 if (tabDrawn)
                 {
                     ImGui::EndTabItem();
                 }
                 if (!tabOpen)
-                this.tabScheduledForRemoval = int(i);
+                {
+                    this.tabScheduledForRemoval = int(i);
+                }
                 else if (ImGui::IsItemClicked())
-                this.currentTab = i;
+                {
+                    this.currentTab = i;
+                }
             }
 
             ImGui::EndTabBar();
@@ -1242,8 +1276,7 @@ void setBuffer(string data)
 
 private void runBufferInternal() // do not invoke during drawing ~ use `requestRunBuffer`
 {
-    this.bufferMessageIDs.resize(0); // clear all
-    this.messages.resize(0); // clear all
+    this.mpanel.clearMessages();
     this.epanel.clearExceptions();
 
     this.backUpRegionFoldStates();
@@ -2350,6 +2383,15 @@ class MessagesPanel
         return 6.f + float(parentEditorTab.messages.length())*ImGui::GetTextLineHeightWithSpacing();
     }
     
+    void clearMessages()
+    {
+        this.parentEditorTab.messages.resize(0); // clear all
+        this.parentEditorTab.bufferMessageIDs.resize(0); // clear all
+        this.parentEditorTab.messagesTotalErr = 0;
+        this.parentEditorTab.messagesTotalWarn = 0;
+        this.parentEditorTab.messagesTotalInfo = 0;
+    }
+    
     void drawMessages()
     {
         string clearall_btn_text = "Clear all";
@@ -2357,8 +2399,7 @@ class MessagesPanel
         ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - (ImGui::CalcTextSize(clearall_btn_text).x + 8.f));
         if (ImGui::SmallButton(clearall_btn_text))
         {
-            this.parentEditorTab.messages.resize(0); // clear all
-            this.parentEditorTab.bufferMessageIDs.resize(0); // clear all
+            this.clearMessages();
             return;
         }
         cursorBackup.y += 5.f;
@@ -2373,6 +2414,7 @@ class MessagesPanel
             int msgCol = int(msgInfo['col']);
             int msgType = int(msgInfo['type']);
             string msgText = string(msgInfo['message']);
+            string msgSection = string(msgInfo['sectionName']);
             bool msgShow = bool(msgInfo['show']);
             
             ImGui::Bullet();
@@ -2406,7 +2448,6 @@ class MessagesPanel
             }            
             ImGui::SameLine();
             ImGui::Text(msgText);
-
 
             ImGui::PopID(); // i
         }

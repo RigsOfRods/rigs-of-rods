@@ -6,6 +6,9 @@
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
+#include "math_utils.as" // fmin+fmax
+using namespace math_utils;
+
 #include "gridviewer_utils.as"
 
 gridviewer_utils::GridViewer gDstViewer;
@@ -24,9 +27,6 @@ color gColorImageOutline = color(0.7,0.4,0.3,1);
 float gBottomBarHeight = 50;
 color gColorViewerImageTint(1,1,1,1); // white
 bool gIsMouseDown = false;
-
-float fmax(float a, float b) { return a>b?a:b; }
-float fmin(float a, float b) { return a<b?a:b; }
 
 string makeID(string name)
 {
