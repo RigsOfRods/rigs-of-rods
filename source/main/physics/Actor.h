@@ -30,6 +30,7 @@
 #include "Engine.h"
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
+#include "Prof.h"
 #include "RigDef_Prerequisites.h"
 #include "RoRnet.h"
 #include "RefCountingObject.h"
@@ -517,6 +518,7 @@ public:
     Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     std::string       ar_filehash;                    //!< Attribute; filled at spawn
+    Prof              ar_prof;
     int               ar_airbrake_intensity = 0;          //!< Physics state; values 0-5
     int               ar_net_source_id = 0;               //!< Unique ID of remote player who spawned this actor
     int               ar_net_stream_id = 0;
