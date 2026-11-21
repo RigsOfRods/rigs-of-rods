@@ -64,6 +64,9 @@ void Screwprop::updateForces(int update)
         return; // drowned!
     }
 
+    if (!m_engine_on)
+        return; // switched off
+
     float depth = App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(m_actor->ar_nodes[noderef].AbsPosition) - m_actor->ar_nodes[noderef].AbsPosition.y;
     if (depth < 0)
         return; //out of water!
@@ -129,8 +132,29 @@ float Screwprop::getRudder()
     return rudder / 45.0;
 }
 
+void Screwprop::SetEngineOn(bool on)
+{
+    if (on == m_engine_on)
+        return;
+    m_engine_on = on;
+
+    // Boats have no start/stop engine: the sound runs from spawning on (see ActorSpawner). Follow the switches.
+    bool any_on = false;
+    for (int i = 0; i < m_actor->ar_num_screwprops; i++)
+        any_on = any_on || m_actor->ar_screwprops[i]->IsEngineOn();
+    if (any_on)
+    {
+        SOUND_START(m_actor, SS_TRIG_ENGINE);
+    }
+    else
+    {
+        SOUND_STOP(m_actor, SS_TRIG_ENGINE);
+    }
+}
+
 void Screwprop::reset()
 {
+    this->SetEngineOn(true);
     setThrottle(0);
     rudder = 0;
     reverse = false;

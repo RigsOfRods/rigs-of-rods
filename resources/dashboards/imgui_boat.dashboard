@@ -1,0 +1,8 @@
+; Built-in boat dashboard of Rigs of Rods, drawn with DearIMGUI (source/main/gui/panels/GUI_BoatDashboard.cpp).
+; It has no layout file on purpose: selecting it as default boat dashboard in the Loader switches boats
+; without their own dashboard to the built-in one (speed, throttle levers with engine switches,
+; heading and rudder, echo sounder, heel/trim, light switches).
+
+dashboard_name "ImGui - Boat"
+dashboard_description "Built-in boat dashboard: speed, throttle levers with engine switches, heading and rudder, echo sounder, heel and trim"
+dashboard_category   202

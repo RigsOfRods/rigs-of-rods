@@ -300,6 +300,7 @@ public:
     // PLEASE maintain the same ordering as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     std::string       getTruckName() { return ar_design_name; }
     std::string       getTruckFileName() { return ar_filename; }
+    const std::vector<PropAnimKeyState>& GetPropAnimKeyStates() const { return m_prop_anim_key_states; } //!< Toggle states of event-driven prop animations (lights, wipers...)
     std::string       getTruckFileResourceGroup();
     int               getTruckType() { return ar_driveable; }
     Ogre::String      getSectionConfig() { return m_section_config; }

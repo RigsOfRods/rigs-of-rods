@@ -7012,7 +7012,9 @@ void ActorSpawner::FinalizeGfxSetup()
         m_actor->ar_dashboard->setVisible(false);
         break;
     case BOAT:
-        m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
+        // 'imgui_boat.dashboard' has no layout: the boat dashboard is drawn by GUI_BoatDashboard
+        if (App::ui_default_boat_dash->getStr() != GUI::BoatDashboard::DASHBOARD_FILE)
+            m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
         m_actor->ar_dashboard->setVisible(false);
         break;
     default:

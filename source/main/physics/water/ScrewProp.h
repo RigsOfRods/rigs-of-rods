@@ -50,6 +50,8 @@ public:
     bool getReverse() { return reverse; }
     void reset();
     void toggleReverse();
+    bool IsEngineOn() const { return m_engine_on; }
+    void SetEngineOn(bool on); //!< Engine switch: no thrust while off; the engine sound stops when all engines of the boat are off
 
     NodeNum_t   GetRefNode()   const { return noderef; };
     NodeNum_t   GetBackNode()  const { return nodeback; };
@@ -70,6 +72,7 @@ private:
     NodeNum_t nodeback;
     NodeNum_t noderef;
     NodeNum_t nodeup;
+    bool      m_engine_on = true;
     NodeNum_t m_air_intake_node = NODENUM_INVALID; //!< Node number of the engine air intake (if any) - disabled by default (classic behavior) but can be set by ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE
 };
 
