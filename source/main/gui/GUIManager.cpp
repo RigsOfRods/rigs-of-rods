@@ -199,8 +199,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (player_gfx_actor && !this->GameMainMenu.IsVisible())
     {
         this->VehicleInfoTPanel.Draw(player_gfx_actor);
-        this->AirDashboard.Draw(player_gfx_actor);
-        this->BoatDashboard.Draw(player_gfx_actor);
     }
 
     if (!this->ConsoleWindow.IsVisible())
@@ -234,11 +232,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (this->SurveyMap.IsVisible())
     {
         this->SurveyMap.Draw();
-    }
-
-    if (!this->GameMainMenu.IsVisible() && !App::ui_hide_gui->getBool())
-    {
-        this->TrainPanel.Draw(player_gfx_actor);
     }
 
     this->DirectionArrow.Update(player_gfx_actor);

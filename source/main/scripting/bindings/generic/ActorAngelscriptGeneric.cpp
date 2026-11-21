@@ -138,6 +138,35 @@ void RoR::RegisterActorGeneric(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "Ogre::MaterialPtr getManagedMaterialInstance(const string &in)", WRAP_MFN(Actor, getManagedMaterialInstance), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "array<string>@ getManagedMaterialNames()", WRAP_OBJ_FIRST(getManagedMaterialNames), asCALL_GENERIC); ROR_ASSERT(result >= 0);
 
+
+    // - dashboard helpers (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
+    result = engine->RegisterObjectMethod("BeamClass", "vector3 getDirection()", WRAP_MFN(Actor, getDirection), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getHeadlightsVisible()", WRAP_MFN(Actor, getHeadlightsVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setHeadlightsVisible(bool)", WRAP_MFN(Actor, setHeadlightsVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setSideLightsVisible(bool)", WRAP_MFN(Actor, setSideLightsVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getAircraftWingAOA()", WRAP_MFN(Actor, getAircraftWingAOA), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getPropAnimKeyState(inputEvents)", WRAP_MFN(Actor, getPropAnimKeyState), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool isCommandKeyInUse(int)", WRAP_MFN(Actor, isCommandKeyInUse), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairCount()", WRAP_MFN(Actor, getCommandKeyPairCount), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "string getCommandKeyPairDescription(int)", WRAP_MFN(Actor, getCommandKeyPairDescription), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairKey1(int)", WRAP_MFN(Actor, getCommandKeyPairKey1), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairKey2(int)", WRAP_MFN(Actor, getCommandKeyPairKey2), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getHookCount()", WRAP_MFN(Actor, getHookCount), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "vector3 getHookPosition(int)", WRAP_MFN(Actor, getHookPosition), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getHookLockState(int)", WRAP_MFN(Actor, getHookLockState), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "string getHookLockedActorName(int)", WRAP_MFN(Actor, getHookLockedActorName), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void requestHookToggle(int)", WRAP_MFN(Actor, requestHookToggle), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getSpeedLimiterEnabled()", WRAP_MFN(Actor, getSpeedLimiterEnabled), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getSpeedLimit()", WRAP_MFN(Actor, getSpeedLimit), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int countBeaconProps()", WRAP_MFN(Actor, countBeaconProps), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getSideLightsVisible()", WRAP_MFN(Actor, getSideLightsVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getHighBeamsVisible()", WRAP_MFN(Actor, getHighBeamsVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getFogLightsVisible()", WRAP_MFN(Actor, getFogLightsVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getCruiseControlSpeed()", WRAP_MFN(Actor, getCruiseControlSpeed), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getAxleDiffType()", WRAP_MFN(Actor, getAxleDiffType), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getWheelDiffType()", WRAP_MFN(Actor, getWheelDiffType), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getTransferCaseState()", WRAP_MFN(Actor, getTransferCaseState), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getTyrePressurePsi()", WRAP_MFN(Actor, getTyrePressurePsi), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     // - lights (PLEASE maintain the same ordering as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "int getBlinkType()", WRAP_MFN(Actor, getBlinkType), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void setBlinkType(int)", WRAP_MFN(Actor, setBlinkType), asCALL_GENERIC); ROR_ASSERT(result >= 0);

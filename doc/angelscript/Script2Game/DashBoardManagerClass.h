@@ -76,6 +76,12 @@ public:
      * the enabled/disabled status of their dashboard input link.
      */
     void updateFeatures(); 
+
+    /**
+     * @return True if the dashboard should be shown (it's the player's vehicle, the dashboard isn't toggled off
+     *         and isn't hidden in cinecam view). Script-only dashboards (no '.layout') must check this before drawing.
+     */
+    bool getVisible();
 };
 
 /// @}    //addtogroup Script2Game

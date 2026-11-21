@@ -1,0 +1,7 @@
+; Built-in locomotive dashboard of Rigs of Rods, drawn with DearIMGUI by AngelScript (imgui_train.as).
+; It has no layout file on purpose: the script draws everything (see DashBoardManager::loadDashBoard()).
+; Used for '.train' actors (Settings > UI > Default train dashboard); wagons (no engine) show nothing.
+
+dashboard_name "ImGui - Train"
+dashboard_description "Built-in driver's cab for locomotives: throttle and train brake levers, speed and limit, switches, couplings, command keys"
+dashboard_category   205

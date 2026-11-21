@@ -225,6 +225,8 @@ void Console::cVarSetupBuiltins()
     App::ui_default_truck_dash             = this->cVarCreate("ui_default_truck_dash",             "", CVAR_ARCHIVE, "default_truck_digital.dashboard");
     App::ui_legacy_truck_renderdash        = this->cVarCreate("ui_legacy_truck_renderdash",        "", CVAR_ARCHIVE, "rdd_classic.dashboard");
     App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
+    App::ui_default_airplane_dash          = this->cVarCreate("ui_default_airplane_dash",          "", CVAR_ARCHIVE, "imgui_airplane.dashboard");
+    App::ui_default_train_dash             = this->cVarCreate("ui_default_train_dash",             "", CVAR_ARCHIVE, "imgui_train.dashboard");
     App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
     App::ui_dashboard_cinecam              = this->cVarCreate("ui_dashboard_cinecam", "Hide dashboard in cinecam view", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
     App::ui_keep_search                    = this->cVarCreate("ui_keep_search",       "Retain selector search text",    CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");

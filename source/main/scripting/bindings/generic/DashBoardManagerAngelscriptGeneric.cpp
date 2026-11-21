@@ -43,4 +43,5 @@ void RoR::RegisterDashBoardManagerGeneric(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "DashboardDataTypes getDataType(int key)", WRAP_MFN(DashBoardManager, getDataType), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "int getLinkIDForName(const string&in key)", WRAP_MFN(DashBoardManager, getLinkIDForName), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("DashBoardManagerClass", "void updateFeatures()", WRAP_MFN(DashBoardManager, updateFeatures), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("DashBoardManagerClass", "bool getVisible()", WRAP_MFN(DashBoardManager, getVisible), asCALL_GENERIC); ROR_ASSERT(result >= 0);
 }

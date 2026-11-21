@@ -370,6 +370,8 @@ void GameSettings::DrawUiSettings()
 
     this->DrawUiDefaultDashboard(m_ui_known_dash_truck, App::ui_default_truck_dash, CID_DashboardsTruck, _LC("GameSettings", "Default truck dashboard"));
     this->DrawUiDefaultDashboard(m_ui_known_dash_boat, App::ui_default_boat_dash, CID_DashboardsBoat, _LC("GameSettings", "Default boat dashboard"));
+    this->DrawUiDefaultDashboard(m_ui_known_dash_airplane, App::ui_default_airplane_dash, CID_DashboardsAirplane, _LC("GameSettings", "Default airplane dashboard"));
+    this->DrawUiDefaultDashboard(m_ui_known_dash_train, App::ui_default_train_dash, CID_DashboardsTrain, _LC("GameSettings", "Default train dashboard"));
 
     this->DrawUiScaleSlider();
 
@@ -722,7 +724,7 @@ void GameSettings::DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, Cach
     }
 
     ImGui::AlignTextToFramePadding();
-    std::string caption = fmt::format("{}##truck_dash", entry ? entry->dname : cvar->getStr());
+    std::string caption = fmt::format("{}##default_dash{}", entry ? entry->dname : cvar->getStr(), (int)category_id); // unique ID per button
     if (ImGui::Button(caption.c_str(), ImVec2(UI_SELECTOR_WIDTH * ImGui::GetFontSize(), 0.f)))
     {
         default_dash_being_selected = category_id;

@@ -53,6 +53,12 @@ void RoR::RegisterImGuiNativeBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterObjectMethod("ImDrawList", "void AddCircleFilled(const vector2&in center, float radius, const color&in col, int num_segments = 12)", asFUNCTION(ImDrawList_AddCircleFilled), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("ImDrawList", "void AddText(const vector2&in pos, const color&in col, const string&in text)", asFUNCTION(ImDrawList_AddText), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("ImDrawList", "void AddImage(const Ogre::TexturePtr&in tex, const vector2&in p_min, const vector2&in p_max, const vector2&in uv_min, const vector2&in uv_max, const color&in col)", asFUNCTION(ImDrawList_AddImage), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddText(const vector2&in pos, const color&in col, const string&in text, float font_size)", asFUNCTION(ImDrawList_AddTextSized), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void PathClear()", asFUNCTION(ImDrawList_PathClear), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void PathLineTo(const vector2&in pos)", asFUNCTION(ImDrawList_PathLineTo), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void PathArcTo(const vector2&in center, float radius, float a_min, float a_max, int num_segments = 0)", asFUNCTION(ImDrawList_PathArcTo), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void PathFillConvex(const color&in col)", asFUNCTION(ImDrawList_PathFillConvex), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void PathStroke(const color&in col, bool closed, float thickness = 1.f)", asFUNCTION(ImDrawList_PathStroke), asCALL_CDECL_OBJFIRST);
     // FUNCTIONS (namespace ImGui)
     engine->SetDefaultNamespace("ImGui");
 

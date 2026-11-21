@@ -713,6 +713,12 @@ void MainSelector::Apply()
         case CID_DashboardsBoat:
             App::ui_default_boat_dash->setStr(sd_entry.sde_entry->fname);
             break;
+        case CID_DashboardsAirplane:
+            App::ui_default_airplane_dash->setStr(sd_entry.sde_entry->fname);
+            break;
+        case CID_DashboardsTrain:
+            App::ui_default_train_dash->setStr(sd_entry.sde_entry->fname);
+            break;
         default:
             LOG(fmt::format("[RoR|GameSettings] INTERNAL ERROR - Unrecognized dashboard type being selected ({})!",
                 (int)App::GetGuiManager()->GameSettings.default_dash_being_selected));

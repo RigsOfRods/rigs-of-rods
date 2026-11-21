@@ -7007,15 +7007,24 @@ void ActorSpawner::FinalizeGfxSetup()
     switch (m_actor->ar_driveable)
     {
     case TRUCK:
-        m_actor->ar_dashboard->loadDashBoard(App::ui_default_truck_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
+        // Locomotives ('.train' files) have their own default dashboard
+        if (Ogre::StringUtil::endsWith(m_actor->ar_filename, ".train") && App::ui_default_train_dash->getStr() != "")
+            m_actor->ar_dashboard->loadDashBoard(App::ui_default_train_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
+        else
+            m_actor->ar_dashboard->loadDashBoard(App::ui_default_truck_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
         m_actor->ar_dashboard->loadDashBoard(App::ui_legacy_truck_renderdash->getStr(), LOADDASHBOARD_RENDERDASH, m_renderdash_rtt_layer);
         m_actor->ar_dashboard->setVisible(false);
         break;
     case BOAT:
-        // 'imgui_boat.dashboard' has no layout: the boat dashboard is drawn by GUI_BoatDashboard
-        if (App::ui_default_boat_dash->getStr() != GUI::BoatDashboard::DASHBOARD_FILE)
-            m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
         m_actor->ar_dashboard->setVisible(false);
+        break;
+    case AIRPLANE:
+        if (App::ui_default_airplane_dash->getStr() != "")
+        {
+            m_actor->ar_dashboard->loadDashBoard(App::ui_default_airplane_dash->getStr(), defaultdash_flags, defaultdash_rtt_layer);
+            m_actor->ar_dashboard->setVisible(false);
+        }
         break;
     default:
         break;

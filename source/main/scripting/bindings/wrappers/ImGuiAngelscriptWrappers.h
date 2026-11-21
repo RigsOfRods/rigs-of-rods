@@ -98,6 +98,36 @@ static void ImDrawList_AddText(ImDrawList* drawlist, Ogre::Vector2 const& pos, O
     drawlist->AddText(ImVec2(pos.x, pos.y), ImColor(col.r, col.g, col.b, col.a), text.c_str());
 }
 
+static void ImDrawList_AddTextSized(ImDrawList* drawlist, Ogre::Vector2 const& pos, Ogre::ColourValue const& col, std::string const& text, float font_size)
+{
+    drawlist->AddText(ImGui::GetFont(), font_size, ImVec2(pos.x, pos.y), ImColor(col.r, col.g, col.b, col.a), text.c_str());
+}
+
+static void ImDrawList_PathClear(ImDrawList* drawlist)
+{
+    drawlist->PathClear();
+}
+
+static void ImDrawList_PathLineTo(ImDrawList* drawlist, Ogre::Vector2 const& pos)
+{
+    drawlist->PathLineTo(ImVec2(pos.x, pos.y));
+}
+
+static void ImDrawList_PathArcTo(ImDrawList* drawlist, Ogre::Vector2 const& center, float radius, float a_min, float a_max, int num_segments)
+{
+    drawlist->PathArcTo(ImVec2(center.x, center.y), radius, a_min, a_max, num_segments);
+}
+
+static void ImDrawList_PathFillConvex(ImDrawList* drawlist, Ogre::ColourValue const& col)
+{
+    drawlist->PathFillConvex(ImColor(col.r, col.g, col.b, col.a));
+}
+
+static void ImDrawList_PathStroke(ImDrawList* drawlist, Ogre::ColourValue const& col, bool closed, float thickness)
+{
+    drawlist->PathStroke(ImColor(col.r, col.g, col.b, col.a), closed, thickness);
+}
+
 static void ImDrawList_AddImage(ImDrawList* drawlist, Ogre::TexturePtr const& tex, Ogre::Vector2 const& p_min, Ogre::Vector2 const& p_max, Ogre::Vector2 const& uv_min, Ogre::Vector2 const& uv_max, Ogre::ColourValue const& col)
 {
     drawlist->AddImage((ImTextureID)tex->getHandle(), ImVec2(p_min.x, p_min.y), ImVec2(p_max.x, p_max.y), ImVec2(uv_min.x, uv_min.y), ImVec2(uv_max.x, uv_max.y), ImColor(col.r, col.g, col.b, col.a));

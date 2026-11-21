@@ -1,0 +1,8 @@
+; Built-in airplane dashboard of Rigs of Rods, drawn with DearIMGUI by AngelScript (imgui_airplane.as).
+; It has no layout file on purpose: the script draws everything (see DashBoardManager::loadDashBoard()).
+; Instruments: airspeed, altimeter, vertical speed, attitude, angle of attack, heading (HSI with ILS),
+; per-engine RPM/pitch/torque, throttle levers, start buttons and the autopilot.
+
+dashboard_name "ImGui - Airplane"
+dashboard_description "Built-in airplane dashboard: flight instruments, engines with throttle levers and start buttons, autopilot"
+dashboard_category   204

@@ -67,6 +67,16 @@ public:
      * @returns The node number for the top of the screwprop.
      */
     int getUpNode();
+
+    /**
+     * @returns True if the engine is switched on (default).
+     */
+    bool isEngineOn();
+
+    /**
+     * Engine switch: no thrust while off; the engine sound stops when all engines of the boat are off.
+     */
+    void setEngineOn(bool on);
 };
 
 /// @}    //addtogroup Script2Game

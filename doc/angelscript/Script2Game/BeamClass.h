@@ -523,9 +523,151 @@ public:
      * Counts flares using the given type.
      */
     int countFlaresByType(FlareType);
+
+    /**
+     * @return Direction the vehicle is facing (from its camera reference nodes).
+     */
+    vector3 getDirection();
+
+    /**
+     * @return True if the headlights are on.
+     */
+    bool getHeadlightsVisible();
+
+    /**
+     * Switches the headlights.
+     */
+    void setHeadlightsVisible(bool);
+
+    /**
+     * Switches the side lights.
+     */
+    void setSideLightsVisible(bool);
+
     
     //! @}
     
+    /// @name Dashboard helpers
+    /// @{
+    // PLEASE maintain the same order as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'
+
+    /**
+     * @return Angle of attack [deg] of the 5th wing (the main wing by convention); 0 without wings.
+     */
+    float getAircraftWingAOA();
+
+    /**
+     * @return State of a toggle-prop (animation with event lock) bound to the input event: -1 = none, 0 = off, 1 = on.
+     */
+    int getPropAnimKeyState(inputEvents);
+
+    /**
+     * @return True if the command key (1 - MAX_COMMANDS) moves beams or rotators.
+     */
+    bool isCommandKeyInUse(int key);
+
+    /**
+     * @return Number of command key pairs (as shown in the vehicle info panel).
+     */
+    int getCommandKeyPairCount();
+
+    /**
+     * @return Description of the command key pair.
+     */
+    string getCommandKeyPairDescription(int index);
+
+    /**
+     * @return First command key of the pair (1 - MAX_COMMANDS), -1 if invalid.
+     */
+    int getCommandKeyPairKey1(int index);
+
+    /**
+     * @return Second command key of the pair (1 - MAX_COMMANDS), -1 if invalid.
+     */
+    int getCommandKeyPairKey2(int index);
+
+    /**
+     * @return Number of hooks.
+     */
+    int getHookCount();
+
+    /**
+     * @return Position of the hook node.
+     */
+    vector3 getHookPosition(int index);
+
+    /**
+     * @return 0 = unlocked, 1 = prelock, 2 = locked; -1 = invalid index.
+     */
+    int getHookLockState(int index);
+
+    /**
+     * @return Name of the vehicle the hook is locked to, or an empty string.
+     */
+    string getHookLockedActorName(int index);
+
+    /**
+     * Couples/uncouples one hook, like clicking its node with the mouse.
+     */
+    void requestHookToggle(int index);
+
+    /**
+     * @return True if the speed limiter is active.
+     */
+    bool getSpeedLimiterEnabled();
+
+    /**
+     * @return Speed limit [m/s].
+     */
+    float getSpeedLimit();
+
+    /**
+     * @return Number of beacon props.
+     */
+    int countBeaconProps();
+
+    /**
+     * @return True if the side lights are on.
+     */
+    bool getSideLightsVisible();
+
+    /**
+     * @return True if the high beams are on.
+     */
+    bool getHighBeamsVisible();
+
+    /**
+     * @return True if the fog lights are on.
+     */
+    bool getFogLightsVisible();
+
+    /**
+     * @return Target speed of the cruise control [m/s].
+     */
+    float getCruiseControlSpeed();
+
+    /**
+     * @return Active inter-axle differential: 0 = split, 1 = open, 2 = viscous, 3 = locked; -1 = none.
+     */
+    int getAxleDiffType();
+
+    /**
+     * @return Active inter-wheel differential, same values as getAxleDiffType(); -1 = none.
+     */
+    int getWheelDiffType();
+
+    /**
+     * @return Transfer case: -1 = none; else bit 0 = 4WD, bit 1 = Lo ratio, bit 2 = 2WD/4WD switchable, bit 3 = Hi/Lo switchable.
+     */
+    int getTransferCaseState();
+
+    /**
+     * @return Tyre pressure [psi]; -1 = no adjustable tyre pressure.
+     */
+    float getTyrePressurePsi();
+
+    //! @}
+
     /// @name Organizational
     /// @{
     // PLEASE maintain the same order as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'

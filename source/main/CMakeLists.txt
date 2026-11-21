@@ -112,9 +112,7 @@ set(SOURCE_FILES
         gui/imgui/imstb_rectpack.h
         gui/imgui/imstb_textedit.h
         gui/imgui/imstb_truetype.h
-        gui/panels/GUI_AirDashboard.{h,cpp}
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
-        gui/panels/GUI_BoatDashboard.{h,cpp}
         gui/panels/GUI_CollisionsDebug.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
@@ -139,7 +137,6 @@ set(SOURCE_FILES
         gui/panels/GUI_ScriptMonitor.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
-        gui/panels/GUI_TrainPanel.{h,cpp}
         network/CurlHelpers.{h,cpp}
         network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}

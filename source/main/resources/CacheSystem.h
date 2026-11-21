@@ -436,6 +436,8 @@ private:
             {201, _LC("ModCategory", "Dashboards - Truck")},
             {202, _LC("ModCategory", "Dashboards - Boat")},
             {203, _LC("ModCategory", "Dashboards - RTT")},
+            {204, _LC("ModCategory", "Dashboards - Airplane")},
+            {205, _LC("ModCategory", "Dashboards - Train")},
 
             // gadgets
             {CID_GadgetsGeneric, _LC("ModCategory", "Gadgets - Generic")},

@@ -288,6 +288,8 @@ CVar* ui_hide_gui;
 CVar* ui_default_truck_dash;
 CVar* ui_legacy_truck_renderdash;
 CVar* ui_default_boat_dash;
+CVar* ui_default_airplane_dash;
+CVar* ui_default_train_dash;
 CVar* ui_always_show_fullsize;
 CVar* ui_dashboard_cinecam;
 CVar* ui_keep_search;

@@ -41,7 +41,6 @@
 #include "GameContext.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
-#include "GUIManager.h"
 #include "Language.h"
 #include "RoRVersion.h"
 #include "ScrewProp.h"
@@ -367,21 +366,7 @@ void OverlayWrapper::ToggleDashboardOverlays(ActorPtr actor)
 
 void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
 {
-    // Locomotives use the train panel (GUI_TrainPanel) instead of the truck dashboard
-    if (GUI::TrainPanel::IsTrain(actor))
-        show = false;
-
     m_dashboard_visible = show;
-
-    // Boats: the built-in ImGui dashboard (GUI_BoatDashboard), if it is selected as default boat dashboard in the Loader
-    const bool boat_imgui = GUI::BoatDashboard::IsUsedBy(actor);
-    App::GetGuiManager()->BoatDashboard.SetVisible(show && boat_imgui);
-    if (boat_imgui)
-    {
-        m_marine_dashboard_needles_overlay->hide();
-        m_marine_dashboard_overlay->hide();
-        return;
-    }
 
     // check if we use the new style dashboards
     if (actor && actor->ar_dashboard && actor->ar_dashboard->wasDashboardHudLoaded())
@@ -396,8 +381,8 @@ void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
 
         if (mode == AIRPLANE)
         {
-            // Drawn by DearIMGUI (GUI_AirDashboard) instead of the old overlay
-            App::GetGuiManager()->AirDashboard.SetVisible(true);
+            m_aerial_dashboard.needles_overlay->show();
+            m_aerial_dashboard.dash_overlay->show();
         }
         else if (mode == BOAT)
         {
@@ -420,7 +405,6 @@ void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
     }
     else
     {
-        App::GetGuiManager()->AirDashboard.SetVisible(false);
         m_aerial_dashboard.needles_overlay->hide();
         m_aerial_dashboard.dash_overlay->hide();
 

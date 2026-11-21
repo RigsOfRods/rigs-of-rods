@@ -271,6 +271,7 @@ protected:
     std::string determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename, BitMask_t loaddashboardFlags);
     std::string determineTruckLayoutFromDashboardMod(Ogre::FileInfoListPtr& filelist);
     void loadDashboardModDetails(CacheEntryPtr& entry);
+    void loadDashboardScript(std::string const& scriptfilename);
     bool visible = false;
     std::vector<dashData_t> data;
     std::vector<DashBoard*> m_dashboards;

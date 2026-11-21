@@ -66,13 +66,13 @@ private:
     float fullpower; //!< in HP
     float rudder;
     float throtle;
+    bool      m_engine_on = true;
 
     // Attachment
     ActorPtr    m_actor;
     NodeNum_t nodeback;
     NodeNum_t noderef;
     NodeNum_t nodeup;
-    bool      m_engine_on = true;
     NodeNum_t m_air_intake_node = NODENUM_INVALID; //!< Node number of the engine air intake (if any) - disabled by default (classic behavior) but can be set by ACTORSIMATTR_SCREWPROP_AIR_INTAKE_NODE
 };
 
