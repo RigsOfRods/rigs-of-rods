@@ -17,7 +17,9 @@
 
 #pragma once
 
+// Two formats of the same value, to have a precise constant:
 #define PHYSICS_DT 0.0005f // fixed dt of 0.5 ms
+#define PHYSICS_RATE 2000.0f // fixed rate of 2000 Hz
 
 /* maximum limits */
 static const int   MAX_ACTORS                 = 5000;            //!< maximum number of actors per game session
