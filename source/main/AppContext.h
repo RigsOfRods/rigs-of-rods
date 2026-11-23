@@ -91,6 +91,7 @@ private:
     virtual bool         axisMoved(const OIS::JoyStickEvent& arg, int axis) override;
     virtual bool         sliderMoved(const OIS::JoyStickEvent& arg, int) override;
     virtual bool         povMoved(const OIS::JoyStickEvent& arg, int) override;
+    virtual bool         vector3Moved(const OIS::JoyStickEvent& arg, int) override;
 
     // Rendering and window management
     void                 SetRenderWindowIcon(Ogre::RenderWindow* rw);

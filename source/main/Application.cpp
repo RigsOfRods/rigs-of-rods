@@ -165,6 +165,7 @@ CVar* diag_load_devel_scripts;
 CVar* diag_profiler_enabled;
 CVar* diag_profiler_rate;
 CVar* diag_angelscript_generic_bind_test;
+CVar* diag_phony_joystick;
 
 // System
 CVar* sys_process_dir;

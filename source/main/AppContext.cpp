@@ -171,6 +171,7 @@ bool AppContext::buttonReleased(const OIS::JoyStickEvent& arg, int) { App::GetIn
 bool AppContext::axisMoved(const OIS::JoyStickEvent& arg, int)      { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
 bool AppContext::sliderMoved(const OIS::JoyStickEvent& arg, int)    { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
 bool AppContext::povMoved(const OIS::JoyStickEvent& arg, int)       { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
+bool AppContext::vector3Moved(const OIS::JoyStickEvent& arg, int)   { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
 
 void AppContext::windowResized(Ogre::RenderWindow* rw)
 {
