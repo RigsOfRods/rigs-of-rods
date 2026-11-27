@@ -70,7 +70,7 @@ enum Txt
     TX_SH_SPEED, TX_SH_RPM_RING, TX_SH_RPM, TX_SH_CRUISE, TX_SH_BOOST, TX_SH_TURBO, TX_SH_PITCH, TX_SH_ROLL,
     TX_SH_GEARSTRIP, TX_SH_LAMPS, TX_SH_VIEWBTN, TX_SH_GEARBOX, TX_SH_AIDS, TX_SH_LIGHTS, TX_SH_TYRES,
     TX_COLORS, TX_COL_SPEED, TX_COL_RPM, TX_COL_RESET,
-    TX_COL_BG, TX_BG_OPACITY, TX_UNITS, TX_UNITS_GAME, TX_SIZE, TX_ARRANGE, TX_ARRANGE_DONE, TX_ARRANGE_DONE_TIP, TX_SNAP, TX_ARRANGE_HINT, TX_RESET_LAYOUT, TX_OTHER_DASH, TX_KEY,
+    TX_COL_BG, TX_COL_FACE, TX_COL_NEEDLE, TX_BG_OPACITY, TX_UNITS, TX_UNITS_GAME, TX_SIZE, TX_ARRANGE, TX_ARRANGE_DONE, TX_ARRANGE_DONE_TIP, TX_SNAP, TX_ARRANGE_HINT, TX_RESET_LAYOUT, TX_OTHER_DASH, TX_KEY,
     TX_TIP_SETTINGS, TX_TIP_FULL, TX_TIP_SMALL, TX_TIP_LIMITER, TX_TIP_HOLD, TX_TIP_ENGINE,
     TX_COUNT
 }
@@ -165,6 +165,8 @@ void InitTexts()
     S(TX_UNITS, "Units", "Einheiten", d);
     S(TX_UNITS_GAME, "as in game settings", "wie Spieleinstellung", d);
     S(TX_COL_BG, "Background", "Hintergrund", d);
+    S(TX_COL_FACE, "Dial face (ticks, numbers)", "Ziffernblatt (Striche, Ziffern)", d);
+    S(TX_COL_NEEDLE, "Needles", "Nadeln", d);
     S(TX_BG_OPACITY, "Background opacity %", "Deckkraft Hintergrund %", d);
     S(TX_SIZE, "Size", "Gr\u00f6\u00dfe", d);
     S(TX_ARRANGE, "Arrange", "Anordnen", d);
@@ -213,6 +215,8 @@ color g_col_bg = COL_DIAL_DEF;   // instrument background
 int   g_bg_pct = BG_PCT_DEF;      // instrument background opacity [%]
 color g_col_speed = COL_ACCENT;  // scale arc of the speedometer
 color g_col_rpm = COL_ACCENT;    // scale arc of the tachometer / power gauge, turbo bar
+color g_col_face = COL_TICK;     // dial face: scale ticks and numbers
+color g_col_needle = COL_TEXT;   // needles
 float g_scale_mul = 1.f;
 array<bool> g_show = { true, true, true, true, true, true, true, true, true, false, true };
 bool  g_save_pending = false;
@@ -230,6 +234,8 @@ void LoadSettings()
     LoadColor("car_col_speed", g_col_speed);
     LoadColor("car_col_rpm", g_col_rpm);
     LoadColor("car_col_bg", g_col_bg);
+    LoadColor("car_col_face", g_col_face);
+    LoadColor("car_col_needle", g_col_needle);
     for (int i = 0; i < SH_COUNT; i++)
     {
         if (g_storage.exists("car_show" + i))
@@ -257,6 +263,8 @@ void SaveSettings()
     SaveColor("car_col_speed", g_col_speed);
     SaveColor("car_col_rpm", g_col_rpm);
     SaveColor("car_col_bg", g_col_bg);
+    SaveColor("car_col_face", g_col_face);
+    SaveColor("car_col_needle", g_col_needle);
     for (int i = 0; i < SH_COUNT; i++)
         g_storage.setBool("car_show" + i, g_show[i]);
     g_storage.setBool("car_snap", g_snap);
@@ -629,7 +637,7 @@ void Gauge(float cx, float cy, float R, bool dial, float vmin, float vmax, float
         const float a = GA(v, vmin, vmax);
         const float q = (v - vmin) / major;
         const bool mj = abs(q - round_i(q)) < 0.01f;
-        const color col = (v >= red_from - 0.001f) ? COL_RED : ((v < zero - 0.001f) ? COL_GREEN : COL_TICK);
+        const color col = (v >= red_from - 0.001f) ? COL_RED : ((v < zero - 0.001f) ? COL_GREEN : g_col_face);
         c.dl.AddLine(c.Pol(cx, cy, R * 0.90f, a), c.Pol(cx, cy, R * (mj ? 0.80f : 0.85f), a), col, (mj ? 2.2f : 1.2f) * R / 100.f * k);
         if (mj && label_size > 0.f)
             c.TextAt(c.Pol(cx, cy, R * 0.67f, a), formatFloat(v / label_div, "", 0, (label_div < 1.f) ? 1 : 0), label_size, col);
@@ -646,11 +654,11 @@ void Needle(float cx, float cy, float R, float a, bool short_pointer)
     const float k = c.k;
     if (short_pointer) // pointer at the scale only (the center shows numbers)
     {
-        c.dl.AddLine(c.Pol(cx, cy, R * 0.66f, a), c.Pol(cx, cy, R * 0.92f, a), COL_TEXT, 4.f * R / 100.f * k);
+        c.dl.AddLine(c.Pol(cx, cy, R * 0.66f, a), c.Pol(cx, cy, R * 0.92f, a), g_col_needle, 4.f * R / 100.f * k);
         return;
     }
-    c.dl.AddLine(c.P(cx, cy), c.Pol(cx, cy, R * 0.86f, a), COL_TEXT, 3.5f * R / 100.f * k);
-    c.dl.AddCircleFilled(c.P(cx, cy), 7.f * R / 100.f * k, COL_TEXT, 16);
+    c.dl.AddLine(c.P(cx, cy), c.Pol(cx, cy, R * 0.86f, a), g_col_needle, 3.5f * R / 100.f * k);
+    c.dl.AddCircleFilled(c.P(cx, cy), 7.f * R / 100.f * k, g_col_needle, 16);
 }
 
 void CruiseMark(float cx, float cy, float R, float a)
@@ -726,7 +734,7 @@ void TiltGauge(float cx, float cy, float R, float deg, bool side_view)
     c.dl.AddCircle(c.P(cx, cy), R * k, BgBorder(), 32, 1.f);
     for (int d = -45; d <= 45; d += 15)
     {
-        const color col = (abs(d) >= 30) ? COL_RED : COL_TICK;
+        const color col = (abs(d) >= 30) ? COL_RED : g_col_face;
         c.dl.AddLine(c.Pol(cx, cy, R * 0.94f, d * 1.5f), c.Pol(cx, cy, R * 0.80f, d * 1.5f), col, 2.f * k);
     }
     const float shown = clampf(deg, -60.f, 60.f);
@@ -1112,7 +1120,7 @@ void DrawOneGauge(float cx, float cy, float R)
     const float step = (r.speed_max > 200.f) ? 40.f : 20.f;
     Gauge(cx, cy, R, true, 0.f, r.speed_max, step, step * 0.5f, 1.f, r.speed, 1e9f, 0.f, g_col_speed, 0.f);
     for (float v = 0.f; v <= r.speed_max + 0.1f; v += step * 2.f)
-        c.TextAt(c.Pol(cx, cy, R * 0.70f, GA(v, 0.f, r.speed_max)), formatInt(round_i(v)), 14.f, COL_TICK);
+        c.TextAt(c.Pol(cx, cy, R * 0.70f, GA(v, 0.f, r.speed_max)), formatInt(round_i(v)), 14.f, g_col_face);
     if (g_show[SH_CRUISE] && r.cruise >= 0.f)
         CruiseMark(cx, cy, R, GA(r.cruise, 0.f, r.speed_max));
     // RPM ring inside
@@ -1596,6 +1604,8 @@ void DrawSettings()
     ImGui::TextDisabled(T(TX_COLORS));
     ColorField("colspeed", T(TX_COL_SPEED), g_col_speed);
     ColorField("colrpm", T(TX_COL_RPM), g_col_rpm);
+    ColorField("colface", T(TX_COL_FACE), g_col_face);
+    ColorField("colneedle", T(TX_COL_NEEDLE), g_col_needle);
     ColorField("colbg", T(TX_COL_BG), g_col_bg);
     ImGui::SetNextItemWidth(160.f);
     if (ImGui::SliderInt(T(TX_BG_OPACITY) + "##bgpct", g_bg_pct, 0, 100)) g_save_pending = true;
@@ -1604,6 +1614,8 @@ void DrawSettings()
         g_col_speed = COL_ACCENT;
         g_col_rpm = COL_ACCENT;
         g_col_bg = COL_DIAL_DEF;
+        g_col_face = COL_TICK;
+        g_col_needle = COL_TEXT;
         g_bg_pct = BG_PCT_DEF;
         changed = true;
     }

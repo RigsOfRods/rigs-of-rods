@@ -24,6 +24,7 @@ const color COL_BTN_BLUE    = Col( 43,  79, 128);
 const color COL_BTN_RED     = Col(138,  48,  48);
 const color COL_BTN_GREY    = Col( 58,  61,  66);
 const color COL_BTN_ON      = Col( 46, 107,  58);
+const color COL_BTN_DIM     = Col( 36,  38,  42);
 
 const float BASE_WIDTH = 300.f; // px at ui_scale_factor 1.0
 const float PI_F = 3.14159265f;
@@ -179,6 +180,9 @@ void frameStep(float dt)
         g_throttle = DrawBar("##throttle", "Throttle", g_throttle, fmax(g_throttle, key_accel), COL_THROTTLE, COL_GRAB_EDGE_T);
         ImGui::Dummy(vector2(0.f, 2.f * g_scale));
         g_train_brake = DrawBar("##trainbrake", "Train brake", g_train_brake, fmax(g_train_brake, key_brake), COL_BRAKE, COL_GRAB_EDGE_B);
+
+        ImGui::Dummy(vector2(0.f, 2.f * g_scale));
+        DrawDirection();
 
         ImGui::Separator();
         DrawSwitches();
@@ -376,6 +380,51 @@ void DrawToggle(const string&in label, bool on, inputEvents ev, const vector2&in
         Pulse(ev);
     KeyTooltip(ev);
     g_toggle_col++;
+}
+
+/// Direction selector: reverse / neutral / forward.
+/// Like a real locomotive, the direction can only be reversed at (almost) standstill.
+void DrawDirection()
+{
+    EngineClass@ engine = thisActor.getEngine();
+    if (engine is null)
+        return;
+
+    const bool automatic = (engine.getAutoMode() == AUTO);
+    int cur = 0; // -1 reverse, 0 neutral, 1 forward
+    if (automatic)
+    {
+        const autoswitch sel = engine.getAutoShift();
+        cur = (sel == AUTOSWITCH_REAR) ? -1 : ((sel == AUTOSWITCH_NEUTRAL) ? 0 : 1);
+    }
+    else
+    {
+        const int gear = engine.getGear();
+        cur = (gear < 0) ? -1 : ((gear > 0) ? 1 : 0);
+    }
+    const bool moving = abs(thisActor.getSpeed()) > 0.5f; // m/s
+
+    ImGui::TextColored(COL_MUTED, "Direction");
+    const float third = (ImGui::GetContentRegionAvail().x - 16.f * g_scale) / 3.f;
+    const array<string> labels = { "Reverse", "Neutral", "Forward" };
+    for (int i = 0; i < 3; i++)
+    {
+        const int want = i - 1;
+        if (i > 0)
+            ImGui::SameLine();
+        const bool active = (want == cur);
+        const bool blocked = moving && (want * cur < 0); // reversing while moving
+        const color col = active ? COL_BTN_ON : (blocked ? COL_BTN_DIM : COL_BTN_GREY);
+        if (ColoredButton(labels[i] + "##dir" + i, vector2(third, 0.f), col) && !active && !blocked)
+        {
+            if (automatic)
+                engine.autoShiftSet((want < 0) ? AUTOSWITCH_REAR : ((want == 0) ? AUTOSWITCH_NEUTRAL : AUTOSWITCH_DRIVE));
+            else
+                engine.shiftTo(want);
+        }
+        if (blocked && ImGui::IsItemHovered())
+            ImGui::SetTooltip("Stop the train first");
+    }
 }
 
 void DrawSwitches()
