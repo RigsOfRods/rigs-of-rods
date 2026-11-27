@@ -85,6 +85,7 @@ void RoR::RegisterMessageQueueCommon(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_TELEPORT_PLAYER_REQUESTED", MSG_SIM_TELEPORT_PLAYER_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_HIDE_NET_ACTOR_REQUESTED", MSG_SIM_HIDE_NET_ACTOR_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED", MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_SIM_ACTOR_LINKING_REQUESTED", MSG_SIM_ACTOR_LINKING_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_ADD_FREEFORCE_REQUESTED", MSG_SIM_ADD_FREEFORCE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_MODIFY_FREEFORCE_REQUESTED", MSG_SIM_MODIFY_FREEFORCE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_REMOVE_FREEFORCE_REQUESTED", MSG_SIM_REMOVE_FREEFORCE_REQUESTED); ROR_ASSERT(result >= 0);
@@ -116,4 +117,16 @@ void RoR::RegisterMessageQueueCommon(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_TOWARDS_NODE", (int)FreeForceType::TOWARDS_NODE); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_HALFBEAM_GENERIC", (int)FreeForceType::HALFBEAM_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_HALFBEAM_ROPE", (int)FreeForceType::HALFBEAM_ROPE); ROR_ASSERT(result >= 0);
+
+    // enum ActorLinkingRequestType (only the types handled for MSG_SIM_ACTOR_LINKING_REQUESTED)
+    result = engine->RegisterEnum("ActorLinkingRequestType"); ROR_ASSERT(result>=0);
+
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_INVALID", (int)ActorLinkingRequestType::INVALID); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_HOOK_LOCK", (int)ActorLinkingRequestType::HOOK_LOCK); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_HOOK_UNLOCK", (int)ActorLinkingRequestType::HOOK_UNLOCK); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_HOOK_TOGGLE", (int)ActorLinkingRequestType::HOOK_TOGGLE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_HOOK_MOUSE_TOGGLE", (int)ActorLinkingRequestType::HOOK_MOUSE_TOGGLE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_TIE_TOGGLE", (int)ActorLinkingRequestType::TIE_TOGGLE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_ROPE_TOGGLE", (int)ActorLinkingRequestType::ROPE_TOGGLE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorLinkingRequestType", "ACTORLINKINGREQUESTTYPE_SLIDENODE_TOGGLE", (int)ActorLinkingRequestType::SLIDENODE_TOGGLE); ROR_ASSERT(result >= 0);
 }

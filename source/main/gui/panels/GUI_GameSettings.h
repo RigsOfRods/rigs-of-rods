@@ -52,6 +52,8 @@ private:
     void DrawUiScaleSlider();
     CacheEntryPtr m_ui_known_dash_truck;
     CacheEntryPtr m_ui_known_dash_boat;
+    CacheEntryPtr m_ui_known_dash_airplane;
+    CacheEntryPtr m_ui_known_dash_train;
     float m_ui_scale_slider_temp = 1.f;
 
     // GUI state

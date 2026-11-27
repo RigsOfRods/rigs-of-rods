@@ -257,6 +257,24 @@ struct DashCandidateLayout
     }
 };
 
+void DashBoardManager::loadDashboardScript(std::string const& scriptfilename)
+{
+    // We have to push messages to load dashboard scripts because
+    // this code can be called from a script execution context
+    // (e.g. using game.spawnTruck()).
+    // If we are in a script context, calling loadScript() directly
+    // will crash the game immediately, since AngelScript doesn't
+    // allow scripts to load other scripts.
+    LoadScriptRequest* req = new LoadScriptRequest();
+    req->lsr_category = ScriptCategory::ACTOR;
+    req->lsr_filename = scriptfilename;
+    req->lsr_associated_actor = m_actor->getInstanceId();
+    App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
+    // We don't need to worry about unloading the script later because
+    // it has an actor associated to it. Actor scripts are unloaded
+    // already when calling ActorManager::DeleteActorInternal().
+}
+
 std::string DashBoardManager::determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename, BitMask_t loaddashboardFlags)
 {
     App::GetCacheSystem()->LoadResource(entry);
@@ -469,6 +487,30 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
             return nullptr;
         }
         App::GetCacheSystem()->LoadResource(entry);
+
+        // Dashboard script: `<basename>.as` next to the '.dashboard' file
+        const std::string expected_script_name = fmt::format("{}.as", basename);
+        if (Ogre::ResourceGroupManager::getSingleton().resourceExists(entry->resource_group, expected_script_name))
+            scriptfilename = expected_script_name;
+
+        // A dashboard may consist of the script alone (drawn with DearIMGUI), without any '.layout' file
+        const bool has_layouts = !Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(
+            entry->resource_group, fmt::format("{}*.layout", basename))->empty();
+        if (!has_layouts && scriptfilename != "")
+        {
+            LOG(fmt::format("[RoR|DashBoard] '{}': no layouts given, relying entirely on AngelScript, check Angelscript.log in case of issues", filename));
+            loadDashboardModDetails(entry);
+            if (BITMASK_IS_1(flags, LOADDASHBOARD_SCREEN_HUD)) // a script can't render into a texture
+            {
+                if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
+                {
+                    m_hud_loaded = true; // hides the classic overlays; the script checks `getVisible()`
+                }
+                this->loadDashboardScript(scriptfilename);
+            }
+            return nullptr;
+        }
+
         layoutfname = this->determineLayoutFromDashboardMod(entry, basename, flags);
 
         loadDashboardModDetails(entry);
@@ -480,14 +522,6 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
         {
             MyGUI::ResourceManager::getInstance().load(fileinfo.filename);
         }
-
-        // Load dashboard script
-        // First, we check if the script file actually exists.
-        std::string expected_script_name = fmt::format("{}.as", basename);
-        bool script_exists =
-            Ogre::ResourceGroupManager::getSingleton().resourceExists(entry->resource_group, expected_script_name);
-        if (script_exists)
-            scriptfilename = expected_script_name;
     }
     else
     {
@@ -541,22 +575,9 @@ DashBoard* DashBoardManager::loadDashBoard(std::string const& filename, BitMask_
     }
 
     // Load dashboard script
-    // We have to push messages to load dashboard scripts because
-    // this code can be called from a script execution context
-    // (e.g. using game.spawnTruck()).
-    // If we are in a script context, calling loadScript() directly
-    // will crash the game immediately, since AngelScript doesn't
-    // allow scripts to load other scripts.
     if (scriptfilename != "")
     {
-        LoadScriptRequest* req = new LoadScriptRequest();
-        req->lsr_category = ScriptCategory::ACTOR;
-        req->lsr_filename = scriptfilename;
-        req->lsr_associated_actor = m_actor->getInstanceId();
-        App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
-        // We don't need to worry about unloading the script later because
-        // it has an actor associated to it. Actor scripts are unloaded
-        // already when calling ActorManager::DeleteActorInternal().
+        this->loadDashboardScript(scriptfilename);
     }
 
     // Apply textures from 'guisettings' in truck file.

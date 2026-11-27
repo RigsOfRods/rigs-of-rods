@@ -1045,6 +1045,29 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     m_script_units[unit_id].defaultEventCallbackFunctionPtr = this->getFunctionByDeclAndLogCandidates(
         unit_id, GETFUNCFLAG_OPTIONAL, GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
 
+    // For actor scripts, initialize the global var `thisActor`.
+    // Done before looking up `main()`, so scripts without `main()` (only `frameStep()` etc.) get it too.
+    if (m_script_units[unit_id].scriptCategory == ScriptCategory::ACTOR)
+    {
+        int var_index = m_script_units[unit_id].scriptModule->GetGlobalVarIndexByName("thisActor");
+        if (var_index < 0)
+        {
+            SLOG("Could not find global var `thisActor`");
+            return -1;
+        }
+
+        // Example: https://www.gamedev.net/forums/topic/644188-angelscript-2263-global-property-issues-solved/5069638/
+        Actor** thisActorAddr = (Actor**)m_script_units[unit_id].scriptModule->GetAddressOfGlobalVar(var_index);
+        if (thisActorAddr == nullptr)
+        {
+            SLOG("Could not retrieve address of global var `thisActor`");
+            return -1;
+        }
+        *thisActorAddr = m_script_units[unit_id].associatedActor.GetRef();
+        if (*thisActorAddr != nullptr)
+            (*thisActorAddr)->AddRef();
+    }
+
     // Find the function that is to be called.
     auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
     if ( main_func == nullptr )
@@ -1065,27 +1088,6 @@ int ScriptEngine::setupScriptUnit(int unit_id)
             fmt::format("Could not load script '{}' - failed to build module.", moduleName));
         context->Release();
         return -1;
-    }
-
-    // For actor scripts, initialize the global var `thisActor`
-    if (m_script_units[unit_id].scriptCategory == ScriptCategory::ACTOR)
-    {
-        int var_index = m_script_units[unit_id].scriptModule->GetGlobalVarIndexByName("thisActor");
-        if (var_index < 0)
-        {
-            SLOG("Could not find global var `thisActor`");
-            return -1;
-        }
-
-        // Example: https://www.gamedev.net/forums/topic/644188-angelscript-2263-global-property-issues-solved/5069638/
-        Actor** thisActorAddr = (Actor**)m_script_units[unit_id].scriptModule->GetAddressOfGlobalVar(var_index);
-        if (thisActorAddr == nullptr)
-        {
-            SLOG("Could not retrieve address of global var `thisActor`");
-            return -1;
-        }
-        *thisActorAddr = m_script_units[unit_id].associatedActor.GetRef();
-        (*thisActorAddr)->AddRef();
     }
 
     // Execute the `main()` function in the script.

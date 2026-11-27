@@ -1,0 +1,8 @@
+; Built-in car and truck dashboard of Rigs of Rods, drawn with DearIMGUI by AngelScript (imgui_car.as).
+; It has no layout file on purpose: the script draws everything (see DashBoardManager::loadDashBoard()).
+; Views: one combined gauge, two gauges (+ boost and tilt) or the full panel; every part can be hidden.
+; Choose it in Settings > UI > Default truck dashboard. Vehicles with their own dashboard keep it.
+
+dashboard_name "ImGui - Car"
+dashboard_description "Built-in car and truck dashboard: one or two gauges with boost and tilt, or a full panel with gearbox, driving aids, lights, tyres and drive; adapts to diesel, petrol and electric engines"
+dashboard_category   201

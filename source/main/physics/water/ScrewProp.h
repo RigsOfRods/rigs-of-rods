@@ -50,6 +50,8 @@ public:
     bool getReverse() { return reverse; }
     void reset();
     void toggleReverse();
+    bool IsEngineOn() const { return m_engine_on; }
+    void SetEngineOn(bool on); //!< Engine switch: no thrust while off; the engine sound stops when all engines of the boat are off
 
     NodeNum_t   GetRefNode()   const { return noderef; };
     NodeNum_t   GetBackNode()  const { return nodeback; };
@@ -64,6 +66,7 @@ private:
     float fullpower; //!< in HP
     float rudder;
     float throtle;
+    bool      m_engine_on = true;
 
     // Attachment
     ActorPtr    m_actor;

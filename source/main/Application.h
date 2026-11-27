@@ -495,6 +495,8 @@ enum CacheCategoryId
     CID_DashboardsTruck = 201,
     CID_DashboardsBoat = 202,
     CID_DashboardsRtt = 203,
+    CID_DashboardsAirplane = 204,
+    CID_DashboardsTrain = 205,
 
     CID_GadgetsGeneric = 300,
     CID_GadgetsActor = 301,
@@ -839,6 +841,8 @@ extern CVar* ui_hide_gui;                  //!< bool; The 'hide GUI' hotkey stat
 extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_legacy_truck_renderdash;   //!< string; name of the '.dashboard' file in modcache.
 extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
+extern CVar* ui_default_airplane_dash;     //!< string; name of the '.dashboard' file in modcache; empty = classic overlay.
+extern CVar* ui_default_train_dash;        //!< string; name of the '.dashboard' file in modcache, for '.train' actors; empty = truck dashboard.
 extern CVar* ui_always_show_fullsize;
 extern CVar* ui_dashboard_cinecam;
 extern CVar* ui_keep_search;

@@ -295,6 +295,31 @@ public:
     EnginePtr                   getEngine() { return ar_engine; }
     //! @}
 
+    /// @name Dashboard helpers (used by AngelScript dashboards, see 'resources/dashboards/imgui_*.as')
+    /// @{
+    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    float             getAircraftWingAOA();                //!< Angle of attack [deg] of the 5th wing (the main wing by convention); 0 without wings.
+    int               getPropAnimKeyState(events ev);      //!< Toggle-prop (with event lock) on the input event: -1 = none, 0 = off, 1 = on.
+    bool              isCommandKeyInUse(int key);          //!< The command key (1 - MAX_COMMANDS) moves beams or rotators.
+    int               getCommandKeyPairCount() { return (int)ar_unique_commandkey_pairs.size(); }
+    std::string       getCommandKeyPairDescription(int index);
+    int               getCommandKeyPairKey1(int index);
+    int               getCommandKeyPairKey2(int index);
+    int               getHookCount() { return (int)ar_hooks.size(); }
+    int               getHookGroup(int index);             //!< Hook group (as in the truck file); -1 = invalid index.
+    int               getHookNode(int index);              //!< Hook node number; -1 = invalid index.
+    int               getHookLockState(int index);         //!< 0 = unlocked, 1 = prelock, 2 = locked; -1 = invalid index.
+    std::string       getHookLockedActorName(int index);
+    bool              getSpeedLimiterEnabled() const { return sl_enabled; }
+    float             getSpeedLimit() const { return sl_speed_limit; } //!< [m/s]
+    int               countBeaconProps();
+    float             getCruiseControlSpeed() const { return cc_target_speed; } //!< [m/s]
+    int               getAxleDiffType();                   //!< Active inter-axle differential (DiffType: 0 = split, 1 = open, 2 = viscous, 3 = locked); -1 = none.
+    int               getWheelDiffType();                  //!< Active inter-wheel differential, same values as getAxleDiffType(); -1 = none.
+    int               getTransferCaseState();              //!< -1 = none; else bit 0 = 4WD, bit 1 = Lo ratio, bit 2 = 2WD/4WD switchable, bit 3 = Hi/Lo switchable.
+    float             getTyrePressurePsi();                //!< [psi]; -1 = no adjustable tyre pressure.
+    //! @}
+
     /// @name Organizational
     /// @{
     // PLEASE maintain the same ordering as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'

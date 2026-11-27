@@ -1718,6 +1718,72 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         break;
     }
 
+    case MSG_SIM_ACTOR_LINKING_REQUESTED:       //!< Payload = RoR::ActorLinkingRequest* (owner)
+    {
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t instance_id = -1;
+        int64_t type = (int64_t)ActorLinkingRequestType::INVALID;
+        // 'type' keeps its enum type in a dictionary initialization list, but `dictionary::set()` stores it as int64 - accept both.
+        if (!GetValueFromScriptDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id) ||
+            !(GetValueFromScriptDict(log_msg, dict, /*required:*/false, "type", "ActorLinkingRequestType", type) ||
+              GetValueFromScriptDict(log_msg, dict, /*required:*/true, "type", "int64", type)))
+        {
+            return false;
+        }
+
+        ActorLinkingRequest* rq = new ActorLinkingRequest();
+        rq->alr_actor_instance_id = static_cast<ActorInstanceID_t>(instance_id);
+        rq->alr_type = static_cast<ActorLinkingRequestType>(type);
+        int64_t group = -1;
+        int64_t mousenode = -1;
+        bool ok = true;
+        switch (rq->alr_type)
+        {
+        case ActorLinkingRequestType::HOOK_LOCK:
+        case ActorLinkingRequestType::HOOK_UNLOCK:
+        case ActorLinkingRequestType::HOOK_TOGGLE:
+            // 'hook_group' is optional, -1 = all groups
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "hook_group", "int64", group);
+            rq->alr_hook_group = static_cast<int>(group);
+            break;
+
+        case ActorLinkingRequestType::HOOK_MOUSE_TOGGLE:
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "hook_group", "int64", group);
+            ok = GetValueFromScriptDict(log_msg, dict, /*required:*/true, "hook_mousenode", "int64", mousenode)
+                 && mousenode >= 0 && mousenode <= (int64_t)NODENUM_MAX;
+            rq->alr_hook_group = static_cast<int>(group);
+            rq->alr_hook_mousenode = static_cast<NodeNum_t>(mousenode);
+            break;
+
+        case ActorLinkingRequestType::TIE_TOGGLE:
+            // 'tie_group' is optional, -1 = all groups
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "tie_group", "int64", group);
+            rq->alr_tie_group = static_cast<int>(group);
+            break;
+
+        case ActorLinkingRequestType::ROPE_TOGGLE:
+            // 'rope_group' is optional, -1 = all groups
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "rope_group", "int64", group);
+            rq->alr_rope_group = static_cast<int>(group);
+            break;
+
+        case ActorLinkingRequestType::SLIDENODE_TOGGLE:
+            break;
+
+        default:
+            this->log(fmt::format("{}: ERROR, 'type' {} is not supported.", log_msg, type));
+            ok = false;
+        }
+
+        if (!ok)
+        {
+            delete rq;
+            return false;
+        }
+        m.payload = rq;
+        break;
+    }
+
     case MSG_SIM_ADD_FREEFORCE_REQUESTED:
     case MSG_SIM_MODIFY_FREEFORCE_REQUESTED:
     {

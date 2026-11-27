@@ -25,4 +25,6 @@ void RoR::RegisterScrewpropNative(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ScrewpropClass", "int getRefNode()", asMETHOD(Screwprop, GetRefNode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ScrewpropClass", "int getBackNode()", asMETHOD(Screwprop, GetBackNode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ScrewpropClass", "int getUpNode()", asMETHOD(Screwprop, GetUpNode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ScrewpropClass", "bool isEngineOn()", asMETHOD(Screwprop, IsEngineOn), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ScrewpropClass", "void setEngineOn(bool)", asMETHOD(Screwprop, SetEngineOn), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

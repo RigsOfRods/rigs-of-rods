@@ -4812,6 +4812,107 @@ ScrewpropPtr Actor::getScrewprop(int index)
     return (index >= 0 && index < ar_num_screwprops) ? ar_screwprops[index] : nullptr;
 }
 
+float Actor::getAircraftWingAOA()
+{
+    return (ar_num_wings > 4 && ar_wings[4].fa) ? ar_wings[4].fa->aoa : 0.f;
+}
+
+int Actor::getPropAnimKeyState(events ev)
+{
+    int result = -1;
+    for (const PropAnimKeyState& state : m_prop_anim_key_states)
+    {
+        if (state.event_id == ev && state.eventlock_present)
+        {
+            result = state.anim_active ? 1 : 0;
+        }
+    }
+    return result;
+}
+
+bool Actor::isCommandKeyInUse(int key)
+{
+    if (key < 1 || key > MAX_COMMANDS)
+        return false;
+    return !ar_command_key[key].beams.empty() || !ar_command_key[key].rotators.empty();
+}
+
+std::string Actor::getCommandKeyPairDescription(int index)
+{
+    return (index >= 0 && index < (int)ar_unique_commandkey_pairs.size()) ? ar_unique_commandkey_pairs[index].uckp_description : "";
+}
+
+int Actor::getCommandKeyPairKey1(int index)
+{
+    return (index >= 0 && index < (int)ar_unique_commandkey_pairs.size()) ? (int)ar_unique_commandkey_pairs[index].uckp_key1 : -1;
+}
+
+int Actor::getCommandKeyPairKey2(int index)
+{
+    return (index >= 0 && index < (int)ar_unique_commandkey_pairs.size()) ? (int)ar_unique_commandkey_pairs[index].uckp_key2 : -1;
+}
+
+int Actor::getHookGroup(int index)
+{
+    return (index >= 0 && index < (int)ar_hooks.size()) ? ar_hooks[index].hk_group : -1;
+}
+
+int Actor::getHookNode(int index)
+{
+    if (index < 0 || index >= (int)ar_hooks.size() || !ar_hooks[index].hk_hook_node)
+        return -1;
+    return (int)ar_hooks[index].hk_hook_node->pos;
+}
+
+int Actor::getHookLockState(int index)
+{
+    return (index >= 0 && index < (int)ar_hooks.size()) ? (int)ar_hooks[index].hk_locked : -1;
+}
+
+std::string Actor::getHookLockedActorName(int index)
+{
+    if (index < 0 || index >= (int)ar_hooks.size() || !ar_hooks[index].hk_locked_actor)
+        return "";
+    return ar_hooks[index].hk_locked_actor->getTruckName();
+}
+
+
+int Actor::countBeaconProps()
+{
+    return m_gfx_actor ? m_gfx_actor->countBeaconProps() : 0;
+}
+
+int Actor::getAxleDiffType()
+{
+    return (m_num_axle_diffs > 0 && m_axle_diffs[0]) ? (int)m_axle_diffs[0]->GetActiveDiffType() : -1;
+}
+
+int Actor::getWheelDiffType()
+{
+    return (m_num_wheel_diffs > 0 && m_wheel_diffs[0]) ? (int)m_wheel_diffs[0]->GetActiveDiffType() : -1;
+}
+
+int Actor::getTransferCaseState()
+{
+    if (!m_transfer_case)
+        return -1;
+    int state = 0;
+    if (m_transfer_case->tr_4wd_mode)
+        state |= 1;
+    if (!m_transfer_case->tr_gear_ratios.empty() && m_transfer_case->tr_gear_ratios[0] > 1.0f)
+        state |= 2;
+    if (m_transfer_case->tr_ax_2 >= 0 && m_transfer_case->tr_2wd)
+        state |= 4;
+    if (m_transfer_case->tr_gear_ratios.size() > 1)
+        state |= 8;
+    return state;
+}
+
+float Actor::getTyrePressurePsi()
+{
+    return m_tyre_pressure.IsEnabled() ? m_tyre_pressure.GetCurPressure() : -1.f;
+}
+
 Replay* Actor::getReplay()
 {
     if (m_replay_handler && m_replay_handler->isValid())
