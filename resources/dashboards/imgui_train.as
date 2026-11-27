@@ -126,8 +126,15 @@ bool ShouldDraw()
     const TruckState st = thisActor.getTruckState();
     if (st != TS_SIMULATED && st != TS_SLEEPING)
         return false;
-    DashBoardManagerClass@ dashboard = thisActor.getDashboardManager();
-    return dashboard !is null && dashboard.getVisible();
+    // This is a control desk, not a gauge: unlike the other dashboards it stays visible in the cab view (cinecam),
+    // where the game hides the screen dashboards. It is hidden only with the whole GUI; the X button closes it.
+    CVarClass@ hide_gui = console.cVarFind("ui_hide_gui");
+    return hide_gui is null || !hide_gui.getBool();
+}
+
+// Required even though it's empty: ScriptEngine::setupScriptUnit() only sets `thisActor` when the script has a `main()`.
+void main()
+{
 }
 
 void frameStep(float dt)
@@ -435,7 +442,11 @@ void DrawCouplings()
         if (lock_state < 0)
             continue;
 
-        const bool front = (thisActor.getHookPosition(i) - center).dotProduct(dir) > 0.f;
+        const int hook_node = thisActor.getHookNode(i);
+        if (hook_node < 0)
+            continue;
+
+        const bool front = (thisActor.getNodePosition(hook_node) - center).dotProduct(dir) > 0.f;
         string state;
         if (lock_state == 2) // LOCKED
         {
@@ -459,7 +470,15 @@ void DrawCouplings()
         ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - btn_w);
         const bool locked = (lock_state != 0);
         if (ColoredButton(locked ? "Uncouple" : "Couple", vector2(btn_w, 0.f), locked ? COL_BTN_RED : COL_BTN_BLUE))
-            thisActor.requestHookToggle(i);
+        {
+            // Same as clicking the hook node with the mouse
+            game.pushMessage(MSG_SIM_ACTOR_LINKING_REQUESTED, {
+                {'instance_id', thisActor.getInstanceId()},
+                {'type', ACTORLINKINGREQUESTTYPE_HOOK_MOUSE_TOGGLE},
+                {'hook_group', thisActor.getHookGroup(i)},
+                {'hook_mousenode', hook_node}
+            });
+        }
         ImGui::PopID();
     }
 }

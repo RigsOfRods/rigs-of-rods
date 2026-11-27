@@ -592,9 +592,14 @@ public:
     int getHookCount();
 
     /**
-     * @return Position of the hook node.
+     * @return Hook group as defined in the truck file; -1 = invalid index.
      */
-    vector3 getHookPosition(int index);
+    int getHookGroup(int index);
+
+    /**
+     * @return Node number of the hook (use with `getNodePosition()` or for 'hook_mousenode' of MSG_SIM_ACTOR_LINKING_REQUESTED); -1 = invalid index.
+     */
+    int getHookNode(int index);
 
     /**
      * @return 0 = unlocked, 1 = prelock, 2 = locked; -1 = invalid index.
@@ -605,11 +610,6 @@ public:
      * @return Name of the vehicle the hook is locked to, or an empty string.
      */
     string getHookLockedActorName(int index);
-
-    /**
-     * Couples/uncouples one hook, like clicking its node with the mouse.
-     */
-    void requestHookToggle(int index);
 
     /**
      * @return True if the speed limiter is active.

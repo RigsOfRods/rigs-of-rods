@@ -4852,11 +4852,16 @@ int Actor::getCommandKeyPairKey2(int index)
     return (index >= 0 && index < (int)ar_unique_commandkey_pairs.size()) ? (int)ar_unique_commandkey_pairs[index].uckp_key2 : -1;
 }
 
-Ogre::Vector3 Actor::getHookPosition(int index)
+int Actor::getHookGroup(int index)
+{
+    return (index >= 0 && index < (int)ar_hooks.size()) ? ar_hooks[index].hk_group : -1;
+}
+
+int Actor::getHookNode(int index)
 {
     if (index < 0 || index >= (int)ar_hooks.size() || !ar_hooks[index].hk_hook_node)
-        return Ogre::Vector3::ZERO;
-    return ar_hooks[index].hk_hook_node->AbsPosition;
+        return -1;
+    return (int)ar_hooks[index].hk_hook_node->pos;
 }
 
 int Actor::getHookLockState(int index)
@@ -4871,17 +4876,6 @@ std::string Actor::getHookLockedActorName(int index)
     return ar_hooks[index].hk_locked_actor->getTruckName();
 }
 
-void Actor::requestHookToggle(int index)
-{
-    if (index < 0 || index >= (int)ar_hooks.size() || !ar_hooks[index].hk_hook_node)
-        return;
-    ActorLinkingRequest* rq = new ActorLinkingRequest();
-    rq->alr_type = ActorLinkingRequestType::HOOK_MOUSE_TOGGLE;
-    rq->alr_actor_instance_id = ar_instance_id;
-    rq->alr_hook_group = ar_hooks[index].hk_group;
-    rq->alr_hook_mousenode = ar_hooks[index].hk_hook_node->pos;
-    App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
-}
 
 int Actor::countBeaconProps()
 {

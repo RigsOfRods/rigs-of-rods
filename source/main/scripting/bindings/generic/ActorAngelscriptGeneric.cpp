@@ -152,10 +152,10 @@ void RoR::RegisterActorGeneric(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairKey1(int)", WRAP_MFN(Actor, getCommandKeyPairKey1), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairKey2(int)", WRAP_MFN(Actor, getCommandKeyPairKey2), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getHookCount()", WRAP_MFN(Actor, getHookCount), asCALL_GENERIC); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "vector3 getHookPosition(int)", WRAP_MFN(Actor, getHookPosition), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getHookGroup(int)", WRAP_MFN(Actor, getHookGroup), asCALL_GENERIC); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getHookNode(int)", WRAP_MFN(Actor, getHookNode), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getHookLockState(int)", WRAP_MFN(Actor, getHookLockState), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "string getHookLockedActorName(int)", WRAP_MFN(Actor, getHookLockedActorName), asCALL_GENERIC); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "void requestHookToggle(int)", WRAP_MFN(Actor, requestHookToggle), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getSpeedLimiterEnabled()", WRAP_MFN(Actor, getSpeedLimiterEnabled), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSpeedLimit()", WRAP_MFN(Actor, getSpeedLimit), asCALL_GENERIC); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int countBeaconProps()", WRAP_MFN(Actor, countBeaconProps), asCALL_GENERIC); ROR_ASSERT(result >= 0);

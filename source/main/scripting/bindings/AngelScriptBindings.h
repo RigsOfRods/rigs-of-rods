@@ -168,7 +168,7 @@ inline void RegisterGenericFileFormat(AngelScript::asIScriptEngine* engine)
     RegisterAngelScriptBinding("GenericFileFormat", engine, &RegisterGenericFileFormatNative, &RegisterGenericFileFormatGeneric);
 }
 
-/// Registers enums MsgType and FreeForceType, defined in MsgQueueAngelscriptCommon.cpp
+/// Registers enums MsgType, FreeForceType and ActorLinkingRequestType, defined in MsgQueueAngelscriptCommon.cpp
 /// NOTE: only enums, nothing depends on calling convention - so there are no native/generic variants.
 void RegisterMessageQueueCommon(AngelScript::asIScriptEngine* engine);
 inline void RegisterMessageQueue(AngelScript::asIScriptEngine* engine)

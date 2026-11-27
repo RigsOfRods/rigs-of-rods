@@ -306,10 +306,10 @@ public:
     int               getCommandKeyPairKey1(int index);
     int               getCommandKeyPairKey2(int index);
     int               getHookCount() { return (int)ar_hooks.size(); }
-    Ogre::Vector3     getHookPosition(int index);          //!< Position of the hook node.
+    int               getHookGroup(int index);             //!< Hook group (as in the truck file); -1 = invalid index.
+    int               getHookNode(int index);              //!< Hook node number; -1 = invalid index.
     int               getHookLockState(int index);         //!< 0 = unlocked, 1 = prelock, 2 = locked; -1 = invalid index.
     std::string       getHookLockedActorName(int index);
-    void              requestHookToggle(int index);        //!< Couples/uncouples one hook, like clicking its node with the mouse.
     bool              getSpeedLimiterEnabled() const { return sl_enabled; }
     float             getSpeedLimit() const { return sl_speed_limit; } //!< [m/s]
     int               countBeaconProps();

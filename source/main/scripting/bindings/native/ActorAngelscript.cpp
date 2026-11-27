@@ -146,10 +146,10 @@ void RoR::RegisterActorNative(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairKey1(int)", asMETHOD(Actor, getCommandKeyPairKey1), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getCommandKeyPairKey2(int)", asMETHOD(Actor, getCommandKeyPairKey2), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getHookCount()", asMETHOD(Actor, getHookCount), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "vector3 getHookPosition(int)", asMETHOD(Actor, getHookPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getHookGroup(int)", asMETHOD(Actor, getHookGroup), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getHookNode(int)", asMETHOD(Actor, getHookNode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getHookLockState(int)", asMETHOD(Actor, getHookLockState), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "string getHookLockedActorName(int)", asMETHOD(Actor, getHookLockedActorName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "void requestHookToggle(int)", asMETHOD(Actor, requestHookToggle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getSpeedLimiterEnabled()", asMETHOD(Actor, getSpeedLimiterEnabled), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSpeedLimit()", asMETHOD(Actor, getSpeedLimit), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int countBeaconProps()", asMETHOD(Actor, countBeaconProps), asCALL_THISCALL); ROR_ASSERT(result >= 0);
