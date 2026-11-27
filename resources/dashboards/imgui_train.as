@@ -66,7 +66,9 @@ float g_train_brake = 0.f;         // 0..1, stays where the player left it
 array<int> g_pulses;               // events released at the start of the next frame
 array<int> g_held;                 // events held by buttons in the previous frame
 array<int> g_held_now;             // events held by buttons in this frame
-bool  g_closed = false;            // the window was closed (for this locomotive)
+float g_pos_x = -1.f, g_pos_y = -1.f; // saved window position, -1 = default place
+bool  g_pos_dirty = false;
+LocalStorageClass@ g_storage;
 float g_scale = 1.f;
 
 bool Contains(const array<int>&in a, int v)
@@ -133,9 +135,48 @@ bool ShouldDraw()
     return hide_gui is null || !hide_gui.getBool();
 }
 
-// Required even though it's empty: ScriptEngine::setupScriptUnit() only sets `thisActor` when the script has a `main()`.
+// Note: older builds set `thisActor` only for scripts that have a `main()`.
 void main()
 {
+    @g_storage = LocalStorageClass("imgui_dashboards");
+    if (g_storage.exists("train_x")) { g_pos_x = g_storage.getFloat("train_x"); g_pos_y = g_storage.getFloat("train_y"); }
+}
+
+void SaveSettings()
+{
+    g_storage.setFloat("train_x", g_pos_x);
+    g_storage.setFloat("train_y", g_pos_y);
+    g_storage.save();
+}
+
+/// The pause menu is open: the panel stays visible but must not take any clicks
+bool IsSimPaused()
+{
+    CVarClass@ st = console.cVarFind("sim_state");
+    return st !is null && st.getInt() == 2; // SimState::PAUSED
+}
+
+/// Place of the window: saved position, kept on the screen
+void SetWindowPlace()
+{
+    if (g_pos_x < 0.f)
+    {
+        ImGui::SetNextWindowPos(vector2(20.f, 200.f), ImGuiCond_FirstUseEver);
+        return;
+    }
+    const vector2 scr = game.getDisplaySize();
+    ImGui::SetNextWindowPos(vector2(clampf(g_pos_x, 0.f, fmax(0.f, scr.x - 60.f)), clampf(g_pos_y, 0.f, fmax(0.f, scr.y - 30.f))), ImGuiCond_Appearing);
+}
+
+/// Remembers where the player moved the window; saved once the mouse is released
+void TrackWindowPlace()
+{
+    const vector2 p = ImGui::GetWindowPos();
+    if (abs(p.x - g_pos_x) > 0.5f || abs(p.y - g_pos_y) > 0.5f)
+    {
+        g_pos_x = p.x; g_pos_y = p.y;
+        g_pos_dirty = true;
+    }
 }
 
 void frameStep(float dt)
@@ -153,22 +194,28 @@ void frameStep(float dt)
         thisActor.resetEventSimulatedValue(inputEvents(g_pulses[i]));
     g_pulses.resize(0);
 
-    if (g_closed)
+    const int pause_flags = IsSimPaused() ? int(ImGuiWindowFlags_NoInputs) : 0;
+    if (g_pos_dirty && !ImGui::IsMouseDown(0))
     {
-        g_throttle = 0.f;
-        g_train_brake = 0.f;
-        ApplyLevers();
-        return;
+        g_pos_dirty = false;
+        SaveSettings();
     }
 
     ApplyLevers();
 
     CVarClass@ ui_scale = console.cVarFind("ui_scale_factor");
     g_scale = (ui_scale !is null) ? ui_scale.getFloat() : 1.f;
-    ImGui::SetNextWindowPos(vector2(20.f, 200.f), ImGuiCond_FirstUseEver);
+    SetWindowPlace();
     bool open = true;
-    if (ImGui::Begin(thisActor.getTruckName() + "###TrainPanel", open, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize))
+    // No title bar: it would come with a close button (the binding always passes `p_open`), and a control desk
+    // must not disappear. The name is shown as the first line; the window is moved by dragging its background.
+    const int flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings
+        | ImGuiWindowFlags_AlwaysAutoResize | pause_flags;
+    if (ImGui::Begin("###TrainPanel", open, flags))
     {
+        TrackWindowPlace();
+        ImGui::Text(thisActor.getTruckName());
+        ImGui::Separator();
         g_held_now.resize(0);
 
         DrawStatus();
@@ -201,14 +248,6 @@ void frameStep(float dt)
         g_held = g_held_now;
     }
     ImGui::End();
-
-    if (!open)
-    {
-        g_closed = true;
-        g_throttle = 0.f;
-        g_train_brake = 0.f;
-        ApplyLevers();
-    }
 }
 
 void DrawStatus()

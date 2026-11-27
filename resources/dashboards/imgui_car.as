@@ -1543,8 +1543,17 @@ void HoldButton(float x, float y, float w, float h, const string&in label, input
 
 // ---- Settings popup ----
 
+/// The pause menu is open: the dashboard stays visible but must not take any clicks
+bool IsSimPaused()
+{
+    CVarClass@ st = console.cVarFind("sim_state");
+    return st !is null && st.getInt() == 2; // SimState::PAUSED
+}
+
 void DrawSettings()
 {
+    if (IsSimPaused())
+        return;
     if (g_open_settings)
     {
         ImGui::OpenPopup("CarDashboardSettings");
@@ -1698,10 +1707,12 @@ void frameStep(float dt)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, vector2(0.f, 0.f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, color(0.f, 0.f, 0.f, 0.f));
-    const int flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
+    int flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
         | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse
         | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing
         | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNav;
+    if (IsSimPaused())
+        flags |= ImGuiWindowFlags_NoInputs;
     const int vi = g_view * EL_COUNT;
     vector2 done_pos(scr.x * 0.5f, 8.f); // 'Done' button while arranging: above (or below) the settings button
     float done_bottom = 8.f;
@@ -1789,8 +1800,10 @@ void DoneButton(const vector2&in pos, float bottom, float k)
         wy = bottom + 6.f * k; // no room above: below the settings button
     ImGui::SetNextWindowPos(vector2(wx, wy), ImGuiCond_Always);
     ImGui::SetNextWindowSize(vector2(w * k, h * k));
-    const int flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
+    int flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
         | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav;
+    if (IsSimPaused())
+        flags |= ImGuiWindowFlags_NoInputs;
     bool window_open = true;
     if (ImGui::Begin("CarDashboard##done", window_open, flags))
     {
